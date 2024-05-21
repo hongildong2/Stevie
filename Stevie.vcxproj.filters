@@ -18,7 +18,9 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="DataStructures.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelMeshPart.h" />
+    <ClInclude Include="GraphicsCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -27,7 +29,9 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="DataStructures.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelMeshPart.cpp" />
+    <ClCompile Include="GraphicsCommon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

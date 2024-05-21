@@ -6,7 +6,6 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
-#include "DataStructures.h"
 
 
 // A basic game implementation that creates a D3D11 device and
@@ -64,20 +63,5 @@ private:
 
 
 	// temp
-	MeshData m_sphere;
-	UINT m_stride;
-	UINT m_offset;
-	UINT m_index_count;
-	UINT m_vertex_count;
-
-	ID3D11Buffer* m_vertexBuffer;
-	ID3D11Buffer* m_indexBuffer;
-	ID3D11Buffer* m_constantBuffer;
-
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterState;
-
-	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader;
-
+	std::vector<Model> m_models;
 };
