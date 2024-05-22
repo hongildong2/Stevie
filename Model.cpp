@@ -45,6 +45,7 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 
 	Utility::DXResource::UpdateConstantBuffer(m_VSConstantsCPU, context, m_VSConstantsBufferGPU);
 
+	// MVP는 VS 0번에 고정, 이걸 어디다 기록해야하지?
 	context->VSSetConstantBuffers(0, 1, m_VSConstantsBufferGPU.GetAddressOf());
 }
 

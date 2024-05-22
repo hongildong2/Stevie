@@ -8,7 +8,45 @@
 #include "StepTimer.h"
 #include "Camera.h"
 
+// ¿œ¥‹..
+struct Light
+{
+	DirectX::SimpleMath::Vector3 strength = DirectX::SimpleMath::Vector3(1.0f);              // 12
+	float fallOffStart = 0.0f;                     // 4
+	DirectX::SimpleMath::Vector3 direction = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f); // 12
+	float fallOffEnd = 10.0f;                      // 4
+	DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, -2.0f); // 12
+	float spotPower = 100.0f;                        // 4
+};
+struct Material
+{
+	DirectX::SimpleMath::Vector3 ambient = DirectX::SimpleMath::Vector3(0.0f);  // 12
+	float shininess = 0.01f;           // 4
+	DirectX::SimpleMath::Vector3 diffuse = DirectX::SimpleMath::Vector3(0.0f);  // 12
+	float dummy1;                     // 4
+	DirectX::SimpleMath::Vector3 specular = DirectX::SimpleMath::Vector3(1.0f); // 12
+	float dummy2;                     // 4
+	DirectX::SimpleMath::Vector3 fresnelR0 = DirectX::SimpleMath::Vector3(1.0f, 0.71f, 0.29f); // Gold
+	float dummy3;
+};
 
+struct PSConstants
+{
+	DirectX::SimpleMath::Vector3 eyeWorld;         // 12
+	bool useTexture;          // 4
+	Material material;        // 48
+	DirectX::SimpleMath::Vector3 rimColor = DirectX::SimpleMath::Vector3(1.0f);
+	float rimPower;
+	float rimStrength = 0.0f;
+	bool useSmoothstep = false;
+	float dummy[2];
+};
+struct LightConstants
+{
+	Light dirLight;
+	Light pointLight;
+	Light spotLight;
+};
 
 
 
@@ -68,7 +106,14 @@ private:
 
 	// Scene
 	std::vector<Model> m_models;
-	Camera m_Camera;
+	Camera m_camera;
 
+	PSConstants m_PSConstantsCPU;
+	LightConstants m_lightsConstantsCPU;
 
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsConstantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_PSConstantBuffer;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView;
+	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture;
 };

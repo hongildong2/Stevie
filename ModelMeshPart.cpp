@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "ModelMeshPart.h"
 
-
 namespace GeometryGenerator
 {
-	MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks, const DirectX::SimpleMath::Vector2 textureScale)
+	MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks)
 	{
 		const float dTheta = -DirectX::XM_2PI / float(numSlices);
 		const float dPhi = -DirectX::XM_PI / float(numStacks);
@@ -27,7 +26,7 @@ namespace GeometryGenerator
 
 				v.normalModel = v.position;
 				v.normalModel.Normalize();
-				v.textureCoordination = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.f - float(j) / numStacks) * textureScale;
+				v.textureCoordination = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.f - float(j) / numStacks);
 
 				DirectX::SimpleMath::Vector3 biTangent = DirectX::SimpleMath::Vector3(0.f, 1.f, 0.f);
 

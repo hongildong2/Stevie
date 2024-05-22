@@ -7,8 +7,8 @@ namespace Graphics
 {
 
 	// Samplers
-	// extern ComPtr<ID3D11SamplerState> linearWrapSS;
-	// extern ComPtr<ID3D11SamplerState> linearClampSS;
+	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
+	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
 	// extern ComPtr<ID3D11SamplerState> pointClampSS;
 	// extern ComPtr<ID3D11SamplerState> pointWrapSS;
 
@@ -32,7 +32,7 @@ namespace Graphics
 	void InitCommonStates(ID3D11Device1* device);
 
 	// 내부적으로 InitCommonStates()에서 사용
-	// void InitSamplers(ComPtr<ID3D11Device>& device);
+	void InitSamplers(Microsoft::WRL::ComPtr<ID3D11Device1> device);
 	void InitRasterizerStates(ID3D11Device1* device);
 	// void InitBlendStates(ComPtr<ID3D11Device>& device);
 	// void InitDepthStencilStates(ComPtr<ID3D11Device>& device);

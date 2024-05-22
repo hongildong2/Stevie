@@ -31,7 +31,7 @@ namespace GeometryGenerator
 	/*
 	* reference : honglab introduction to graphics course
 	*/
-	MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks, const DirectX::SimpleMath::Vector2 textureScale);
+	MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks);
 }
 
 

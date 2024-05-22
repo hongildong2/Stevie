@@ -7,6 +7,9 @@
 
 namespace Graphics
 {
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
+
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
@@ -107,9 +110,34 @@ namespace Graphics
 		device->CreateRasterizerState(&rastDesc, basicRS.GetAddressOf());
 	}
 
+	void InitSamplers(Microsoft::WRL::ComPtr<ID3D11Device1> device)
+	{
+		D3D11_SAMPLER_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		desc.MinLOD = 0;
+		desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		HRESULT hr = device->CreateSamplerState(&desc, &linearWrapSS);
+		DX::ThrowIfFailed(hr);
+
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		hr = device->CreateSamplerState(&desc, &linearClampSS);
+
+		DX::ThrowIfFailed(hr);
+
+	}
 
 	void InitCommonStates(ID3D11Device1* device)
 	{
+		InitSamplers(device);
+
 		InitShaders(device);
 
 		InitRasterizerStates(device);

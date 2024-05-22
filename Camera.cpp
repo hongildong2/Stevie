@@ -10,3 +10,8 @@ DirectX::SimpleMath::Matrix Camera::GetViewMatrix() const
 {
 	return DirectX::SimpleMath::Matrix::CreateLookAt(m_EyePos, m_ViewDir, m_UpVector);
 }
+
+DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
+{
+	return m_EyePos;
+}
