@@ -20,8 +20,8 @@ public:
 	Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition, Microsoft::WRL::ComPtr<ID3D11Device1> device);
 
 	// ㄱㄴ?
-	~Model() = default;
-	Model& operator=(const Model& other) = default;
+	~Model() = default; // 구현해야돼...
+	Model& operator=(const Model& other) = delete;
 
 	// TODO : PSO로 바꾸기
 	// TODO : MVP Matrix 정보 Actor로 나중에 옮기기

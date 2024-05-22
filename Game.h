@@ -57,7 +57,7 @@ class Game final : public DX::IDeviceNotify
 public:
 
 	Game() noexcept(false);
-	~Game() = default;
+	~Game() = default; // TODO : destroy cubemap
 
 	Game(Game&&) = default;
 	Game& operator= (Game&&) = default;
@@ -107,6 +107,7 @@ private:
 	// Scene
 	std::vector<Model> m_models;
 	Camera m_camera;
+	std::unique_ptr<Model> m_cubeMap;
 
 	PSConstants m_PSConstantsCPU;
 	LightConstants m_lightsConstantsCPU;
@@ -116,4 +117,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView;
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapTextureView;
+	Microsoft::WRL::ComPtr<ID3D11Resource> m_cubemapTexture;
 };

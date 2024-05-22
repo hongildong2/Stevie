@@ -32,6 +32,7 @@ Game::Game() noexcept(false)
 	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
 	m_camera = Camera(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
+	m_cubeMap = nullptr;
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
@@ -116,15 +117,27 @@ void Game::Render()
 	// Scene.Draw()
 	{
 
+		// cubemap PS VS
+		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, projectionMatrix);
+		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
+
+		// 텍스쳐도 모델마다...
+		ID3D11Buffer* buffers[] = { m_lightsConstantBuffer.Get(), m_PSConstantBuffer.Get() };
+		context->PSSetConstantBuffers(1, 2, buffers);
+
+		ID3D11ShaderResourceView* resources[] = { m_cubemapTextureView.Get(), m_textureView.Get() };
+		context->PSSetShaderResources(0, 2, resources);
+
+		m_cubeMap->Draw(context);
 		for (Model& model : m_models)
 		{
 
 			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, projectionMatrix);
 
-			ID3D11Buffer* buffers[] = { m_lightsConstantBuffer.Get(), m_PSConstantBuffer.Get() };
-			context->PSSetConstantBuffers(1, 2, buffers);
-			context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
-			context->PSSetShaderResources(0, 1, m_textureView.GetAddressOf());
+			// PSConstantbuffer는 모델에 종속적이어야하지 않나
+
+
+			//점점 관리가 안되는느낌
 			model.Draw(context);
 		}
 	}
@@ -223,6 +236,13 @@ void Game::CreateDeviceDependentResources()
 
 	// Init Assets
 	{
+		// cubemap Init
+		MeshData cube = GeometryGenerator::MakeBox(20.f);
+		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해
+		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
+		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
+		m_cubeMap = std::unique_ptr<Model>(new Model("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f), device));
+
 		MeshData sphere = GeometryGenerator::MakeSphere(1.f, 100, 100);
 		ModelMeshPart mesh = ModelMeshPart(sphere, device);
 		std::vector<ModelMeshPart> meshes = { mesh };
@@ -241,7 +261,7 @@ void Game::CreateDeviceDependentResources()
 			CreateWICTextureFromFile(device, L"earth.bmp", m_texture.GetAddressOf(),
 				m_textureView.ReleaseAndGetAddressOf()));
 
-		// CreateDDSTextureFromFile;
+		DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"skybox.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false), m_cubemapTexture.GetAddressOf(), m_cubemapTextureView.ReleaseAndGetAddressOf(), nullptr));
 	}
 }
 

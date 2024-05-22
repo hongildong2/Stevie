@@ -20,7 +20,6 @@ Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::Simp
 	Utility::DXResource::CreateConstantBuffer(m_VSConstantsCPU, device, m_VSConstantsBufferGPU);
 }
 
-
 void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState,
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout,

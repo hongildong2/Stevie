@@ -20,8 +20,10 @@ namespace Graphics
 
 	// Shaders
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
+	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
+	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;

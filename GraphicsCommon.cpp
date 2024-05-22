@@ -13,8 +13,10 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
 
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	// https://learn.microsoft.com/ko-kr/windows/win32/direct3d11/how-to--compile-a-shader
@@ -30,11 +32,11 @@ namespace Graphics
 		flags |= D3DCOMPILE_DEBUG;
 #endif
 
-		const D3D_SHADER_MACRO defines[] =
-		{
-			"EXAMPLE_DEFINE", "1",
-			NULL, NULL
-		};
+		//const D3D_SHADER_MACRO defines[] =
+		//{
+		//	"EXAMPLE_DEFINE", "1",
+		//	NULL, NULL
+		//};
 
 		ID3DBlob* shaderBlob = nullptr;
 		ID3DBlob* errorBlob = nullptr;
@@ -62,7 +64,7 @@ namespace Graphics
 
 	void InitShaders(ID3D11Device1* device)
 	{
-		// Basic Vertex Shader
+		// Vertex Shaders
 		{
 			Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 			HRESULT hr = CompileShader(L"VertexShader.hlsl", "main", "vs_5_0", &shaderBlob);
@@ -82,10 +84,16 @@ namespace Graphics
 			static_assert((sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 4, "Basic Vertex Input Layout Size");
 
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicVS);
+
+			// cubemapVS
+			hr = CompileShader(L"cubemapVS.hlsl", "main", "vs_5_0", &shaderBlob);
+			DX::ThrowIfFailed(hr);
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapVS);
+
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &basicIL);
 		}
 
-		// Basic Pixel Shader
+		// Pixel Shaders
 		{
 			Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 			HRESULT hr = CompileShader(L"PixelShader.hlsl", "main", "ps_5_0", &shaderBlob);
@@ -93,6 +101,9 @@ namespace Graphics
 			DX::ThrowIfFailed(hr);
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicPS);
 
+			hr = CompileShader(L"cubemapPS.hlsl", "main", "ps_5_0", &shaderBlob);
+			DX::ThrowIfFailed(hr);
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapPS);
 		}
 	}
 
