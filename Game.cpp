@@ -16,6 +16,8 @@ extern void ExitGame() noexcept;
 using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;
+using DirectX::SimpleMath::Vector3;
+using DirectX::SimpleMath::Matrix;
 
 Game::Game() noexcept(false)
 {
@@ -23,6 +25,7 @@ Game::Game() noexcept(false)
 	// TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
 	//   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
 	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
+	m_Camera = Camera(DirectX::SimpleMath::Vector3(0.f, 0.2f, -10.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
 	m_deviceResources->RegisterDeviceNotify(this);
 }
@@ -38,9 +41,6 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_deviceResources->CreateWindowSizeDependentResources();
 	CreateWindowSizeDependentResources();
-
-
-
 
 
 
@@ -87,13 +87,17 @@ void Game::Render()
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
+	auto projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PIDIV4,
+		float(1920) / float(1080), 0.01f, 100.f);
 
-
+	// 에라모르겠다
+	auto viewMatrix = m_Camera.GetViewMatrix();
 	// Draw Scene
 	{
 		for (Model& model : m_models)
 		{
-			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix());
+
+			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, projectionMatrix);
 			model.Draw(context);
 		}
 	}
@@ -195,7 +199,7 @@ void Game::CreateDeviceDependentResources()
 		MeshData sphere = GeometryGenerator::MakeSphere(1, 5, 5, DirectX::SimpleMath::Vector2(1.f, 1.f));
 		ModelMeshPart mesh = ModelMeshPart(sphere, device);
 		std::vector<ModelMeshPart> meshes = { mesh };
-		m_models.push_back(Model("BASIC SPHERE", meshes));
+		m_models.push_back(Model("BASIC SPHERE", meshes, DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f), device));
 	}
 
 }

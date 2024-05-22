@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Model.h"
+#include "Utility.h"
 
-Model::Model(const char* name, std::vector<ModelMeshPart>& meshes) : m_name(name)
+Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition, Microsoft::WRL::ComPtr<ID3D11Device1> device) : m_name(name), m_WorldPosition(worldPosition)
 {
 	m_meshes.reserve(50);
 
@@ -9,6 +10,14 @@ Model::Model(const char* name, std::vector<ModelMeshPart>& meshes) : m_name(name
 	{
 		m_meshes.push_back(mesh);
 	}
+
+
+	m_VSConstantsCPU.projMatrix = DirectX::SimpleMath::Matrix();
+	m_VSConstantsCPU.viewMatrix = DirectX::SimpleMath::Matrix();
+	m_VSConstantsCPU.worldMatrix = DirectX::SimpleMath::Matrix();
+	m_VSConstantsCPU.worldMatrixIT = DirectX::SimpleMath::Matrix();
+
+	Utility::DXResource::CreateConstantBuffer(m_VSConstantsCPU, device, m_VSConstantsBufferGPU);
 }
 
 
@@ -17,7 +26,7 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout,
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader,
-	DirectX::SimpleMath::Matrix viewMatrix, DirectX::SimpleMath::Matrix projMatrix) const
+	const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix)
 {
 	assert(rasterState != nullptr && inputLayout != nullptr && vertexShader != nullptr && pixelShader != nullptr);
 	context->IASetInputLayout(inputLayout.Get());
@@ -28,8 +37,15 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	context->RSSetState(rasterState.Get());
 
 
-	// set VS, PS const buffer, VP buffer
-	// 상수버퍼는 모델용 버퍼, 월드용 버퍼 나눠서 쓰면 안헷갈림
+	// TODO : View, Proj는 다른 상수버퍼로 분리
+	m_VSConstantsCPU.viewMatrix = viewMatrix.Transpose();
+	m_VSConstantsCPU.projMatrix = projMatrix.Transpose();
+	m_VSConstantsCPU.worldMatrix = GetWorldMatrix().Transpose();
+	m_VSConstantsCPU.worldMatrixIT = m_VSConstantsCPU.worldMatrix.Invert().Transpose();
+
+	Utility::DXResource::UpdateConstantBuffer(m_VSConstantsCPU, context, m_VSConstantsBufferGPU);
+
+	context->VSSetConstantBuffers(0, 1, m_VSConstantsBufferGPU.GetAddressOf());
 }
 
 // Expecting PrepareForRendering has done
@@ -44,4 +60,9 @@ void Model::Draw(ID3D11DeviceContext1* context)
 void Model::Update()
 {
 
+}
+
+DirectX::SimpleMath::Matrix Model::GetWorldMatrix() const
+{
+	return DirectX::SimpleMath::Matrix::CreateTranslation(m_WorldPosition);
 }

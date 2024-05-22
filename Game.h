@@ -6,6 +6,10 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "Camera.h"
+
+
+
 
 
 // A basic game implementation that creates a D3D11 device and
@@ -62,6 +66,9 @@ private:
 	DX::StepTimer                           m_timer;
 
 
-	// temp
+	// Scene
 	std::vector<Model> m_models;
+	Camera m_Camera;
+
+
 };

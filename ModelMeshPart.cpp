@@ -59,6 +59,7 @@ namespace GeometryGenerator
 	}
 }
 
+// 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
 ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 {
 	m_VertexStride = sizeof(Vertex);
@@ -101,8 +102,6 @@ ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 
 	hr = device->CreateBuffer(&bufferDesc, &InitData, &m_IndexBuffer);
 	DX::ThrowIfFailed(hr);
-
-
 }
 
 ModelMeshPart::ModelMeshPart(const ModelMeshPart& other)

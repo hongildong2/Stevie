@@ -44,8 +44,6 @@ public:
 	void Draw(ID3D11DeviceContext1* context) const;
 
 private:
-	// TODO : Constants,  ConstantBuffer
-
 	UINT m_VertexStride;
 	UINT m_VertexOffset;
 	UINT m_IndexCount;
