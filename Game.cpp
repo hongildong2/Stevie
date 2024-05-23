@@ -1,13 +1,13 @@
 //
 // Game.cpp
 //
-#include <string>
-#include <iostream>
-#include <vector>
 
 #include "pch.h"
 #include "Game.h"
 
+#include <string>
+#include <iostream>
+#include <vector>
 #include "Model.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"
@@ -19,15 +19,17 @@ using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
+using DirectX::SimpleMath::Quaternion;
 
-
-Game::Game() noexcept(false)
+Game::Game() noexcept(false) :
+	m_pitch(0),
+	m_yaw(0)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	// TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
 	//   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
 	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
-	m_camera = Camera(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
+	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
 	m_cubeMap = nullptr;
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -54,11 +56,38 @@ void Game::Initialize(HWND window, int width, int height)
 	CreateWindowSizeDependentResources();
 
 
+	// GUI Init
+	{
+		auto* device = m_deviceResources->GetD3DDevice();
+		auto* context = m_deviceResources->GetD3DDeviceContext();
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		(void)io;
+		io.DisplaySize = ImVec2(float(width), float(height));
+		ImGui::StyleColorsLight();
+
+		// Setup Platform/Renderer backends
+		if (!ImGui_ImplDX11_Init(device, context))
+		{
+			ExitGame();
+		}
+
+		if (!ImGui_ImplWin32_Init(window))
+		{
+			ExitGame();
+		}
+	}
+
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
 	m_timer.SetFixedTimeStep(true);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
+
+	m_keyboard = std::make_unique<Keyboard>();
+	m_mouse = std::make_unique<Mouse>();
+	m_mouse->SetWindow(window);
 }
 
 #pragma region Frame Update
@@ -72,13 +101,122 @@ void Game::Tick()
 
 	Render();
 }
+void Game::UpdateGUI()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+
+	ImGui::NewFrame();
+	ImGui::Begin("Scene Control");
+
+	ImGui::Text("Average %.3f ms/frame (%.1f FPS)",
+		1000.0f / ImGui::GetIO().Framerate,
+		ImGui::GetIO().Framerate);
+
+	// GUI Controllers
+	{
+		ImGui::SetNextItemOpen(false, ImGuiCond_Once);
+	}
+
+	ImGui::End();
+	ImGui::Render();
+}
 
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 
-	// TODO: Add your game logic here.
+	UpdateGUI();
+
+	// Update Control, CleanUp later
+	{
+		auto mouse = m_mouse->GetState();
+		m_mouseButtons.Update(mouse);
+
+		if (mouse.positionMode == Mouse::MODE_RELATIVE)
+		{
+			Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
+				* Camera::ROTATION_GAIN;
+
+			m_pitch -= delta.y;
+			m_yaw -= delta.x;
+
+		}
+
+		m_mouse->SetMode(mouse.leftButton
+			? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+		auto kb = m_keyboard->GetState();
+		m_keys.Update(kb);
+		if (kb.Escape)
+		{
+			ExitGame();
+		}
+
+		if (kb.Home)
+		{
+			m_camera->Reset();
+			m_pitch = m_yaw = 0;
+		}
+
+		Vector3 move = Vector3::Zero;
+
+		if (kb.PageUp || kb.Q)
+			move.y += 1.f;
+
+		if (kb.PageDown || kb.E)
+			move.y -= 1.f;
+
+		if (kb.Left || kb.A)
+			move.x += 1.f;
+
+		if (kb.Right || kb.D)
+			move.x -= 1.f;
+
+		if (kb.Up || kb.W)
+			move.z += 1.f;
+
+		if (kb.Down || kb.S)
+			move.z -= 1.f;
+
+		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
+
+		move = Vector3::Transform(move, q);
+
+		move *= Camera::MOVEMENT_GAIN;
+
+		m_camera->UpdatePosBy(move);
+
+		// no bound currently
+		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))
+		//	- Vector3(0.1f, 0.1f, 0.1f);
+
+		//m_cameraPos = Vector3::Min(m_cameraPos, halfBound);
+		//m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
+
+		// MOUSE : limit pitch to straight up or straight down
+		constexpr float limit = XM_PIDIV2 - 0.01f;
+		m_pitch = std::max(-limit, m_pitch);
+		m_pitch = std::min(+limit, m_pitch);
+
+		// keep longitude in sane range by wrapping
+		if (m_yaw > XM_PI)
+		{
+			m_yaw -= XM_2PI;
+		}
+		else if (m_yaw < -XM_PI)
+		{
+			m_yaw += XM_2PI;
+		}
+
+		float y = sinf(m_pitch);
+		float r = cosf(m_pitch);
+		float z = r * cosf(m_yaw);
+		float x = r * sinf(m_yaw);
+		m_camera->UpdateLookAtBy(Vector3(x, y, z));
+	}
+
 
 	// Scene.Update() : Update light and etc. CPU info
 	{
@@ -104,10 +242,8 @@ void Game::Render()
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
-	RECT screenSize = m_deviceResources->GetOutputSize();
-	auto projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PIDIV4,
-		float(screenSize.right) / float(screenSize.bottom), 0.01f, 100.f);
-	auto viewMatrix = m_camera.GetViewMatrix();
+
+	auto viewMatrix = m_camera->GetViewMatrix();
 
 
 	// Scene.Draw()
@@ -116,23 +252,23 @@ void Game::Render()
 		Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
 		context->PSSetConstantBuffers(1, 1, m_lightsConstantBuffer.GetAddressOf());
 
-		const Vector3 eyePos = m_camera.GetEyePos(); // 지금은 이것만
+		const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
 
 		// 큐브맵 먼저 렌더
-		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, projectionMatrix, eyePos);
+		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, m_proj, eyePos);
 		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
 		m_cubeMap->Draw(context);
 
 
 		for (Model& model : m_models)
 		{
-			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, projectionMatrix, eyePos);
+			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, m_proj, eyePos);
 			model.Draw(context);
 		}
 	}
 
 
-
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	m_deviceResources->PIXEndEvent();
 
 	// Show the new frame.
@@ -166,6 +302,8 @@ void Game::Clear()
 void Game::OnActivated()
 {
 	// TODO: Game is becoming active window.
+	m_keys.Reset();
+	m_mouseButtons.Reset();
 }
 
 void Game::OnDeactivated()
@@ -181,7 +319,8 @@ void Game::OnSuspending()
 void Game::OnResuming()
 {
 	m_timer.ResetElapsedTime();
-
+	m_keys.Reset();
+	m_mouseButtons.Reset();
 	// TODO: Game is being power-resumed (or returning from minimize).
 }
 
@@ -221,10 +360,12 @@ void Game::CreateDeviceDependentResources()
 {
 	auto device = m_deviceResources->GetD3DDevice();
 
+
 	Graphics::InitCommonStates(device);
 
-	// Texture
 
+
+	// Texture
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView;
 	DX::ThrowIfFailed(
 		CreateWICTextureFromFile(device, L"earth.bmp", nullptr,
@@ -237,7 +378,7 @@ void Game::CreateDeviceDependentResources()
 	{
 		// cubemap Init
 		MeshData cube = GeometryGenerator::MakeBox(20.f);
-		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해
+		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해 또는 래스터라이저 설정 바꿔주기
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
 		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
 		m_cubeMap = std::make_unique<Model>("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f));
@@ -258,6 +399,10 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
+	auto size = m_deviceResources->GetOutputSize();
+	m_proj = Matrix::CreatePerspectiveFieldOfView(
+		XMConvertToRadians(90.f),
+		float(size.right) / float(size.bottom), 0.1f, 100.f);
 	// TODO: Initialize windows-size dependent objects here.
 }
 

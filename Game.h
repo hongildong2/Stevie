@@ -7,6 +7,9 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "Camera.h"
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_win32.h>
 
 // ¿œ¥‹..
 struct Light
@@ -67,7 +70,9 @@ public:
 
 private:
 
+
 	void Update(DX::StepTimer const& timer);
+	void UpdateGUI();
 	void Render();
 
 	void Clear();
@@ -81,10 +86,21 @@ private:
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;
 
+	// control
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;
+	std::unique_ptr<DirectX::Mouse> m_mouse;
+	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
+	DirectX::Keyboard::KeyboardStateTracker m_keys;
+	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
+
+	float m_pitch;
+	float m_yaw;
 
 	// Scene
 	std::vector<Model> m_models;
-	Camera m_camera;
+	std::unique_ptr<Camera> m_camera;
+	DirectX::SimpleMath::Matrix m_proj;
+
 	std::unique_ptr<Model> m_cubeMap;
 
 	LightConstants m_lightsConstantsCPU;
