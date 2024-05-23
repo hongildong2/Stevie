@@ -12,9 +12,6 @@
 #include "GraphicsCommon.h"
 #include "Utility.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
@@ -82,6 +79,12 @@ void Game::Update(DX::StepTimer const& timer)
 	float elapsedTime = float(timer.GetElapsedSeconds());
 
 	// TODO: Add your game logic here.
+
+	// Scene.Update() : Update light and etc. CPU info
+	{
+
+	}
+
 	elapsedTime;
 }
 #pragma endregion
@@ -106,38 +109,24 @@ void Game::Render()
 		float(screenSize.right) / float(screenSize.bottom), 0.01f, 100.f);
 	auto viewMatrix = m_camera.GetViewMatrix();
 
-	// Update Constant Buffer, CPU -> GPU
-	{
-		// 지금은 필요없음
-		// Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
-		m_PSConstantsCPU.eyeWorld = m_camera.GetEyePos(); // 지금은 이것만
-		Utility::DXResource::UpdateConstantBuffer(m_PSConstantsCPU, context, m_PSConstantBuffer);
-	}
 
 	// Scene.Draw()
 	{
+		// Light.Draw()
+		Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
+		context->PSSetConstantBuffers(1, 1, m_lightsConstantBuffer.GetAddressOf());
 
-		// cubemap PS VS
-		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, projectionMatrix);
+		const Vector3 eyePos = m_camera.GetEyePos(); // 지금은 이것만
+
+		// 큐브맵 먼저 렌더
+		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, projectionMatrix, eyePos);
 		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
-
-		// 텍스쳐도 모델마다...
-		ID3D11Buffer* buffers[] = { m_lightsConstantBuffer.Get(), m_PSConstantBuffer.Get() };
-		context->PSSetConstantBuffers(1, 2, buffers);
-
-		ID3D11ShaderResourceView* resources[] = { m_cubemapTextureView.Get(), m_textureView.Get() };
-		context->PSSetShaderResources(0, 2, resources);
-
 		m_cubeMap->Draw(context);
+
+
 		for (Model& model : m_models)
 		{
-
-			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, projectionMatrix);
-
-			// PSConstantbuffer는 모델에 종속적이어야하지 않나
-
-
-			//점점 관리가 안되는느낌
+			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, projectionMatrix, eyePos);
 			model.Draw(context);
 		}
 	}
@@ -234,6 +223,16 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 
+	// Texture
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView;
+	DX::ThrowIfFailed(
+		CreateWICTextureFromFile(device, L"earth.bmp", nullptr,
+			textureView.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"skybox.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false), m_cubemapTexture.GetAddressOf(), m_cubemapTextureView.ReleaseAndGetAddressOf(), nullptr));
+
+
 	// Init Assets
 	{
 		// cubemap Init
@@ -241,28 +240,19 @@ void Game::CreateDeviceDependentResources()
 		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
 		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
-		m_cubeMap = std::unique_ptr<Model>(new Model("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f), device));
+		m_cubeMap = std::unique_ptr<Model>(new Model("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f)));
+		m_cubeMap->Initialize(device, m_cubemapTextureView);
 
-		MeshData sphere = GeometryGenerator::MakeSphere(1.f, 100, 100);
-		ModelMeshPart mesh = ModelMeshPart(sphere, device);
+
+		MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
+		ModelMeshPart mesh = ModelMeshPart(sphereMesh, device);
 		std::vector<ModelMeshPart> meshes = { mesh };
-		m_models.push_back(Model("BASIC SPHERE", meshes, DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f), device));
+		Model&& sphereModel = Model("BASIC SPHERE", meshes, DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
+		sphereModel.Initialize(device, textureView);
+		m_models.push_back(sphereModel);
 	}
-
-	m_PSConstantsCPU.useTexture = true;
-	m_PSConstantsCPU.eyeWorld = m_camera.GetEyePos();
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);
-	Utility::DXResource::CreateConstantBuffer(m_PSConstantsCPU, device, m_PSConstantBuffer);
-
-	// Texture
-	{
-		DX::ThrowIfFailed(
-			CreateWICTextureFromFile(device, L"earth.bmp", m_texture.GetAddressOf(),
-				m_textureView.ReleaseAndGetAddressOf()));
-
-		DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"skybox.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false), m_cubemapTexture.GetAddressOf(), m_cubemapTextureView.ReleaseAndGetAddressOf(), nullptr));
-	}
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.

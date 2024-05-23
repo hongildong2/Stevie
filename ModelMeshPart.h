@@ -46,13 +46,13 @@ public:
 	void Draw(ID3D11DeviceContext1* context) const;
 
 private:
-	UINT m_VertexStride;
-	UINT m_VertexOffset;
-	UINT m_IndexCount;
-	D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology;
-	DXGI_FORMAT m_IndexFormat;
+	UINT m_vertexStride;
+	UINT m_vertexOffset;
+	UINT m_indexCount;
+	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
+	DXGI_FORMAT m_indexFormat;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_IndexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
 };
 

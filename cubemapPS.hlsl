@@ -9,7 +9,6 @@ struct PixelShaderInput
 };
 
 TextureCube cubeMap : register(t0);
-Texture2D albedo : register(t1);
 
 SamplerState linearSampler : register(s0);
 

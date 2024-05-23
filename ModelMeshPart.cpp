@@ -257,12 +257,12 @@ namespace GeometryGenerator
 // 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
 ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 {
-	m_VertexStride = sizeof(Vertex);
-	m_VertexOffset = 0;
+	m_vertexStride = sizeof(Vertex);
+	m_vertexOffset = 0;
 
-	m_PrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	m_IndexFormat = DXGI_FORMAT_R32_UINT;
-	m_IndexCount = static_cast<UINT>(mesh.indicies.size());
+	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_indexFormat = DXGI_FORMAT_R32_UINT;
+	m_indexCount = static_cast<UINT>(mesh.indicies.size());
 	// init vertex buffer
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
@@ -279,7 +279,7 @@ ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0; // 사이즈 보정용?
 
-	HRESULT hr = device->CreateBuffer(&bufferDesc, &InitData, &m_VertexBuffer);
+	HRESULT hr = device->CreateBuffer(&bufferDesc, &InitData, &m_vertexBuffer);
 	DX::ThrowIfFailed(hr);
 
 	// index buffer
@@ -295,29 +295,29 @@ ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0; // 사이즈 보정용?
 
-	hr = device->CreateBuffer(&bufferDesc, &InitData, &m_IndexBuffer);
+	hr = device->CreateBuffer(&bufferDesc, &InitData, &m_indexBuffer);
 	DX::ThrowIfFailed(hr);
 }
 
 ModelMeshPart::ModelMeshPart(const ModelMeshPart& other)
 {
-	m_VertexStride = other.m_VertexStride;
-	m_VertexOffset = other.m_VertexOffset;
-	m_IndexCount = other.m_IndexCount;
-	m_PrimitiveTopology = other.m_PrimitiveTopology;
-	m_IndexFormat = other.m_IndexFormat;
+	m_vertexStride = other.m_vertexStride;
+	m_vertexOffset = other.m_vertexOffset;
+	m_indexCount = other.m_indexCount;
+	m_primitiveTopology = other.m_primitiveTopology;
+	m_indexFormat = other.m_indexFormat;
 
-	m_VertexBuffer = other.m_VertexBuffer.Get();
-	m_IndexBuffer = other.m_IndexBuffer.Get();
+	m_vertexBuffer = other.m_vertexBuffer.Get();
+	m_indexBuffer = other.m_indexBuffer.Get();
 
 }
 
 void ModelMeshPart::Draw(ID3D11DeviceContext1* context) const
 {
-	context->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &m_VertexStride, &m_VertexOffset);
-	context->IASetIndexBuffer(m_IndexBuffer.Get(), m_IndexFormat, 0);
+	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_vertexStride, &m_vertexOffset);
+	context->IASetIndexBuffer(m_indexBuffer.Get(), m_indexFormat, 0);
 
-	context->IASetPrimitiveTopology(m_PrimitiveTopology);
+	context->IASetPrimitiveTopology(m_primitiveTopology);
 
-	context->DrawIndexed(m_IndexCount, 0, 0);
+	context->DrawIndexed(m_indexCount, 0, 0);
 }

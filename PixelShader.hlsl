@@ -49,8 +49,7 @@ cbuffer PSConstant : register(b2)
 	float2 dummy;
 };
 
-TextureCube cubeMap : register(t0);
-Texture2D albedo : register(t1);
+Texture2D albedo : register(t0);
 
 SamplerState linearSampler : register(s0);
 
