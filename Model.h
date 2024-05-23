@@ -91,7 +91,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VSConstantsBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_PSConstantBuffer;
 
-	// TODO : 이렇게 리소스뷰를 그대로 던져주는게아니라 텍스쳐 이름 두고 매니져 두고 리소스 매니져에서 가져오는게 맞지않을까?? Init할때 한번만, 프로퍼티로 텍스쳐이름만 넣고
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView;
 };
 

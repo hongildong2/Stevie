@@ -58,6 +58,9 @@ void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::
 	Utility::DXResource::CreateConstantBuffer(m_modelVSConstants, device, m_VSConstantsBuffer);
 	Utility::DXResource::CreateConstantBuffer(m_modelPSConstants, device, m_PSConstantBuffer);
 
+
+	// TODO : 이렇게 리소스뷰를 그대로 던져주는게아니라 텍스쳐 이름 두고 매니져 두고 리소스 매니져에서 가져오는게 맞지않을까?? Init할때 한번만, 프로퍼티로 텍스쳐이름만 넣고
+	// 생성자에서 텍스쳐 이름 등등 받고 매니져에서 뷰 가져오기
 	m_textureView = textureView;
 }
 // Expecting PrepareForRendering has done

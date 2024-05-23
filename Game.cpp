@@ -240,7 +240,7 @@ void Game::CreateDeviceDependentResources()
 		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
 		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
-		m_cubeMap = std::unique_ptr<Model>(new Model("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f)));
+		m_cubeMap = std::make_unique<Model>("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f));
 		m_cubeMap->Initialize(device, m_cubemapTextureView);
 
 
