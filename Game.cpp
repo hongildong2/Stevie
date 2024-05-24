@@ -115,7 +115,17 @@ void Game::UpdateGUI()
 
 	// GUI Controllers
 	{
-		ImGui::SetNextItemOpen(false, ImGuiCond_Once);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode("Light"))
+		{
+			// Vector3 <-> float3는 이렇게
+			ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -5.f, 5.f);
+			ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 2.f);
+
+			ImGui::TreePop();
+		}
+
+		// m_lightsConstantsCPU.dirLight.direction;
 	}
 
 	ImGui::End();
@@ -144,7 +154,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		}
 
-		m_mouse->SetMode(mouse.leftButton
+		m_mouse->SetMode(mouse.rightButton
 			? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		auto kb = m_keyboard->GetState();
@@ -228,6 +238,23 @@ void Game::Update(DX::StepTimer const& timer)
 #pragma endregion
 
 #pragma region Frame Render
+void Game::SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso)
+{
+	context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);
+	context->PSSetShader(pso.m_pixelShader.Get(), 0, 0);
+	context->HSSetShader(pso.m_hullShader.Get(), 0, 0);
+	context->DSSetShader(pso.m_domainShader.Get(), 0, 0);
+	context->GSSetShader(pso.m_geometryShader.Get(), 0, 0);
+	context->CSSetShader(NULL, 0, 0);
+	context->IASetInputLayout(pso.m_inputLayout.Get());
+	context->RSSetState(pso.m_rasterizerState.Get());
+	context->OMSetBlendState(pso.m_blendState.Get(), pso.m_blendFactor,
+		0xffffffff);
+	context->OMSetDepthStencilState(pso.m_depthStencilState.Get(),
+		pso.m_stencilRef);
+	context->IASetPrimitiveTopology(pso.m_primitiveTopology);
+}
+
 // Draws the scene.
 void Game::Render()
 {
@@ -255,14 +282,16 @@ void Game::Render()
 		const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
 
 		// 큐브맵 먼저 렌더
-		m_cubeMap->PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::cubemapVS, Graphics::cubemapPS, viewMatrix, m_proj, eyePos);
+		SetPipelineState(context, Graphics::cubemapPSO);
+		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
 		m_cubeMap->Draw(context);
 
 
+		SetPipelineState(context, Graphics::basicPSO);
 		for (Model& model : m_models)
 		{
-			model.PrepareForRendering(context, Graphics::basicRS, Graphics::basicIL, Graphics::basicVS, Graphics::basicPS, viewMatrix, m_proj, eyePos);
+			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 			model.Draw(context);
 		}
 	}
@@ -377,8 +406,7 @@ void Game::CreateDeviceDependentResources()
 	// Init Assets
 	{
 		// cubemap Init
-		MeshData cube = GeometryGenerator::MakeBox(20.f);
-		std::reverse(cube.indicies.begin(), cube.indicies.end()); // 박스 안쪽에서 렌더 하기 위해 또는 래스터라이저 설정 바꿔주기
+		MeshData cube = GeometryGenerator::MakeBox(50.f);
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
 		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
 		m_cubeMap = std::make_unique<Model>("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f));

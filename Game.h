@@ -7,6 +7,7 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "Camera.h"
+#include "GraphicsPSO.h"
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
@@ -73,6 +74,7 @@ private:
 
 	void Update(DX::StepTimer const& timer);
 	void UpdateGUI();
+	void SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso);
 	void Render();
 
 	void Clear();
@@ -95,6 +97,8 @@ private:
 
 	float m_pitch;
 	float m_yaw;
+
+	// TODO : Add Input Controller
 
 	// Scene
 	std::vector<Model> m_models;

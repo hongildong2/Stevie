@@ -13,21 +13,8 @@ Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::Simp
 }
 
 void Model::PrepareForRendering(ID3D11DeviceContext1* context,
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState,
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout,
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader,
 	const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix, const DirectX::SimpleMath::Vector3& eyeWorld)
 {
-	assert(rasterState != nullptr && inputLayout != nullptr && vertexShader != nullptr && pixelShader != nullptr);
-	context->IASetInputLayout(inputLayout.Get());
-
-	context->VSSetShader(vertexShader.Get(), NULL, 0);
-	context->PSSetShader(pixelShader.Get(), NULL, 0);
-
-	context->RSSetState(rasterState.Get());
-
-
 	m_modelVSConstants.viewMatrix = viewMatrix.Transpose();
 	m_modelVSConstants.projMatrix = projMatrix.Transpose();
 	m_modelVSConstants.worldMatrix = GetWorldMatrix().Transpose();

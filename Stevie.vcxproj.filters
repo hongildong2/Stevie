@@ -23,6 +23,7 @@
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Utility.h" />
+    <ClInclude Include="GraphicsPSO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="GraphicsCommon.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="GraphicsPSO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

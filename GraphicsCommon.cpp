@@ -11,6 +11,8 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicCcwRS;
+
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
@@ -19,6 +21,12 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
+
+	GraphicsPSO basicPSO;
+	GraphicsPSO cubemapPSO;
+
+
+
 	// https://learn.microsoft.com/ko-kr/windows/win32/direct3d11/how-to--compile-a-shader
 	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
 	{
@@ -119,6 +127,10 @@ namespace Graphics
 		rastDesc.DepthClipEnable = true; // <- zNear, zFar 확인에 필요
 
 		device->CreateRasterizerState(&rastDesc, basicRS.GetAddressOf());
+
+		rastDesc.FrontCounterClockwise = true;
+
+		device->CreateRasterizerState(&rastDesc, basicCcwRS.GetAddressOf());
 	}
 
 	void InitSamplers(Microsoft::WRL::ComPtr<ID3D11Device1> device)
@@ -144,6 +156,20 @@ namespace Graphics
 		DX::ThrowIfFailed(hr);
 
 	}
+	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
+	{
+		basicPSO.m_vertexShader = basicVS;
+		basicPSO.m_inputLayout = basicIL;
+		basicPSO.m_pixelShader = basicPS;
+		basicPSO.m_rasterizerState = basicRS;
+		basicPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+		cubemapPSO.m_vertexShader = cubemapVS;
+		cubemapPSO.m_inputLayout = basicIL;
+		cubemapPSO.m_pixelShader = cubemapPS;
+		cubemapPSO.m_rasterizerState = basicCcwRS;
+		cubemapPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	}
 
 	void InitCommonStates(ID3D11Device1* device)
 	{
@@ -152,6 +178,8 @@ namespace Graphics
 		InitShaders(device);
 
 		InitRasterizerStates(device);
+
+		InitPipelineStates(device);
 	}
 
 }

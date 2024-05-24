@@ -60,13 +60,8 @@ public:
 	~Model() = default; // TODO : 포인터들 전부 nullptr, reset호출은 매니저에서
 	Model& operator=(const Model& other) = delete;
 
-	// TODO : PSO로 바꾸기
 	// TODO : MVP Matrix 정보 Actor로 나중에 옮기기
 	void PrepareForRendering(ID3D11DeviceContext1* context,
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState,
-		Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout,
-		Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
-		Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader,
 		const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix, const DirectX::SimpleMath::Vector3& eyeWorld);
 	void Draw(ID3D11DeviceContext1* context);
 

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "GraphicsPSO.h"
 // 참고: DirectX_Graphic-Samples 미니엔진
 // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/MiniEngine/Core/GraphicsCommon.h
 
@@ -13,6 +13,7 @@ namespace Graphics
 	// extern ComPtr<ID3D11SamplerState> pointWrapSS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
+	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> solidCcwRS;
 
 	// Depth Stencil States
 	// extern ComPtr<ID3D11DepthStencilState> basicDSS; // 일반적으로 그리기
@@ -28,6 +29,11 @@ namespace Graphics
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 
+	// Pipeline State Object
+	extern GraphicsPSO basicPSO;
+	extern GraphicsPSO cubemapPSO;
+
+
 	// Blend States
 	// extern ComPtr<ID3D11BlendState> mirrorBS;
 
@@ -38,7 +44,7 @@ namespace Graphics
 	void InitRasterizerStates(ID3D11Device1* device);
 	// void InitBlendStates(ComPtr<ID3D11Device>& device);
 	// void InitDepthStencilStates(ComPtr<ID3D11Device>& device);
-	// void InitPipelineStates(ComPtr<ID3D11Device>& device);
+	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device);
 	void InitShaders(ID3D11Device1* device);
 
 	// 주의: 초기화가 느려서 필요한 경우에만 초기화
