@@ -49,15 +49,17 @@ cbuffer PSConstant : register(b2)
 	float2 dummy;
 };
 
-Texture2D albedo : register(t0);
+TextureCube cubeMap : register(t0);
+Texture2D albedo : register(t1);
 
 SamplerState linearSampler : register(s0);
 
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
+	float3 toCube = reflect(-normalize(eyeWorld - input.positionWorld), input.normalWorld);
 	float a = dot(input.normalWorld, dirLight.direction) * dirLight.strength;
-	float4 color =  albedo.Sample(linearSampler, input.texcoordinate) * a;
+	float4 color = cubeMap.Sample(linearSampler, toCube);
 	return color;
 	//return float4(1.f, 0.f, 0.f, 1.0f);
 }

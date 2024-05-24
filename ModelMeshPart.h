@@ -14,8 +14,8 @@
 struct Vertex
 {
 	DirectX::SimpleMath::Vector3 position;
-	DirectX::SimpleMath::Vector3 normalModel;
 	DirectX::SimpleMath::Vector2 textureCoordination;
+	DirectX::SimpleMath::Vector3 normalModel;
 	DirectX::SimpleMath::Vector3 tangentModel;
 };
 

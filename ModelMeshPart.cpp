@@ -35,7 +35,7 @@ namespace GeometryGenerator
 
 				v.normalModel = v.position;
 				v.normalModel.Normalize();
-				v.textureCoordination = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.f - float(j) / numStacks);
+				v.textureCoordination = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.0f - float(j) / numStacks);
 
 				DirectX::SimpleMath::Vector3 biTangent = DirectX::SimpleMath::Vector3(0.f, 1.f, 0.f);
 
@@ -51,6 +51,7 @@ namespace GeometryGenerator
 		for (unsigned int j = 0; j < numStacks; ++j)
 		{
 			const unsigned int offset = (numSlices + 1) * j;
+
 			for (unsigned int i = 0; i < numSlices; ++i)
 			{
 				indices.push_back(offset + i);
@@ -65,6 +66,7 @@ namespace GeometryGenerator
 
 		return meshData;
 	}
+
 	MeshData MakeSquare()
 	{
 		std::vector<Vector3> positions;

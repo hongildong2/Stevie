@@ -101,6 +101,7 @@ void Game::Tick()
 
 	Render();
 }
+
 void Game::UpdateGUI()
 {
 	ImGui_ImplDX11_NewFrame();
@@ -281,10 +282,12 @@ void Game::Render()
 
 		const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
 
-		// 큐브맵 먼저 렌더
+		// IBL을 위해 0번에 큐브맵 텍스쳐 고정
+		context->PSSetShaderResources(0, 1, m_cubemapTextureView.GetAddressOf());
+		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
+
 		SetPipelineState(context, Graphics::cubemapPSO);
 		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
 		m_cubeMap->Draw(context);
 
 

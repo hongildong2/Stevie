@@ -29,7 +29,7 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	// 0번에 MVP, 1번에 Light, 2번에 PSConstant. 이거는 어떻게 관리하지?
 	context->VSSetConstantBuffers(0, 1, m_VSConstantsBuffer.GetAddressOf());
 	context->PSSetConstantBuffers(2, 1, m_PSConstantBuffer.GetAddressOf());
-	context->PSSetShaderResources(0, 1, m_textureView.GetAddressOf());
+	context->PSSetShaderResources(1, 1, m_textureView.GetAddressOf());
 }
 
 
@@ -68,5 +68,5 @@ void Model::Update()
 
 DirectX::SimpleMath::Matrix Model::GetWorldMatrix() const
 {
-	return DirectX::SimpleMath::Matrix::CreateTranslation(m_WorldPosition);
+	return DirectX::SimpleMath::Matrix();
 }
