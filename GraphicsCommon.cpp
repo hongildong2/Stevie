@@ -16,15 +16,28 @@ namespace Graphics
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> screenQuadVS;
+
 
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
+
+
+
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurXCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurYCS;
+
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
 
 	GraphicsPSO basicPSO;
 	GraphicsPSO cubemapPSO;
+	GraphicsPSO filterCombinePSO;
 
+	ComputePSO blurXPSO;
+	ComputePSO blurYPSO;
 
 
 	// https://learn.microsoft.com/ko-kr/windows/win32/direct3d11/how-to--compile-a-shader
@@ -72,9 +85,10 @@ namespace Graphics
 
 	void InitShaders(ID3D11Device1* device)
 	{
+		Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
+
 		// Vertex Shaders
 		{
-			Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 			HRESULT hr = CompileShader(L"VertexShader.hlsl", "main", "vs_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
 
@@ -94,24 +108,50 @@ namespace Graphics
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicVS);
 
 			// cubemapVS
-			hr = CompileShader(L"cubemapVS.hlsl", "main", "vs_5_0", &shaderBlob);
+			hr = CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapVS);
-
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &basicIL);
+
+
+
+			D3D11_INPUT_ELEMENT_DESC screenQuadLayout[] = {
+				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
+			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12,
+			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			};
+
+			static_assert((sizeof(screenQuadLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 2, "Screen Quad Input Layout Size");
+
+			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", &shaderBlob));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &screenQuadVS);
+			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &screenQuadIL);
+
 		}
 
 		// Pixel Shaders
 		{
-			Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 			HRESULT hr = CompileShader(L"PixelShader.hlsl", "main", "ps_5_0", &shaderBlob);
 
 			DX::ThrowIfFailed(hr);
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicPS);
 
-			hr = CompileShader(L"cubemapPS.hlsl", "main", "ps_5_0", &shaderBlob);
+			hr = CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapPS);
+
+			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", &shaderBlob));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &filterCombinePS);
+		}
+
+		// Compute Shaders
+		{
+			DX::ThrowIfFailed(CompileShader(L"BlurXCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &blurXCS);
+
+			DX::ThrowIfFailed(CompileShader(L"BlurYCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &blurYCS);
 		}
 	}
 
@@ -169,6 +209,17 @@ namespace Graphics
 		cubemapPSO.m_pixelShader = cubemapPS;
 		cubemapPSO.m_rasterizerState = basicCcwRS;
 		cubemapPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+		filterCombinePSO.m_vertexShader = screenQuadVS;
+		filterCombinePSO.m_inputLayout = screenQuadIL;
+		filterCombinePSO.m_pixelShader = filterCombinePS;
+		filterCombinePSO.m_rasterizerState = basicRS;
+		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+
+
+		blurXPSO.m_computeShader = blurXCS;
+		blurYPSO.m_computeShader = blurYCS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)

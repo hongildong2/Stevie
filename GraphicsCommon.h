@@ -1,5 +1,6 @@
 #pragma once
 #include "GraphicsPSO.h"
+#include "ComputePSO.h"
 // 참고: DirectX_Graphic-Samples 미니엔진
 // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/MiniEngine/Core/GraphicsCommon.h
 
@@ -22,16 +23,27 @@ namespace Graphics
 	// Shaders
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
+	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> screenQuadVS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
+	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
+
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurXCS;
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurYCS;
 
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
+	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
+
 
 	// Pipeline State Object
 	extern GraphicsPSO basicPSO;
 	extern GraphicsPSO cubemapPSO;
+	extern GraphicsPSO filterCombinePSO;
+
+	extern ComputePSO blurXPSO;
+	extern ComputePSO blurYPSO;
 
 
 	// Blend States

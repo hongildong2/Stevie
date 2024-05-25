@@ -44,5 +44,7 @@ namespace Utility
 
 
 
+
 	}
+	void ComputeShaderBarrier(ID3D11DeviceContext1* context);
 }

@@ -8,8 +8,11 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <string>
+
 #include "Model.h"
 #include "GraphicsCommon.h"
+
 #include "Utility.h"
 
 extern void ExitGame() noexcept;
@@ -25,10 +28,13 @@ Game::Game() noexcept(false) :
 	m_pitch(0),
 	m_yaw(0)
 {
-	m_deviceResources = std::make_unique<DX::DeviceResources>();
+	// for post processing in compute shader
+	m_deviceResources = std::make_unique<DX::DeviceResources>(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_FORMAT_D32_FLOAT, 2, D3D_FEATURE_LEVEL_11_1, DX::DeviceResources::c_EnableHDR);
 	// TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
 	//   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
 	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
+
+
 	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
 	m_cubeMap = nullptr;
@@ -114,24 +120,77 @@ void Game::UpdateGUI()
 		1000.0f / ImGui::GetIO().Framerate,
 		ImGui::GetIO().Framerate);
 
-	// GUI Controllers
+	// TODO : 여기다 대충 dto같은애들 만든 뒤 개체 Update 이용해서 개체 정보 업데이트하기, DTO작업 미리해놓고 나중에 연결해도됨
+	// Light DTO
+
+	// Model DTO
+
+	// PS Phong shader parameter DTO
+
+	// PS PBR shader parameter DTO
+
+	//
+
+	// Controller, Update DTOs
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 		if (ImGui::TreeNode("Light"))
 		{
 			// Vector3 <-> float3는 이렇게
-			ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -5.f, 5.f);
-			ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 2.f);
+			ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -1.f, 1.f);
+			ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 3.f);
+			ImGui::SliderFloat3("Position", &m_lightsConstantsCPU.dirLight.position.x, -2.f, 3.f);
+			ImGui::TreePop();
+		}
+
+
+		if (ImGui::TreeNode("ModelConstant"))
+		{
+			unsigned int nth = 0;
+			char buf[20];
+			for (Model& model : m_models)
+			{
+				snprintf(buf, 20, "%d%s", nth++, "th model");
+				if (ImGui::TreeNode(buf))
+				{
+					Material mat = model.GetMaterialConstant();
+
+					// Vector3 <-> float3는 이렇게
+					ImGui::SliderFloat3("diffuse", &mat.diffuse.x, 0.f, 1.f);
+					ImGui::SliderFloat3("ambient", &mat.ambient.x, 0.f, 1.f);
+					ImGui::SliderFloat3("specular", &mat.specular.x, 0.f, 1.f);
+					ImGui::TreePop();
+
+					model.UpdateMaterialConstant(mat);
+				}
+			}
 
 			ImGui::TreePop();
 		}
 
-		// m_lightsConstantsCPU.dirLight.direction;
-	}
+		if (ImGui::TreeNode("ImageFilter"))
+		{
+			ImGui::SliderFloat("threshold", &m_postProcessConstant.threshold, 0.f, 5.f);
+			ImGui::SliderFloat("strength", &m_postProcessConstant.strength, 0.f, 1.f);
+			ImGui::SliderFloat("exposure", &m_postProcessConstant.exposure, 0.f, 3.f);
+			ImGui::SliderFloat("gamma", &m_postProcessConstant.gamma, -0.f, 2.f);
+			ImGui::SliderFloat("blur", &m_postProcessConstant.blur, 0.f, 10.f);
 
+			ImGui::TreePop();
+		}
+	}
+	// TODO : 쉐이더, 월드에 종속적인 파라미터들은 Game에 멤버로넣고 따로 constant buffer로 떼서 업데이트하기.
+// Call controllers
+/*
+* light.updateDir(vec3)
+* light.updateStrength(float);
+*
+*
+*/
 	ImGui::End();
 	ImGui::Render();
 }
+
 
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
@@ -256,6 +315,16 @@ void Game::SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso)
 	context->IASetPrimitiveTopology(pso.m_primitiveTopology);
 }
 
+void Game::SetPipelineState(ID3D11DeviceContext* context, ComputePSO& pso)
+{
+	context->VSSetShader(NULL, 0, 0);
+	context->PSSetShader(NULL, 0, 0);
+	context->HSSetShader(NULL, 0, 0);
+	context->DSSetShader(NULL, 0, 0);
+	context->GSSetShader(NULL, 0, 0);
+	context->CSSetShader(pso.m_computeShader.Get(), 0, 0);
+}
+
 // Draws the scene.
 void Game::Render()
 {
@@ -271,9 +340,15 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
+
 	auto viewMatrix = m_camera->GetViewMatrix();
 
-
+	// if PostProcess on
+	if (true)
+	{
+		// keep previously setted rtv, add this one 이거 왜 안될까?? 텍스쳐에 RTV로 렌더하게 했는데 그림이 안그려져서 검은화면만나옴
+		// context->OMSetRenderTargetsAndUnorderedAccessViews(1, m_frontPostProcessRTV.GetAddressOf(), NULL, 0, 0, NULL, 0);
+	}
 	// Scene.Draw()
 	{
 		// Light.Draw()
@@ -297,6 +372,61 @@ void Game::Render()
 			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 			model.Draw(context);
 		}
+	}
+
+	// PostProcess.Draw()
+	if (true)
+	{
+		// TODO : 필터 자유자재로 넣고 뺄 수 있게 front, back 버퍼들 바꿔가면서 하는거 벡터이용해서 일반화 하기
+		// 백버퍼 복사 -> 필터 1 -> 필터 2 -> 버퍼2에 최종결과 라면 버퍼1에 백버퍼 복사 -> 버퍼1, 버퍼2 SRV로 해서 FilterCombine PS
+		// Gaussian Blur
+		// front buffer has rendering result and MUST have final processed result also
+		const RECT outputSize = m_deviceResources->GetOutputSize();
+
+		// release backbuffer RTV for postprocess to use this as resource
+		// context->OMSetRenderTargets(0, NULL, NULL);
+		ComPtr<ID3D11Texture2D> backbuffer;
+		DX::ThrowIfFailed(m_deviceResources->GetSwapChain()->GetBuffer(0, IID_PPV_ARGS(backbuffer.GetAddressOf())));
+
+		context->CopyResource(m_frontPostProcessTextureBuffer.Get(), backbuffer.Get());
+		// total 1024 thread groups. 화면을 가로 32 세로 32의 스레드 그룹으로 나눠서 작업을 분배한다
+		// 어느 픽셀에 위치해있는지, 어딜 참조해야 하는지지는 CS에서 DispathchThreadID가 대응
+		// TODO : UpSample, DownSample Blur, Faster Image Processing
+		const unsigned int GROUP_X = ceil(outputSize.right / 32.f);
+		const unsigned int GROUP_Y = ceil(outputSize.bottom / 32.f);
+		for (int i = 0; i < 50; ++i)
+		{
+			// X
+			SetPipelineState(context, Graphics::blurXPSO);
+			context->CSSetShaderResources(0, 1, m_frontPostProcessSRV.GetAddressOf());
+			context->CSSetUnorderedAccessViews(0, 1, m_backPostProcessUAV.GetAddressOf(), NULL);
+
+			context->Dispatch(GROUP_X, GROUP_Y, 1);
+
+			Utility::ComputeShaderBarrier(context);
+
+			// Y
+			SetPipelineState(context, Graphics::blurYPSO);
+			context->CSSetShaderResources(0, 1, m_backPostProcessSRV.GetAddressOf());
+			context->CSSetUnorderedAccessViews(0, 1, m_frontPostProcessUAV.GetAddressOf(), NULL);
+
+			context->Dispatch(GROUP_X, GROUP_Y, 1);
+			Utility::ComputeShaderBarrier(context);
+		}
+
+		// 백버퍼에 있는 렌더 결과와 가우시안 블러 결과 합쳐서 블룸 구현
+		context->CopyResource(m_backPostProcessTextureBuffer.Get(), backbuffer.Get());
+		// 이제 front에 블러, back에 원래 화면 저장..되어있음 그걸 Combine해서 다시 그리면 된다. 하는김에 톤맵핑도 같이
+
+		SetPipelineState(context, Graphics::filterCombinePSO);
+		// 0번에 원본, 1번에 블러 지정
+		ID3D11ShaderResourceView* resources[] = {
+			 m_backPostProcessSRV.Get(), m_frontPostProcessSRV.Get()
+		};
+		Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, context, m_postProcessCB);
+		context->PSSetShaderResources(0, 2, resources);
+		context->PSSetConstantBuffers(0, 1, m_postProcessCB.GetAddressOf());
+		m_screenQuad->Draw(context);
 	}
 
 
@@ -396,6 +526,35 @@ void Game::CreateDeviceDependentResources()
 	Graphics::InitCommonStates(device);
 
 
+	// Texture2Ds For GaussianBlur and Tonemapping
+	{
+		const DXGI_FORMAT backbufferforamt = m_deviceResources->GetBackBufferFormat();
+		const RECT outputSize = m_deviceResources->GetOutputSize();
+		// description for UAV
+		D3D11_TEXTURE2D_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Format = backbufferforamt;
+		desc.Width = outputSize.right;
+		desc.Height = outputSize.bottom;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.SampleDesc.Count = 1;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+		desc.MiscFlags = 0;
+		desc.CPUAccessFlags = 0;
+
+		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_backPostProcessTextureBuffer.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_frontPostProcessTextureBuffer.GetAddressOf()));
+
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_backPostProcessTextureBuffer.Get(), NULL, m_backPostProcessSRV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_backPostProcessTextureBuffer.Get(), NULL, m_backPostProcessUAV.GetAddressOf()));
+
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_frontPostProcessTextureBuffer.Get(), NULL, m_frontPostProcessSRV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_frontPostProcessTextureBuffer.Get(), NULL, m_frontPostProcessUAV.GetAddressOf()));
+
+		Utility::DXResource::CreateConstantBuffer(m_postProcessConstant, device, m_postProcessCB);
+	}
 
 	// Texture
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView;
@@ -406,22 +565,32 @@ void Game::CreateDeviceDependentResources()
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"skybox.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false), m_cubemapTexture.GetAddressOf(), m_cubemapTextureView.ReleaseAndGetAddressOf(), nullptr));
 
 
+
 	// Init Assets
 	{
+
+		std::vector<ModelMeshPart> meshes;
+
 		// cubemap Init
 		MeshData cube = GeometryGenerator::MakeBox(50.f);
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
-		std::vector<ModelMeshPart> meshes1 = { cubeMesh };
-		m_cubeMap = std::make_unique<Model>("cubeMap", meshes1, Vector3(0.f, 0.f, 0.f));
+		meshes.push_back(cubeMesh);
+		m_cubeMap = std::make_unique<Model>("cubeMap", meshes, Vector3(0.f, 0.f, 0.f));
 		m_cubeMap->Initialize(device, m_cubemapTextureView);
+		meshes.clear();
 
-
-		MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
+		MeshData&& sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
 		ModelMeshPart mesh = ModelMeshPart(sphereMesh, device);
-		std::vector<ModelMeshPart> meshes = { mesh };
+		meshes.push_back(mesh);
 		Model&& sphereModel = Model("BASIC SPHERE", meshes, DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
 		sphereModel.Initialize(device, textureView);
 		m_models.push_back(sphereModel);
+		meshes.clear();
+
+		MeshData quad = GeometryGenerator::MakeSquare();
+		ModelMeshPart quadMesh = ModelMeshPart(quad, device);
+		meshes.push_back(quadMesh);
+		m_screenQuad = std::make_unique<Model>("Scren Quad", meshes, Vector3(0.f, 0.f, 0.f));
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);

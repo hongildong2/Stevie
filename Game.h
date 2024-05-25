@@ -8,6 +8,7 @@
 #include "StepTimer.h"
 #include "Camera.h"
 #include "GraphicsPSO.h"
+#include "ComputePSO.h"
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
@@ -30,7 +31,17 @@ struct LightConstants
 	Light spotLight;
 };
 
-
+struct PostProcessConstant
+{
+	float dx;
+	float dy;
+	float threshold = 0.5f;
+	float strength = 1;
+	float exposure = 0.5f; // option1 in c++
+	float gamma = 0.5f; // option2 in c++
+	float blur = 0.5f; // option3 in c++
+	float option4;
+};
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -75,6 +86,8 @@ private:
 	void Update(DX::StepTimer const& timer);
 	void UpdateGUI();
 	void SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso);
+	void SetPipelineState(ID3D11DeviceContext* context, ComputePSO& pso);
+
 	void Render();
 
 	void Clear();
@@ -100,18 +113,30 @@ private:
 
 	// TODO : Add Input Controller
 
-	// Scene
+	/// Scene : models, camera, viewport, lights, cubemap
 	std::vector<Model> m_models;
 	std::unique_ptr<Camera> m_camera;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	std::unique_ptr<Model> m_cubeMap;
-
+	// light
 	LightConstants m_lightsConstantsCPU;
-
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsConstantBuffer;
 
-
+	// cubemap
+	std::unique_ptr<Model> m_cubeMap;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapTextureView;
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_cubemapTexture;
+
+	/// PostProcess
+	std::unique_ptr<Model> m_screenQuad;
+	PostProcessConstant m_postProcessConstant;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_frontPostProcessTextureBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_frontPostProcessSRV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_frontPostProcessUAV;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backPostProcessTextureBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backPostProcessSRV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_backPostProcessUAV;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_postProcessCB;
 };

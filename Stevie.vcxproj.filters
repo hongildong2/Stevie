@@ -24,6 +24,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="ComputePSO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -60,11 +61,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Common.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="PixelShader.hlsl" />
-    <FxCompile Include="cubemapPS.hlsl" />
-    <FxCompile Include="cubemapVS.hlsl" />
+    <FxCompile Include="CubemapPS.hlsl" />
+    <FxCompile Include="CubemapVS.hlsl" />
+    <FxCompile Include="BlurYCS.hlsl" />
+    <FxCompile Include="BlurXCS.hlsl" />
+    <FxCompile Include="FilterCombinePS.hlsl" />
+    <FxCompile Include="ScreenQuadVS.hlsl" />
   </ItemGroup>
 </Project>

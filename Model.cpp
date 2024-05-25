@@ -2,9 +2,12 @@
 #include "Model.h"
 #include "Utility.h"
 
-Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition) : m_name(name), m_WorldPosition(worldPosition)
+Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition) : m_name(name)
 {
 	m_meshes.reserve(50);
+	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
+	m_modelPSConstants.material.ambient = DirectX::SimpleMath::Vector3(0.6f);
+	m_modelPSConstants.material.diffuse = DirectX::SimpleMath::Vector3(0.6f);
 
 	for (ModelMeshPart& mesh : meshes)
 	{
@@ -60,13 +63,24 @@ void Model::Draw(ID3D11DeviceContext1* context)
 		mesh.Draw(context);
 	}
 }
-
-void Model::Update()
+void Model::UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform)
 {
+	m_modelVSConstants.worldMatrix *= deltaTransform;
+	m_modelVSConstants.worldMatrixIT = m_modelVSConstants.worldMatrix.Invert().Transpose();
+}
 
+
+void Model::UpdateMaterialConstant(Material& mat)
+{
+	m_modelPSConstants.material = mat;
+}
+
+Material Model::GetMaterialConstant() const
+{
+	return m_modelPSConstants.material;
 }
 
 DirectX::SimpleMath::Matrix Model::GetWorldMatrix() const
 {
-	return DirectX::SimpleMath::Matrix();
+	return m_modelVSConstants.worldMatrix;
 }

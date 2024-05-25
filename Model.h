@@ -68,7 +68,10 @@ public:
 	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView);
 
 	// Rotation, Scale, update component..
-	void Update();
+	void UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform);
+
+	void UpdateMaterialConstant(Material& mat);
+	Material GetMaterialConstant() const;
 
 	DirectX::SimpleMath::Matrix GetWorldMatrix() const;
 
@@ -76,10 +79,10 @@ private:
 	const std::string m_name;
 	std::vector<ModelMeshPart> m_meshes;
 
-	DirectX::SimpleMath::Vector3 m_WorldPosition;
-
 	// constant buffer for model
 	VSConstants m_modelVSConstants;
+
+	// TODO : 여긴 최대한 모델에 관련된 정보만 넣고 월드나 픽셀쉐이더의 쉐이더 자체 정보는 다른 버퍼에 있어야지. 버퍼분리하자.
 	PSConstants m_modelPSConstants;
 
 	// TODO : View, Proj는 다른 상수버퍼로 분리
