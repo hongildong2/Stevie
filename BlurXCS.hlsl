@@ -23,7 +23,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	for (int i = -blurRadius; i <= blurRadius; ++i)
 	{
 		// bound x coordinate in 
-		uint boundX = clamp(i + DTid.x, 0, width);
+		uint boundX = clamp(i + DTid.x, 0, width - 1);
 		float3 sampled = input[uint2(boundX, DTid.y)].xyz; // ¹é¹öÆÛ¶û °°ÀÌ¸ÂÃç¼­ float4
 		
 		blurred += weights[i + blurRadius] * sampled;

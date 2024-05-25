@@ -18,7 +18,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	for (int i = -blurRadius; i <= blurRadius; ++i)
 	{
-		uint boundY = clamp(DTid.y + i, 0, height);
+		uint boundY = clamp(DTid.y + i, 0, height - 1);
 		float3 sampled = input[uint2(DTid.x, boundY)].rgb;
 		
 		blurred += weights[i + blurRadius] * sampled;

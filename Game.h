@@ -138,5 +138,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backPostProcessSRV;
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_backPostProcessUAV;
 
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_postProcessCB;
 };
