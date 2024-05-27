@@ -13,17 +13,7 @@ struct VSConstants
 };
 static_assert(sizeof(VSConstants) % 16 == 0, "Constant Buffer Alignment");
 
-struct Material
-{
-	DirectX::SimpleMath::Vector3 ambient = DirectX::SimpleMath::Vector3(0.0f);  // 12
-	float shininess = 0.01f;           // 4
-	DirectX::SimpleMath::Vector3 diffuse = DirectX::SimpleMath::Vector3(0.0f);  // 12
-	float dummy1 = 0.f;                     // 4
-	DirectX::SimpleMath::Vector3 specular = DirectX::SimpleMath::Vector3(1.0f); // 12
-	float dummy2 = 0.f;                     // 4
-	DirectX::SimpleMath::Vector3 fresnelR0 = DirectX::SimpleMath::Vector3(1.0f, 0.71f, 0.29f); // Gold
-	float dummy3 = 0.f;
-};
+
 
 // TODO get texture views from manager when Init using name!
 //struct Textures
@@ -32,19 +22,22 @@ struct Material
 //	std::string metalness;
 //};
 
-static_assert(sizeof(Material) % 16 == 0, "Mesh Material Alignment");
+struct Material
+{
+	DirectX::SimpleMath::Vector3 albedo;
+	float metallic;
+	float roughness;
+	float ao;
+	float t1;
+	float t2;
+};
 
 
 struct PSConstants
 {
 	DirectX::SimpleMath::Vector3 eyeWorld;
-	bool useTexture;
+	float dummy;
 	Material material;
-	DirectX::SimpleMath::Vector3 rimColor = DirectX::SimpleMath::Vector3(1.0f);
-	float rimPower;
-	float rimStrength = 0.0f;
-	bool useSmoothstep = false;
-	float dummy[2] = { 0, };
 };
 
 static_assert(sizeof(PSConstants) % 16 == 0, "PSConstants Alignment");

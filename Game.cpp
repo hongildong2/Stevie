@@ -37,6 +37,8 @@ Game::Game() noexcept(false) :
 
 	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
+	m_postProcessConstant.gamma = 2.2f;
+
 	m_cubeMap = nullptr;
 	m_deviceResources->RegisterDeviceNotify(this);
 }
@@ -145,12 +147,17 @@ void Game::UpdateGUI()
 					Material mat = model.GetMaterialConstant();
 
 					// Vector3 <-> float3는 이렇게
-					ImGui::SliderFloat3("diffuse", &mat.diffuse.x, 0.f, 1.f);
-					ImGui::SliderFloat3("ambient", &mat.ambient.x, 0.f, 1.f);
-					ImGui::SliderFloat3("specular", &mat.specular.x, 0.f, 1.f);
-					ImGui::TreePop();
+					ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
+					ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
+					ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
+					ImGui::SliderFloat("ao", &mat.ao, 0.f, 1.f);
+					ImGui::SliderFloat("t1", &mat.t1, 0.f, 1.f);
+
 
 					model.UpdateMaterialConstant(mat);
+
+					ImGui::TreePop();
+
 				}
 			}
 
@@ -162,7 +169,7 @@ void Game::UpdateGUI()
 			ImGui::SliderFloat("threshold", &m_postProcessConstant.threshold, 0.f, 5.f);
 			ImGui::SliderFloat("strength", &m_postProcessConstant.strength, 0.f, 1.f);
 			ImGui::SliderFloat("exposure", &m_postProcessConstant.exposure, 0.f, 3.f);
-			ImGui::SliderFloat("gamma", &m_postProcessConstant.gamma, -0.f, 2.f);
+			ImGui::SliderFloat("gamma", &m_postProcessConstant.gamma, 0.f, 3.f);
 			ImGui::SliderFloat("blur", &m_postProcessConstant.blur, 0.f, 10.f);
 
 			ImGui::TreePop();
@@ -324,8 +331,6 @@ void Game::Render()
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
-
-
 	auto viewMatrix = m_camera->GetViewMatrix();
 
 	// Scene.Draw()
@@ -339,6 +344,9 @@ void Game::Render()
 		// IBL을 위해 0번에 큐브맵 텍스쳐 고정
 		context->PSSetShaderResources(0, 1, m_cubemapTextureView.GetAddressOf());
 		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
+		SetPipelineState(context, Graphics::cubemapPSO);
+		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+		m_cubeMap->Draw(context);
 
 		SetPipelineState(context, Graphics::basicPSO);
 		for (Model& model : m_models)
@@ -347,15 +355,13 @@ void Game::Render()
 			model.Draw(context);
 		}
 
-		SetPipelineState(context, Graphics::cubemapPSO);
-		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-		m_cubeMap->Draw(context);
 	}
 
 	// PostProcess.Draw()
 	if (true)
 	{
 		// TODO : 필터 자유자재로 넣고 뺄 수 있게 front, back 버퍼들 바꿔가면서 하는거 벡터이용해서 일반화 하기
+		// queue 멤버로, variadic arguments to constructor
 		// 백버퍼 복사 -> 필터 1 -> 필터 2 -> 버퍼2에 최종결과 라면 버퍼1에 백버퍼 복사 -> 버퍼1, 버퍼2 SRV로 해서 FilterCombine PS
 		// Gaussian Blur
 		// front buffer has rendering result and MUST have final processed result also

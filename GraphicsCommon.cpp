@@ -24,7 +24,6 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 
 
-
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurXCS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurYCS;
 
@@ -33,6 +32,7 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
 
 	GraphicsPSO basicPSO;
+	GraphicsPSO pbrPSO;
 	GraphicsPSO cubemapPSO;
 	GraphicsPSO filterCombinePSO;
 
@@ -132,7 +132,7 @@ namespace Graphics
 
 		// Pixel Shaders
 		{
-			HRESULT hr = CompileShader(L"PixelShader.hlsl", "main", "ps_5_0", &shaderBlob);
+			HRESULT hr = CompileShader(L"PbrPS.hlsl", "main", "ps_5_0", &shaderBlob);
 
 			DX::ThrowIfFailed(hr);
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicPS);

@@ -71,7 +71,7 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
 	float3 blurColor = g_texture1.Sample(g_sampler, input.texcoord).rgb;
 	blurColor = (blurColor.r + blurColor.g + blurColor.b) / 3.f < threshold ? float3(0, 0, 0) : blurColor;
 
-	float3 combined = (1.0 - strength) * originalColor + strength * blurColor;
+	float3 combined = (1.0 - strength) * blurColor + strength * originalColor;
 
 
     // Tone Mapping

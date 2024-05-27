@@ -6,8 +6,11 @@ Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::Simp
 {
 	m_meshes.reserve(50);
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
-	m_modelPSConstants.material.ambient = DirectX::SimpleMath::Vector3(0.6f);
-	m_modelPSConstants.material.diffuse = DirectX::SimpleMath::Vector3(0.6f);
+
+	m_modelPSConstants.material.albedo = DirectX::SimpleMath::Vector3(1.0f);
+	m_modelPSConstants.material.metallic = 0.7f;
+	m_modelPSConstants.material.roughness = 0.3f;
+	m_modelPSConstants.material.ao = 0.2f;
 
 	for (ModelMeshPart& mesh : meshes)
 	{

@@ -65,12 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
-    <FxCompile Include="PixelShader.hlsl" />
     <FxCompile Include="CubemapPS.hlsl" />
     <FxCompile Include="CubemapVS.hlsl" />
     <FxCompile Include="BlurYCS.hlsl" />
     <FxCompile Include="BlurXCS.hlsl" />
     <FxCompile Include="FilterCombinePS.hlsl" />
     <FxCompile Include="ScreenQuadVS.hlsl" />
+    <FxCompile Include="PbrPS.hlsl" />
   </ItemGroup>
 </Project>
