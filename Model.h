@@ -13,7 +13,15 @@ struct VSConstants
 };
 static_assert(sizeof(VSConstants) % 16 == 0, "Constant Buffer Alignment");
 
-
+struct TextureFiles
+{
+	const wchar_t* albedoName;
+	const wchar_t* aoName;
+	const wchar_t* heightName;
+	const wchar_t* metallicName;
+	const wchar_t* normalName;
+	const wchar_t* roughnessName;
+};
 
 // TODO get texture views from manager when Init using name!
 //struct Textures
@@ -24,12 +32,10 @@ static_assert(sizeof(VSConstants) % 16 == 0, "Constant Buffer Alignment");
 
 struct Material
 {
-	DirectX::SimpleMath::Vector3 albedo;
-	float metallic;
-	float roughness;
-	float ao;
+	float metallicFactor;
+	float aoFactor;
+	float roughnessFactor;
 	float t1;
-	float t2;
 };
 
 
@@ -58,7 +64,7 @@ public:
 		const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix, const DirectX::SimpleMath::Vector3& eyeWorld);
 	void Draw(ID3D11DeviceContext1* context);
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView);
+	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFiles files);
 
 	// Rotation, Scale, update component..
 	void UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform);
@@ -82,6 +88,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VSConstantsBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_PSConstantBuffer;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_albedoView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_aoview;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_heightView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_metallicView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roughnessView;
 };
 

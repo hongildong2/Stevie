@@ -7,10 +7,10 @@ Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::Simp
 	m_meshes.reserve(50);
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
 
-	m_modelPSConstants.material.albedo = DirectX::SimpleMath::Vector3(1.0f);
-	m_modelPSConstants.material.metallic = 0.7f;
-	m_modelPSConstants.material.roughness = 0.3f;
-	m_modelPSConstants.material.ao = 0.2f;
+	m_modelPSConstants.material.metallicFactor = 0.7f;
+	m_modelPSConstants.material.roughnessFactor = 0.3f;
+	m_modelPSConstants.material.aoFactor = 1.f;
+	m_modelPSConstants.material.t1 = 1.f;
 
 	for (ModelMeshPart& mesh : meshes)
 	{
@@ -30,18 +30,33 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 
 	Utility::DXResource::UpdateConstantBuffer(m_modelVSConstants, context, m_VSConstantsBuffer);
 	Utility::DXResource::UpdateConstantBuffer(m_modelPSConstants, context, m_PSConstantBuffer);
+	context->VSSetConstantBuffers(0, 1, m_VSConstantsBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(2, 1, m_PSConstantBuffer.GetAddressOf());
+
+	if (m_albedoView == nullptr)
+	{
+		return;
+	}
+
+	ID3D11ShaderResourceView* textures[] = {
+		m_albedoView.Get(),
+		m_aoview.Get(),
+		m_heightView.Get(),
+		m_metallicView.Get(),
+		m_normalView.Get(),
+		m_roughnessView.Get()
+	};
 
 
 	// 0번에 MVP, 1번에 Light, 2번에 PSConstant. 이거는 어떻게 관리하지?
-	context->VSSetConstantBuffers(0, 1, m_VSConstantsBuffer.GetAddressOf());
-	context->PSSetConstantBuffers(2, 1, m_PSConstantBuffer.GetAddressOf());
-	context->PSSetShaderResources(1, 1, m_textureView.GetAddressOf());
+	context->VSSetShaderResources(0, 1, textures + 2);
+	context->PSSetShaderResources(4, 6, textures);
 }
 
 
-void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView)
+void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFiles files)
 {
-	assert(device != nullptr && textureView != nullptr);
+	assert(device != nullptr);
 	m_modelVSConstants.projMatrix = DirectX::SimpleMath::Matrix();
 	m_modelVSConstants.viewMatrix = DirectX::SimpleMath::Matrix();
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix();
@@ -51,10 +66,24 @@ void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::
 	Utility::DXResource::CreateConstantBuffer(m_modelVSConstants, device, m_VSConstantsBuffer);
 	Utility::DXResource::CreateConstantBuffer(m_modelPSConstants, device, m_PSConstantBuffer);
 
-
-	// TODO : 이렇게 리소스뷰를 그대로 던져주는게아니라 텍스쳐 이름 두고 매니져 두고 리소스 매니져에서 가져오는게 맞지않을까?? Init할때 한번만, 프로퍼티로 텍스쳐이름만 넣고
-	// 생성자에서 텍스쳐 이름 등등 받고 매니져에서 뷰 가져오기
-	m_textureView = textureView;
+	if (files.albedoName == nullptr)
+	{
+		return;
+	}
+	// TODO : Create AssetManaget, get view from it
+	// All Textures should be SRGB, linear space
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.albedoName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_albedoView.GetAddressOf()));
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.aoName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_aoview.GetAddressOf()));
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.heightName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_heightView.GetAddressOf()));
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.metallicName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_metallicView.GetAddressOf()));
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.normalName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_normalView.GetAddressOf()));
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(device.Get(), files.roughnessName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_roughnessView.GetAddressOf()));
 }
 // Expecting PrepareForRendering has done
 void Model::Draw(ID3D11DeviceContext1* context)

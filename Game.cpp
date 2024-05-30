@@ -147,11 +147,10 @@ void Game::UpdateGUI()
 					Material mat = model.GetMaterialConstant();
 
 					// Vector3 <-> float3는 이렇게
-					ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-					ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-					ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-					ImGui::SliderFloat("ao", &mat.ao, 0.f, 1.f);
-					ImGui::SliderFloat("t1", &mat.t1, 0.f, 1.f);
+					ImGui::SliderFloat("metallic", &mat.metallicFactor, 0.f, 1.f);
+					ImGui::SliderFloat("ao", &mat.aoFactor, 0.f, 1.f);
+					ImGui::SliderFloat("roughness", &mat.roughnessFactor, 0.f, 1.f);
+					ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
 
 
 					model.UpdateMaterialConstant(mat);
@@ -341,9 +340,21 @@ void Game::Render()
 
 		const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
 
-		// IBL을 위해 0번에 큐브맵 텍스쳐 고정
-		context->PSSetShaderResources(0, 1, m_cubemapTextureView.GetAddressOf());
-		context->PSSetSamplers(0, 1, Graphics::linearWrapSS.GetAddressOf());
+		// IBL을 위해 0~3번에 큐브맵 텍스쳐 고정
+		ID3D11ShaderResourceView* resources[] = {
+			m_cubemapEnvView.Get(),
+			m_cubemapIrradianceView.Get(),
+			m_cubemapSpecularView.Get(),
+			m_cubemapBRDFView.Get(),
+		};
+
+		ID3D11SamplerState* samplers[] = {
+			Graphics::linearWrapSS.Get(),
+			Graphics::linearClampSS.Get()
+		};
+
+		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
+		context->PSSetSamplers(0, 2, samplers);
 		SetPipelineState(context, Graphics::cubemapPSO);
 		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 		m_cubeMap->Draw(context);
@@ -376,7 +387,7 @@ void Game::Render()
 		// TODO : UpSample, DownSample Blur, Faster Image Processing
 		const unsigned int GROUP_X = ceil(outputSize.right / 32.f);
 		const unsigned int GROUP_Y = ceil(outputSize.bottom / 32.f);
-		for (int i = 0; i < 100; ++i)
+		for (int i = 0; i < 10; ++i)
 		{
 			// X
 			SetPipelineState(context, Graphics::blurXPSO);
@@ -505,12 +516,21 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 
-	// All Textures should be SRGB, linear space
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView;
-	DX::ThrowIfFailed(
-		CreateWICTextureFromFileEx(device, L"earth.bmp", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), WIC_LOADER_FORCE_SRGB, nullptr, textureView.ReleaseAndGetAddressOf()));
+	// Cubemap
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"skybox.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, m_cubemapTexture.GetAddressOf(), m_cubemapTextureView.ReleaseAndGetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/citySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
+
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 
 
@@ -524,21 +544,28 @@ void Game::CreateDeviceDependentResources()
 		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
 		meshes.push_back(cubeMesh);
 		m_cubeMap = std::make_unique<Model>("cubeMap", meshes, Vector3(0.f, 0.f, 0.f));
-		m_cubeMap->Initialize(device, m_cubemapTextureView);
+		m_cubeMap->Initialize(device, {}); // 얘 클래스 따로만들어야할듯
 		meshes.clear();
 
 		MeshData&& sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
 		ModelMeshPart mesh = ModelMeshPart(sphereMesh, device);
 		meshes.push_back(mesh);
 		Model&& sphereModel = Model("BASIC SPHERE", meshes, Vector3(0.f, 0.f, 0.f));
-		sphereModel.Initialize(device, textureView);
+		sphereModel.Initialize(device, {
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
+			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+			});
 		m_models.push_back(sphereModel);
 		meshes.clear();
 
 		MeshData quad = GeometryGenerator::MakeSquare();
 		ModelMeshPart quadMesh = ModelMeshPart(quad, device);
 		meshes.push_back(quadMesh);
-		m_screenQuad = std::make_unique<Model>("Scren Quad", meshes, Vector3(0.f, 0.f, 0.f));
+		m_screenQuad = std::make_unique<Model>("Screen Quad", meshes, Vector3(0.f, 0.f, 0.f));
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);

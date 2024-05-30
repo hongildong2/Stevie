@@ -124,8 +124,11 @@ private:
 
 	// cubemap
 	std::unique_ptr<Model> m_cubeMap;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapTextureView;
-	Microsoft::WRL::ComPtr<ID3D11Resource> m_cubemapTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapEnvView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapIrradianceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapBRDFView;
+
 
 	/// PostProcess
 	std::unique_ptr<Model> m_screenQuad;

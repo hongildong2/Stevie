@@ -42,6 +42,10 @@ namespace GeometryGenerator
 				DirectX::SimpleMath::Vector3 normalOrth = v.normalModel - biTangent.Dot(v.normalModel) * v.normalModel;
 				normalOrth.Normalize();
 
+
+				v.tangentModel = biTangent.Cross(normalOrth);
+				v.tangentModel.Normalize();
+
 				verticies.push_back(v);
 			}
 		}
