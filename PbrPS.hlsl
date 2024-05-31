@@ -134,10 +134,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 {
 	float3 albedo = albedoTex.Sample(linearWrap, input.texcoordinate).rgb;
 	float ao = aoTex.Sample(linearWrap, input.texcoordinate).r * aoFactor;
-	// float metallic = metallicTex.Sample(linearWrap, input.texcoordinate).r * metallicFactor;
+	float metallic = metallicTex.Sample(linearWrap, input.texcoordinate).r * metallicFactor;
 	float roughness = roughnessTex.Sample(linearWrap, input.texcoordinate).r * roughnessFactor;
-	
-	float metallic = 1 - roughness;
 	
 	float3 N = normalize(GetNormal(input));
 	float3 V = normalize(eyeWorld - input.positionWorld);
