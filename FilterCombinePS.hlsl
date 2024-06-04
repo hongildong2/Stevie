@@ -12,7 +12,7 @@ cbuffer ImageFilterConstData : register(b0)
 	float exposure; // option1 in c++
 	float gamma; // option2 in c++
 	float blur; // option3 in c++
-	float option4;
+	float dummy;
 };
 
 struct SamplingPixelShaderInput
@@ -69,15 +69,15 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
 	float3 originalColor = g_texture0.Sample(g_sampler, input.texcoord).rgb;
 	float3 blurColor = g_texture1.Sample(g_sampler, input.texcoord).rgb;
-	blurColor = (blurColor.r + blurColor.g + blurColor.b) / 3.f < threshold ? float3(0, 0, 0) : blurColor;
 
-	float3 combined = (1.0 - strength) * blurColor + strength * originalColor;
+	float3 combined = (1.0 - strength) * originalColor + strength * blurColor;
 
 
     // Tone Mapping
 	combined = LinearToneMapping(combined);
     
-	combined = lerp(combined, g_texture0.Sample(g_sampler, input.texcoord).rgb, blur);
+	// TODO : Motion blur
+	// combined = lerp(combined, prevFrame.Sample(g_sampler, input.texcoord).rgb, blur);
     
 	return float4(combined, 1.0f);
 }

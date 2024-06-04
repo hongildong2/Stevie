@@ -24,8 +24,8 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 
 
-	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurXCS;
-	Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurYCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
 
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
@@ -36,9 +36,38 @@ namespace Graphics
 	GraphicsPSO cubemapPSO;
 	GraphicsPSO filterCombinePSO;
 
-	ComputePSO blurXPSO;
-	ComputePSO blurYPSO;
 
+	ComputePSO downBlurPSO;
+	ComputePSO upBlurPSO;
+
+
+
+	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso)
+	{
+		context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);
+		context->PSSetShader(pso.m_pixelShader.Get(), 0, 0);
+		context->HSSetShader(pso.m_hullShader.Get(), 0, 0);
+		context->DSSetShader(pso.m_domainShader.Get(), 0, 0);
+		context->GSSetShader(pso.m_geometryShader.Get(), 0, 0);
+		context->CSSetShader(NULL, 0, 0);
+		context->IASetInputLayout(pso.m_inputLayout.Get());
+		context->RSSetState(pso.m_rasterizerState.Get());
+		context->OMSetBlendState(pso.m_blendState.Get(), pso.m_blendFactor,
+			0xffffffff);
+		context->OMSetDepthStencilState(pso.m_depthStencilState.Get(),
+			pso.m_stencilRef);
+		context->IASetPrimitiveTopology(pso.m_primitiveTopology);
+	}
+
+	void SetPipelineState(ID3D11DeviceContext1* context, ComputePSO& pso)
+	{
+		context->VSSetShader(NULL, 0, 0);
+		context->PSSetShader(NULL, 0, 0);
+		context->HSSetShader(NULL, 0, 0);
+		context->DSSetShader(NULL, 0, 0);
+		context->GSSetShader(NULL, 0, 0);
+		context->CSSetShader(pso.m_computeShader.Get(), 0, 0);
+	}
 
 	// https://learn.microsoft.com/ko-kr/windows/win32/direct3d11/how-to--compile-a-shader
 	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
@@ -105,13 +134,13 @@ namespace Graphics
 
 			static_assert((sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 4, "Basic Vertex Input Layout Size");
 
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicVS);
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicVS.GetAddressOf());
 
 			// cubemapVS
 			hr = CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapVS);
-			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &basicIL);
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
+			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), basicIL.GetAddressOf());
 
 
 
@@ -125,8 +154,8 @@ namespace Graphics
 			static_assert((sizeof(screenQuadLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 2, "Screen Quad Input Layout Size");
 
 			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", &shaderBlob));
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &screenQuadVS);
-			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &screenQuadIL);
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, screenQuadVS.GetAddressOf());
+			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), screenQuadIL.GetAddressOf());
 
 		}
 
@@ -135,23 +164,23 @@ namespace Graphics
 			HRESULT hr = CompileShader(L"PbrPS.hlsl", "main", "ps_5_0", &shaderBlob);
 
 			DX::ThrowIfFailed(hr);
-			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &basicPS);
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
 			hr = CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
-			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &cubemapPS);
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapPS.GetAddressOf());
 
 			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", &shaderBlob));
-			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &filterCombinePS);
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, filterCombinePS.GetAddressOf());
 		}
 
 		// Compute Shaders
 		{
-			DX::ThrowIfFailed(CompileShader(L"BlurXCS.hlsl", "main", "cs_5_0", &shaderBlob));
-			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &blurXCS);
+			DX::ThrowIfFailed(CompileShader(L"downBlurCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, downBlurCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"BlurYCS.hlsl", "main", "cs_5_0", &shaderBlob));
-			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &blurYCS);
+			DX::ThrowIfFailed(CompileShader(L"upBlurCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, upBlurCS.GetAddressOf());
 		}
 	}
 
@@ -217,9 +246,8 @@ namespace Graphics
 		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 
-
-		blurXPSO.m_computeShader = blurXCS;
-		blurYPSO.m_computeShader = blurYCS;
+		upBlurPSO.m_computeShader = upBlurCS;
+		downBlurPSO.m_computeShader = downBlurCS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)
@@ -232,5 +260,7 @@ namespace Graphics
 
 		InitPipelineStates(device);
 	}
+
+
 
 }

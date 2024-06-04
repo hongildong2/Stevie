@@ -37,8 +37,7 @@ Game::Game() noexcept(false) :
 
 	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
 
-	m_postProcessConstant.gamma = 2.2f;
-
+	m_postProcess = nullptr;
 	m_cubeMap = nullptr;
 	m_deviceResources->RegisterDeviceNotify(this);
 }
@@ -165,12 +164,12 @@ void Game::UpdateGUI()
 
 		if (ImGui::TreeNode("ImageFilter"))
 		{
-			ImGui::SliderFloat("threshold", &m_postProcessConstant.threshold, 0.f, 5.f);
-			ImGui::SliderFloat("strength", &m_postProcessConstant.strength, 0.f, 1.f);
-			ImGui::SliderFloat("exposure", &m_postProcessConstant.exposure, 0.f, 3.f);
-			ImGui::SliderFloat("gamma", &m_postProcessConstant.gamma, 0.f, 3.f);
-			ImGui::SliderFloat("blur", &m_postProcessConstant.blur, 0.f, 10.f);
+			PostProcessConstant constant = m_postProcess->GetConstant();
+			ImGui::SliderFloat("strength", &constant.strength, 0.f, 1.f);
+			ImGui::SliderFloat("exposure", &constant.exposure, 0.f, 3.f);
+			ImGui::SliderFloat("gamma", &constant.gamma, 0.f, 3.f);
 
+			m_postProcess->UpdateConstant(constant);
 			ImGui::TreePop();
 		}
 	}
@@ -289,33 +288,6 @@ void Game::Update(DX::StepTimer const& timer)
 #pragma endregion
 
 #pragma region Frame Render
-void Game::SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso)
-{
-	context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);
-	context->PSSetShader(pso.m_pixelShader.Get(), 0, 0);
-	context->HSSetShader(pso.m_hullShader.Get(), 0, 0);
-	context->DSSetShader(pso.m_domainShader.Get(), 0, 0);
-	context->GSSetShader(pso.m_geometryShader.Get(), 0, 0);
-	context->CSSetShader(NULL, 0, 0);
-	context->IASetInputLayout(pso.m_inputLayout.Get());
-	context->RSSetState(pso.m_rasterizerState.Get());
-	context->OMSetBlendState(pso.m_blendState.Get(), pso.m_blendFactor,
-		0xffffffff);
-	context->OMSetDepthStencilState(pso.m_depthStencilState.Get(),
-		pso.m_stencilRef);
-	context->IASetPrimitiveTopology(pso.m_primitiveTopology);
-}
-
-void Game::SetPipelineState(ID3D11DeviceContext* context, ComputePSO& pso)
-{
-	context->VSSetShader(NULL, 0, 0);
-	context->PSSetShader(NULL, 0, 0);
-	context->HSSetShader(NULL, 0, 0);
-	context->DSSetShader(NULL, 0, 0);
-	context->GSSetShader(NULL, 0, 0);
-	context->CSSetShader(pso.m_computeShader.Get(), 0, 0);
-}
-
 // Draws the scene.
 void Game::Render()
 {
@@ -355,76 +327,44 @@ void Game::Render()
 
 		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
 		context->PSSetSamplers(0, 2, samplers);
-		SetPipelineState(context, Graphics::cubemapPSO);
+		Graphics::SetPipelineState(context, Graphics::cubemapPSO);
 		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 		m_cubeMap->Draw(context);
 
-		SetPipelineState(context, Graphics::basicPSO);
+		Graphics::SetPipelineState(context, Graphics::basicPSO);
 		for (Model& model : m_models)
 		{
 			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 			model.Draw(context);
 		}
-
 	}
+	m_deviceResources->PIXEndEvent();
 
-	// PostProcess.Draw()
-	if (true)
+
+	context->OMSetRenderTargets(0, NULL, NULL); // to release texture2D from RTV
+	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
-		// TODO : 필터 자유자재로 넣고 뺄 수 있게 front, back 버퍼들 바꿔가면서 하는거 벡터이용해서 일반화 하기
-		// queue 멤버로, variadic arguments to constructor
-		// 백버퍼 복사 -> 필터 1 -> 필터 2 -> 버퍼2에 최종결과 라면 버퍼1에 백버퍼 복사 -> 버퍼1, 버퍼2 SRV로 해서 FilterCombine PS
-		// Gaussian Blur
-		// front buffer has rendering result and MUST have final processed result also
-		const RECT outputSize = m_deviceResources->GetOutputSize();
+		context->CopyResource(m_postProcess->GetFirstTexture(), m_floatBuffer.Get());
+		m_postProcess->Process(context);
 
-
-		// copy render result to front buffer
-		context->CopyResource(m_frontPostProcessTextureBuffer.Get(), m_floatBuffer.Get());
-
-		// total 1024 thread groups. 화면을 가로 32 세로 32의 스레드 그룹으로 나눠서 작업을 분배한다
-		// 어느 픽셀에 위치해있는지, 어딜 참조해야 하는지지는 CS에서 DispathchThreadID가 대응
-		// TODO : UpSample, DownSample Blur, Faster Image Processing
-		const unsigned int GROUP_X = ceil(outputSize.right / 32.f);
-		const unsigned int GROUP_Y = ceil(outputSize.bottom / 32.f);
-		for (int i = 0; i < 10; ++i)
-		{
-			// X
-			SetPipelineState(context, Graphics::blurXPSO);
-			context->CSSetShaderResources(0, 1, m_frontPostProcessSRV.GetAddressOf());
-			context->CSSetUnorderedAccessViews(0, 1, m_backPostProcessUAV.GetAddressOf(), NULL);
-
-			context->Dispatch(GROUP_X, GROUP_Y, 1);
-
-			Utility::ComputeShaderBarrier(context);
-
-			// Y
-			SetPipelineState(context, Graphics::blurYPSO);
-			context->CSSetShaderResources(0, 1, m_backPostProcessSRV.GetAddressOf());
-			context->CSSetUnorderedAccessViews(0, 1, m_frontPostProcessUAV.GetAddressOf(), NULL);
-
-			context->Dispatch(GROUP_X, GROUP_Y, 1);
-			Utility::ComputeShaderBarrier(context);
-		}
-
-		SetPipelineState(context, Graphics::filterCombinePSO);
-		// 0번에 원본, 1번에 최종 후처리 결과
 		ID3D11ShaderResourceView* resources[] = {
-			 m_floatSRV.Get(), m_frontPostProcessSRV.Get()
+			m_floatSRV.Get(),
+			m_postProcess->GetFirstSRV()
 		};
-
-		auto* backbufferRTV = m_deviceResources->GetRenderTargetView(); // Draw final combine filter result into backbuffer
-		context->OMSetRenderTargets(1, &backbufferRTV, NULL);
-
-
-		Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, context, m_postProcessCB);
 		context->PSSetShaderResources(0, 2, resources);
-		context->PSSetConstantBuffers(0, 1, m_postProcessCB.GetAddressOf());
-		m_screenQuad->Draw(context);
+
+		auto rtv = m_deviceResources->GetRenderTargetView();
+		context->OMSetRenderTargets(1, &rtv, NULL);
+
+		m_postProcess->Draw(context);
+
+		ID3D11ShaderResourceView* nullSRV[6] = { 0, };
+		context->PSSetShaderResources(0, 6, nullSRV);
 	}
+
+
 
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	m_deviceResources->PIXEndEvent();
 
 	// Show the new frame.
 	m_deviceResources->Present();
@@ -438,10 +378,19 @@ void Game::Clear()
 	// Clear the views.
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto depthStencil = m_deviceResources->GetDepthStencilView();
+	ID3D11RenderTargetView* post = m_postProcess->GetRenderTargetView();
 
-	context->ClearRenderTargetView(m_floatRTV.Get(), Colors::RoyalBlue); // HDR Pipeline, using float RTV
+	context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
+	context->ClearRenderTargetView(post, Colors::Black);
+
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, m_floatRTV.GetAddressOf(), depthStencil); // 절대로 &RTV 쓰지말고 RTV.GetAddressOf() 쓸것 아니면 어레이 쓰던가
+
+	// for post process
+	ID3D11RenderTargetView* rtvs[] = {
+		m_floatRTV.Get(),
+		post
+	};
+	context->OMSetRenderTargets(2, rtvs, depthStencil);
 
 	// Set the viewport.
 	auto const viewport = m_deviceResources->GetScreenViewport();
@@ -522,11 +471,6 @@ void Game::CreateDeviceDependentResources()
 	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
 	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/cityDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/citySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FORCE_SRGB, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
-
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
@@ -561,11 +505,6 @@ void Game::CreateDeviceDependentResources()
 			});
 		m_models.push_back(sphereModel);
 		meshes.clear();
-
-		MeshData quad = GeometryGenerator::MakeSquare();
-		ModelMeshPart quadMesh = ModelMeshPart(quad, device);
-		meshes.push_back(quadMesh);
-		m_screenQuad = std::make_unique<Model>("Screen Quad", meshes, Vector3(0.f, 0.f, 0.f));
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);
@@ -581,72 +520,30 @@ void Game::CreateWindowSizeDependentResources()
 
 	auto* device = m_deviceResources->GetD3DDevice();
 
-	//	 Detect Window size Changed
-	{
-		if (m_floatBuffer) // 사실 널이어도 ㄱㅊ
-		{
-			m_floatBuffer.Reset();
-			m_floatRTV.Reset();
-			m_floatSRV.Reset();
-		}
-		if (m_backPostProcessTextureBuffer)
-		{
-			m_backPostProcessTextureBuffer.Reset();
-			m_backPostProcessSRV.Reset();
-			m_backPostProcessUAV.Reset();
-		}
-		if (m_frontPostProcessTextureBuffer)
-		{
-			m_frontPostProcessTextureBuffer.Reset();
-			m_frontPostProcessSRV.Reset();
-			m_frontPostProcessUAV.Reset();
-		}
 
-	}
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // for HDR Pipeline
+	desc.Width = size.right;
+	desc.Height = size.bottom;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
 
-	// 진짜 나중에 정리할게요 ㅠㅠ
-	// Texture2Ds For GaussianBlur and Tonemapping
-	{
+	// HDR Pipeline
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_floatBuffer.GetAddressOf()));
+	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	DX::ThrowIfFailed(device->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
+	DX::ThrowIfFailed(device->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
-		const RECT outputSize = m_deviceResources->GetOutputSize();
+	m_postProcess = std::make_unique<PostProcess>();
+	m_postProcess->Initialize(device, size);
 
-
-
-		// description for UAV
-		D3D11_TEXTURE2D_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // for HDR Pipeline
-		desc.Width = outputSize.right;
-		desc.Height = outputSize.bottom;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
-		desc.MiscFlags = 0;
-		desc.CPUAccessFlags = 0;
-
-		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_backPostProcessTextureBuffer.GetAddressOf()));
-		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_frontPostProcessTextureBuffer.GetAddressOf()));
-
-
-		DX::ThrowIfFailed(device->CreateShaderResourceView(m_backPostProcessTextureBuffer.Get(), NULL, m_backPostProcessSRV.GetAddressOf()));
-		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_backPostProcessTextureBuffer.Get(), NULL, m_backPostProcessUAV.GetAddressOf()));
-
-		DX::ThrowIfFailed(device->CreateShaderResourceView(m_frontPostProcessTextureBuffer.Get(), NULL, m_frontPostProcessSRV.GetAddressOf()));
-		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_frontPostProcessTextureBuffer.Get(), NULL, m_frontPostProcessUAV.GetAddressOf()));
-
-		// HDR Pipeline
-		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_floatBuffer.GetAddressOf()));
-		CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		DX::ThrowIfFailed(device->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
-		DX::ThrowIfFailed(device->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
-
-
-		Utility::DXResource::CreateConstantBuffer(m_postProcessConstant, device, m_postProcessCB);
-	}
 }
 
 void Game::OnDeviceLost()

@@ -31,17 +31,7 @@ struct LightConstants
 	Light spotLight;
 };
 
-struct PostProcessConstant
-{
-	float dx;
-	float dy;
-	float threshold = 0.5f;
-	float strength = 1;
-	float exposure = 0.5f; // option1 in c++
-	float gamma = 0.5f; // option2 in c++
-	float blur = 0.5f; // option3 in c++
-	float option4;
-};
+
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -85,8 +75,6 @@ private:
 
 	void Update(DX::StepTimer const& timer);
 	void UpdateGUI();
-	void SetPipelineState(ID3D11DeviceContext* context, GraphicsPSO& pso);
-	void SetPipelineState(ID3D11DeviceContext* context, ComputePSO& pso);
 
 	void Render();
 
@@ -129,21 +117,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapBRDFView;
 
-
-	/// PostProcess
-	std::unique_ptr<Model> m_screenQuad;
-	PostProcessConstant m_postProcessConstant;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_frontPostProcessTextureBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_frontPostProcessSRV;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_frontPostProcessUAV;
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backPostProcessTextureBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backPostProcessSRV;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_backPostProcessUAV;
-
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_postProcessCB;
+	std::unique_ptr<PostProcess> m_postProcess;
 };

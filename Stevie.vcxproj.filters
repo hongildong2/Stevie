@@ -25,6 +25,8 @@
     <ClInclude Include="Utility.h" />
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="ComputePSO.h" />
+    <ClInclude Include="PostProcess.h" />
+    <ClInclude Include="RenderTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -39,6 +41,8 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="GraphicsPSO.cpp" />
+    <ClCompile Include="PostProcess.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -67,8 +71,8 @@
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="CubemapPS.hlsl" />
     <FxCompile Include="CubemapVS.hlsl" />
-    <FxCompile Include="BlurYCS.hlsl" />
-    <FxCompile Include="BlurXCS.hlsl" />
+    <FxCompile Include="downBlurCS.hlsl" />
+    <FxCompile Include="upBlurCS.hlsl" />
     <FxCompile Include="FilterCombinePS.hlsl" />
     <FxCompile Include="ScreenQuadVS.hlsl" />
     <FxCompile Include="PbrPS.hlsl" />

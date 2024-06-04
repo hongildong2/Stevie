@@ -29,8 +29,8 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 
-	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurXCS;
-	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> blurYCS;
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
 
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
@@ -42,8 +42,8 @@ namespace Graphics
 	extern GraphicsPSO cubemapPSO;
 	extern GraphicsPSO filterCombinePSO;
 
-	extern ComputePSO blurXPSO;
-	extern ComputePSO blurYPSO;
+	extern ComputePSO downBlurPSO;
+	extern ComputePSO upBlurPSO;
 
 
 	// Blend States
@@ -61,6 +61,9 @@ namespace Graphics
 
 	// 주의: 초기화가 느려서 필요한 경우에만 초기화
 	// void InitVolumeShaders(ComPtr<ID3D11Device>& device);
+
+	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso);
+	void SetPipelineState(ID3D11DeviceContext1* context, ComputePSO& pso);
 
 	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
 
