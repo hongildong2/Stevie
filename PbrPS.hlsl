@@ -17,7 +17,6 @@ cbuffer PSConstant : register(b2)
 	float t1;
 };
 
-static const float PI = 3.14159265359;
 
 TextureCube cubeMap : register(t0);
 TextureCube irradianceMap : register(t1);

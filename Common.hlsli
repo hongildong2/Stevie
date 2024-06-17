@@ -32,5 +32,6 @@ struct Light
 	float spotPower;
 };
 
+const float PI = 3.14159265359;
 
 #endif // __COMMON_HLSLI__

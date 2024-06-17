@@ -8,6 +8,9 @@
       <UniqueIdentifier>9b0c6983-910c-432f-a280-7200eb685e73</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Ocean">
+      <UniqueIdentifier>{9320104d-048f-4197-8d9c-3430d9ce4afb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -27,6 +30,9 @@
     <ClInclude Include="ComputePSO.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Ocean.h">
+      <Filter>Ocean</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -43,6 +49,9 @@
     <ClCompile Include="GraphicsPSO.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Ocean.cpp">
+      <Filter>Ocean</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -66,6 +75,10 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Common.hlsli" />
+    <None Include="Random.hlsli" />
+    <None Include="OceanFunctions.hlsli">
+      <Filter>Ocean</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -76,5 +89,14 @@
     <FxCompile Include="FilterCombinePS.hlsl" />
     <FxCompile Include="ScreenQuadVS.hlsl" />
     <FxCompile Include="PbrPS.hlsl" />
+    <FxCompile Include="InitialOceanSpectrumCS.hlsl">
+      <Filter>Ocean</Filter>
+    </FxCompile>
+    <FxCompile Include="TimeDependentWaveSpectrum.hlsl">
+      <Filter>Ocean</Filter>
+    </FxCompile>
+    <FxCompile Include="OceanFFTCS.hlsl">
+      <Filter>Ocean</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
