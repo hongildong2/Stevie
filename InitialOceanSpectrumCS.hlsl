@@ -1,48 +1,46 @@
 #include "Common.hlsli"
-#include "Random.hlsli"
+#include "GPURandom.hlsli"
 #include "OceanFunctions.hlsli"
 
 // https://github.com/gasgiant/FFT-Ocean/blob/main/Assets/ComputeShaders/InitialSpectrum.compute
 
 
-// These contains all 3 spectrum waves with z-indexed
-RWTexture2DArray<float4> initialSpectrumTex; 
+// These contains all TARGET_COUNT spectrum waves with z-indexed texture
+RWTexture2DArray<float2> initialSpectrumTex; 
+
+// wave vector x, 1 / magnitude, wave vector z, frequency
 RWTexture2DArray<float4> wavesDataTex;
 
 Texture2D<float2> noiseTex;
 
 cbuffer WaveConstant : register(b0)
 {
-	float3 lengthScale;
+	float4 lengthScales;
 	float cutoffHigh;
 	float cutoffLow;
 	float g;
 	float depth;
-	float dummy;
 }
 
 static uint size = SIZE;
 
 // These contains all TARGET_COUNT spectrum wave cascades with z-indexed
 StructuredBuffer<SpectrumParameters> waveSpectrums; // 2 x TARGET_COUNT
-const float waveLengthScales[TARGET_COUNT] = { lengthScale.x, lengthScale.y, lengthScale.z };
-
-
-
 
 
 [numthreads(16, 16, TARGET_COUNT)] // calc simultaneously all three wave cascades
 void main( uint3 DTid : SV_DispatchThreadID )
 {
+	const float waveLengthScales[TARGET_COUNT] = { lengthScales.x, lengthScales.y, lengthScales.z, lengthScales.w };
 	const float selectedWaveLengthScale = waveLengthScales[DTid.z];
-	float deltaK = 2 * PI / selectedWaveLengthScale;
+	float deltaK = 2 * GPU_PI / selectedWaveLengthScale;
 	int nx = DTid.x - size / 2;
 	int nz = DTid.y - size / 2;
 	float2 k = float2(nx, nz) * deltaK; // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
 	
-	// overflow
+	// clamp
 	if (kLength <= cutoffHigh && kLength >= cutoffLow)
 	{
 		float kAngle = atan2(k.y, k.x);
@@ -53,10 +51,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		
 		const uint waveCascadeIndex = DTid.z;
 		
-		// just random smapling of spectrum of ocean wave as signal
+		// just random sampling of JONSWAP spectrum of ocean wave
 		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
 		
-		if (waveSpectrums[waveCascadeIndex + 1].scale > 0)
+		if (waveSpectrums[waveCascadeIndex + 1].scale > 0) // ??
 		{
 			waveSpectrum += JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex + 1])
 			* DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex + 1])
@@ -64,12 +62,16 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		}
 				
 		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + TARGET_COUNT)));
+		
+		// {wave vector x, 1 / magnitude, wave vector z, frequency}
 		wavesDataTex[DTid] = float4(k.x, 1 / kLength, k.y, w);
+		
+		// ?? 어디서 온 식??
 		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK);
 	}
 	else
 	{
-		initialSpectrumTex[DTid] = 0;
+		initialSpectrumTex[DTid] = float2(0.0, 0.0);
 		wavesDataTex[DTid] = float4(k.x, 1, k.y, 0);
 	}
 }

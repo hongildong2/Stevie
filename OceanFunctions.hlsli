@@ -3,7 +3,7 @@
 
 #define SIZE 512 // 512 by 512 DFT
 #define LOG_SIZE 9 // log2  512
-#define TARGET_COUNT 3 // total 3 wave cascades
+#define TARGET_COUNT 4 // total 4 wave cascades
 
 struct SpectrumParameters
 {

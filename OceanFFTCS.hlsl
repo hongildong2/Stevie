@@ -35,13 +35,13 @@ float2 ComplexMult(float2 a, float2 b)
 void ButterflyValues(uint step, uint index, out uint2 indices, out float2 twiddle)
 {
 	const float twoPi = 6.28318530718;
-	uint b = size >> (step + 1); // N/2의 계수 가져오기
-	uint w = b * (index / b); // basis selection
-	uint i = (w + index) % size; // get index of selected basis order
+	uint b = size >> (step + 1); // step이 logged 되었으
+	uint w = b * (index / b); // frquency basis selection, ki of 2DIT radix case
+	uint i = (w + index) % size; // Xk 에서, k의 인덱싱으로부터 xn,xm, 인풋값의  인덱스를 역추적, k = 0 -> n = 0, m = 1. 왜 식이 이렇게되는지는 나한테 묻지마라..e
 	sincos(-twoPi / size * w, twiddle.y, twiddle.x);
 	if (inverse)
 		twiddle.y = -twiddle.y;
-	indices = uint2(i, i + b); // indicies of buffer, bit reversed?
+	indices = uint2(i, i + b); // 
 }
 
 float4 DoFft(uint threadIndex, float4 input)
@@ -98,11 +98,9 @@ float4 DoPostProcess(float4 input, uint2 id)
 }
 
 // wave post process
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, 4)]
 void PostProcess(uint3 id : SV_DispatchThreadID)
 {
-    for (uint i = 0; i < TARGET_COUNT; i++)
-    {
-        FTResultTex[uint3(id.xy, i)] = DoPostProcess(FTResultTex[uint3(id.xy, i)], id.xy);
-    }
+    FTResultTex[id] = DoPostProcess(FTResultTex[id], id.xy);
+    
 }

@@ -19,7 +19,7 @@ float2 ComplexMult(float2 a, float2 b)
 
 void CalculateForCascade(uint3 id)
 {
-	float4 wave = wavesData[id];
+	float4 wave = wavesData[id]; // wave vector x, 1 / magnitude, wave vector z, frequency
 	
 	float phase = wave.w * Time;
 	float2 exponent = float2(cos(phase), sin(phase));
@@ -51,11 +51,8 @@ void CalculateForCascade(uint3 id)
 							     float2(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x));
 }
 
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, TARGET_COUNT)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-	for (uint i = 0; i < TARGET_COUNT; ++i)
-	{
-		CalculateForCascade(uint3(DTid.xy, i));
-	}
+	CalculateForCascade(DTid);	
 }

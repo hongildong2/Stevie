@@ -230,7 +230,10 @@
     <None Include="Common.hlsli" />
     <None Include="OceanFunctions.hlsli" />
     <None Include="packages.config" />
-    <None Include="Random.hlsli" />
+    <None Include="GPURandom.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="downBlurCS.hlsl">

@@ -26,14 +26,15 @@ public:
 private:
 	// Texture3D, z for each wave cascade
 	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_heightMap;
-	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_initialSpectrumMap; // tilde h0
+
+	// Texture for spectrum calculation
+	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_initialSpectrumMap; // tilde h0k
+	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_conjugateInitialSpectrumMap; // *h0k
 	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_waveVectorData; // wave vector x, chop, wave vector z, frequency
-
-	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_spectrumMap;
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_gaussianNoise; // noise texture
+	Microsoft::WRL::ComPtr<ID3D11Texture3D> m_spectrumMap; // time dependent spectrum, tilde h(k,t)
 
 
+	static const unsigned int CASCADE_COUNT = 4; // total 4 different wave cascade
 	static const unsigned int N = 512; // fourier grid size, M = N
 	static const unsigned int dx = 3; // grid size, in cm
 	static const unsigned int L = N * dx; // total simulated size, in cm

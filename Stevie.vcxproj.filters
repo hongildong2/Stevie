@@ -75,8 +75,10 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Common.hlsli" />
-    <None Include="Random.hlsli" />
     <None Include="OceanFunctions.hlsli">
+      <Filter>Ocean</Filter>
+    </None>
+    <None Include="GPURandom.hlsli">
       <Filter>Ocean</Filter>
     </None>
   </ItemGroup>
