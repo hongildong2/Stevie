@@ -94,7 +94,7 @@
     <FxCompile Include="InitialOceanSpectrumCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
-    <FxCompile Include="TimeDependentWaveSpectrum.hlsl">
+    <FxCompile Include="TimeDependentWaveSpectrumCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
     <FxCompile Include="OceanFFTCS.hlsl">

@@ -40,6 +40,19 @@ namespace Graphics
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
 
+	// 이게 맞는걸까??
+
+	namespace Ocean
+	{
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+
+		ComputePSO initialSpectrumPSO;
+		ComputePSO timedependentSpectrumPSO;
+		ComputePSO FFTPSO;
+	}
+	
 
 
 	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso)
@@ -181,6 +194,17 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"upBlurCS.hlsl", "main", "cs_5_0", &shaderBlob));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, upBlurCS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"initialOceanSpectrumCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::initialSpectrumCS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"TimeDependentWaveSpectrumCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::timedependentSpectrumCS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTCS.GetAddressOf());
+
+
 		}
 	}
 

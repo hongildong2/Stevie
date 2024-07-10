@@ -32,6 +32,7 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
 
+	
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
@@ -44,6 +45,19 @@ namespace Graphics
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;
+	
+	namespace Ocean
+	{
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+
+
+		extern ComputePSO initialSpectrumPSO;
+		extern ComputePSO timedependentSpectrumPSO;
+		extern ComputePSO FFTPSO;
+	}
+	
 
 
 	// Blend States

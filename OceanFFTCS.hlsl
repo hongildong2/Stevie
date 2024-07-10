@@ -70,7 +70,7 @@ float4 DoFft(uint threadIndex, float4 input)
 
 // As we calculated time-dependent wave spectrum, N = 1 is already calculated, we do IFFT from there.
 [numthreads(SIZE, 1, 1)]
-void FFT( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit reversed
+void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit reversed
 {
 	uint threadIndex = DTid.x;
 	uint2 targetIndex;
