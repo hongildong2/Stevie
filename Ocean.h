@@ -22,7 +22,7 @@ public:
 	void InitData(ID3D11DeviceContext1* context);
 	void Update(ID3D11DeviceContext1* context); // is timer necessary?
 	void Draw(ID3D11DeviceContext1* context);
-	
+
 private:
 	static const unsigned int CASCADE_COUNT = 4; // total 4 different wave cascade
 	static const unsigned int N = 512; // fourier grid size, M = N
@@ -32,12 +32,17 @@ private:
 
 	Model m_oceanPlane;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMap[CASCADE_COUNT];
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMap; // staging texture for cpu
 
 	// Texture for spectrum calculation
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap[CASCADE_COUNT]; // tilde h0k, float2
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_waveVectorData[CASCADE_COUNT]; // [wave vector x, choppiness, wave vector z, frequency], float4
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumMap[CASCADE_COUNT]; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_initialSpectrumMapUAV;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_waveVectorData; // [wave vector x, choppiness, wave vector z, frequency], float4
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_waveVectorDataUAV;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumMapUAV;
 
 
 };
