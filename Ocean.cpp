@@ -3,8 +3,7 @@
 #include "GraphicsCommon.h"
 
 Ocean::Ocean(ID3D11Device1* device)
-	:mb_initialized(false),
-	m_oceanPlane("OceanPlane", { ModelMeshPart(GeometryGenerator::MakeSquare(), device) }, { 0.f, 0.f, 0.f })
+	:mb_initialized(false)
 {
 	// create d3d resources
 	D3D11_TEXTURE2D_DESC desc;
@@ -57,7 +56,7 @@ Ocean::Ocean(ID3D11Device1* device)
 
 }
 
-void Ocean::InitData(ID3D11DeviceContext1* context)
+void Ocean::Initialize(ID3D11DeviceContext1* context)
 {
 	// run initspectrum CS, get initial spectrum map
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
@@ -78,7 +77,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// If wave constant changed, re-run InitData routine
 	if (mb_initialized == false)
 	{
-		InitData(context);
+		Initialize(context);
 		mb_initialized = true;
 	}
 
@@ -122,6 +121,6 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 void Ocean::Draw(ID3D11DeviceContext1* context)
 {
 	// Set vertex shader <- resources : Height map, displacement map
-	m_oceanPlane.Draw(context);
+	// m_oceanPlane.Draw(context);
 	// Set Pixel Shader <- resources : Normal map, Jacobian Map, PBR constants
 }

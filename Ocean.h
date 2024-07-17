@@ -19,7 +19,8 @@ public:
 	Ocean(ID3D11Device1* device);
 	Ocean(const Ocean& other) = delete;
 	Ocean& operator=(const Ocean& other) = delete;
-	void InitData(ID3D11DeviceContext1* context);
+
+	void Initialize(ID3D11DeviceContext1* context);
 	void Update(ID3D11DeviceContext1* context); // is timer necessary?
 	void Draw(ID3D11DeviceContext1* context);
 
@@ -30,7 +31,8 @@ private:
 	static const unsigned int L = N * dx; // total simulated size, in cm
 	bool mb_initialized;
 
-	Model m_oceanPlane;
+	// Model m_oceanPlane;
+	double m_heightMapCPU[N][N];
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMap; // staging texture for cpu
 
