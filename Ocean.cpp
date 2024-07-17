@@ -3,7 +3,8 @@
 #include "GraphicsCommon.h"
 
 Ocean::Ocean(ID3D11Device1* device)
-	:mb_initialized(false)
+	:mb_initialized(false),
+	m_heightMapCPU{}
 {
 	// create d3d resources
 	D3D11_TEXTURE2D_DESC desc;
@@ -133,8 +134,18 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 				std::memcpy((byte*) dest + (N * BytesPerPixel * i), (byte*) pTex2DArrayElement + (resourceDesc.RowPitch * i), N * BytesPerPixel);
 			}
 		}
-		
+
+		for (unsigned int i = 0; i < N; ++i)
+		{
+			for (unsigned int j = 0; j < N; ++j)
+			{
+			// TODO : parallel for?
+				m_heightMapCPU[0][i][j] = (m_heightMapCPU[0][i][j] + m_heightMapCPU[1][i][j] + m_heightMapCPU[2][i][j] + m_heightMapCPU[3][i][j]) / CASCADE_COUNT;
+			}
+		}
 	}
+
+
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
 }
