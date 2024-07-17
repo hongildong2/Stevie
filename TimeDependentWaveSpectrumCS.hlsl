@@ -1,10 +1,10 @@
 #include "OceanFunctions.hlsli"
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
-RWTexture2DArray<float4> Result; // for each cascade
+RWTexture2DArray<float4> Result : register(u0); // for each cascade
 
-Texture2DArray<float4> initialSpectrums;
-Texture2DArray<float4> wavesData;
+Texture2DArray<float4> initialSpectrums : register(t0);
+Texture2DArray<float4> wavesData : register(t1);
 
 cbuffer Params : register(b0)
 {

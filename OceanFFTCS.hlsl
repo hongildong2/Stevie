@@ -7,7 +7,7 @@
 static uint size = SIZE;
 
 // z indexed wave cascades
-RWTexture2DArray<float4> FTResultTex;
+RWTexture2DArray<float4> FTResultTex : register(u0);
 
 cbuffer FFTInfo : register(b0)
 {

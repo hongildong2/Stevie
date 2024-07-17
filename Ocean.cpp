@@ -12,24 +12,24 @@ Ocean::Ocean(ID3D11Device1* device)
 	// TODO : Check CPU Readonly acceptable description
 	desc.Width = N;
 	desc.Height = N;
-	desc.MipLevels = 1;
+	desc.MipLevels = 0;
 	desc.ArraySize = CASCADE_COUNT;
-	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Count = 0;
 	desc.SampleDesc.Quality = 0;
 	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
-	desc.CPUAccessFlags = 0;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	desc.MiscFlags = 0;
 
 	// Stating HeightMap Texture for CPU
-	device->CreateTexture2D(&desc, NULL, m_heightMap.GetAddressOf());
+	device->CreateTexture2D(&desc, NULL, m_heightMapGPU.GetAddressOf());
 
-
+	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
 	// Spectrum Map Texture
 	device->CreateTexture2D(&desc, NULL, m_spectrumMap.GetAddressOf());
-
 
 	// Wave vector datas
 	device->CreateTexture2D(&desc, NULL, m_waveVectorData.GetAddressOf());
@@ -64,7 +64,7 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 	ID3D11UnorderedAccessView* uavs[] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL); // TODO : create shader resource view for textures
 
-	context->Dispatch(1, 1, 1);
+	context->Dispatch(GROUP_X, GROUP_Y, 1);
 
 	// get initial wave vectors
 
@@ -84,10 +84,11 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// apply delta time, update spectrum map using tilde h0
 	// RUN Time dependent sepctrum CS using textures tilde h0(k,t), and waveData that contains wave vector k
 	Graphics::SetPipelineState(context, Graphics::Ocean::timedependentSpectrumPSO);
-	// TODO : Set UAV Resources as Texture2DArray
-	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get(), m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
+	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
+	ID3D11ShaderResourceView* srvs[] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
 	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
-	context->Dispatch(1, 1, 1);
+	context->CSSetShaderResources(0, sizeof(srvs), srvs);
+	context->Dispatch(GROUP_X, GROUP_X, 1);
 	// save result into FFT texture for IFFT CS to use it 
 
 
@@ -96,26 +97,46 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// Run FFT CS twice on FFT texture as it is 2D FFT, one with horizontally and the other one with vertically(order can be changed)
 
 	// horizontally
+	context->CSSetShaderResources(0, 0, NULL);
 	Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-	// TODO : Set UAV Resources as Texture2DArray
 	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
 	context->Dispatch(1, 1, 1);
 
 	// vertically
 	Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-	// TODO : Set UAV Resources as Texture2DArray
 	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
 	context->Dispatch(1, 1, 1);
 
 	// Copy Resource spectrumMap to heightMap Staging Texture
 
+	context->CSSetUnorderedAccessViews(0, 0, NULL, NULL);
+	context->CopyResource(m_heightMapGPU.Get(), m_spectrumMap.Get());
+	// send data to CPU
+
+	D3D11_MAPPED_SUBRESOURCE resourceDesc = {};
+	context->Map(m_heightMapGPU.Get(), 0, D3D11_MAP_READ, 0, &resourceDesc);
+
+
+	if (resourceDesc.pData)
+	{
+		const int BytesPerPixel = sizeof(uint64_t); //R16G16B16A16 float4
+
+		for (unsigned int depth = 0; depth < CASCADE_COUNT; depth++)
+		{
+			void* pTex2DArrayElement = (byte*)resourceDesc.pData + (BytesPerPixel * N * N) * depth;
+			void* dest = (void*) m_heightMapCPU[depth];
+			for (unsigned int i = 0; i < N; ++i)
+			{
+				// copying row by row
+				std::memcpy((byte*) dest + (N * BytesPerPixel * i), (byte*) pTex2DArrayElement + (resourceDesc.RowPitch * i), N * BytesPerPixel);
+			}
+		}
+		
+	}
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
-
-
-
 }
 
 void Ocean::Draw(ID3D11DeviceContext1* context)

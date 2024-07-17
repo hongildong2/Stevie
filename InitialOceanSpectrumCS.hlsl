@@ -6,12 +6,10 @@
 
 
 // These contains all TARGET_COUNT spectrum waves with z-indexed texture
-RWTexture2DArray<float2> initialSpectrumTex; 
+RWTexture2DArray<float2> initialSpectrumTex : register(u0);
 
 // wave vector x, 1 / magnitude, wave vector z, frequency
-RWTexture2DArray<float4> wavesDataTex;
-
-Texture2D<float2> noiseTex;
+RWTexture2DArray<float4> wavesDataTex : register(u1);
 
 cbuffer WaveConstant : register(b0)
 {
