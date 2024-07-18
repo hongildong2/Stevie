@@ -26,7 +26,8 @@ using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false) :
 	m_pitch(0),
-	m_yaw(0)
+	m_yaw(0),
+	m_ocean()
 {
 	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -461,22 +462,18 @@ void Game::GetDefaultSize(int& width, int& height) const noexcept
 // These are the resources that depend on the device.
 void Game::CreateDeviceDependentResources()
 {
-	auto device = m_deviceResources->GetD3DDevice();
+	auto* device = m_deviceResources->GetD3DDevice();
 
 	Graphics::InitCommonStates(device);
 
 	// Cubemap
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskyDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-	//DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/clear_pureskySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
-
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
 	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 
+	m_ocean = std::make_unique<Ocean>(device);
 
 	// Init Assets
 	{

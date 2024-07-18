@@ -90,10 +90,10 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// apply delta time, update spectrum map using tilde h0
 	// RUN Time dependent sepctrum CS using textures tilde h0(k,t), and waveData that contains wave vector k
 	Graphics::SetPipelineState(context, Graphics::Ocean::timedependentSpectrumPSO);
-	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
-	ID3D11ShaderResourceView* srvs[] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
-	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
-	context->CSSetShaderResources(0, sizeof(srvs), srvs);
+	ID3D11UnorderedAccessView* spectrumMapUAV[1] = { m_spectrumMapUAV.Get() };
+	ID3D11ShaderResourceView* srvs[2] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
+	context->CSSetUnorderedAccessViews(0, sizeof(spectrumMapUAV) / sizeof(ID3D11UnorderedAccessView*), spectrumMapUAV, NULL);
+	context->CSSetShaderResources(0, sizeof(srvs) / sizeof(ID3D11ShaderResourceView*), srvs);
 	context->Dispatch(GROUP_X, GROUP_X, 1);
 	// save result into FFT texture for IFFT CS to use it 
 
@@ -105,14 +105,12 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// horizontally
 	context->CSSetShaderResources(0, 0, NULL);
 	Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
-	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
+	context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 	context->Dispatch(1, 1, 1);
 
 	// vertically
 	Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-	ID3D11UnorderedAccessView* uavs[] = { m_spectrumMapUAV.Get() };
-	context->CSSetUnorderedAccessViews(0, sizeof(uavs), uavs, NULL);
+	context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 	context->Dispatch(1, 1, 1);
 
 	// Copy Resource spectrumMap to heightMap Staging Texture
@@ -136,7 +134,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 			for (unsigned int i = 0; i < N; ++i)
 			{
 				// copying row by row
-				std::memcpy((byte*)dest + (N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), N * BytesPerPixel);
+				std::memcpy((byte*)dest + (N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), static_cast<size_t>(N * BytesPerPixel));
 			}
 		}
 

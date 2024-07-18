@@ -13,6 +13,8 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
 
+#include "Ocean.h"
+
 // ¿œ¥‹..
 struct Light
 {
@@ -104,6 +106,7 @@ private:
 	/// Scene : models, camera, viewport, lights, cubemap
 	std::vector<Model> m_models;
 	std::unique_ptr<Camera> m_camera;
+	std::unique_ptr<Ocean> m_ocean;
 	DirectX::SimpleMath::Matrix m_proj;
 
 	// light
