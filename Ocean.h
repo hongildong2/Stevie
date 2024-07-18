@@ -69,7 +69,5 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_FFTCB;
 	FFTConstant m_FFTConstant;
-
-
 };
 

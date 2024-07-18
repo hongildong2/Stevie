@@ -53,7 +53,7 @@ static_assert(sizeof(PSConstants) % 16 == 0, "PSConstants Alignment");
 class Model
 {
 public:
-	Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition);
+	Model(const char* name, std::vector<ModelMeshPart> meshes, DirectX::SimpleMath::Vector3 worldPosition);
 
 	// ㄱㄴ?
 	~Model() = default; // TODO : 포인터들 전부 nullptr, reset호출은 매니저에서

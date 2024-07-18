@@ -2,7 +2,7 @@
 #include "Model.h"
 #include "Utility.h"
 
-Model::Model(const char* name, std::vector<ModelMeshPart>& meshes, DirectX::SimpleMath::Vector3 worldPosition) : m_name(name)
+Model::Model(const char* name, std::vector<ModelMeshPart> meshes, DirectX::SimpleMath::Vector3 worldPosition) : m_name(name)
 {
 	m_meshes.reserve(50);
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);

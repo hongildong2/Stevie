@@ -477,22 +477,15 @@ void Game::CreateDeviceDependentResources()
 
 	// Init Assets
 	{
-
-		std::vector<ModelMeshPart> meshes;
-
 		// cubemap Init
 		MeshData cube = GeometryGenerator::MakeBox(50.f);
-		ModelMeshPart cubeMesh = ModelMeshPart(cube, device);
-		meshes.push_back(cubeMesh);
-		m_cubeMap = std::make_unique<Model>("cubeMap", meshes, Vector3(0.f, 0.f, 0.f));
+		m_cubeMap = std::make_unique<Model>("cubeMap", std::vector<ModelMeshPart>{ ModelMeshPart(cube, device) }, Vector3(0.f, 0.f, 0.f));
 		m_cubeMap->Initialize(device, {}); // 얘 클래스 따로만들어야할듯
-		meshes.clear();
 
-		MeshData&& sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
-		ModelMeshPart mesh = ModelMeshPart(sphereMesh, device);
-		meshes.push_back(mesh);
-		Model&& sphereModel = Model("BASIC SPHERE", meshes, Vector3(0.f, 0.f, 0.f));
-		sphereModel.Initialize(device, {
+		// sample model
+		MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
+		m_models.emplace_back("BASIC SPHERE", std::vector<ModelMeshPart>{ModelMeshPart(sphereMesh, device)}, Vector3(0.f, 0.f, 0.f));
+		m_models.back().Initialize(device, {
 			L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
 			L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
 			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
@@ -500,8 +493,6 @@ void Game::CreateDeviceDependentResources()
 			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
 			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
 			});
-		m_models.push_back(sphereModel);
-		meshes.clear();
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);
