@@ -101,6 +101,5 @@ float4 DoPostProcess(float4 input, uint2 id)
 [numthreads(16, 16, 4)]
 void PostProcess(uint3 id : SV_DispatchThreadID)
 {
-    FTResultTex[id] = DoPostProcess(FTResultTex[id], id.xy);
-    
+    FTResultTex[id] = DoPostProcess(FTResultTex[id], id.xy);   
 }

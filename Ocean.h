@@ -1,17 +1,28 @@
 #pragma once
 
-struct SpectrumParameters
+struct InitialSpectrumConstant
 {
-	float scale;
-	float angle;
-	float spreadBlend;
-	float swell;
-	float alpha;
-	float peakOmega;
-	float gamma;
-	float shortWavesFade;
+	float lengthScales[4];
+	float cutoffHigh;
+	float cutoffLow;
+	float g;
+	float depth;
 };
 
+struct FFTConstant
+{
+	unsigned int targetCount;
+	unsigned int bDirection;
+	unsigned int bInverse;
+	unsigned int bScale;
+	unsigned int bPermute;
+};
+
+struct SpectrumConstant
+{
+	float time;
+	float dummy[3];
+};
 
 class Ocean
 {
@@ -44,6 +55,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_initialSpectrumMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumMapSRV;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumCB;
+	InitialSpectrumConstant m_initialSpectrumConstant;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_waveVectorData; // [wave vector x, choppiness, wave vector z, frequency], float4
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_waveVectorDataUAV;
@@ -51,6 +64,11 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumMapUAV;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_spectrumCB;
+	SpectrumConstant m_spectrumConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_FFTCB;
+	FFTConstant m_FFTConstant;
 
 
 };

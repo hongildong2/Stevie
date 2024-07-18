@@ -1,16 +1,19 @@
 #include "pch.h"
 #include "Ocean.h"
 #include "GraphicsCommon.h"
+#include "Utility.h"
 
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
-	m_heightMapCPU{}
+	m_heightMapCPU{ 0, },
+	m_initialSpectrumConstant{ {0.f, 0.f, 0.f , 0.f}, 1.0f, 0.0f, 9.8f, 3.0f },
+	m_spectrumConstant{ 0.f, {} },
+	m_FFTConstant{ CASCADE_COUNT, 0, 0, 1, 0 }
 {
 	// create d3d resources
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 
-	// TODO : Check CPU Readonly acceptable description
 	desc.Width = N;
 	desc.Height = N;
 	desc.MipLevels = 0;
@@ -24,20 +27,20 @@ Ocean::Ocean(ID3D11Device1* device)
 	desc.MiscFlags = 0;
 
 	// Stating HeightMap Texture for CPU
-	device->CreateTexture2D(&desc, NULL, m_heightMapGPU.GetAddressOf());
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_heightMapGPU.GetAddressOf()));
 
 	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
 	// Spectrum Map Texture
-	device->CreateTexture2D(&desc, NULL, m_spectrumMap.GetAddressOf());
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_spectrumMap.GetAddressOf()));
 
 	// Wave vector datas
-	device->CreateTexture2D(&desc, NULL, m_waveVectorData.GetAddressOf());
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_waveVectorData.GetAddressOf()));
 
 	// Initial Spectrum Textures, float2 Texture2DArray
 	desc.Format = DXGI_FORMAT_R16G16_FLOAT;
-	device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf());
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf()));
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
@@ -55,13 +58,15 @@ Ocean::Ocean(ID3D11Device1* device)
 	DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_initialSpectrumMap.Get(), &uavDesc, m_initialSpectrumMapUAV.GetAddressOf()));
 
 
+	Utility::DXResource::CreateConstantBuffer(m_initialSpectrumConstant, device, m_initialSpectrumCB);
+	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, device, m_spectrumCB);
+	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, device, m_FFTCB);
 }
 
 void Ocean::Initialize(ID3D11DeviceContext1* context)
 {
 	// run initspectrum CS, get initial spectrum map
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
-	// TODO : Set UAV Resources as Texture2DArray
 	ID3D11UnorderedAccessView* uavs[] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL); // TODO : create shader resource view for textures
 
@@ -127,11 +132,11 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		for (unsigned int depth = 0; depth < CASCADE_COUNT; depth++)
 		{
 			void* pTex2DArrayElement = (byte*)resourceDesc.pData + (BytesPerPixel * N * N) * depth;
-			void* dest = (void*) m_heightMapCPU[depth];
+			void* dest = (void*)m_heightMapCPU[depth];
 			for (unsigned int i = 0; i < N; ++i)
 			{
 				// copying row by row
-				std::memcpy((byte*) dest + (N * BytesPerPixel * i), (byte*) pTex2DArrayElement + (resourceDesc.RowPitch * i), N * BytesPerPixel);
+				std::memcpy((byte*)dest + (N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), N * BytesPerPixel);
 			}
 		}
 
@@ -139,7 +144,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		{
 			for (unsigned int j = 0; j < N; ++j)
 			{
-			// TODO : parallel for?
+				// TODO : parallel for?
 				m_heightMapCPU[0][i][j] = (m_heightMapCPU[0][i][j] + m_heightMapCPU[1][i][j] + m_heightMapCPU[2][i][j] + m_heightMapCPU[3][i][j]) / CASCADE_COUNT;
 			}
 		}
