@@ -1,28 +1,46 @@
 #pragma once
 
-struct InitialSpectrumConstant
+struct InitialSpectrumWaveConstant
 {
-	float lengthScales[4];
 	float cutoffHigh;
 	float cutoffLow;
 	float g;
 	float depth;
 };
+static_assert(sizeof(InitialSpectrumWaveConstant) % 16 == 0, "CB 16byte alignment");
+
+struct InitialSpectrumParameterConstant
+{
+	float lengthScale;
+	float scale;
+	float angle;
+	float spreadBlend;
+	float swell;
+	float alpha;
+	float peakOmega;
+	float gamma;
+	float shortWavesFade;
+	float dummy[3];
+};
+static_assert(sizeof(InitialSpectrumParameterConstant) % 16 == 0, "CB 16byte alignment");
 
 struct FFTConstant
 {
 	unsigned int targetCount;
-	unsigned int bDirection;
-	unsigned int bInverse;
-	unsigned int bScale;
-	unsigned int bPermute;
+	BOOL bDirection;
+	BOOL bInverse;
+	BOOL bScale;
+	BOOL bPermute;
+	BOOL dummy[3];
 };
+static_assert(sizeof(FFTConstant) % 16 == 0, "CB 16byte alignment");
 
 struct SpectrumConstant
 {
 	float time;
 	float dummy[3];
 };
+static_assert(sizeof(SpectrumConstant) % 16 == 0, "CB 16byte alignment");
 
 class Ocean
 {
@@ -55,8 +73,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_initialSpectrumMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumMapSRV;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumCB;
-	InitialSpectrumConstant m_initialSpectrumConstant;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumWaveCB;
+	InitialSpectrumWaveConstant m_initialSpectrumWaveConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumParameterSB;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumParameterSRV;
+	InitialSpectrumParameterConstant m_initialSpectrumParameterConstant[2 * CASCADE_COUNT]; // even num is local wave, odd num is wind wave
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_waveVectorData; // [wave vector x, choppiness, wave vector z, frequency], float4
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_waveVectorDataUAV;

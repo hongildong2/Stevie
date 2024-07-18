@@ -7,6 +7,7 @@
 
 struct SpectrumParameters
 {
+	float lengthScale;
 	float scale;
 	float angle;
 	float spreadBlend;
@@ -15,6 +16,7 @@ struct SpectrumParameters
 	float peakOmega;
 	float gamma;
 	float shortWavesFade;
+	float3 dummy;
 };
 
 float Frequency(float k, float g, float depth)
@@ -82,11 +84,8 @@ float TMACorrection(float omega, float g, float depth)
 // https:wikiwaves.org/Ocean-Wave_Spectra
 float JONSWAP(float omega, float g, float depth, SpectrumParameters pars)
 {
-	float sigma;
-	if (omega <= pars.peakOmega)
-		sigma = 0.07;
-	else
-		sigma = 0.09;
+	float sigma = omega <= pars.peakOmega ? 0.07 : 0.09;
+
 	float r = exp(-(omega - pars.peakOmega) * (omega - pars.peakOmega)
 		/ 2 / sigma / sigma / pars.peakOmega / pars.peakOmega);
 	

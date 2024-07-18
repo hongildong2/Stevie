@@ -11,9 +11,13 @@ RWTexture2DArray<float2> initialSpectrumTex : register(u0);
 // wave vector x, 1 / magnitude, wave vector z, frequency
 RWTexture2DArray<float4> wavesDataTex : register(u1);
 
+// even num is local wave, odd num is wind wave
+// These contains all TARGET_COUNT spectrum wave cascades with z-indexed
+StructuredBuffer<SpectrumParameters> waveSpectrums : register(t0); // 2 x TARGET_COUNT
+
+
 cbuffer WaveConstant : register(b0)
 {
-	float4 lengthScales;
 	float cutoffHigh;
 	float cutoffLow;
 	float g;
@@ -22,16 +26,13 @@ cbuffer WaveConstant : register(b0)
 
 static uint size = SIZE;
 
-// These contains all TARGET_COUNT spectrum wave cascades with z-indexed
-StructuredBuffer<SpectrumParameters> waveSpectrums; // 2 x TARGET_COUNT
 
 
 [numthreads(16, 16, TARGET_COUNT)] // calc simultaneously all three wave cascades
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-	const float waveLengthScales[TARGET_COUNT] = { lengthScales.x, lengthScales.y, lengthScales.z, lengthScales.w };
-	const float selectedWaveLengthScale = waveLengthScales[DTid.z];
-	float deltaK = 2 * GPU_PI / selectedWaveLengthScale;
+	const uint waveCascadeIndex = DTid.z;
+	float deltaK = 2 * GPU_PI / waveSpectrums[waveCascadeIndex].lengthScale;
 	int nx = DTid.x - size / 2;
 	int nz = DTid.y - size / 2;
 	float2 k = float2(nx, nz) * deltaK; // wave vector k, 2pi/L * wave number
@@ -47,7 +48,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		float dwdk = FrequencyDerivative(kLength, g, depth);
 		
 		
-		const uint waveCascadeIndex = DTid.z;
+		
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
 		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);

@@ -7,6 +7,10 @@ namespace Utility
 {
 	namespace DXResource
 	{
+
+		void CreateStructuredBuffer(ID3D11Device* pDevice, UINT uElementSize, UINT uCount, void* pInitData, ID3D11Buffer** ppBufOut);
+		void CreateBufferSRV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11ShaderResourceView** ppSRVOut);
+
 		template<typename T>
 		void CreateConstantBuffer(T& constant, Microsoft::WRL::ComPtr<ID3D11Device1> device, Microsoft::WRL::ComPtr<ID3D11Buffer>& buffer)
 		{
@@ -25,8 +29,7 @@ namespace Utility
 			InitData.SysMemPitch = 0;
 			InitData.SysMemSlicePitch = 0;
 
-			HRESULT hr = device->CreateBuffer(&desc, &InitData, buffer.GetAddressOf());
-			DX::ThrowIfFailed(hr);
+			DX::ThrowIfFailed(device->CreateBuffer(&desc, &InitData, buffer.GetAddressOf()));
 		}
 
 		template<typename T>
@@ -35,16 +38,14 @@ namespace Utility
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
 			ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-			context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			DX::ThrowIfFailed(context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 			memcpy(mappedResource.pData, &constant, sizeof(T));
 
 			context->Unmap(buffer.Get(), 0);
 		}
-
-
-
-
 	}
+
 	void ComputeShaderBarrier(ID3D11DeviceContext1* context);
+
 }
