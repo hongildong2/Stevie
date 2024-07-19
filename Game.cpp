@@ -283,6 +283,11 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 
+	m_deviceResources->PIXBeginEvent(L"OceanCSBegin");
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	m_ocean->Update(context);
+	m_deviceResources->PIXBeginEvent(L"OceanCSEnd");
+
 
 	elapsedTime;
 }

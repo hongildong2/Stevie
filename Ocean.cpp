@@ -190,6 +190,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		}
 	}
 
+	context->Unmap(m_heightMapGPU.Get(), 0);
 
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
