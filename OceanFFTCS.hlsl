@@ -79,8 +79,8 @@ void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit rev
 	else
 		targetIndex = DTid.xy;
     
-
-    for (uint k = 0; k < TARGET_COUNT; k++)
+	[unroll(TARGET_COUNT)]
+	for (uint k = 0; k < TARGET_COUNT; k++)
     {
         FTResultTex[uint3(targetIndex, k)] = DoFft(threadIndex, FTResultTex[uint3(targetIndex, k)]);
     }

@@ -6,7 +6,7 @@
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
-	m_initialSpectrumWaveConstant{ 1.0f, 0.0f, 9.8f, 3.0f },
+	m_initialSpectrumWaveConstant{ 100.f, 0.0f, 9.8f, 3.0f },
 	m_initialSpectrumParameterConstant{ 0.5f, },
 	m_spectrumConstant{ 0.f, { 0.f } },
 	m_FFTConstant{ CASCADE_COUNT, false, false, true, false }
@@ -86,22 +86,22 @@ Ocean::Ocean(ID3D11Device1* device)
 
 void Ocean::Initialize(ID3D11DeviceContext1* context)
 {
+	// TODO : 이거 왜 실행안됨? 왜 디버거에서 실행했다는 흔적이없지?? CPU디버거에선 잡히는데
 	// run initspectrum CS, get initial spectrum map
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
 	ID3D11UnorderedAccessView* uavs[2] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
 	ID3D11ShaderResourceView* srvs[1] = { m_initialSpectrumParameterSRV.Get() };
 	ID3D11Buffer* cbs[1] = { m_initialSpectrumWaveCB.Get() };
 
-	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL); // TODO : create shader resource view for textures
+	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL);
 	context->CSSetShaderResources(0, 1, srvs);
 	context->CSSetConstantBuffers(0, 1, cbs);
 
 	context->Dispatch(GROUP_X, GROUP_Y, 1);
-
-	// get initial wave vectors
+	Utility::ComputeShaderBarrier(context);
 
 	// TODO : foam simulations
-
+	mb_initialized = true;
 }
 
 void Ocean::Update(ID3D11DeviceContext1* context)
@@ -110,7 +110,6 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	if (mb_initialized == false)
 	{
 		Initialize(context);
-		mb_initialized = true;
 	}
 
 	// apply delta time, update spectrum map using tilde h0
@@ -124,6 +123,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	context->CSSetShaderResources(0, sizeof(srvs) / sizeof(ID3D11ShaderResourceView*), srvs);
 	context->CSSetConstantBuffers(0, 1, cbs);
 	context->Dispatch(GROUP_X, GROUP_X, 1);
+	Utility::ComputeShaderBarrier(context);
 	// save result into FFT texture for IFFT CS to use it 
 
 
@@ -144,6 +144,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 	context->CSSetConstantBuffers(0, 1, cbs);
 	context->Dispatch(1, 1, 1);
+	Utility::ComputeShaderBarrier(context);
 
 	// TODO : update fft constant properly
 
@@ -154,6 +155,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 	context->CSSetConstantBuffers(0, 1, cbs);
 	context->Dispatch(1, 1, 1);
+	Utility::ComputeShaderBarrier(context);
 
 	// Copy Resource spectrumMap to heightMap Staging Texture
 
@@ -194,6 +196,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
+	Utility::ComputeShaderBarrier(context);
 }
 
 void Ocean::Draw(ID3D11DeviceContext1* context)

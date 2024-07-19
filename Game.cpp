@@ -87,6 +87,14 @@ void Game::Initialize(HWND window, int width, int height)
 		}
 	}
 
+	// Ocean
+	{
+		m_deviceResources->PIXBeginEvent(L"OceanCSInitializeBegin");
+		auto* context = m_deviceResources->GetD3DDeviceContext();
+		m_deviceResources->PIXEndEvent();
+		m_ocean->Initialize(context);
+	}
+
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
@@ -102,10 +110,20 @@ void Game::Initialize(HWND window, int width, int height)
 // Executes the basic game loop.
 void Game::Tick()
 {
+	// 뭔가 비동기적으로동작하는듯
 	m_timer.Tick([&]()
 		{
 			Update(m_timer);
 		});
+
+	// update envirioment
+	m_deviceResources->PIXBeginEvent(L"OceanCSUpdateBegin");
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	m_ocean->Update(context);
+	m_deviceResources->PIXEndEvent();
+
+
+	// update game by timer
 
 	Render();
 }
@@ -281,12 +299,6 @@ void Game::Update(DX::StepTimer const& timer)
 		float x = r * sinf(m_yaw);
 		m_camera->UpdateLookAtBy(Vector3(x, y, z));
 	}
-
-
-	m_deviceResources->PIXBeginEvent(L"OceanCSBegin");
-	auto context = m_deviceResources->GetD3DDeviceContext();
-	m_ocean->Update(context);
-	m_deviceResources->PIXBeginEvent(L"OceanCSEnd");
 
 
 	elapsedTime;

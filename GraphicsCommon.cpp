@@ -52,7 +52,7 @@ namespace Graphics
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
 	}
-	
+
 
 
 	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso)
@@ -272,6 +272,10 @@ namespace Graphics
 
 		upBlurPSO.m_computeShader = upBlurCS;
 		downBlurPSO.m_computeShader = downBlurCS;
+
+		Ocean::initialSpectrumPSO.m_computeShader = Ocean::initialSpectrumCS;
+		Ocean::timedependentSpectrumPSO.m_computeShader = Ocean::timedependentSpectrumCS;
+		Ocean::FFTPSO.m_computeShader = Ocean::FFTCS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)
