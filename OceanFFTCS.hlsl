@@ -74,12 +74,12 @@ void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit rev
 {
 	uint threadIndex = DTid.x;
 	uint2 targetIndex;
-	if (direction) // vert, horizontal
-		targetIndex = DTid.yx;
+	if (direction)
+		targetIndex = DTid.yx; // vertical
 	else
-		targetIndex = DTid.xy;
+		targetIndex = DTid.xy; // horizontal
     
-	[unroll(TARGET_COUNT)]
+	// [unroll(TARGET_COUNT)] :: Shader compile too slow
 	for (uint k = 0; k < TARGET_COUNT; k++)
     {
         FTResultTex[uint3(targetIndex, k)] = DoFft(threadIndex, FTResultTex[uint3(targetIndex, k)]);

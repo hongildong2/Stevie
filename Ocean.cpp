@@ -158,7 +158,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
 		context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 		context->CSSetConstantBuffers(0, 1, cbs);
-		context->Dispatch(1, 1, 1);
+		context->Dispatch(1, ocean::N, 1); // TODO : 이거 맞는지 확인
 		Utility::ComputeShaderBarrier(context);
 	}
 
@@ -171,7 +171,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
 		context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 		context->CSSetConstantBuffers(0, 1, cbs);
-		context->Dispatch(1, 1, 1);
+		context->Dispatch(ocean::N, 1, 1);
 		Utility::ComputeShaderBarrier(context);
 	}
 
