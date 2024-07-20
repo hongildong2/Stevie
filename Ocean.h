@@ -36,7 +36,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_waveVectorDataSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumDerivativeMap; // derivative of tilde h
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumMapUAV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumDerivativeMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_spectrumCB;
 	ocean::SpectrumConstant m_spectrumConstant;
 

@@ -2,6 +2,7 @@
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
 RWTexture2DArray<float4> Result : register(u0); // for each cascade
+RWTexture2DArray<float4> DerivativeResult : register(u1); // for each cascade
 
 Texture2DArray<float4> initialSpectrums : register(t0);
 Texture2DArray<float4> wavesData : register(t1);
@@ -43,11 +44,11 @@ void CalculateForCascade(uint3 id)
 	float2 displacementZ_dz = -lambda * h * wave.z * wave.z * oneOverKLength;
 	
 	// h tilde, spectrum
-	Result[uint3(id.xy, id.z * 2)] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
+	Result[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
 							  float2(displacementZ.x - displacementZ_dx.y, displacementZ.y + displacementZ_dx.x));
 	
 	// derivative of h tilde. for Displacement map and Jacobian
-	Result[uint3(id.xy, id.z * 2 + 1)] = float4(float2(displacementY_dx.x - displacementY_dz.y, displacementY_dx.y + displacementY_dz.x),
+	DerivativeResult[id] = float4(float2(displacementY_dx.x - displacementY_dz.y, displacementY_dx.y + displacementY_dz.x),
 							     float2(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x));
 }
 

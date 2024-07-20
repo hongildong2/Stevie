@@ -35,6 +35,7 @@ Ocean::Ocean(ID3D11Device1* device)
 	desc.CPUAccessFlags = 0;
 	// Spectrum Map Texture
 	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_spectrumMap.GetAddressOf()));
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_spectrumDerivativeMap.GetAddressOf()));
 
 	// Wave vector datas
 	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_waveVectorData.GetAddressOf()));
@@ -56,6 +57,7 @@ Ocean::Ocean(ID3D11Device1* device)
 	uavDesc.Texture2DArray.MipSlice = 0; // ?? what effect?s
 
 	DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_spectrumMap.Get(), &uavDesc, m_spectrumMapUAV.GetAddressOf()));
+	DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_spectrumDerivativeMap.Get(), &uavDesc, m_spectrumDerivativeMapUAV.GetAddressOf()));
 	DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_waveVectorData.Get(), &uavDesc, m_waveVectorDataUAV.GetAddressOf()));
 
 	uavDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
@@ -104,11 +106,11 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 
 	// TODO : foam simulations
 
-	#ifdef NDEBUG
-		mb_initialized = true;
-	#else
-		mb_initialized = false;
-	#endif
+#ifdef NDEBUG
+	mb_initialized = true;
+#else
+	mb_initialized = false;
+#endif
 }
 
 void Ocean::Update(ID3D11DeviceContext1* context)
@@ -122,7 +124,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// apply delta time, update spectrum map using tilde h0
 	// RUN Time dependent sepctrum CS using textures tilde h0(k,t), and waveData that contains wave vector k
 	Graphics::SetPipelineState(context, Graphics::Ocean::timedependentSpectrumPSO);
-	ID3D11UnorderedAccessView* spectrumMapUAV[1] = { m_spectrumMapUAV.Get() };
+	ID3D11UnorderedAccessView* spectrumMapUAV[2] = { m_spectrumMapUAV.Get(), m_spectrumDerivativeMapUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, sizeof(spectrumMapUAV) / sizeof(ID3D11UnorderedAccessView*), spectrumMapUAV, NULL);
 
 	ID3D11ShaderResourceView* srvs[2] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
@@ -132,11 +134,13 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	ID3D11Buffer* cbs[1] = { m_spectrumCB.Get() };
 	context->CSSetConstantBuffers(0, 1, cbs);
 
-
-
 	context->Dispatch(ocean::GROUP_X, ocean::GROUP_X, 1);
 	Utility::ComputeShaderBarrier(context);
 	// save result into FFT texture for IFFT CS to use it 
+
+
+
+
 
 
 	// run IFFT CS, renew height map from spectrum map, get normal map from height map
