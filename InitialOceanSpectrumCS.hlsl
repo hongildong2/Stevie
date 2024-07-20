@@ -50,7 +50,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		// just random sampling of JONSWAP spectrum of ocean wave
 		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
 		
-		if (waveSpectrums[waveCascadeIndex + 1].scale > 0) // ??
+		if (waveSpectrums[waveCascadeIndex + 1].scale > 0) // wind wave
 		{
 			waveSpectrum += JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex + 1])
 			* DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex + 1])
@@ -63,7 +63,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		wavesDataTex[DTid] = float4(k.x, 1 / kLength, k.y, w);
 		
 		// ?? 어디서 온 식??
-		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK
+		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK);
 	}
 	else
 	{

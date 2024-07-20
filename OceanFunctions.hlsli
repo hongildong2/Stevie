@@ -74,11 +74,19 @@ float ShortWavesFade(float kLength, SpectrumParameters pars)
 float TMACorrection(float omega, float g, float depth)
 {
 	float omegaH = omega * sqrt(depth / g);
+	
 	if (omegaH <= 1)
+	{
 		return 0.5 * omegaH * omegaH;
-	if (omegaH < 2)
+	}
+	else if (omegaH < 2)
+	{
 		return 1.0 - 0.5 * (2.0 - omegaH) * (2.0 - omegaH);
-	return 1;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 // https:wikiwaves.org/Ocean-Wave_Spectra
