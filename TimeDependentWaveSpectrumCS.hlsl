@@ -4,7 +4,7 @@
 RWTexture2DArray<float4> Result : register(u0); // for each cascade
 RWTexture2DArray<float4> DerivativeResult : register(u1); // for each cascade
 
-Texture2DArray<float4> initialSpectrums : register(t0);
+Texture2DArray<float2> initialSpectrums : register(t0);
 Texture2DArray<float4> wavesData : register(t1);
 
 cbuffer Params : register(b0)
@@ -24,9 +24,13 @@ void CalculateForCascade(uint3 id)
 	
 	float phase = wave.w * Time;
 	float2 exponent = float2(cos(phase), sin(phase));
-	float4 h0 = initialSpectrums[id];
-	float2 h = ComplexMult(h0.xy, exponent)
-		+ ComplexMult(h0.zw, float2(exponent.x, -exponent.y));
+	float2 h0k = initialSpectrums[id];
+	
+	// get conjugated
+	float2 h0MinusK = initialSpectrums[uint3(uint2((SIZE - id.x) % SIZE, (SIZE - id.y) % SIZE), id.z)];
+	h0MinusK.y = -h0MinusK.y;
+	
+	float2 h = ComplexMult(h0k, exponent) + ComplexMult(h0MinusK, float2(exponent.x, -exponent.y));
 	float2 ih = float2(-h.y, h.x);
 	
 	float oneOverKLength = 1 / max(0.001, length(wave.xz));

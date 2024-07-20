@@ -7,7 +7,7 @@
 
 struct SpectrumParameters
 {
-	float lengthScale;
+	float L;
 	float scale;
 	float angle;
 	float spreadBlend;
@@ -16,7 +16,9 @@ struct SpectrumParameters
 	float peakOmega;
 	float gamma;
 	float shortWavesFade;
-	float3 dummy;
+	float cutoffLow; // JONSWAP SPECTRUM cutoffs, different for each cascade
+	float cutoffHigh;
+	float dummy;
 };
 
 float Frequency(float k, float g, float depth)

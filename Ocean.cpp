@@ -7,7 +7,7 @@ Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
 	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
-	m_initialSpectrumParameterConstant(ocean::InitialSpectrumParameterConstantInitializer),
+	m_LocalInitialSpectrumParameterConstant(ocean::LocalInitialSpectrumParameterConstantInitializer),
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
@@ -45,8 +45,11 @@ Ocean::Ocean(ID3D11Device1* device)
 	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf()));
 
 	// Structured Buffer
-	Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), 2 * ocean::CASCADE_COUNT, &m_initialSpectrumParameterConstant, m_initialSpectrumParameterSB.GetAddressOf());
-	Utility::DXResource::CreateBufferSRV(device, m_initialSpectrumParameterSB.Get(), m_initialSpectrumParameterSRV.GetAddressOf());
+	Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameterConstant, m_LocalInitialSpectrumParameterSB.GetAddressOf());
+	Utility::DXResource::CreateBufferSRV(device, m_LocalInitialSpectrumParameterSB.Get(), m_LocalInitialSpectrumParameterSRV.GetAddressOf());
+
+	Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameterConstant, m_SwellInitialSpectrumParameterSB.GetAddressOf());
+	Utility::DXResource::CreateBufferSRV(device, m_SwellInitialSpectrumParameterSB.Get(), m_SwellInitialSpectrumParameterSRV.GetAddressOf());
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
@@ -94,7 +97,7 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 	ID3D11UnorderedAccessView* uavs[2] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL);
 
-	ID3D11ShaderResourceView* srvs[1] = { m_initialSpectrumParameterSRV.Get() };
+	ID3D11ShaderResourceView* srvs[1] = { m_LocalInitialSpectrumParameterSRV.Get() };
 	context->CSSetShaderResources(0, 1, srvs);
 
 	Utility::DXResource::UpdateConstantBuffer(m_initialSpectrumWaveConstant, context, m_initialSpectrumWaveCB);

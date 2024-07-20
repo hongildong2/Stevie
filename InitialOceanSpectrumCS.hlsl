@@ -1,4 +1,3 @@
-#include "Common.hlsli"
 #include "GPURandom.hlsli"
 #include "OceanFunctions.hlsli"
 
@@ -13,18 +12,17 @@ RWTexture2DArray<float4> wavesDataTex : register(u1);
 
 // even num is local wave, odd num is wind wave
 // These contains all TARGET_COUNT spectrum wave cascades with z-indexed
-StructuredBuffer<SpectrumParameters> waveSpectrums : register(t0); // 2 x TARGET_COUNT
-
+StructuredBuffer<SpectrumParameters> LocalWaveSpectrumParameters : register(t0); 
+StructuredBuffer<SpectrumParameters> SwellWaveSpectrumParameters : register(t1);
 
 cbuffer WaveConstant : register(b0)
 {
-	float cutoffHigh;
-	float cutoffLow;
 	float g;
 	float depth;
+	float2 dummy;
 }
 
-static uint size = SIZE;
+static const uint size = SIZE;
 
 
 
@@ -32,15 +30,15 @@ static uint size = SIZE;
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 	const uint waveCascadeIndex = DTid.z;
-	float deltaK = 2 * GPU_PI / waveSpectrums[waveCascadeIndex].lengthScale;
-	uint nx = DTid.x - size / 2;
-	uint nz = DTid.y - size / 2;
-	float2 k = float2(nx, nz) * deltaK; // wave vector k, 2pi/L * wave number
+	float deltaK = 2.0 * GPU_PI / LocalWaveSpectrumParameters[waveCascadeIndex].L;
+	int nx = DTid.x - size / 2;
+	int nz = DTid.y - size / 2;
+	float2 k = float2(nx * deltaK, nz * deltaK); // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
 	
 	// clamp
-	if (kLength <= cutoffHigh && kLength >= cutoffLow)
+	if (kLength <= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffHigh && kLength >= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffLow)
 	{
 		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + TARGET_COUNT)));
 		float kAngle = atan2(k.y, k.x);
@@ -49,18 +47,13 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		float dwdk = FrequencyDerivative(kLength, g, depth);
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
-		// float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
+		float waveSpectrum = JONSWAP(w, g, depth, LocalWaveSpectrumParameters[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, LocalWaveSpectrumParameters[waveCascadeIndex]) * ShortWavesFade(kLength, LocalWaveSpectrumParameters[waveCascadeIndex]);
 		
-		// float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]);
-		
-		// TODO : 텍스쳐에 찍어보면서 값 확인, 현재 JONSWAP 함수 출력값 자체가 0이거나 NaN이다.
-		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]);
-		
-		if (waveSpectrums[waveCascadeIndex + 1].scale > 0) // wind wave
+		if (SwellWaveSpectrumParameters[waveCascadeIndex].scale > 0) // swellwave
 		{
-			waveSpectrum += JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex + 1])
-			* DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex + 1])
-			* ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex + 1]);
+			waveSpectrum += JONSWAP(w, g, depth, SwellWaveSpectrumParameters[waveCascadeIndex])
+			* DirectionSpectrum(kAngle, w, SwellWaveSpectrumParameters[waveCascadeIndex])
+			* ShortWavesFade(kLength, SwellWaveSpectrumParameters[waveCascadeIndex]);
 		}
 				
 
@@ -76,6 +69,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	else
 	{
 		initialSpectrumTex[DTid] = float2(0.0, 0.0);
-		wavesDataTex[DTid] = float4(k.x, 1, k.y, 0);
+		wavesDataTex[DTid] = float4(k.x, 1, k.y, 0.0);
 	}
 }

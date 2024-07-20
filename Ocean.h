@@ -27,9 +27,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumWaveCB;
 	ocean::InitialSpectrumWaveConstant m_initialSpectrumWaveConstant;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumParameterSB;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumParameterSRV;
-	std::array<ocean::InitialSpectrumParameterConstant, 2 * ocean::CASCADE_COUNT> m_initialSpectrumParameterConstant; // even num is local wave, odd num is wind wave
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_LocalInitialSpectrumParameterSB;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_LocalInitialSpectrumParameterSRV;
+	std::array<ocean::InitialSpectrumParameterConstant, ocean::CASCADE_COUNT> m_LocalInitialSpectrumParameterConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_SwellInitialSpectrumParameterSB;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SwellInitialSpectrumParameterSRV;
+	std::array<ocean::InitialSpectrumParameterConstant, ocean::CASCADE_COUNT> m_SwellInitialSpectrumParameterConstant;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_waveVectorData; // [wave vector x, choppiness, wave vector z, frequency], float4
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_waveVectorDataUAV;
