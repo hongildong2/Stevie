@@ -108,7 +108,7 @@ void Game::Tick()
 		});
 
 	// update envirioment
-	m_deviceResources->PIXBeginEvent(L"OceanCSUpdate");
+	m_deviceResources->PIXBeginEvent(L"OceanUpdate");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	m_ocean->Update(context);
 	m_deviceResources->PIXEndEvent();
@@ -335,12 +335,15 @@ void Game::Render()
 			Graphics::linearClampSS.Get()
 		};
 
+		m_deviceResources->PIXBeginEvent(L"CubeMap");
 		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
 		context->PSSetSamplers(0, 2, samplers);
 		Graphics::SetPipelineState(context, Graphics::cubemapPSO);
 		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 		m_cubeMap->Draw(context);
+		m_deviceResources->PIXEndEvent();
 
+		m_deviceResources->PIXBeginEvent(L"Models");
 		Graphics::SetPipelineState(context, Graphics::basicPSO);
 		context->VSSetSamplers(0, 2, samplers);
 		for (Model& model : m_models)
@@ -348,6 +351,7 @@ void Game::Render()
 			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
 			model.Draw(context);
 		}
+		m_deviceResources->PIXEndEvent();
 	}
 	m_deviceResources->PIXEndEvent();
 

@@ -33,8 +33,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
 	const uint waveCascadeIndex = DTid.z;
 	float deltaK = 2 * GPU_PI / waveSpectrums[waveCascadeIndex].lengthScale;
-	int nx = DTid.x;
-	int nz = DTid.y;
+	uint nx = DTid.x - size / 2;
+	uint nz = DTid.y - size / 2;
 	float2 k = float2(nx, nz) * deltaK; // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
@@ -42,13 +42,19 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	// clamp
 	if (kLength <= cutoffHigh && kLength >= cutoffLow)
 	{
+		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + TARGET_COUNT)));
 		float kAngle = atan2(k.y, k.x);
 		float w = Frequency(kLength, g, depth);
 		
 		float dwdk = FrequencyDerivative(kLength, g, depth);
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
-		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
+		// float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
+		
+		// float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]);
+		
+		// TODO : 텍스쳐에 찍어보면서 값 확인, 현재 JONSWAP 함수 출력값 자체가 0이거나 NaN이다.
+		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]);
 		
 		if (waveSpectrums[waveCascadeIndex + 1].scale > 0) // wind wave
 		{
@@ -57,13 +63,15 @@ void main( uint3 DTid : SV_DispatchThreadID )
 			* ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex + 1]);
 		}
 				
-		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + TARGET_COUNT)));
+
 		
 		// {wave vector x, 1 / magnitude, wave vector z, frequency}
 		wavesDataTex[DTid] = float4(k.x, 1 / kLength, k.y, w);
 		
 		// ?? 어디서 온 식??
-		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK);
+		float res = sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK);
+		
+		initialSpectrumTex[DTid] = float2(randomNoise.x * res, randomNoise.y * res);
 	}
 	else
 	{
