@@ -33,8 +33,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
 	const uint waveCascadeIndex = DTid.z;
 	float deltaK = 2 * GPU_PI / waveSpectrums[waveCascadeIndex].lengthScale;
-	int nx = DTid.x - size / 2;
-	int nz = DTid.y - size / 2;
+	int nx = DTid.x;
+	int nz = DTid.y;
 	float2 k = float2(nx, nz) * deltaK; // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
@@ -46,9 +46,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		float w = Frequency(kLength, g, depth);
 		
 		float dwdk = FrequencyDerivative(kLength, g, depth);
-		
-		
-		
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
 		float waveSpectrum = JONSWAP(w, g, depth, waveSpectrums[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, waveSpectrums[waveCascadeIndex]) * ShortWavesFade(kLength, waveSpectrums[waveCascadeIndex]);
@@ -66,7 +63,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		wavesDataTex[DTid] = float4(k.x, 1 / kLength, k.y, w);
 		
 		// ?? 어디서 온 식??
-		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK);
+		initialSpectrumTex[DTid] = randomNoise * sqrt(2 * waveSpectrum * abs(dwdk) / kLength * deltaK * deltaK
 	}
 	else
 	{

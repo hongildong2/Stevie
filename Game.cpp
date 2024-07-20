@@ -87,15 +87,6 @@ void Game::Initialize(HWND window, int width, int height)
 		}
 	}
 
-	// Ocean
-	{
-		m_deviceResources->PIXBeginEvent(L"OceanCSInitializeBegin");
-		auto* context = m_deviceResources->GetD3DDeviceContext();
-		m_deviceResources->PIXEndEvent();
-		m_ocean->Initialize(context);
-	}
-
-
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
 	m_timer.SetFixedTimeStep(true);
@@ -117,7 +108,7 @@ void Game::Tick()
 		});
 
 	// update envirioment
-	m_deviceResources->PIXBeginEvent(L"OceanCSUpdateBegin");
+	m_deviceResources->PIXBeginEvent(L"OceanCSUpdate");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	m_ocean->Update(context);
 	m_deviceResources->PIXEndEvent();
@@ -318,10 +309,11 @@ void Game::Render()
 	// clear renderTarget, clear depth-stencil buffer => set renderTarget with depth-stencil buffer, set viewport
 	Clear();
 
-	m_deviceResources->PIXBeginEvent(L"Render");
+
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto viewMatrix = m_camera->GetViewMatrix();
 
+	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
 		// Light.Draw()
@@ -359,6 +351,7 @@ void Game::Render()
 	m_deviceResources->PIXEndEvent();
 
 
+	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	context->OMSetRenderTargets(0, NULL, NULL); // to release texture2D from RTV
 	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
@@ -379,7 +372,7 @@ void Game::Render()
 		ID3D11ShaderResourceView* nullSRV[6] = { 0, };
 		context->PSSetShaderResources(0, 6, nullSRV);
 	}
-
+	m_deviceResources->PIXEndEvent();
 
 
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
