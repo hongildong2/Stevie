@@ -342,6 +342,7 @@ void Game::Render()
 		m_cubeMap->Draw(context);
 
 		Graphics::SetPipelineState(context, Graphics::basicPSO);
+		context->VSSetSamplers(0, 2, samplers);
 		for (Model& model : m_models)
 		{
 			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
