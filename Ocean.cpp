@@ -6,19 +6,19 @@
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
-	m_initialSpectrumWaveConstant{ 100000.f, 0.0f, 9.8f, 3.0f },
-	m_initialSpectrumParameterConstant{ 0.5f, },
-	m_spectrumConstant{ 0.f, { 0.f } },
-	m_FFTConstant{ CASCADE_COUNT, false, false, true, false }
+	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
+	m_initialSpectrumParameterConstant(ocean::InitialSpectrumParameterConstantInitializer),
+	m_spectrumConstant(ocean::SpectrumConstantInitializer),
+	m_FFTConstant(ocean::FFTConstantInitializer)
 {
 	// create d3d resources
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 
-	desc.Width = N;
-	desc.Height = N;
+	desc.Width = ocean::N;
+	desc.Height = ocean::N;
 	desc.MipLevels = 1;
-	desc.ArraySize = CASCADE_COUNT;
+	desc.ArraySize = ocean::CASCADE_COUNT;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -44,14 +44,14 @@ Ocean::Ocean(ID3D11Device1* device)
 	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf()));
 
 	// Structured Buffer
-	Utility::DXResource::CreateStructuredBuffer(device, sizeof(InitialSpectrumParameterConstant), 2 * CASCADE_COUNT, &m_initialSpectrumParameterConstant, m_initialSpectrumParameterSB.GetAddressOf());
+	Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), 2 * ocean::CASCADE_COUNT, &m_initialSpectrumParameterConstant, m_initialSpectrumParameterSB.GetAddressOf());
 	Utility::DXResource::CreateBufferSRV(device, m_initialSpectrumParameterSB.Get(), m_initialSpectrumParameterSRV.GetAddressOf());
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
 	uavDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
-	uavDesc.Texture2DArray.ArraySize = CASCADE_COUNT;
+	uavDesc.Texture2DArray.ArraySize = ocean::CASCADE_COUNT;
 	uavDesc.Texture2DArray.FirstArraySlice = 0;
 	uavDesc.Texture2DArray.MipSlice = 0; // ?? what effect?s
 
@@ -65,7 +65,7 @@ Ocean::Ocean(ID3D11Device1* device)
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
 	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-	srvDesc.Texture2DArray.ArraySize = CASCADE_COUNT;
+	srvDesc.Texture2DArray.ArraySize = ocean::CASCADE_COUNT;
 	srvDesc.Texture2DArray.FirstArraySlice = 0;
 	srvDesc.Texture2DArray.MipLevels = 1; // ?
 	srvDesc.Texture2DArray.MostDetailedMip = 0; // ?
@@ -86,7 +86,7 @@ Ocean::Ocean(ID3D11Device1* device)
 
 void Ocean::Initialize(ID3D11DeviceContext1* context)
 {
-	// TODO : 이거 왜 실행안됨? 왜 디버거에서 실행했다는 흔적이없지?? CPU디버거에선 잡히는데
+	// 실행은 되는데 그래픽 디버거에 안잡힘 -> 당연히 첫프레임에만 동작하고 마니까 
 	// run initspectrum CS, get initial spectrum map
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
 	ID3D11UnorderedAccessView* uavs[2] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
@@ -99,11 +99,16 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 	ID3D11Buffer* cbs[1] = { m_initialSpectrumWaveCB.Get() };
 	context->CSSetConstantBuffers(0, 1, cbs);
 
-	context->Dispatch(GROUP_X, GROUP_Y, 1);
+	context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
 	Utility::ComputeShaderBarrier(context);
 
 	// TODO : foam simulations
-	mb_initialized = true;
+
+	#ifdef NDEBUG
+		mb_initialized = true;
+	#else
+		mb_initialized = false;
+	#endif
 }
 
 void Ocean::Update(ID3D11DeviceContext1* context)
@@ -129,7 +134,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 
 
-	context->Dispatch(GROUP_X, GROUP_X, 1);
+	context->Dispatch(ocean::GROUP_X, ocean::GROUP_X, 1);
 	Utility::ComputeShaderBarrier(context);
 	// save result into FFT texture for IFFT CS to use it 
 
@@ -177,23 +182,23 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	{
 		const int BytesPerPixel = sizeof(uint64_t); //R16G16B16A16 float4
 
-		for (unsigned int depth = 0; depth < CASCADE_COUNT; depth++)
+		for (unsigned int depth = 0; depth < ocean::CASCADE_COUNT; depth++)
 		{
-			void* pTex2DArrayElement = (byte*)resourceDesc.pData + (BytesPerPixel * N * N) * depth;
+			void* pTex2DArrayElement = (byte*)resourceDesc.pData + (BytesPerPixel * ocean::N * ocean::N) * depth;
 			void* dest = (void*)m_heightMapCPU[depth];
-			for (unsigned int i = 0; i < N; ++i)
+			for (unsigned int i = 0; i < ocean::N; ++i)
 			{
 				// copying row by row
-				std::memcpy((byte*)dest + (N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), static_cast<size_t>(N * BytesPerPixel));
+				std::memcpy((byte*)dest + (ocean::N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), static_cast<size_t>(ocean::N * BytesPerPixel));
 			}
 		}
 
-		for (unsigned int i = 0; i < N; ++i)
+		for (unsigned int i = 0; i < ocean::N; ++i)
 		{
-			for (unsigned int j = 0; j < N; ++j)
+			for (unsigned int j = 0; j < ocean::N; ++j)
 			{
 				// TODO : parallel for?
-				m_heightMapCPU[0][i][j] = (m_heightMapCPU[0][i][j] + m_heightMapCPU[1][i][j] + m_heightMapCPU[2][i][j] + m_heightMapCPU[3][i][j]) / CASCADE_COUNT;
+				m_heightMapCPU[0][i][j] = (m_heightMapCPU[0][i][j] + m_heightMapCPU[1][i][j] + m_heightMapCPU[2][i][j] + m_heightMapCPU[3][i][j]) / ocean::CASCADE_COUNT;
 			}
 		}
 	}

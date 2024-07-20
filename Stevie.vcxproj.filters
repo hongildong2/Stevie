@@ -41,6 +41,9 @@
     <ClInclude Include="GraphicsPSO.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="OceanConstants.h">
+      <Filter>Ocean</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

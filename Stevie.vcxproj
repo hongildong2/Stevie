@@ -186,6 +186,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="OceanConstants.h" />
     <ClInclude Include="Ocean.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
