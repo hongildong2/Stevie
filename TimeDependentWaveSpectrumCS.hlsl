@@ -30,6 +30,7 @@ void CalculateForCascade(uint3 id)
 	float2 h0MinusK = initialSpectrums[uint3(uint2((SIZE - id.x) % SIZE, (SIZE - id.y) % SIZE), id.z)];
 	h0MinusK.y = -h0MinusK.y;
 	
+	// h tilde, has x-z directional components
 	float2 h = ComplexMult(h0k, exponent) + ComplexMult(h0MinusK, float2(exponent.x, -exponent.y));
 	float2 ih = float2(-h.y, h.x);
 	
@@ -47,7 +48,7 @@ void CalculateForCascade(uint3 id)
 	float2 displacementY_dz = ih * wave.z;
 	float2 displacementZ_dz = -lambda * h * wave.z * wave.z * oneOverKLength;
 	
-	// h tilde, spectrum
+	// Displacement in frequency Domain, 두개의 복소수, 2차원 Plane Wave이므로
 	Result[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
 							  float2(displacementZ.x - displacementZ_dx.y, displacementZ.y + displacementZ_dx.x));
 	

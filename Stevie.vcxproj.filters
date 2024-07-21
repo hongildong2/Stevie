@@ -117,5 +117,8 @@
     <FxCompile Include="OceanFFTCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="CombineWave.hlsl">
+      <Filter>Ocean</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
