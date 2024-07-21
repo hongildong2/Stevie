@@ -52,8 +52,8 @@ namespace ocean
 	constexpr float DEFAULT_JONSWAP_WIND_DIR = -29.81f;
 	constexpr float DEFAULT_JONSWAP_SPREAD_BLEND = 1.f;
 	constexpr float DEFAULT_JONSWAP_SWELL = 0.198f;
-	constexpr float DEFAULT_JONSWAP_ALPHA = 0.03544f; // 아래함수에서 직접 계산
-	constexpr float DEFAULT_JONSWAP_PEAK_OMEGA = 2.7924f; // 아래함수에서 직접 계산
+	constexpr float DEFAULT_JONSWAP_ALPHA = 0.0081f; // 아래함수에서 직접 계산 0.3544f
+	constexpr float DEFAULT_JONSWAP_PEAK_OMEGA = 0.5f; // 아래함수에서 직접 계산 2.7924f
 	constexpr float DEFAULT_JONSWAP_GAMMA = 3.3f;
 	constexpr float DEFAULT_JONSWAP_WIND_SPEED = 0.5f; // (m/s)
 	constexpr float DEFAULT_JONSWAP_FADE = 0.01f;
@@ -62,7 +62,7 @@ namespace ocean
 
 
 	constexpr float JONSWAP_CUTOFF_MIN = 0.0001f;
-	constexpr float JONSWAP_CUTOFF_MAX = 9999.f;
+	constexpr float JONSWAP_CUTOFF_MAX = 100.f; // 너무 긴 wave length를 허용하면 float 연산중 너무 작은값들이 등장해 IFFT 도중 NaN이 나와버림
 
 	constexpr float JonswapCutoffBoundary(float L)
 	{
@@ -100,7 +100,7 @@ namespace ocean
 
 
 
-	constexpr float CASCADE_1_L = 1000.f;
+	constexpr float CASCADE_1_L = 3000.f;
 	constexpr float CASCADE_2_L = 250.f;
 	constexpr float CASCADE_3_L = 17.f;
 	constexpr float CASCADE_4_L = 3.f;

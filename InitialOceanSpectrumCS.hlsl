@@ -48,7 +48,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
 		float waveSpectrum = JONSWAP(w, g, depth, LocalWaveSpectrumParameters[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, LocalWaveSpectrumParameters[waveCascadeIndex]) * ShortWavesFade(kLength, LocalWaveSpectrumParameters[waveCascadeIndex]);
-		
+	
 		if (SwellWaveSpectrumParameters[waveCascadeIndex].scale > 0) // swellwave
 		{
 			waveSpectrum += JONSWAP(w, g, depth, SwellWaveSpectrumParameters[waveCascadeIndex])

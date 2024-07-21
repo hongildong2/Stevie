@@ -51,7 +51,8 @@ void CalculateForCascade(uint3 id)
 	Result[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
 							  float2(displacementZ.x - displacementZ_dx.y, displacementZ.y + displacementZ_dx.x));
 	
-	// derivative of h tilde. for Displacement map and Jacobian
+	// derivative of h tilde. sampling this is Normal map of ocean surface
+	// TODO : sampling this is Normal map of ocean surface
 	DerivativeResult[id] = float4(float2(displacementY_dx.x - displacementY_dz.y, displacementY_dx.y + displacementY_dz.x),
 							     float2(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x));
 }

@@ -127,8 +127,8 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// apply delta time, update spectrum map using tilde h0
 	// RUN Time dependent sepctrum CS using textures tilde h0(k,t), and waveData that contains wave vector k
 	Graphics::SetPipelineState(context, Graphics::Ocean::timedependentSpectrumPSO);
-	ID3D11UnorderedAccessView* spectrumMapUAV[2] = { m_spectrumMapUAV.Get(), m_spectrumDerivativeMapUAV.Get() };
-	context->CSSetUnorderedAccessViews(0, sizeof(spectrumMapUAV) / sizeof(ID3D11UnorderedAccessView*), spectrumMapUAV, NULL);
+	ID3D11UnorderedAccessView* uavs[2] = { m_spectrumMapUAV.Get(), m_spectrumDerivativeMapUAV.Get() };
+	context->CSSetUnorderedAccessViews(0, sizeof(uavs) / sizeof(ID3D11UnorderedAccessView*), uavs, NULL);
 
 	ID3D11ShaderResourceView* srvs[2] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
 	context->CSSetShaderResources(0, sizeof(srvs) / sizeof(ID3D11ShaderResourceView*), srvs);
@@ -140,10 +140,6 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	context->Dispatch(ocean::GROUP_X, ocean::GROUP_X, 1);
 	Utility::ComputeShaderBarrier(context);
 	// save result into FFT texture for IFFT CS to use it 
-
-
-
-
 
 
 	// run IFFT CS, renew height map from spectrum map, get normal map from height map
@@ -159,26 +155,43 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	{
 		context->CSSetShaderResources(0, 0, NULL);
 		Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-		context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 		context->CSSetConstantBuffers(0, 1, cbs);
-		context->Dispatch(1, ocean::N, 1); // TODO : 이거 맞는지 확인
+
+		ID3D11UnorderedAccessView* uavs[1] = { m_spectrumMapUAV.Get() };
+
+		
+		context->CSSetUnorderedAccessViews(0, 1, uavs, NULL);
+		context->Dispatch(1, ocean::N, 1);
+		Utility::ComputeShaderBarrier(context);
+
+		uavs[0] = m_spectrumDerivativeMapUAV.Get();
+		context->CSSetUnorderedAccessViews(0, 1, uavs, NULL);
+		context->Dispatch(1, ocean::N, 1);
 		Utility::ComputeShaderBarrier(context);
 	}
 
 
-	m_FFTConstant.bDirection = !m_FFTConstant.bDirection;
+	m_FFTConstant.bDirection = true;
 	Utility::DXResource::UpdateConstantBuffer(m_FFTConstant, context, m_FFTCB);
 
 	// vertically
 	{
 		Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
-		context->CSSetUnorderedAccessViews(0, 1, spectrumMapUAV, NULL);
 		context->CSSetConstantBuffers(0, 1, cbs);
-		context->Dispatch(ocean::N, 1, 1);
+		
+		ID3D11UnorderedAccessView* uavs[1] = { m_spectrumMapUAV.Get() };
+
+
+		context->CSSetUnorderedAccessViews(0, 1, uavs, NULL);
+		context->Dispatch(1, ocean::N, 1);
+		Utility::ComputeShaderBarrier(context);
+
+		uavs[0] = m_spectrumDerivativeMapUAV.Get();
+		context->CSSetUnorderedAccessViews(0, 1, uavs, NULL);
+		context->Dispatch(1, ocean::N, 1);
 		Utility::ComputeShaderBarrier(context);
 	}
 
-	Utility::ComputeShaderBarrier(context);
 
 
 	context->CopyResource(m_heightMapGPU.Get(), m_spectrumMap.Get()); // Copy Resource spectrumMap to heightMap Staging Texture
@@ -199,17 +212,12 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 				std::memcpy((byte*)dest + (ocean::N * BytesPerPixel * i), (byte*)pTex2DArrayElement + (resourceDesc.RowPitch * i), static_cast<size_t>(ocean::N * BytesPerPixel));
 			}
 		}
-
-		for (unsigned int i = 0; i < ocean::N; ++i)
-		{
-			for (unsigned int j = 0; j < ocean::N; ++j)
-			{
-				// TODO : parallel for?
-				m_heightMapCPU[0][i][j] = (m_heightMapCPU[0][i][j] + m_heightMapCPU[1][i][j] + m_heightMapCPU[2][i][j] + m_heightMapCPU[3][i][j]) / ocean::CASCADE_COUNT;
-			}
-		}
 	}
 	context->Unmap(m_heightMapGPU.Get(), 0);
+
+	// TODO : 16-bit float4로 취급해서 heightmap 다 더하기 또는 쉐이더에서 계산 해오기 -> 이게 더 나을듯 메모리 복사가 적어서
+
+	
 
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement

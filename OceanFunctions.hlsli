@@ -61,16 +61,16 @@ float SpreadPower(float omega, float peakOmega)
 	}
 }
 
-float DirectionSpectrum(float theta, float omega, SpectrumParameters pars)
+float DirectionSpectrum(float theta, float omega, SpectrumParameters param)
 {
-	float s = SpreadPower(omega, pars.peakOmega)
-		+ 16 * tanh(min(omega / pars.peakOmega, 20)) * pars.swell * pars.swell;
-	return lerp(2 / 3.1415 * cos(theta) * cos(theta), Cosine2s(theta - pars.angle, s), pars.spreadBlend);
+	float s = SpreadPower(omega, param.peakOmega)
+		+ 16 * tanh(min(omega / param.peakOmega, 20)) * param.swell * param.swell;
+	return lerp(2 / 3.1415 * cos(theta) * cos(theta), Cosine2s(theta - param.angle, s), param.spreadBlend);
 }
 
-float ShortWavesFade(float kLength, SpectrumParameters pars)
+float ShortWavesFade(float kLength, SpectrumParameters param)
 {
-	return exp(-pars.shortWavesFade * pars.shortWavesFade * kLength * kLength);
+	return exp(-param.shortWavesFade * param.shortWavesFade * kLength * kLength);
 }
 
 float TMACorrection(float omega, float g, float depth)
@@ -92,19 +92,19 @@ float TMACorrection(float omega, float g, float depth)
 }
 
 // https:wikiwaves.org/Ocean-Wave_Spectra
-float JONSWAP(float omega, float g, float depth, SpectrumParameters pars)
+float JONSWAP(float omega, float g, float depth, SpectrumParameters param)
 {
-	float sigma = omega <= pars.peakOmega ? 0.07 : 0.09;
+	float sigma = omega <= param.peakOmega ? 0.07 : 0.09;
 
-	float r = exp(-(omega - pars.peakOmega) * (omega - pars.peakOmega)
-		/ 2 / sigma / sigma / pars.peakOmega / pars.peakOmega);
+	float r = exp(-(omega - param.peakOmega) * (omega - param.peakOmega)
+		/ 2 / sigma / sigma / param.peakOmega / param.peakOmega);
 	
 	float oneOverOmega = 1 / omega;
-	float peakOmegaOverOmega = pars.peakOmega / omega;
-	return pars.scale * TMACorrection(omega, g, depth) * pars.alpha * g * g
+	float peakOmegaOverOmega = param.peakOmega / omega;
+	return param.scale * TMACorrection(omega, g, depth) * param.alpha * g * g
 		* oneOverOmega * oneOverOmega * oneOverOmega * oneOverOmega * oneOverOmega
 		* exp(-1.25 * peakOmegaOverOmega * peakOmegaOverOmega * peakOmegaOverOmega * peakOmegaOverOmega)
-		* pow(abs(pars.gamma), r);
+		* pow(abs(param.gamma), r);
 }
 
 #endif /* __OCEN_FUNCTIONS__ */
