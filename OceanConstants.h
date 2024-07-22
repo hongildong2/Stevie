@@ -22,7 +22,7 @@ namespace ocean
 	constexpr InitialSpectrumWaveConstant InitialSpectrumWaveConstantInitializer =
 	{
 		9.8f,
-		500.f,
+		1000.f,
 		{ 0.f }
 	};
 
@@ -46,16 +46,16 @@ namespace ocean
 	static_assert(sizeof(InitialSpectrumParameterConstant) % 16 == 0, "CB 16byte alignment");
 
 	// (m) 
-	constexpr float DEFAULT_JONSWAP_FETCH_LENGTH_LOCAL = 100000.0f;
-	constexpr float DEFAULT_JONSWAP_FETCH_LENGTH_SWELL = 300000.0f;
+	constexpr float DEFAULT_JONSWAP_FETCH_LENGTH_LOCAL = 100.0f;
+	constexpr float DEFAULT_JONSWAP_FETCH_LENGTH_SWELL = 100.0f;
 
 	constexpr float DEFAULT_JONSWAP_WIND_DIR = -29.81f;
 	constexpr float DEFAULT_JONSWAP_SPREAD_BLEND = 1.f;
 	constexpr float DEFAULT_JONSWAP_SWELL = 0.198f;
-	constexpr float DEFAULT_JONSWAP_ALPHA = 0.0081f; // 아래함수에서 직접 계산 0.3544f
-	constexpr float DEFAULT_JONSWAP_PEAK_OMEGA = 0.5f; // 아래함수에서 직접 계산 2.7924f
+	constexpr float DEFAULT_JONSWAP_ALPHA = 0.0081f; // 아래함수에서 직접 계산 0.4461
+	constexpr float DEFAULT_JONSWAP_PEAK_OMEGA = 0.5f; // 아래함수에서 직접 계산 0.58
 	constexpr float DEFAULT_JONSWAP_GAMMA = 3.3f;
-	constexpr float DEFAULT_JONSWAP_WIND_SPEED = 0.5f; // (m/s)
+	constexpr float DEFAULT_JONSWAP_WIND_SPEED = 5.f; // (m/s)
 	constexpr float DEFAULT_JONSWAP_FADE = 0.01f;
 
 	// https://dirsig.cis.rit.edu/docs/new/wavespectruminterface.html#:~:text=the%20JONSWAP%20spectrum%20is%20parametrized,100km)%20and%203.3%20%2C%20respectively.
@@ -100,10 +100,10 @@ namespace ocean
 
 
 
-	constexpr float CASCADE_1_L = 3000.f;
-	constexpr float CASCADE_2_L = 250.f;
-	constexpr float CASCADE_3_L = 17.f;
-	constexpr float CASCADE_4_L = 3.f;
+	constexpr float CASCADE_1_L = 1024.f;
+	constexpr float CASCADE_2_L = 256.f;
+	constexpr float CASCADE_3_L = 16.f;
+	constexpr float CASCADE_4_L = 2.f;
 
 	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L), true);
 	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L), true);

@@ -12,7 +12,8 @@ Texture2DArray<float4> DerivativeMap : register(t1);
 cbuffer Params : register(b0)
 {
 	float simulationScale; // (m)
-	float3 dummy;
+	bool bScale; // scale result displacement
+	float2 dummy;
 };
 
 struct CombineParameter
@@ -39,7 +40,16 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 		float2 scaledOffset = offset * uvScaler; // 얘도 텍스쳐좌표계로..
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y) - scaledOffset;
 		
-		displacement += factor * DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
+		float3 sampledDisplacement = DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
+		
+		
+		// 이거 왜하는거지??
+		if (bScale)
+		{
+			sampledDisplacement /= parameters[cascade].L * parameters[cascade].L;
+		}
+		
+		displacement += factor * sampledDisplacement;
 	}
 
 	return displacement; // 얘 단위는 m겠지?
@@ -57,7 +67,14 @@ float3 GetNormalFromDerivative(uint2 xzIndex)
 		float uvScaler = min(1.0, simulationScale / parameters[cascade].L);
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
 		
-		derivative += parameters[cascade].weight * DerivativeMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0);
+		float4 sampledDerivative = DerivativeMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0);
+		
+		if (bScale)
+		{
+			sampledDerivative = parameters[cascade].L * parameters[cascade].L;
+		}
+		
+		derivative += parameters[cascade].weight * sampledDerivative;
 	}
 	
 	float2 slope = float2(derivative.x / max(0.001, 1 + derivative.z), derivative.y / max(0.001, 1 + derivative.w));
