@@ -1,9 +1,9 @@
-#ifndef __OCEAN_FUNCTIONS__
-#define __OCEAN_FUNCTIONS__
+#ifndef __OCEAN_GLOBAL__
+#define __OCEAN_GLOBAL__
 
 #define SIZE 512 // 512 by 512 DFT
 #define LOG_SIZE 9 // log2  512
-#define TARGET_COUNT 4 // total 4 wave cascades
+#define CASCADE_COUNT 4 // total 4 wave cascades
 
 struct SpectrumParameters
 {
@@ -107,4 +107,4 @@ float JONSWAP(float omega, float g, float depth, SpectrumParameters param)
 		* pow(abs(param.gamma), r);
 }
 
-#endif /* __OCEN_FUNCTIONS__ */
+#endif /* __OCEAN_GLOBAL__ */

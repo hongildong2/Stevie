@@ -1,7 +1,7 @@
-#include "OceanFunctions.hlsli"
+#include "OceanGlobal.hlsli"
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
-RWTexture2DArray<float4> Result : register(u0); // for each cascade
+RWTexture2DArray<float4> DisplacementResult : register(u0); // for each cascade
 RWTexture2DArray<float4> DerivativeResult : register(u1); // for each cascade
 
 Texture2DArray<float2> initialSpectrums : register(t0);
@@ -49,7 +49,7 @@ void CalculateForCascade(uint3 id)
 	float2 displacementZ_dz = -lambda * h * wave.z * wave.z * oneOverKLength;
 	
 	// Displacement in frequency Domain, 두개의 복소수, 2차원 Plane Wave이므로
-	Result[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
+	DisplacementResult[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
 							  float2(displacementZ.x - displacementZ_dx.y, displacementZ.y + displacementZ_dx.x));
 	
 	// derivative of h tilde. sampling this is Normal map of ocean surface
@@ -58,7 +58,7 @@ void CalculateForCascade(uint3 id)
 							     float2(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x));
 }
 
-[numthreads(16, 16, TARGET_COUNT)]
+[numthreads(16, 16, CASCADE_COUNT)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 	CalculateForCascade(DTid);	

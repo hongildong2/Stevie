@@ -16,9 +16,11 @@ private:
 	bool mb_initialized;
 
 	// Model m_oceanPlane;
-	uint64_t m_heightMapCPU[ocean::CASCADE_COUNT][ocean::N][ocean::N]; // TODO : data type needs to be half-float4
+	float m_heightMapCPU[ocean::N][ocean::N]; // TODO : data type needs to be half-float4
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMapGPU; // staging texture for cpu
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_normalMap;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMapGPU;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMapGPUStaging; // staging texture for cpu
 
 	// Texture for spectrum calculation
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
@@ -39,10 +41,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_waveVectorDataUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_waveVectorDataSRV;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_spectrumDerivativeMap; // derivative of tilde h
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumMapUAV;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_spectrumDerivativeMapUAV;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_displacementMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_derivativeMap; // derivative of tilde h
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_displacementMapUAV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_derivativeMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_spectrumCB;
 	ocean::SpectrumConstant m_spectrumConstant;
 

@@ -92,7 +92,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Common.hlsli" />
-    <None Include="OceanFunctions.hlsli">
+    <None Include="OceanGlobal.hlsli">
       <Filter>Ocean</Filter>
     </None>
     <None Include="GPURandom.hlsli">

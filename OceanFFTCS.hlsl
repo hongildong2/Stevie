@@ -2,7 +2,7 @@
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/FFT.compute
 
 #include "Common.hlsli"
-#include "OceanFunctions.hlsli"
+#include "OceanGlobal.hlsli"
 
 static uint size = SIZE;
 
@@ -82,7 +82,7 @@ void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit rev
 		targetIndex = DTid.xy; // horizontal
     
 	// [unroll(TARGET_COUNT)] :: Shader compile too slow
-	for (uint k = 0; k < TARGET_COUNT; k++)
+	for (uint k = 0; k < CASCADE_COUNT; k++)
     {
         FTResultTex[uint3(targetIndex, k)] = DoFft(threadIndex, FTResultTex[uint3(targetIndex, k)]);
     }

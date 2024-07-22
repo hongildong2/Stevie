@@ -1,4 +1,4 @@
-#include "OceanFunctions.hlsli"
+#include "OceanGlobal.hlsli"
 
 RWTexture2D<float> HeightMap : register(u0);
 RWTexture2D<float3> NormalMap : register(u1);
@@ -9,6 +9,12 @@ Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
 
 
+cbuffer Params : register(b0)
+{
+	float simulationScale; // (m)
+	float3 dummy;
+};
+
 struct CombineParameter
 {
 	float L;
@@ -18,20 +24,17 @@ struct CombineParameter
 
 StructuredBuffer<CombineParameter> parameters : register(t2);
 
-const float QUAD_SIZE = 512.0;
-const uint N = 512; // fourier grid
-
 float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 {
-	const float2 UV = float2(xzIndex.x / N, xzIndex.y / N);
+	const float2 UV = float2(xzIndex.x / SIZE, xzIndex.y / SIZE);
 
 	float3 displacement = 0;
 
-	[unroll(TARGET_COUNT)]
-	for (uint cascade = 0; cascade < TARGET_COUNT; ++cascade)
+	[unroll(CASCADE_COUNT)]
+	for (uint cascade = 0; cascade < CASCADE_COUNT; ++cascade)
 	{
 		float factor = parameters[cascade].weight * parameters[cascade].shoreModulation;
-		float uvScaler = min(1.0, QUAD_SIZE / parameters[cascade].L);
+		float uvScaler = min(1.0, simulationScale / parameters[cascade].L);
 		
 		float2 scaledOffset = offset * uvScaler; // ¾êµµ ÅØ½ºÃÄÁÂÇ¥°è·Î..
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y) - scaledOffset;
@@ -44,14 +47,14 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 
 float3 GetNormalFromDerivative(uint2 xzIndex)
 {
-	const float2 UV = float2(xzIndex.x / N, xzIndex.y / N);
+	const float2 UV = float2(xzIndex.x / SIZE, xzIndex.y / SIZE);
 
 	float4 derivative = 0.0;
 	
-	[unroll(TARGET_COUNT)]
-	for (uint cascade = 0; cascade < TARGET_COUNT; ++cascade)
+	[unroll(CASCADE_COUNT)]
+	for (uint cascade = 0; cascade < CASCADE_COUNT; ++cascade)
 	{
-		float uvScaler = min(1.0, QUAD_SIZE / parameters[cascade].L);
+		float uvScaler = min(1.0, simulationScale / parameters[cascade].L);
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
 		
 		derivative += parameters[cascade].weight * DerivativeMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0);

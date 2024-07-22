@@ -1,5 +1,5 @@
 #include "GPURandom.hlsli"
-#include "OceanFunctions.hlsli"
+#include "OceanGlobal.hlsli"
 
 // https://github.com/gasgiant/FFT-Ocean/blob/main/Assets/ComputeShaders/InitialSpectrum.compute
 
@@ -12,7 +12,7 @@ RWTexture2DArray<float4> wavesDataTex : register(u1);
 
 // even num is local wave, odd num is wind wave
 // These contains all TARGET_COUNT spectrum wave cascades with z-indexed
-StructuredBuffer<SpectrumParameters> LocalWaveSpectrumParameters : register(t0); 
+StructuredBuffer<SpectrumParameters> LocalWaveSpectrumParameters : register(t0);
 StructuredBuffer<SpectrumParameters> SwellWaveSpectrumParameters : register(t1);
 
 cbuffer WaveConstant : register(b0)
@@ -22,17 +22,14 @@ cbuffer WaveConstant : register(b0)
 	float2 dummy;
 }
 
-static const uint size = SIZE;
 
-
-
-[numthreads(16, 16, TARGET_COUNT)] // calc simultaneously all three wave cascades
-void main( uint3 DTid : SV_DispatchThreadID )
+[numthreads(16, 16, CASCADE_COUNT)] // calc simultaneously all three wave cascades
+void main(uint3 DTid : SV_DispatchThreadID)
 {
 	const uint waveCascadeIndex = DTid.z;
 	float deltaK = 2.0 * GPU_PI / LocalWaveSpectrumParameters[waveCascadeIndex].L;
-	int nx = DTid.x - size / 2;
-	int nz = DTid.y - size / 2;
+	int nx = DTid.x - SIZE / 2;
+	int nz = DTid.y - SIZE / 2;
 	float2 k = float2(nx * deltaK, nz * deltaK); // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
@@ -40,14 +37,16 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	// clamp
 	if (kLength <= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffHigh && kLength >= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffLow)
 	{
-		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + TARGET_COUNT)));
+		float2 randomNoise = float2(NormalRandom(DTid), NormalRandom(uint3(DTid.xy, waveCascadeIndex + CASCADE_COUNT)));
 		float kAngle = atan2(k.y, k.x);
 		float w = Frequency(kLength, g, depth);
 		
 		float dwdk = FrequencyDerivative(kLength, g, depth);
 		
 		// just random sampling of JONSWAP spectrum of ocean wave
-		float waveSpectrum = JONSWAP(w, g, depth, LocalWaveSpectrumParameters[waveCascadeIndex]) * DirectionSpectrum(kAngle, w, LocalWaveSpectrumParameters[waveCascadeIndex]) * ShortWavesFade(kLength, LocalWaveSpectrumParameters[waveCascadeIndex]);
+		float waveSpectrum = JONSWAP(w, g, depth, LocalWaveSpectrumParameters[waveCascadeIndex])
+			* DirectionSpectrum(kAngle, w, LocalWaveSpectrumParameters[waveCascadeIndex])
+			* ShortWavesFade(kLength, LocalWaveSpectrumParameters[waveCascadeIndex]);
 	
 		if (SwellWaveSpectrumParameters[waveCascadeIndex].scale > 0) // swellwave
 		{
