@@ -1,13 +1,21 @@
 #include "OceanGlobal.hlsli"
 
+struct CombineParameter
+{
+	float L;
+	float weight;
+	float shoreModulation;
+	float dummy;
+};
+
 RWTexture2D<float> HeightMap : register(u0);
-RWTexture2D<float3> NormalMap : register(u1);
+RWTexture2D<float4> NormalMap : register(u1);
 
 SamplerState wrapSampler : register(s0);
 
 Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
-
+StructuredBuffer<CombineParameter> parameters : register(t2);
 
 cbuffer Params : register(b0)
 {
@@ -16,18 +24,10 @@ cbuffer Params : register(b0)
 	float2 dummy;
 };
 
-struct CombineParameter
-{
-	float L;
-	float weight;
-	float shoreModulation;
-};
-
-StructuredBuffer<CombineParameter> parameters : register(t2);
 
 float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 {
-	const float2 UV = float2(xzIndex.x / SIZE, xzIndex.y / SIZE);
+	const float2 UV = float2(float(xzIndex.x) / float(SIZE), float(xzIndex.y) / float(SIZE));
 
 	float3 displacement = 0;
 
@@ -38,10 +38,9 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 		float uvScaler = min(1.0, simulationScale / parameters[cascade].L);
 		
 		float2 scaledOffset = offset * uvScaler; // 얘도 텍스쳐좌표계로..
-		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y) - scaledOffset;
+		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
 		
 		float3 sampledDisplacement = DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
-		
 		
 		// 이거 왜하는거지??
 		if (bScale)
@@ -57,7 +56,7 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 
 float3 GetNormalFromDerivative(uint2 xzIndex)
 {
-	const float2 UV = float2(xzIndex.x / SIZE, xzIndex.y / SIZE);
+	const float2 UV = float2(float(xzIndex.x) / float(SIZE), float(xzIndex.y) / float(SIZE));
 
 	float4 derivative = 0.0;
 	
@@ -71,7 +70,7 @@ float3 GetNormalFromDerivative(uint2 xzIndex)
 		
 		if (bScale)
 		{
-			sampledDerivative = parameters[cascade].L * parameters[cascade].L;
+			sampledDerivative /= parameters[cascade].L * parameters[cascade].L;
 		}
 		
 		derivative += parameters[cascade].weight * sampledDerivative;
@@ -93,7 +92,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	displacement = SampleDisplacement(XZ_INDEX, displacement.xz);
 	// => 멀티샘플링
 	HeightMap[DTid.xy] = displacement.y;
-	NormalMap[DTid.xy] = GetNormalFromDerivative(XZ_INDEX);
+	NormalMap[DTid.xy] = float4(GetNormalFromDerivative(XZ_INDEX), 0.0); // only xyz is meaningful, UAV does not support float3
 	
 	
 	// TODO : 서로다른 스케일의 데이터를 어떻게 하나로 합칠것인가? 텍스쳐의 좌표가 서로 동등하다고 볼 수 있나?

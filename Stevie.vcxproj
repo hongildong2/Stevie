@@ -239,7 +239,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="CombineWave.hlsl">
+    <FxCompile Include="CombineWaveCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

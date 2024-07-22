@@ -6,8 +6,10 @@
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
+	m_combineWaveConstant(ocean::CombineWaveConstantInitializer),
+	m_combineParameters(ocean::CombineParameterInitializer),
 	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
-	m_LocalInitialSpectrumParameterConstant(ocean::LocalInitialSpectrumParameterConstantInitializer),
+	m_LocalInitialSpectrumParameters(ocean::LocalInitialSpectrumParameterInitializer),
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
@@ -42,9 +44,8 @@ Ocean::Ocean(ID3D11Device1* device)
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf()));
 
 		// Combined Result, Normal and HeightMap
-		desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		desc.ArraySize = 1;
-		desc.BindFlags = 0;
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_normalMap.GetAddressOf()));
 
 		desc.Format = DXGI_FORMAT_R32_FLOAT;
@@ -52,6 +53,7 @@ Ocean::Ocean(ID3D11Device1* device)
 
 		// Stating HeightMap Texture for CPU
 		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_heightMapGPUStaging.GetAddressOf()));
 	}
@@ -61,13 +63,14 @@ Ocean::Ocean(ID3D11Device1* device)
 
 	// Structured Buffer
 	{
-		Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameterConstant, m_LocalInitialSpectrumParameterSB.GetAddressOf());
+		Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters, m_LocalInitialSpectrumParameterSB.GetAddressOf());
 		Utility::DXResource::CreateBufferSRV(device, m_LocalInitialSpectrumParameterSB.Get(), m_LocalInitialSpectrumParameterSRV.GetAddressOf());
 
-		Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameterConstant), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameterConstant, m_SwellInitialSpectrumParameterSB.GetAddressOf());
+		Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters, m_SwellInitialSpectrumParameterSB.GetAddressOf());
 		Utility::DXResource::CreateBufferSRV(device, m_SwellInitialSpectrumParameterSB.Get(), m_SwellInitialSpectrumParameterSRV.GetAddressOf());
 
-		// TODO : CombineWave에서 쓰는거
+		Utility::DXResource::CreateStructuredBuffer(device, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters, m_combineParamterSB.GetAddressOf());
+		Utility::DXResource::CreateBufferSRV(device, m_combineParamterSB.Get(), m_combineParameterSRV.GetAddressOf());
 	}
 
 
@@ -88,7 +91,16 @@ Ocean::Ocean(ID3D11Device1* device)
 		uavDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_initialSpectrumMap.Get(), &uavDesc, m_initialSpectrumMapUAV.GetAddressOf()));
 
-		// TODO : heightMap, Normal Map UAV
+		// heightMap, Normal Map UAV
+		ZeroMemory(&uavDesc, sizeof(uavDesc));
+		uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Texture2D.MipSlice = 0;
+		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_heightMapGPU.Get(), &uavDesc, m_heightMapUAV.GetAddressOf()));
+
+
+		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_normalMap.Get(), &uavDesc, m_normalMapUAV.GetAddressOf()));
 	}
 
 
@@ -104,11 +116,23 @@ Ocean::Ocean(ID3D11Device1* device)
 		srvDesc.Texture2DArray.MostDetailedMip = 0; // ?
 
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_waveVectorData.Get(), &srvDesc, m_waveVectorDataSRV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_displacementMap.Get(), &srvDesc, m_displacementMapSRV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_derivativeMap.Get(), &srvDesc, m_derivativeMapSRV.GetAddressOf()));
 
 		srvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_initialSpectrumMap.Get(), &srvDesc, m_initialSpectrumMapSRV.GetAddressOf()));
 
-		// TODO : HeightMap, NormalMap SRVs
+		ZeroMemory(&srvDesc, sizeof(srvDesc));
+		// HeightMap, NormalMap SRVs
+		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_heightMapGPU.Get(), &srvDesc, m_heightMapSRV.GetAddressOf()));
+
+		srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_normalMap.Get(), &srvDesc, m_normalMapSRV.GetAddressOf()));
 	}
 
 
@@ -116,8 +140,7 @@ Ocean::Ocean(ID3D11Device1* device)
 	Utility::DXResource::CreateConstantBuffer(m_initialSpectrumWaveConstant, device, m_initialSpectrumWaveCB);
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, device, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, device, m_FFTCB);
-
-
+	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, device, m_combineWaveCB);
 }
 
 void Ocean::Initialize(ID3D11DeviceContext1* context)
@@ -226,7 +249,26 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		}
 	}
 
-	// TODO : Run Combine Wave, or Postprocess CS, FFT결과에 PostProcess 필요한가?
+	// Combine wave, postprocess
+	{
+		Graphics::SetPipelineState(context, Graphics::Ocean::combineWavePSO);
+		ID3D11Buffer* combineWaveCBs[1] = { m_combineWaveCB.Get() };
+		context->CSSetConstantBuffers(0, 1, combineWaveCBs);
+
+		ID3D11UnorderedAccessView* combineWaveUAVs[2] = { m_heightMapUAV.Get(), m_normalMapUAV.Get() };
+		context->CSSetUnorderedAccessViews(0, 2, combineWaveUAVs, NULL);
+
+		ID3D11ShaderResourceView* combineWaveSRVs[3] = { m_displacementMapSRV.Get(), m_derivativeMapSRV.Get(), m_combineParameterSRV.Get() };
+		context->CSSetShaderResources(0, 3, combineWaveSRVs);
+
+		ID3D11SamplerState* combineWaveSSs[1] = { Graphics::linearWrapSS.Get() };
+		context->CSSetSamplers(0, 1, combineWaveSSs);
+
+
+		context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
+		Utility::ComputeShaderBarrier(context);
+	}
+
 
 
 	// Copy Heightmap GPU -> CPU

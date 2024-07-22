@@ -26,8 +26,21 @@ namespace ocean
 		{ 0.f }
 	};
 
+	struct CombineWaveConstant
+	{
+		float simulationScale; // ocean quad size
+		BOOL bScale; // boolean for N*N scaling,
+		float dummy[2];
+	};
+	static_assert(sizeof(CombineWaveConstant) % 16 == 0, "CB 16byte alignment");
+	constexpr CombineWaveConstant CombineWaveConstantInitializer =
+	{
+		512.f,
+		true,
+		{0.f}
+	};
 
-	struct InitialSpectrumParameterConstant
+	struct InitialSpectrumParameter
 	{
 		float L; // Simulation Size, grid size dx will be L / N
 		float scale; // decide how much effect this wave will have
@@ -43,7 +56,16 @@ namespace ocean
 		float cutoffHigh;
 		float dummy;
 	};
-	static_assert(sizeof(InitialSpectrumParameterConstant) % 16 == 0, "CB 16byte alignment");
+	static_assert(sizeof(InitialSpectrumParameter) % 16 == 0, "CB 16byte alignment");
+
+	struct CombineParameter
+	{
+		float L;
+		float weight;
+		float shoreModulation;
+		float dummy;
+	};
+	static_assert(sizeof(CombineParameter) % 16 == 0, "CB 16byte alignment");
 
 	// (m) 
 	constexpr float DEFAULT_JONSWAP_FETCH_LENGTH_LOCAL = 100.0f;
@@ -69,7 +91,7 @@ namespace ocean
 		return 2.f * 3.14f / L * 6.f;
 	}
 
-	constexpr InitialSpectrumParameterConstant JONSWAP_SPECTRUM_PARAMETER(float L, float scale, float windDir, float cutoffLow, float cutoffHigh, bool bLocal)
+	constexpr InitialSpectrumParameter JONSWAP_SPECTRUM_PARAMETER(float L, float scale, float windDir, float cutoffLow, float cutoffHigh)
 	{
 		return
 		{
@@ -78,8 +100,8 @@ namespace ocean
 			windDir,
 			DEFAULT_JONSWAP_SPREAD_BLEND,
 			DEFAULT_JONSWAP_SWELL,
-			bLocal ? DEFAULT_JONSWAP_ALPHA : 1.065f * DEFAULT_JONSWAP_ALPHA,
-			bLocal ? DEFAULT_JONSWAP_PEAK_OMEGA : 1.8f * DEFAULT_JONSWAP_PEAK_OMEGA,
+			DEFAULT_JONSWAP_ALPHA,
+			DEFAULT_JONSWAP_PEAK_OMEGA,
 			DEFAULT_JONSWAP_GAMMA,
 			DEFAULT_JONSWAP_FADE,
 			cutoffLow,
@@ -100,39 +122,47 @@ namespace ocean
 
 
 
-	constexpr float CASCADE_1_L = 1024.f;
-	constexpr float CASCADE_2_L = 256.f;
-	constexpr float CASCADE_3_L = 16.f;
-	constexpr float CASCADE_4_L = 2.f;
+	constexpr float CASCADE_1_L = 1023.f;
+	constexpr float CASCADE_2_L = 255.f;
+	constexpr float CASCADE_3_L = 17.f;
+	constexpr float CASCADE_4_L = 3.f;
 
-	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L), true);
-	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L), true);
-	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L), true);
-	constexpr InitialSpectrumParameterConstant LOCAL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX, true);
 
-	// local은 기본 fetch값이 100000, swell은 300000, 위 jonswap 함수들로 직접 보정..
-	constexpr InitialSpectrumParameterConstant SWELL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 0.f, 0.f, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L), false);
-	constexpr InitialSpectrumParameterConstant SWELL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L), false);
-	constexpr InitialSpectrumParameterConstant SWELL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L), false);
-	constexpr InitialSpectrumParameterConstant SWELL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX, false);
+	constexpr InitialSpectrumParameter LOCAL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L));
+	constexpr InitialSpectrumParameter LOCAL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L));
+	constexpr InitialSpectrumParameter LOCAL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L));
+	constexpr InitialSpectrumParameter LOCAL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
 
-	constexpr std::array<InitialSpectrumParameterConstant, CASCADE_COUNT> LocalInitialSpectrumParameterConstantInitializer =
-	{
+	constexpr InitialSpectrumParameter SWELL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 0.f, 0.f, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
+
+	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
+	{{
+		{ CASCADE_1_L, 1.f, 1.f, 0.f },
+		{CASCADE_2_L, 1.f, 1.f, 0.f},
+		{CASCADE_3_L, 1.f, 1.f, 0.f},
+		{CASCADE_4_L, 1.f, 1.f, 0.f},
+	}};
+
+	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =
+	{{
 		LOCAL_CASCADE_1,
 		LOCAL_CASCADE_2,
 		LOCAL_CASCADE_3,
 		LOCAL_CASCADE_4,
-	};
-	static_assert(sizeof(LocalInitialSpectrumParameterConstantInitializer) / sizeof(InitialSpectrumParameterConstant) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
+	}};
+	static_assert(sizeof(LocalInitialSpectrumParameterInitializer) / sizeof(InitialSpectrumParameter) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
 
-	constexpr std::array<InitialSpectrumParameterConstant, CASCADE_COUNT> SwellInitialSpectrumParameterConstantInitializer =
-	{
+	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> SwellInitialSpectrumParameterConstantInitializer =
+	{{
 		SWELL_CASCADE_1,
 		SWELL_CASCADE_2,
 		SWELL_CASCADE_3,
 		SWELL_CASCADE_4,
-	};
-	static_assert(sizeof(SwellInitialSpectrumParameterConstantInitializer) / sizeof(InitialSpectrumParameterConstant) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
+	}};
+	static_assert(sizeof(SwellInitialSpectrumParameterConstantInitializer) / sizeof(InitialSpectrumParameter) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
 
 
 	struct FFTConstant

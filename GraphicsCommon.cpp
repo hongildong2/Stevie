@@ -41,16 +41,17 @@ namespace Graphics
 	ComputePSO upBlurPSO;
 
 	// 이게 맞는걸까??
-
 	namespace Ocean
 	{
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
 		ComputePSO initialSpectrumPSO;
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
+		ComputePSO combineWavePSO;
 	}
 
 
@@ -204,7 +205,8 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "main", "cs_5_0", &shaderBlob));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTCS.GetAddressOf());
 
-
+			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::combineWaveCS.GetAddressOf());
 		}
 	}
 
@@ -276,6 +278,7 @@ namespace Graphics
 		Ocean::initialSpectrumPSO.m_computeShader = Ocean::initialSpectrumCS;
 		Ocean::timedependentSpectrumPSO.m_computeShader = Ocean::timedependentSpectrumCS;
 		Ocean::FFTPSO.m_computeShader = Ocean::FFTCS;
+		Ocean::combineWavePSO.m_computeShader = Ocean::combineWaveCS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)

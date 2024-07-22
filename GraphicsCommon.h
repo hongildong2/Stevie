@@ -31,7 +31,6 @@ namespace Graphics
 
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
-
 	
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
@@ -51,11 +50,13 @@ namespace Graphics
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
 
 		extern ComputePSO initialSpectrumPSO;
 		extern ComputePSO timedependentSpectrumPSO;
 		extern ComputePSO FFTPSO;
+		extern ComputePSO combineWavePSO;
 	}
 	
 
