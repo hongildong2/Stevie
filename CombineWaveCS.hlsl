@@ -20,7 +20,7 @@ StructuredBuffer<CombineParameter> parameters : register(t2);
 cbuffer Params : register(b0)
 {
 	float simulationScale; // (m)
-	bool bScale; // scale result displacement
+	bool bScale; // not in use
 	float2 dummy;
 };
 
@@ -30,6 +30,7 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 	const float2 UV = float2(float(xzIndex.x) / float(SIZE), float(xzIndex.y) / float(SIZE));
 
 	float3 displacement = 0;
+	
 
 	[unroll(CASCADE_COUNT)]
 	for (uint cascade = 0; cascade < CASCADE_COUNT; ++cascade)
@@ -39,14 +40,10 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 		
 		float2 scaledOffset = offset * uvScaler; // 얘도 텍스쳐좌표계로..
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
+		float valueScaler = simulationScale / parameters[cascade].L;
 		
-		float3 sampledDisplacement = DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
+		float3 sampledDisplacement = valueScaler * DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
 		
-		// 이거 왜하는거지??
-		if (bScale)
-		{
-			sampledDisplacement /= parameters[cascade].L * parameters[cascade].L;
-		}
 		
 		displacement += factor * sampledDisplacement;
 	}
@@ -66,12 +63,10 @@ float3 GetNormalFromDerivative(uint2 xzIndex)
 		float uvScaler = min(1.0, simulationScale / parameters[cascade].L);
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
 		
+		float valueScaler = simulationScale / parameters[cascade].L;
 		float4 sampledDerivative = DerivativeMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0);
 		
-		if (bScale)
-		{
-			sampledDerivative /= parameters[cascade].L * parameters[cascade].L;
-		}
+		sampledDerivative.z *= valueScaler; // TODO 왜 z부분만 스케일링 영향이 있는지 연구해보기!!
 		
 		derivative += parameters[cascade].weight * sampledDerivative;
 	}

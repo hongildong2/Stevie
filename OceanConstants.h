@@ -36,7 +36,7 @@ namespace ocean
 	constexpr CombineWaveConstant CombineWaveConstantInitializer =
 	{
 		512.f,
-		true,
+		false,
 		{0.f}
 	};
 
@@ -139,29 +139,29 @@ namespace ocean
 	constexpr InitialSpectrumParameter SWELL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 0.f, 0.f, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
-	{{
+	{ {
 		{ CASCADE_1_L, 1.f, 1.f, 0.f },
 		{CASCADE_2_L, 1.f, 1.f, 0.f},
 		{CASCADE_3_L, 1.f, 1.f, 0.f},
 		{CASCADE_4_L, 1.f, 1.f, 0.f},
-	}};
+	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =
-	{{
+	{ {
 		LOCAL_CASCADE_1,
 		LOCAL_CASCADE_2,
 		LOCAL_CASCADE_3,
 		LOCAL_CASCADE_4,
-	}};
+	} };
 	static_assert(sizeof(LocalInitialSpectrumParameterInitializer) / sizeof(InitialSpectrumParameter) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> SwellInitialSpectrumParameterConstantInitializer =
-	{{
+	{ {
 		SWELL_CASCADE_1,
 		SWELL_CASCADE_2,
 		SWELL_CASCADE_3,
 		SWELL_CASCADE_4,
-	}};
+	} };
 	static_assert(sizeof(SwellInitialSpectrumParameterConstantInitializer) / sizeof(InitialSpectrumParameter) == CASCADE_COUNT, "CASCADE COUNT INCONSISTENT");
 
 
