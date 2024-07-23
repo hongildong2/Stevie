@@ -23,13 +23,6 @@ struct TextureFiles
 	const wchar_t* roughnessName;
 };
 
-// TODO get texture views from manager when Init using name!
-//struct Textures
-//{
-//	std::string albedo;
-//	std::string metalness;
-//};
-
 struct Material
 {
 	float metallicFactor;

@@ -183,6 +183,13 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		// apply delta time, update spectrum map using tilde h0
 		// RUN Time dependent sepctrum CS using textures tilde h0(k,t), and waveData that contains wave vector k
 		Graphics::SetPipelineState(context, Graphics::Ocean::timedependentSpectrumPSO);
+
+		// TEMP
+		{
+			m_spectrumConstant.time += 0.01f;
+			Utility::DXResource::UpdateConstantBuffer(m_spectrumConstant, context, m_spectrumCB);
+		}
+
 		ID3D11UnorderedAccessView* SpectrumUAVs[2] = { m_displacementMapUAV.Get(), m_derivativeMapUAV.Get() };
 		ID3D11ShaderResourceView* SpectrumSRVs[2] = { m_initialSpectrumMapSRV.Get(), m_waveVectorDataSRV.Get() };
 		ID3D11Buffer* SpectrumCBs[1] = { m_spectrumCB.Get() };

@@ -37,11 +37,12 @@ namespace GeometryGenerator
 }
 
 
-class ModelMeshPart
+class ModelMeshPart final
 {
 public:
-	ModelMeshPart(MeshData& mesh, ID3D11Device1* device);
-	ModelMeshPart(const ModelMeshPart& other);
+	ModelMeshPart(MeshData mesh, ID3D11Device1* device);
+	ModelMeshPart(const ModelMeshPart& other) = delete;
+	~ModelMeshPart() = default;
 
 	void Draw(ID3D11DeviceContext1* context) const;
 

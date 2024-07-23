@@ -44,6 +44,7 @@
     <ClInclude Include="OceanConstants.h">
       <Filter>Ocean</Filter>
     </ClInclude>
+    <ClInclude Include="TessellatedQuad.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -69,6 +70,7 @@
     <ClCompile Include="GraphicsPSO.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TessellatedQuad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

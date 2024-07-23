@@ -15,7 +15,6 @@ public:
 private:
 	bool mb_initialized;
 
-	// Model m_oceanPlane;
 	float m_heightMapCPU[ocean::N][ocean::N];
 
 

@@ -20,8 +20,6 @@ namespace GeometryGenerator
 		MeshData meshData;
 		meshData.verticies.reserve(numSlices * numStacks + 1);
 
-		std::vector<Vertex>& verticies = meshData.verticies;
-
 		// creating verticies per slice rotating 
 		for (unsigned int j = 0; j <= numStacks; j++)
 		{
@@ -46,7 +44,7 @@ namespace GeometryGenerator
 				v.tangentModel = biTangent.Cross(normalOrth);
 				v.tangentModel.Normalize();
 
-				verticies.push_back(v);
+				meshData.verticies.push_back(v);
 			}
 		}
 
@@ -261,7 +259,7 @@ namespace GeometryGenerator
 }
 
 // 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
-ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
+ModelMeshPart::ModelMeshPart(MeshData mesh, ID3D11Device1* device)
 {
 	m_vertexStride = sizeof(Vertex);
 	m_vertexOffset = 0;
@@ -303,19 +301,6 @@ ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 
 	hr = device->CreateBuffer(&bufferDesc, &InitData, &m_indexBuffer);
 	DX::ThrowIfFailed(hr);
-}
-
-ModelMeshPart::ModelMeshPart(const ModelMeshPart& other)
-{
-	m_vertexStride = other.m_vertexStride;
-	m_vertexOffset = other.m_vertexOffset;
-	m_indexCount = other.m_indexCount;
-	m_primitiveTopology = other.m_primitiveTopology;
-	m_indexFormat = other.m_indexFormat;
-
-	m_vertexBuffer = other.m_vertexBuffer.Get();
-	m_indexBuffer = other.m_indexBuffer.Get();
-
 }
 
 void ModelMeshPart::Draw(ID3D11DeviceContext1* context) const

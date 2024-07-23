@@ -190,6 +190,7 @@
     <ClInclude Include="Ocean.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="TessellatedQuad.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelMeshPart.h" />
@@ -214,6 +215,7 @@
     </ClCompile>
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="TessellatedQuad.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
