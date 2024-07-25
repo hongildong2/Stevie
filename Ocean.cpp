@@ -6,6 +6,7 @@
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
+	m_tessellatedQuad(),
 	m_combineWaveConstant(ocean::CombineWaveConstantInitializer),
 	m_combineParameters(ocean::CombineParameterInitializer),
 	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
@@ -13,6 +14,15 @@ Ocean::Ocean(ID3D11Device1* device)
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
+
+	MeshData quad = GeometryGenerator::MakeSquare(50.0f);
+	DirectX::SimpleMath::Matrix rot = DirectX::SimpleMath::Matrix::CreateRotationX(- 3.141594f / 2.f); // -90µµ? +90µµ?
+
+	std::vector<std::unique_ptr<ModelMeshPart>> meshes;
+	meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
+	m_tessellatedQuad = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), DirectX::SimpleMath::Vector3(0.f, -5.f, 0.f));
+
+	m_tessellatedQuad->UpdatePosBy(rot);
 	// create d3d resources
 
 	// Textures
@@ -309,4 +319,8 @@ void Ocean::Draw(ID3D11DeviceContext1* context)
 	// Set vertex shader <- resources : Height map, displacement map
 	// m_oceanPlane.Draw(context);
 	// Set Pixel Shader <- resources : Normal map, Jacobian Map, PBR constants
+
+	// Set pipeline state
+
+	// set sampler, shader resources,
 }

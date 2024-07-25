@@ -1,8 +1,13 @@
 #include "pch.h"
+
 #include "Model.h"
 #include "Utility.h"
 
-Model::Model(const char* name, std::vector<ModelMeshPart> meshes, DirectX::SimpleMath::Vector3 worldPosition) : m_name(name)
+Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition)
+	:m_name(name),
+	m_meshes(std::move(meshes)), // Note that name,expression of rvalue reference is lvalue
+	m_modelPSConstants{ {0.f, 0.f, 0.f}, 0.f, {0.f, } },
+	m_modelVSConstants{}
 {
 	m_meshes.reserve(50);
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
@@ -11,11 +16,6 @@ Model::Model(const char* name, std::vector<ModelMeshPart> meshes, DirectX::Simpl
 	m_modelPSConstants.material.roughnessFactor = 0.3f;
 	m_modelPSConstants.material.aoFactor = 1.f;
 	m_modelPSConstants.material.t1 = 1.f;
-
-	for (ModelMeshPart& mesh : meshes)
-	{
-		m_meshes.push_back(mesh);
-	}
 }
 
 void Model::PrepareForRendering(ID3D11DeviceContext1* context,
@@ -90,9 +90,9 @@ void Model::Draw(ID3D11DeviceContext1* context)
 {
 	assert(context != nullptr);
 
-	for (ModelMeshPart& mesh : m_meshes)
+	for (std::unique_ptr<ModelMeshPart>& mesh : m_meshes)
 	{
-		mesh.Draw(context);
+		mesh->Draw(context);
 	}
 }
 void Model::UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform)

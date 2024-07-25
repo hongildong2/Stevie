@@ -90,7 +90,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	NormalMap[DTid.xy] = float4(GetNormalFromDerivative(XZ_INDEX), 0.0); // only xyz is meaningful, UAV does not support float3
 	
 	
-	// TODO : 서로다른 스케일의 데이터를 어떻게 하나로 합칠것인가? 텍스쳐의 좌표가 서로 동등하다고 볼 수 있나?
+	// 서로다른 스케일의 데이터를 어떻게 하나로 합칠것인가? 텍스쳐의 좌표가 서로 동등하다고 볼 수 있나?
 	// 내가 렌더링하고싶은 사각형의 스케일을 정해야한다. 512m x 512m 크기의 바다를 사각형 Quad로 표현한다고 하면
 	// 512x512 높이맵에서 1x1 그리드의 크기는 1mx1m 일것이다
 	// 각 cascade Displacement 그리드의 크기는 각각 L / 512 :: 2m, 0.5m, 0.03m, 0.005m 이런식으로 될것이다

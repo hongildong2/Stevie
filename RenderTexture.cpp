@@ -59,8 +59,8 @@ void RenderTexture::SizeResources(size_t width, size_t height)
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Format = m_format; // for HDR Pipeline
-	desc.Width = width;
-	desc.Height = height;
+	desc.Width = static_cast<UINT>(width);
+	desc.Height = static_cast<UINT>(height);
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;

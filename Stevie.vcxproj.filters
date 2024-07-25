@@ -11,6 +11,12 @@
     <Filter Include="Ocean">
       <UniqueIdentifier>{9320104d-048f-4197-8d9c-3430d9ce4afb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PostProcess">
+      <UniqueIdentifier>{24f3df86-4a95-46ad-bc9a-da649b89ca93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TessellatedQuad">
+      <UniqueIdentifier>{d0a96982-dafb-4309-a1c3-1bbc6d9bdab2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -24,7 +30,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelMeshPart.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Ocean.h">
       <Filter>Ocean</Filter>
@@ -44,7 +49,9 @@
     <ClInclude Include="OceanConstants.h">
       <Filter>Ocean</Filter>
     </ClInclude>
-    <ClInclude Include="TessellatedQuad.h" />
+    <ClInclude Include="PostProcess.h">
+      <Filter>PostProcess</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -56,7 +63,6 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelMeshPart.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Ocean.cpp">
       <Filter>Ocean</Filter>
@@ -70,7 +76,9 @@
     <ClCompile Include="GraphicsPSO.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="TessellatedQuad.cpp" />
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>PostProcess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -102,14 +110,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl" />
+    <FxCompile Include="PBRVS.hlsl" />
     <FxCompile Include="CubemapPS.hlsl" />
     <FxCompile Include="CubemapVS.hlsl" />
-    <FxCompile Include="downBlurCS.hlsl" />
-    <FxCompile Include="upBlurCS.hlsl" />
-    <FxCompile Include="FilterCombinePS.hlsl" />
-    <FxCompile Include="ScreenQuadVS.hlsl" />
-    <FxCompile Include="PbrPS.hlsl" />
+    <FxCompile Include="PBRPS.hlsl" />
     <FxCompile Include="InitialOceanSpectrumCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
@@ -121,6 +125,24 @@
     </FxCompile>
     <FxCompile Include="CombineWaveCS.hlsl">
       <Filter>Ocean</Filter>
+    </FxCompile>
+    <FxCompile Include="FilterCombinePS.hlsl">
+      <Filter>PostProcess</Filter>
+    </FxCompile>
+    <FxCompile Include="ScreenQuadVS.hlsl">
+      <Filter>PostProcess</Filter>
+    </FxCompile>
+    <FxCompile Include="upBlurCS.hlsl">
+      <Filter>PostProcess</Filter>
+    </FxCompile>
+    <FxCompile Include="downBlurCS.hlsl">
+      <Filter>PostProcess</Filter>
+    </FxCompile>
+    <FxCompile Include="TesselatedQuadHS.hlsl">
+      <Filter>TessellatedQuad</Filter>
+    </FxCompile>
+    <FxCompile Include="TessellatedQuadDS.hlsl">
+      <Filter>TessellatedQuad</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

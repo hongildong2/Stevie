@@ -104,7 +104,7 @@ private:
 	// TODO : Add Input Controller
 
 	/// Scene : models, camera, viewport, lights, cubemap
-	std::vector<Model> m_models;
+	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Camera> m_camera;
 	std::unique_ptr<Ocean> m_ocean;
 	DirectX::SimpleMath::Matrix m_proj;

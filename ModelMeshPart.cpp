@@ -69,14 +69,12 @@ namespace GeometryGenerator
 		return meshData;
 	}
 
-	MeshData MakeSquare()
+	MeshData MakeSquare(const float scale = 1.0f)
 	{
 		std::vector<Vector3> positions;
 		std::vector<Vector3> colors;
 		std::vector<Vector3> normals;
 		std::vector<Vector2> texcoords; // 텍스춰 좌표
-
-		const float scale = 1.0f;
 
 		// 앞면
 		positions.push_back(Vector3(-1.0f, 1.0f, 0.0f) * scale);
@@ -259,7 +257,7 @@ namespace GeometryGenerator
 }
 
 // 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
-ModelMeshPart::ModelMeshPart(MeshData mesh, ID3D11Device1* device)
+ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 {
 	m_vertexStride = sizeof(Vertex);
 	m_vertexOffset = 0;
@@ -272,7 +270,7 @@ ModelMeshPart::ModelMeshPart(MeshData mesh, ID3D11Device1* device)
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT; // read only?
-	bufferDesc.ByteWidth = sizeof(Vertex) * mesh.verticies.size();
+	bufferDesc.ByteWidth = sizeof(Vertex) * static_cast<UINT>(mesh.verticies.size());
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0; // no access
 	bufferDesc.MiscFlags = 0;
@@ -289,7 +287,7 @@ ModelMeshPart::ModelMeshPart(MeshData mesh, ID3D11Device1* device)
 	// index buffer
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(uint32_t) * mesh.indicies.size();
+	bufferDesc.ByteWidth = sizeof(uint32_t) * static_cast<UINT>(mesh.indicies.size());
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;

@@ -148,12 +148,12 @@ void Game::UpdateGUI()
 		{
 			unsigned int nth = 0;
 			char buf[20];
-			for (Model& model : m_models)
+			for (auto& model : m_models)
 			{
 				snprintf(buf, 20, "%d%s", nth++, "th model");
 				if (ImGui::TreeNode(buf))
 				{
-					Material mat = model.GetMaterialConstant();
+					Material mat = model->GetMaterialConstant();
 
 					// Vector3 <-> float3는 이렇게
 					ImGui::SliderFloat("metallic", &mat.metallicFactor, 0.f, 1.f);
@@ -162,7 +162,7 @@ void Game::UpdateGUI()
 					ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
 
 
-					model.UpdateMaterialConstant(mat);
+					model->UpdateMaterialConstant(mat);
 
 					ImGui::TreePop();
 
@@ -346,10 +346,10 @@ void Game::Render()
 		m_deviceResources->PIXBeginEvent(L"Models");
 		Graphics::SetPipelineState(context, Graphics::basicPSO);
 		context->VSSetSamplers(0, 2, samplers);
-		for (Model& model : m_models)
+		for (auto& model : m_models)
 		{
-			model.PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			model.Draw(context);
+			model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+			model->Draw(context);
 		}
 		m_deviceResources->PIXEndEvent();
 	}
@@ -481,33 +481,43 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 
-	// Cubemap
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
-
-
-	m_ocean = std::make_unique<Ocean>(device);
-
 	// Init Assets
 	{
-		// cubemap Init
-		MeshData cube = GeometryGenerator::MakeBox(50.f);
-		m_cubeMap = std::make_unique<Model>("cubeMap", std::vector<ModelMeshPart>{ ModelMeshPart(cube, device) }, Vector3(0.f, 0.f, 0.f));
-		m_cubeMap->Initialize(device, {}); // 얘 클래스 따로만들어야할듯
+		// 끔찍하다, 기능구현 다하면 고칠게요
+		// Cubemap
+		{
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
-		// sample model
-		MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
-		m_models.emplace_back("BASIC SPHERE", std::vector<ModelMeshPart>{ModelMeshPart(sphereMesh, device)}, Vector3(0.f, 0.f, 0.f));
-		m_models.back().Initialize(device, {
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
-			L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
-			});
+			MeshData cube = GeometryGenerator::MakeBox(50.f);
+			std::vector<std::unique_ptr<ModelMeshPart>> cubeMapMeshes;
+			cubeMapMeshes.push_back(std::make_unique<ModelMeshPart>(cube, device));
+
+			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Vector3(0.f, 0.f, 0.f));
+			m_cubeMap->Initialize(device, {});
+		}
+
+		// Sample model
+		{
+			MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
+			std::vector<std::unique_ptr<ModelMeshPart>> modelMeshes;
+			modelMeshes.push_back(std::make_unique<ModelMeshPart>(sphereMesh, device));
+
+			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Vector3(0.f, 0.f, 0.f)));
+
+			m_models.back()->Initialize(device, {
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+				});
+		}
+
+		m_ocean = std::make_unique<Ocean>(device);
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);

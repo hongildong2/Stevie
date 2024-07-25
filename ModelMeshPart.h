@@ -33,14 +33,14 @@ namespace GeometryGenerator
 	*/
 	MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks);
 	MeshData MakeBox(const float scale);
-	MeshData MakeSquare();
+	MeshData MakeSquare(const float scale);
 }
 
 
 class ModelMeshPart final
 {
 public:
-	ModelMeshPart(MeshData mesh, ID3D11Device1* device);
+	ModelMeshPart(MeshData& mesh, ID3D11Device1* device);
 	ModelMeshPart(const ModelMeshPart& other) = delete;
 	~ModelMeshPart() = default;
 

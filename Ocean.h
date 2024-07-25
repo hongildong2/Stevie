@@ -16,7 +16,7 @@ private:
 	bool mb_initialized;
 
 	float m_heightMapCPU[ocean::N][ocean::N];
-
+	std::unique_ptr<Model> m_tessellatedQuad;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_combineParamterSB;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_combineParameterSRV;

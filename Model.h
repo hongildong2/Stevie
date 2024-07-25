@@ -1,6 +1,9 @@
 #pragma once
 #include "pch.h"
+
 #include <vector>
+#include <memory>
+
 #include "ModelMeshPart.h"
 
 // temp
@@ -46,11 +49,13 @@ static_assert(sizeof(PSConstants) % 16 == 0, "PSConstants Alignment");
 class Model
 {
 public:
-	Model(const char* name, std::vector<ModelMeshPart> meshes, DirectX::SimpleMath::Vector3 worldPosition);
+	// 이건 그냥 답이없음, 액터 좀 추가하다가 완전히 갈아없어야됨
+	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition);
+	Model(const Model& other) = delete;
 
-	// ㄱㄴ?
-	~Model() = default; // TODO : 포인터들 전부 nullptr, reset호출은 매니저에서
+	~Model() = default;
 	Model& operator=(const Model& other) = delete;
+
 
 	// TODO : MVP Matrix 정보 Actor로 나중에 옮기기
 	void PrepareForRendering(ID3D11DeviceContext1* context,
@@ -69,7 +74,7 @@ public:
 
 private:
 	const std::string m_name;
-	std::vector<ModelMeshPart> m_meshes;
+	std::vector<std::unique_ptr<ModelMeshPart>> m_meshes;
 
 	// constant buffer for model
 	VSConstants m_modelVSConstants;

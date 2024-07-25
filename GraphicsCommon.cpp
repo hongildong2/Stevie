@@ -132,7 +132,7 @@ namespace Graphics
 
 		// Vertex Shaders
 		{
-			HRESULT hr = CompileShader(L"VertexShader.hlsl", "main", "vs_5_0", &shaderBlob);
+			HRESULT hr = CompileShader(L"PBRVS.hlsl", "main", "vs_5_0", &shaderBlob);
 			DX::ThrowIfFailed(hr);
 
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -175,7 +175,7 @@ namespace Graphics
 
 		// Pixel Shaders
 		{
-			HRESULT hr = CompileShader(L"PbrPS.hlsl", "main", "ps_5_0", &shaderBlob);
+			HRESULT hr = CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", &shaderBlob);
 
 			DX::ThrowIfFailed(hr);
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());

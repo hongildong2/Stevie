@@ -16,6 +16,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 	HS_CONSTANT_DATA_OUTPUT Output;
 	
 	
+	[unroll(NUM_CONTROL_POINTS)]
 	for (uint i = 0; i < NUM_CONTROL_POINTS; ++i)
 	{
 		float3 worldPos = ip[i].positionWorld;
