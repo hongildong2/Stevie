@@ -334,24 +334,47 @@ void Game::Render()
 			Graphics::linearWrapSS.Get(),
 			Graphics::linearClampSS.Get()
 		};
-
-		m_deviceResources->PIXBeginEvent(L"CubeMap");
-		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
 		context->PSSetSamplers(0, 2, samplers);
-		Graphics::SetPipelineState(context, Graphics::cubemapPSO);
-		m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-		m_cubeMap->Draw(context);
-		m_deviceResources->PIXEndEvent();
 
-		m_deviceResources->PIXBeginEvent(L"Models");
-		Graphics::SetPipelineState(context, Graphics::basicPSO);
-		context->VSSetSamplers(0, 2, samplers);
-		for (auto& model : m_models)
+		// CubeMap
 		{
-			model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			model->Draw(context);
+			m_deviceResources->PIXBeginEvent(L"CubeMap");
+			context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
+
+			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+			m_cubeMap->Draw(context);
+			m_deviceResources->PIXEndEvent();
 		}
-		m_deviceResources->PIXEndEvent();
+
+
+		// Ocean
+		{
+			ID3D11ShaderResourceView* SRVs[2] = { m_ocean->GetHeightMapSRV(), m_ocean->GetNormalMapSRV() };
+			ID3D11SamplerState* SSs[1] = { Graphics::linearClampSS.Get() };
+			ID3D11Buffer* CBs[1] = { m_oceanPlane->GetVSCB() };
+			m_deviceResources->PIXBeginEvent(L"OceanPlane");
+			context->DSSetSamplers(0, 1, SSs);
+			context->DSSetShaderResources(0, 2, SRVs);
+
+			m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos); // 애초에 리소스 같은 자잘한게 이메서드에서 다형적으로 전부 처리되어야지..
+			context->DSSetConstantBuffers(0, 1, CBs);
+			// set domain shader resource
+
+			m_oceanPlane->Draw(context);
+			m_deviceResources->PIXEndEvent();
+		}
+
+		// Models
+		{
+			m_deviceResources->PIXBeginEvent(L"Models");
+			context->VSSetSamplers(0, 2, samplers);
+			for (auto& model : m_models)
+			{
+				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+				model->Draw(context);
+			}
+			m_deviceResources->PIXEndEvent();
+		}
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -495,7 +518,7 @@ void Game::CreateDeviceDependentResources()
 			std::vector<std::unique_ptr<ModelMeshPart>> cubeMapMeshes;
 			cubeMapMeshes.push_back(std::make_unique<ModelMeshPart>(cube, device));
 
-			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Vector3(0.f, 0.f, 0.f));
+			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Vector3(0.f, 0.f, 0.f), Graphics::cubemapPSO);
 			m_cubeMap->Initialize(device, {});
 		}
 
@@ -505,7 +528,7 @@ void Game::CreateDeviceDependentResources()
 			std::vector<std::unique_ptr<ModelMeshPart>> modelMeshes;
 			modelMeshes.push_back(std::make_unique<ModelMeshPart>(sphereMesh, device));
 
-			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Vector3(0.f, 0.f, 0.f)));
+			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Vector3(0.f, 0.f, 0.f), Graphics::basicPSO));
 
 			m_models.back()->Initialize(device, {
 				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
@@ -517,7 +540,20 @@ void Game::CreateDeviceDependentResources()
 				});
 		}
 
-		m_ocean = std::make_unique<Ocean>(device);
+		// Ocean
+		{
+			m_ocean = std::make_unique<Ocean>(device);
+			MeshData quad = GeometryGenerator::MakeSquare(50.0f);
+			DirectX::SimpleMath::Matrix rot = DirectX::SimpleMath::Matrix::CreateRotationX(-3.141594f / 2.f); // -90도? +90도?
+
+			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
+			meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
+			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), DirectX::SimpleMath::Vector3(0.f, -5.f, 0.f), Graphics::Ocean::OceanPSO);
+
+			m_oceanPlane->UpdatePosBy(rot);
+			m_oceanPlane->Initialize(device, {});
+		}
+
 	}
 
 	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);

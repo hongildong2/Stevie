@@ -106,8 +106,11 @@ private:
 	/// Scene : models, camera, viewport, lights, cubemap
 	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Camera> m_camera;
-	std::unique_ptr<Ocean> m_ocean;
 	DirectX::SimpleMath::Matrix m_proj;
+
+	// Ocean
+	std::unique_ptr<Ocean> m_ocean;
+	std::unique_ptr<Model> m_oceanPlane;
 
 	// light
 	LightConstants m_lightsConstantsCPU;

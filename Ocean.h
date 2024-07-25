@@ -10,13 +10,15 @@ public:
 
 	void Initialize(ID3D11DeviceContext1* context);
 	void Update(ID3D11DeviceContext1* context); // is timer necessary?
-	void Draw(ID3D11DeviceContext1* context);
+
+	ID3D11ShaderResourceView* GetNormalMapSRV() const;
+	ID3D11ShaderResourceView* GetHeightMapSRV() const;
+	float GetHeight(DirectX::SimpleMath::Vector3 worldPos) const;
 
 private:
 	bool mb_initialized;
 
 	float m_heightMapCPU[ocean::N][ocean::N];
-	std::unique_ptr<Model> m_tessellatedQuad;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_combineParamterSB;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_combineParameterSRV;

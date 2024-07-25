@@ -28,6 +28,12 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
 
 
+	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
+	Microsoft::WRL::ComPtr<ID3D11DomainShader> tessellatedQuadDS;
+
+
+
+
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
 
@@ -48,10 +54,14 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
+		Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
+
 		ComputePSO initialSpectrumPSO;
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
 		ComputePSO combineWavePSO;
+
+		GraphicsPSO OceanPSO;
 	}
 
 
@@ -186,6 +196,9 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", &shaderBlob));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, filterCombinePS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"OceanPS.hlsl", "main", "ps_5_0", &shaderBlob));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 		}
 
 		// Compute Shaders
@@ -207,6 +220,15 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", &shaderBlob));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::combineWaveCS.GetAddressOf());
+		}
+
+		// Hull, Domain Shaders
+		{
+			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadHS.hlsl", "main", "hs_5_0", &shaderBlob));
+			device->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadHS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadDS.hlsl", "main", "ds_5_0", &shaderBlob));
+			device->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadDS.GetAddressOf());
 		}
 	}
 
@@ -279,6 +301,14 @@ namespace Graphics
 		Ocean::timedependentSpectrumPSO.m_computeShader = Ocean::timedependentSpectrumCS;
 		Ocean::FFTPSO.m_computeShader = Ocean::FFTCS;
 		Ocean::combineWavePSO.m_computeShader = Ocean::combineWaveCS;
+
+		Ocean::OceanPSO.m_vertexShader = basicVS;
+		Ocean::OceanPSO.m_inputLayout = basicIL;
+		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
+		Ocean::OceanPSO.m_rasterizerState = basicRS;
+		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;
+		Ocean::OceanPSO.m_domainShader = tessellatedQuadDS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)

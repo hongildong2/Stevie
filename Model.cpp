@@ -3,11 +3,12 @@
 #include "Model.h"
 #include "Utility.h"
 
-Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition)
+Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition, GraphicsPSO& pso)
 	:m_name(name),
 	m_meshes(std::move(meshes)), // Note that name,expression of rvalue reference is lvalue
 	m_modelPSConstants{ {0.f, 0.f, 0.f}, 0.f, {0.f, } },
-	m_modelVSConstants{}
+	m_modelVSConstants{},
+	m_PSO(pso)
 {
 	m_meshes.reserve(50);
 	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
@@ -89,7 +90,7 @@ void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFile
 void Model::Draw(ID3D11DeviceContext1* context)
 {
 	assert(context != nullptr);
-
+	Graphics::SetPipelineState(context, m_PSO);
 	for (std::unique_ptr<ModelMeshPart>& mesh : m_meshes)
 	{
 		mesh->Draw(context);
@@ -115,4 +116,9 @@ Material Model::GetMaterialConstant() const
 DirectX::SimpleMath::Matrix Model::GetWorldMatrix() const
 {
 	return m_modelVSConstants.worldMatrix;
+}
+
+ID3D11Buffer* Model::GetVSCB() const
+{
+	return m_VSConstantsBuffer.Get();
 }

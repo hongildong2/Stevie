@@ -105,6 +105,7 @@ namespace GeometryGenerator
 			v.position = positions[i];
 			v.normalModel = normals[i];
 			v.textureCoordination = texcoords[i];
+			v.tangentModel = Vector3(0.f, 1.f ,0.f);
 
 			// v.color = colors[i];
 
@@ -262,7 +263,6 @@ ModelMeshPart::ModelMeshPart(MeshData& mesh, ID3D11Device1* device)
 	m_vertexStride = sizeof(Vertex);
 	m_vertexOffset = 0;
 
-	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	m_indexFormat = DXGI_FORMAT_R32_UINT;
 	m_indexCount = static_cast<UINT>(mesh.indicies.size());
 	// init vertex buffer
@@ -305,8 +305,6 @@ void ModelMeshPart::Draw(ID3D11DeviceContext1* context) const
 {
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_vertexStride, &m_vertexOffset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), m_indexFormat, 0);
-
-	context->IASetPrimitiveTopology(m_primitiveTopology);
 
 	context->DrawIndexed(m_indexCount, 0, 0);
 }

@@ -6,7 +6,6 @@
 Ocean::Ocean(ID3D11Device1* device)
 	:mb_initialized(false),
 	m_heightMapCPU{ 0, },
-	m_tessellatedQuad(),
 	m_combineWaveConstant(ocean::CombineWaveConstantInitializer),
 	m_combineParameters(ocean::CombineParameterInitializer),
 	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
@@ -14,17 +13,6 @@ Ocean::Ocean(ID3D11Device1* device)
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
-
-	MeshData quad = GeometryGenerator::MakeSquare(50.0f);
-	DirectX::SimpleMath::Matrix rot = DirectX::SimpleMath::Matrix::CreateRotationX(- 3.141594f / 2.f); // -90도? +90도?
-
-	std::vector<std::unique_ptr<ModelMeshPart>> meshes;
-	meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
-	m_tessellatedQuad = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), DirectX::SimpleMath::Vector3(0.f, -5.f, 0.f));
-
-	m_tessellatedQuad->UpdatePosBy(rot);
-	// create d3d resources
-
 	// Textures
 	{
 		D3D11_TEXTURE2D_DESC desc;
@@ -157,6 +145,7 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 {
 	// 실행은 되는데 그래픽 디버거에 안잡힘 -> 당연히 첫프레임에만 동작하고 마니까 
 	// run initspectrum CS, get initial spectrum map
+
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
 	ID3D11UnorderedAccessView* uavs[2] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
 	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL);
@@ -314,13 +303,17 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
 }
 
-void Ocean::Draw(ID3D11DeviceContext1* context)
+ID3D11ShaderResourceView* Ocean::GetNormalMapSRV() const
 {
-	// Set vertex shader <- resources : Height map, displacement map
-	// m_oceanPlane.Draw(context);
-	// Set Pixel Shader <- resources : Normal map, Jacobian Map, PBR constants
+	return m_normalMapSRV.Get();
+}
 
-	// Set pipeline state
+ID3D11ShaderResourceView* Ocean::GetHeightMapSRV() const
+{
+	return m_heightMapSRV.Get();
+}
 
-	// set sampler, shader resources,
+float Ocean::GetHeight(DirectX::SimpleMath::Vector3 worldPos) const
+{
+	return 0.f;
 }

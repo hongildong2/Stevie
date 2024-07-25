@@ -50,7 +50,7 @@ private:
 	UINT m_vertexStride;
 	UINT m_vertexOffset;
 	UINT m_indexCount;
-	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
+
 	DXGI_FORMAT m_indexFormat;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;

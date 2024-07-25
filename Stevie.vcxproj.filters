@@ -138,11 +138,14 @@
     <FxCompile Include="downBlurCS.hlsl">
       <Filter>PostProcess</Filter>
     </FxCompile>
-    <FxCompile Include="TesselatedQuadHS.hlsl">
+    <FxCompile Include="TessellatedQuadHS.hlsl">
       <Filter>TessellatedQuad</Filter>
     </FxCompile>
     <FxCompile Include="TessellatedQuadDS.hlsl">
       <Filter>TessellatedQuad</Filter>
+    </FxCompile>
+    <FxCompile Include="OceanPS.hlsl">
+      <Filter>Ocean</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

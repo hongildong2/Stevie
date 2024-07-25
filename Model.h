@@ -50,7 +50,7 @@ class Model
 {
 public:
 	// 이건 그냥 답이없음, 액터 좀 추가하다가 완전히 갈아없어야됨
-	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition);
+	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition, GraphicsPSO& pso);
 	Model(const Model& other) = delete;
 
 	~Model() = default;
@@ -72,6 +72,9 @@ public:
 
 	DirectX::SimpleMath::Matrix GetWorldMatrix() const;
 
+	// 죄송합니다
+	ID3D11Buffer* GetVSCB() const;
+
 private:
 	const std::string m_name;
 	std::vector<std::unique_ptr<ModelMeshPart>> m_meshes;
@@ -81,6 +84,8 @@ private:
 
 	// TODO : 여긴 최대한 모델에 관련된 정보만 넣고 월드나 픽셀쉐이더의 쉐이더 자체 정보는 다른 버퍼에 있어야지. 버퍼분리하자.
 	PSConstants m_modelPSConstants;
+
+	GraphicsPSO m_PSO;
 
 	// TODO : View, Proj는 다른 상수버퍼로 분리
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VSConstantsBuffer;
