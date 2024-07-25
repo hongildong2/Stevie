@@ -162,11 +162,7 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 
 	// TODO : foam simulations
 
-#ifdef NDEBUG
 	mb_initialized = true;
-#else
-	mb_initialized = false;
-#endif
 }
 
 void Ocean::Update(ID3D11DeviceContext1* context)
@@ -185,7 +181,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 		// TEMP
 		{
-			m_spectrumConstant.time += 0.01f;
+			m_spectrumConstant.time += 0.015f;
 			Utility::DXResource::UpdateConstantBuffer(m_spectrumConstant, context, m_spectrumCB);
 		}
 

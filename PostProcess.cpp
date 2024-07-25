@@ -15,7 +15,7 @@ void PostProcess::Initialize(ID3D11Device1* device, const RECT size)
 	std::vector<std::unique_ptr<ModelMeshPart>> meshes;
 	meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
 
-	m_screenQuad = std::make_unique<Model>("Screen Quad", std::move(meshes), DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f), Graphics::filterCombinePSO);
+	m_screenQuad = std::make_unique<Model>("Screen Quad", std::move(meshes), Graphics::filterCombinePSO);
 
 	RECT textureSizeByLevel = m_originalSize;
 

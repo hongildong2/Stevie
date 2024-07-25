@@ -50,7 +50,7 @@ class Model
 {
 public:
 	// 이건 그냥 답이없음, 액터 좀 추가하다가 완전히 갈아없어야됨
-	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition, GraphicsPSO& pso);
+	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, GraphicsPSO& pso);
 	Model(const Model& other) = delete;
 
 	~Model() = default;

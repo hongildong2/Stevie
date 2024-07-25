@@ -346,6 +346,20 @@ void Game::Render()
 			m_deviceResources->PIXEndEvent();
 		}
 
+		context->VSSetSamplers(0, 2, samplers);
+
+
+
+		// Models
+		{
+			m_deviceResources->PIXBeginEvent(L"Models");
+			for (auto& model : m_models)
+			{
+				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+				model->Draw(context);
+			}
+			m_deviceResources->PIXEndEvent();
+		}
 
 		// Ocean
 		{
@@ -361,18 +375,9 @@ void Game::Render()
 			// set domain shader resource
 
 			m_oceanPlane->Draw(context);
-			m_deviceResources->PIXEndEvent();
-		}
 
-		// Models
-		{
-			m_deviceResources->PIXBeginEvent(L"Models");
-			context->VSSetSamplers(0, 2, samplers);
-			for (auto& model : m_models)
-			{
-				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-				model->Draw(context);
-			}
+			ID3D11ShaderResourceView* release[6] = { 0, };
+			context->DSSetShaderResources(0, 6, release);
 			m_deviceResources->PIXEndEvent();
 		}
 	}
@@ -407,6 +412,8 @@ void Game::Render()
 
 	// Show the new frame.
 	m_deviceResources->Present();
+
+
 }
 
 // Helper method to clear the back buffers.
@@ -417,19 +424,19 @@ void Game::Clear()
 	// Clear the views.
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto depthStencil = m_deviceResources->GetDepthStencilView();
-	ID3D11RenderTargetView* post = m_postProcess->GetRenderTargetView();
+
+	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 
 	context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
-	context->ClearRenderTargetView(post, Colors::Black);
+	context->ClearRenderTargetView(backBufferRTV, Colors::Black);
 
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// for post process
-	ID3D11RenderTargetView* rtvs[] = {
+	ID3D11RenderTargetView* rtvs[1] = {
 		m_floatRTV.Get(),
-		post
 	};
-	context->OMSetRenderTargets(2, rtvs, depthStencil);
+	context->OMSetRenderTargets(1, rtvs, depthStencil);
 
 	// Set the viewport.
 	auto const viewport = m_deviceResources->GetScreenViewport();
@@ -514,11 +521,11 @@ void Game::CreateDeviceDependentResources()
 			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
 			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
-			MeshData cube = GeometryGenerator::MakeBox(50.f);
+			MeshData cube = GeometryGenerator::MakeBox(100.f);
 			std::vector<std::unique_ptr<ModelMeshPart>> cubeMapMeshes;
 			cubeMapMeshes.push_back(std::make_unique<ModelMeshPart>(cube, device));
 
-			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Vector3(0.f, 0.f, 0.f), Graphics::cubemapPSO);
+			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Graphics::cubemapPSO);
 			m_cubeMap->Initialize(device, {});
 		}
 
@@ -528,7 +535,7 @@ void Game::CreateDeviceDependentResources()
 			std::vector<std::unique_ptr<ModelMeshPart>> modelMeshes;
 			modelMeshes.push_back(std::make_unique<ModelMeshPart>(sphereMesh, device));
 
-			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Vector3(0.f, 0.f, 0.f), Graphics::basicPSO));
+			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Graphics::basicPSO));
 
 			m_models.back()->Initialize(device, {
 				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
@@ -538,19 +545,24 @@ void Game::CreateDeviceDependentResources()
 				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
 				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
 				});
+
+			m_models.back()->UpdatePosBy(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
 		}
 
 		// Ocean
 		{
+
 			m_ocean = std::make_unique<Ocean>(device);
-			MeshData quad = GeometryGenerator::MakeSquare(50.0f);
-			DirectX::SimpleMath::Matrix rot = DirectX::SimpleMath::Matrix::CreateRotationX(-3.141594f / 2.f); // -90µµ? +90µµ?
+			MeshData quad = GeometryGenerator::MakeSquare(5.0f);
+			quad.indicies = { 0, 1, 2, 3 };
+
 
 			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
 			meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
-			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), DirectX::SimpleMath::Vector3(0.f, -5.f, 0.f), Graphics::Ocean::OceanPSO);
+			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
 
-			m_oceanPlane->UpdatePosBy(rot);
+			m_oceanPlane->UpdatePosBy(Matrix::CreateRotationX(DirectX::XM_PIDIV2));
+
 			m_oceanPlane->Initialize(device, {});
 		}
 
@@ -565,7 +577,7 @@ void Game::CreateWindowSizeDependentResources()
 	auto size = m_deviceResources->GetOutputSize();
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
 		XMConvertToRadians(90.f),
-		float(size.right) / float(size.bottom), 0.1f, 100.f);
+		float(size.right) / float(size.bottom), 0.1f, 300.f);
 
 	auto* device = m_deviceResources->GetD3DDevice();
 

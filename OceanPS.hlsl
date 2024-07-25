@@ -20,9 +20,9 @@ cbuffer PSConstant : register(b2)
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	float4 color = float4(0.1f, 0.9f, 0.1f, 1.f);
-	float light = max(dot(dirLight.direction, input.normalWorld), 0.1f);
-	color *= light;
-	
-	return color;
+
+	float3 N = normalize(input.normalWorld);
+	float3 L = normalize(input.positionWorld - eyeWorld);
+
+	return abs(dot(N, L)) * float4(0, 0, 1, 1);
 }

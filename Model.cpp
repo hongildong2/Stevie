@@ -3,15 +3,14 @@
 #include "Model.h"
 #include "Utility.h"
 
-Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, DirectX::SimpleMath::Vector3 worldPosition, GraphicsPSO& pso)
+Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, GraphicsPSO& pso)
 	:m_name(name),
 	m_meshes(std::move(meshes)), // Note that name,expression of rvalue reference is lvalue
 	m_modelPSConstants{ {0.f, 0.f, 0.f}, 0.f, {0.f, } },
-	m_modelVSConstants{},
+	m_modelVSConstants{ DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix() },
 	m_PSO(pso)
 {
 	m_meshes.reserve(50);
-	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(worldPosition);
 
 	m_modelPSConstants.material.metallicFactor = 0.7f;
 	m_modelPSConstants.material.roughnessFactor = 0.3f;
@@ -25,7 +24,7 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	m_modelVSConstants.viewMatrix = viewMatrix.Transpose();
 	m_modelVSConstants.projMatrix = projMatrix.Transpose();
 	m_modelVSConstants.worldMatrix = GetWorldMatrix().Transpose();
-	m_modelVSConstants.worldMatrixIT = m_modelVSConstants.worldMatrix.Invert().Transpose();
+	m_modelVSConstants.worldMatrixIT = m_modelVSConstants.worldMatrixIT.Invert().Transpose();
 
 	m_modelPSConstants.eyeWorld = eyeWorld;
 
@@ -58,10 +57,6 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFiles files)
 {
 	assert(device != nullptr);
-	m_modelVSConstants.projMatrix = DirectX::SimpleMath::Matrix();
-	m_modelVSConstants.viewMatrix = DirectX::SimpleMath::Matrix();
-	m_modelVSConstants.worldMatrix = DirectX::SimpleMath::Matrix();
-	m_modelVSConstants.worldMatrixIT = DirectX::SimpleMath::Matrix();
 
 	// 버퍼도 사실 동일한 타입이면 공유해도 되긴함 일단 이렇게
 	Utility::DXResource::CreateConstantBuffer(m_modelVSConstants, device, m_VSConstantsBuffer);

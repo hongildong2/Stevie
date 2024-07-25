@@ -105,7 +105,7 @@ namespace GeometryGenerator
 			v.position = positions[i];
 			v.normalModel = normals[i];
 			v.textureCoordination = texcoords[i];
-			v.tangentModel = Vector3(0.f, 1.f ,0.f);
+			v.tangentModel = Vector3(0.f, 1.f, 0.f);
 
 			// v.color = colors[i];
 
