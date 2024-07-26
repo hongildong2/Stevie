@@ -143,9 +143,9 @@ namespace ocean
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
 		{ CASCADE_1_L, 0.1f, 1.f, 0.f },
-		{CASCADE_2_L, 0.f, 1.f, 0.f},
-		{CASCADE_3_L, 0.f, 1.f, 0.f},
-		{CASCADE_4_L, 0.f, 1.f, 0.f},
+		{CASCADE_2_L, 0.1f, 1.f, 0.f},
+		{CASCADE_3_L, 1.f, 1.f, 0.f},
+		{CASCADE_4_L, 2.f, 1.f, 0.f},
 	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =
@@ -177,7 +177,7 @@ namespace ocean
 		BOOL dummy[3];
 	};
 	static_assert(sizeof(FFTConstant) % 16 == 0, "CB 16byte alignment");
-	constexpr FFTConstant FFTConstantInitializer = { ocean::CASCADE_COUNT, false, true, false, false, {0.f} };
+	constexpr FFTConstant FFTConstantInitializer = { ocean::CASCADE_COUNT, FALSE, TRUE, FALSE, TRUE, {0.f} };
 
 	struct SpectrumConstant
 	{

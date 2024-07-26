@@ -38,7 +38,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 	
 	float dist = distance(patchCenterWorldPos, eyeWorld);
 	
-	dist = dist > 12 ? dist : 1;
+	dist = dist > 36 ? dist : 1;
 	
 	
 	

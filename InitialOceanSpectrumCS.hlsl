@@ -28,8 +28,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
 {
 	const uint waveCascadeIndex = DTid.z;
 	float deltaK = 2.0 * GPU_PI / LocalWaveSpectrumParameters[waveCascadeIndex].L;
-	int nx = DTid.x - SIZE / 2;
-	int nz = DTid.y - SIZE / 2;
+	int nx = DTid.x - float(SIZE) / 2.0;
+	int nz = DTid.y - float(SIZE) / 2.0;
 	float2 k = float2(nx * deltaK, nz * deltaK); // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);

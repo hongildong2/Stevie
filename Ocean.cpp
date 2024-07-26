@@ -200,8 +200,8 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 		// horizontal IFFT
 		{
-			m_FFTConstant.bInverse = true;
-			m_FFTConstant.bDirection = false;
+			m_FFTConstant.bInverse = TRUE;
+			m_FFTConstant.bDirection = FALSE;
 			Utility::DXResource::UpdateConstantBuffer(m_FFTConstant, context, m_FFTCB);
 
 			context->CSSetShaderResources(0, 0, NULL);
@@ -222,7 +222,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 		// vertical IFFT
 		{
-			m_FFTConstant.bDirection = true;
+			m_FFTConstant.bDirection = TRUE;
 			Utility::DXResource::UpdateConstantBuffer(m_FFTConstant, context, m_FFTCB);
 
 			Graphics::SetPipelineState(context, Graphics::Ocean::FFTPSO);
@@ -238,9 +238,31 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 			context->Dispatch(1, ocean::N, 1);
 			Utility::ComputeShaderBarrier(context);
 		}
+
+		// IFFT PostProcess, permute odd wave vector
+		{
+			m_FFTConstant.bPermute = TRUE;
+			Utility::DXResource::UpdateConstantBuffer(m_FFTConstant, context, m_FFTCB);
+			Graphics::SetPipelineState(context, Graphics::Ocean::FFTPostProcessPSO);
+			context->CSSetConstantBuffers(0, 1, FFTCBs);
+
+			// displacement map
+			FFTUAVs[0] = m_displacementMapUAV.Get();
+			context->CSSetUnorderedAccessViews(0, 1, FFTUAVs, NULL);
+
+			context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
+			Utility::ComputeShaderBarrier(context);
+
+			// derivative map
+			FFTUAVs[0] = m_derivativeMapUAV.Get();
+			context->CSSetUnorderedAccessViews(0, 1, FFTUAVs, NULL);
+
+			context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
+			Utility::ComputeShaderBarrier(context);
+		}
 	}
 
-	// Combine wave, postprocess
+	// Combine wave
 	{
 		Graphics::SetPipelineState(context, Graphics::Ocean::combineWavePSO);
 		ID3D11Buffer* combineWaveCBs[1] = { m_combineWaveCB.Get() };

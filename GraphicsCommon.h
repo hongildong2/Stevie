@@ -50,12 +50,13 @@ namespace Graphics
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;
-	
+
 	namespace Ocean
 	{
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
 		extern Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
@@ -63,11 +64,12 @@ namespace Graphics
 		extern ComputePSO initialSpectrumPSO;
 		extern ComputePSO timedependentSpectrumPSO;
 		extern ComputePSO FFTPSO;
+		extern ComputePSO FFTPostProcessPSO;
 		extern ComputePSO combineWavePSO;
 
 		extern GraphicsPSO OceanPSO;
 	}
-	
+
 
 
 	// Blend States

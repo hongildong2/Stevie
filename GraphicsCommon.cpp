@@ -15,7 +15,7 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicCcwRS;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCwRS;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCcwRS;
-	
+
 
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
@@ -56,6 +56,7 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> initialSpectrumCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> timedependentSpectrumCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
@@ -63,6 +64,7 @@ namespace Graphics
 		ComputePSO initialSpectrumPSO;
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
+		ComputePSO FFTPostProcessPSO;
 		ComputePSO combineWavePSO;
 
 		GraphicsPSO OceanPSO;
@@ -222,6 +224,9 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "main", "cs_5_0", &shaderBlob));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTCS.GetAddressOf());
 
+			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "PostProcess", "cs_5_0", &shaderBlob));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTPostProcessCS.GetAddressOf());
+
 			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", &shaderBlob));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::combineWaveCS.GetAddressOf());
 		}
@@ -242,7 +247,7 @@ namespace Graphics
 		D3D11_RASTERIZER_DESC rastDesc;
 		ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC)); // Need this
 		rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-		
+
 		rastDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
 		rastDesc.FrontCounterClockwise = false;
 		rastDesc.DepthClipEnable = true; // <- zNear, zFar 확인에 필요
@@ -316,12 +321,13 @@ namespace Graphics
 		Ocean::initialSpectrumPSO.m_computeShader = Ocean::initialSpectrumCS;
 		Ocean::timedependentSpectrumPSO.m_computeShader = Ocean::timedependentSpectrumCS;
 		Ocean::FFTPSO.m_computeShader = Ocean::FFTCS;
+		Ocean::FFTPostProcessPSO.m_computeShader = Ocean::FFTPostProcessCS;
 		Ocean::combineWavePSO.m_computeShader = Ocean::combineWaveCS;
 
 		Ocean::OceanPSO.m_vertexShader = basicVS;
 		Ocean::OceanPSO.m_inputLayout = basicIL;
 		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
-		Ocean::OceanPSO.m_rasterizerState = wireframeCwRS;
+		Ocean::OceanPSO.m_rasterizerState = basicRS;
 		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;
 		Ocean::OceanPSO.m_domainShader = tessellatedQuadDS;

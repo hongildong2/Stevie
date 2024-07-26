@@ -43,7 +43,7 @@ float3 BilinearInterpolation(float2 uv, float3 topLeft, float3 topRight, float3 
 [domain("quad")]
 PixelShaderInput main(
 	HS_CONSTANT_DATA_OUTPUT input,
-	float2 domain : SV_DomainLocation, // 어떤 좌표계로들어온다는거야 ?ㅅㅂ
+	float2 domain : SV_DomainLocation,
 	const OutputPatch<PixelShaderInput, NUM_CONTROL_POINTS> patch)
 {
 	PixelShaderInput Output;

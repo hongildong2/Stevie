@@ -28,10 +28,11 @@ void CalculateForCascade(uint3 id)
 	
 	// get conjugated
 	float2 h0MinusK = initialSpectrums[uint3(uint2((SIZE - id.x) % SIZE, (SIZE - id.y) % SIZE), id.z)];
-	h0MinusK.y = -h0MinusK.y;
+	
+	float4 h0 = float4(h0k.x, h0k.y, h0MinusK.x, -h0MinusK.y);
 	
 	// h tilde, has x-z directional components
-	float2 h = ComplexMult(h0k, exponent) + ComplexMult(h0MinusK, float2(exponent.x, -exponent.y));
+	float2 h = ComplexMult(h0.xy, exponent) + ComplexMult(h0.zw, float2(exponent.x, -exponent.y));
 	float2 ih = float2(-h.y, h.x);
 	
 	float oneOverKLength = 1 / max(0.001, length(wave.xz));

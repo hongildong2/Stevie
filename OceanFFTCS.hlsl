@@ -100,7 +100,7 @@ float4 DoPostProcess(float4 input, uint2 id)
 }
 
 // wave post process
-[numthreads(16, 16, 4)]
+[numthreads(16, 16, CASCADE_COUNT)]
 void PostProcess(uint3 id : SV_DispatchThreadID)
 {
     FTResultTex[id] = DoPostProcess(FTResultTex[id], id.xy);   
