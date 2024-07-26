@@ -4,41 +4,23 @@
 #define SIZE 512 // 512 by 512 DFT
 #define LOG_SIZE 9 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
-#define SAMPLING_COUNT 25
+#define SAMPLING_COUNT 9
 
 #define DELTA 0.001
 
 static const float2 SAMPLING_KERNEL[SAMPLING_COUNT] =
 {
-	float2(-2.0 * DELTA, -2.0 * DELTA),
-	float2(-1.0 * DELTA, -2.0 * DELTA),
-	float2(0.0* DELTA, -2.0 * DELTA),
-	float2(1.0* DELTA, -2.0 * DELTA),
-	float2(2.0* DELTA, -2.0 * DELTA),
-			 
-	float2(-2.0 * DELTA, -1.0 * DELTA),
 	float2(-1.0 * DELTA, -1.0 * DELTA),
 	float2(0.0* DELTA, -1.0 * DELTA),
 	float2(1.0* DELTA, -1.0 * DELTA),
-	float2(2.0* DELTA, -1.0 * DELTA),
 			 
-	float2(-2.0 * DELTA, 0.0 * DELTA),
 	float2(-1.0 * DELTA, 0.0 * DELTA),
 	float2(0.0* DELTA, 0.0 * DELTA),
 	float2(1.0* DELTA, 0.0 * DELTA),
-	float2(2.0* DELTA, 0.0 * DELTA),
 			 
-	float2(-2.0 * DELTA, 1.0 * DELTA),
 	float2(-1.0 * DELTA, 1.0 * DELTA),
 	float2(0.0* DELTA, 1.0 * DELTA),
 	float2(1.0* DELTA, 1.0 * DELTA),
-	float2(2.0* DELTA, 1.0 * DELTA),
-			 
-	float2(-2.0 * DELTA, 2.0 * DELTA),
-	float2(-1.0 * DELTA, 2.0 * DELTA),
-	float2(0.0* DELTA, 2.0 * DELTA),
-	float2(1.0* DELTA, 2.0 * DELTA),
-	float2(2.0 * DELTA, 2.0 * DELTA)
 };
 
 /* JONSWAP Spectrum Functions*/

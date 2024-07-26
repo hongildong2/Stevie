@@ -34,10 +34,10 @@ cbuffer Params : register(b1)
 
 float3 BilinearInterpolation(float2 uv, float3 topLeft, float3 topRight, float3 bottomRight, float3 bottomLeft)
 {
-	float3 topX = lerp(topLeft, topRight, uv.xxx);
-	float3 bottomX = lerp(bottomLeft, bottomRight, uv.xxx);
+	float3 topX = lerp(topLeft, topRight, uv.x);
+	float3 bottomX = lerp(bottomLeft, bottomRight, uv.x);
 	
-	return lerp(topX, bottomX, uv.yyy);
+	return lerp(topX, bottomX, uv.y);
 }
 
 [domain("quad")]
@@ -64,6 +64,7 @@ PixelShaderInput main(
 	
 	float2 uvModel = Output.texcoordinate;
 	float height = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale).y;
+	
 	Output.positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	

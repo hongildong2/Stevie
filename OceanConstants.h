@@ -35,7 +35,7 @@ namespace ocean
 	static_assert(sizeof(CombineWaveConstant) % 16 == 0, "CB 16byte alignment");
 	constexpr CombineWaveConstant CombineWaveConstantInitializer =
 	{
-		1023.f,
+		2048.f,
 		false,
 		{0.f}
 	};
@@ -83,7 +83,7 @@ namespace ocean
 	// https://dirsig.cis.rit.edu/docs/new/wavespectruminterface.html#:~:text=the%20JONSWAP%20spectrum%20is%20parametrized,100km)%20and%203.3%20%2C%20respectively.
 
 
-	constexpr float JONSWAP_CUTOFF_MIN = 0.0001f;
+	constexpr float JONSWAP_CUTOFF_MIN = 0.01f;
 	constexpr float JONSWAP_CUTOFF_MAX = 100.f; // 너무 긴 wave length를 허용하면 float 연산중 너무 작은값들이 등장해 IFFT 도중 NaN이 나와버림
 
 	constexpr float JonswapCutoffBoundary(float L)
@@ -142,7 +142,7 @@ namespace ocean
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
-		{ CASCADE_1_L, 1.f, 1.f, 0.f },
+		{ CASCADE_1_L, 0.1f, 1.f, 0.f },
 		{CASCADE_2_L, 0.f, 1.f, 0.f},
 		{CASCADE_3_L, 0.f, 1.f, 0.f},
 		{CASCADE_4_L, 0.f, 1.f, 0.f},
