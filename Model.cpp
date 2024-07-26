@@ -21,14 +21,19 @@ Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& mes
 void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix, const DirectX::SimpleMath::Vector3& eyeWorld)
 {
-	m_modelVSConstants.viewMatrix = viewMatrix.Transpose();
-	m_modelVSConstants.projMatrix = projMatrix.Transpose();
-	m_modelVSConstants.worldMatrix = GetWorldMatrix().Transpose();
-	m_modelVSConstants.worldMatrixIT = m_modelVSConstants.worldMatrixIT.Invert().Transpose();
+
+	// 진짜 한방에 다 고칠게요
+	VSConstants toSend;
+
+	toSend.viewMatrix = viewMatrix.Transpose();
+	toSend.projMatrix = projMatrix.Transpose();
+	toSend.worldMatrix = GetWorldMatrix().Transpose();
+	toSend.worldMatrixIT = m_modelVSConstants.worldMatrixIT.Invert().Transpose();
+
 
 	m_modelPSConstants.eyeWorld = eyeWorld;
 
-	Utility::DXResource::UpdateConstantBuffer(m_modelVSConstants, context, m_VSConstantsBuffer);
+	Utility::DXResource::UpdateConstantBuffer(toSend, context, m_VSConstantsBuffer);
 	Utility::DXResource::UpdateConstantBuffer(m_modelPSConstants, context, m_PSConstantBuffer);
 	context->VSSetConstantBuffers(0, 1, m_VSConstantsBuffer.GetAddressOf());
 	context->PSSetConstantBuffers(2, 1, m_PSConstantBuffer.GetAddressOf());
