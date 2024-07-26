@@ -117,8 +117,3 @@ DirectX::SimpleMath::Matrix Model::GetWorldMatrix() const
 {
 	return m_modelVSConstants.worldMatrix;
 }
-
-ID3D11Buffer* Model::GetVSCB() const
-{
-	return m_VSConstantsBuffer.Get();
-}

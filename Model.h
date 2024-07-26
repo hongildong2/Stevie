@@ -73,7 +73,15 @@ public:
 	DirectX::SimpleMath::Matrix GetWorldMatrix() const;
 
 	// ¡Àº€«’¥œ¥Ÿ
-	ID3D11Buffer* GetVSCB() const;
+	inline ID3D11Buffer* GetVSCB() const
+	{
+		return m_VSConstantsBuffer.Get();
+	}
+
+	inline ID3D11Buffer* GetPSCB() const
+	{
+		return m_PSConstantBuffer.Get();
+	}
 
 private:
 	const std::string m_name;

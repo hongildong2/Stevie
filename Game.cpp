@@ -375,6 +375,9 @@ void Game::Render()
 			ID3D11Buffer* CBs[2] = { m_oceanPlane->GetVSCB(), m_ocean->GetCombineWaveCB()};
 			context->DSSetConstantBuffers(0, 2, CBs);
 
+			CBs[0] = m_oceanPlane->GetPSCB();
+			context->HSSetConstantBuffers(0, 1, CBs);
+
 			m_oceanPlane->Draw(context);
 
 			ID3D11ShaderResourceView* release[6] = { 0, };

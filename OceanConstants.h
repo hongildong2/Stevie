@@ -127,7 +127,7 @@ namespace ocean
 	constexpr float CASCADE_3_L = 17.f;
 	constexpr float CASCADE_4_L = 3.f;
 
-	constexpr float TEMP_DELTA_TIME = 0.001f;
+	constexpr float TEMP_DELTA_TIME = 0.03f;
 
 
 	constexpr InitialSpectrumParameter LOCAL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L));
@@ -142,10 +142,10 @@ namespace ocean
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
-		{ CASCADE_1_L, 0.1f, 1.f, 0.f },
-		{CASCADE_2_L, 0.02f, 1.f, 0.f},
-		{CASCADE_3_L, 0.002f, 1.f, 0.f},
-		{CASCADE_4_L, 0.001f, 1.f, 0.f},
+		{ CASCADE_1_L, 1.f, 1.f, 0.f },
+		{CASCADE_2_L, 0.f, 1.f, 0.f},
+		{CASCADE_3_L, 0.f, 1.f, 0.f},
+		{CASCADE_4_L, 0.f, 1.f, 0.f},
 	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =

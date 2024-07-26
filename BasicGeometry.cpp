@@ -256,7 +256,7 @@ namespace GeometryGenerator
 	
 	void MakeCWQuadPatches(unsigned int splitLevel, MeshData* const outMesh)
 	{
-		unsigned int currentLevel = splitLevel > 32 ? 32 : splitLevel;
+		unsigned int currentLevel = splitLevel > 64 ? 64 : splitLevel;
 		Vector3 topLeft(-1.f, 1.f, 0.f);
 		Vector3 bottomRight(1.f, -1.f, 0.f);
 

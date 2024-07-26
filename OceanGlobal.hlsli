@@ -4,7 +4,42 @@
 #define SIZE 512 // 512 by 512 DFT
 #define LOG_SIZE 9 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
+#define SAMPLING_COUNT 25
 
+#define DELTA 0.001
+
+static const float2 SAMPLING_KERNEL[SAMPLING_COUNT] =
+{
+	float2(-2.0 * DELTA, -2.0 * DELTA),
+	float2(-1.0 * DELTA, -2.0 * DELTA),
+	float2(0.0* DELTA, -2.0 * DELTA),
+	float2(1.0* DELTA, -2.0 * DELTA),
+	float2(2.0* DELTA, -2.0 * DELTA),
+			 
+	float2(-2.0 * DELTA, -1.0 * DELTA),
+	float2(-1.0 * DELTA, -1.0 * DELTA),
+	float2(0.0* DELTA, -1.0 * DELTA),
+	float2(1.0* DELTA, -1.0 * DELTA),
+	float2(2.0* DELTA, -1.0 * DELTA),
+			 
+	float2(-2.0 * DELTA, 0.0 * DELTA),
+	float2(-1.0 * DELTA, 0.0 * DELTA),
+	float2(0.0* DELTA, 0.0 * DELTA),
+	float2(1.0* DELTA, 0.0 * DELTA),
+	float2(2.0* DELTA, 0.0 * DELTA),
+			 
+	float2(-2.0 * DELTA, 1.0 * DELTA),
+	float2(-1.0 * DELTA, 1.0 * DELTA),
+	float2(0.0* DELTA, 1.0 * DELTA),
+	float2(1.0* DELTA, 1.0 * DELTA),
+	float2(2.0* DELTA, 1.0 * DELTA),
+			 
+	float2(-2.0 * DELTA, 2.0 * DELTA),
+	float2(-1.0 * DELTA, 2.0 * DELTA),
+	float2(0.0* DELTA, 2.0 * DELTA),
+	float2(1.0* DELTA, 2.0 * DELTA),
+	float2(2.0 * DELTA, 2.0 * DELTA)
+};
 
 /* JONSWAP Spectrum Functions*/
 struct SpectrumParameters
@@ -138,7 +173,8 @@ float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, Structur
 		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
 		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
 		
-		float4 sampled = scaler * displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+		// float4 sampled = scaler * displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+		float4 sampled = displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
 	
 	
 		// TODO : 샘플한 밸류에 시뮬레이션 크기 고려 스케일링 적용할까말까
@@ -152,18 +188,15 @@ float3 MultiSampleDisplacementModel(Texture2DArray<float4> displacementMaps, Str
 {
 	float2 UV = uv;
 	
-	float3 displacement = SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, UV, simulationScaleInMeter).xyz;
-	
-	
-	
-	for (uint i = 0; i < 4; ++i)
+	float3 displacement = 0;
+	[unroll(SAMPLING_COUNT)]
+	for (uint i = 0; i < SAMPLING_COUNT; ++i)
 	{
-		float2 offsetInTexCoord = float2(displacement.x / simulationScaleInMeter, displacement.z / simulationScaleInMeter);
-		UV -= offsetInTexCoord;
-		displacement = SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, UV, simulationScaleInMeter).xyz;
+		float2 multiUV = UV + SAMPLING_KERNEL[i];
+		displacement += SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, multiUV, simulationScaleInMeter).xyz;
 	}
-
-	return displacement;
+	
+	return displacement / float(SAMPLING_COUNT);
 }
 
 
