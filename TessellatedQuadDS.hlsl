@@ -53,26 +53,21 @@ PixelShaderInput main(
 	PixelShaderInput bottomRight = patch[2]; // has tex coord (1,1)
 	PixelShaderInput bottomLeft = patch[3]; 
 
-	Output.normalWorld = topLeft.normalWorld; // 일단
-	Output.texcoordinate = domain; // 이렇게 되는건가??
-	
+	Output.normalWorld = topLeft.normalWorld; // 어차피 평면 quad
 	Output.positionModel = BilinearInterpolation(domain, topLeft.positionModel, topRight.positionModel, bottomRight.positionModel, bottomLeft.positionModel);
-	
-	
-	
-	// TODO : multisampling?
-	// normal model은 텍스쳐 매핑
+	Output.texcoordinate = BilinearInterpolation(domain, float3(topLeft.texcoordinate, 0), float3(topRight.texcoordinate, 0), float3(bottomRight.texcoordinate, 0), float3(bottomLeft.texcoordinate, 0)).xy;
 	
 	
 	// displacement 맵을 그냥 샘플링해야하나 노멀방향으로 해야하나?
 	// 모델좌표계에 displacement맵을 해야하는가? 월드좌표계에?
 	// 일단 모델좌표계에 displacement 맵 적용, 파라미터 붙여서 조절가능하게 상수버퍼
-
-	float height = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, domain, simulationScale).y;
+	
+	float2 uvModel = Output.texcoordinate;
+	float height = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale).y;
 	Output.positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	
-	float3 normalModel = SampleNormalModel(DerivativeMap, parameters, linearMirror, CASCADE_COUNT, domain, simulationScale);
+	float3 normalModel = SampleNormalModel(DerivativeMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale);
 	Output.normalWorld = mul(float4(normalModel, 0.f), worldIT).xyz;
 	Output.normalWorld = normalize(Output.normalWorld);
 	
