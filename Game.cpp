@@ -555,7 +555,7 @@ void Game::CreateDeviceDependentResources()
 		{
 
 			m_ocean = std::make_unique<Ocean>(device);
-			MeshData quad = GeometryGenerator::MakeSquare(50.0f);
+			MeshData quad = GeometryGenerator::MakeSquare(5.0f);
 			quad.indicies = { 0, 1, 2, 3 };
 
 

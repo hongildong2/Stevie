@@ -13,6 +13,9 @@ namespace Graphics
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicCcwRS;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCwRS;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCcwRS;
+	
 
 
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
@@ -239,16 +242,22 @@ namespace Graphics
 		D3D11_RASTERIZER_DESC rastDesc;
 		ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC)); // Need this
 		rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-		// rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
+		
 		rastDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
 		rastDesc.FrontCounterClockwise = false;
 		rastDesc.DepthClipEnable = true; // <- zNear, zFar 확인에 필요
 
-		device->CreateRasterizerState(&rastDesc, basicRS.GetAddressOf());
+		DX::ThrowIfFailed(device->CreateRasterizerState(&rastDesc, basicRS.GetAddressOf()));
 
 		rastDesc.FrontCounterClockwise = true;
 
-		device->CreateRasterizerState(&rastDesc, basicCcwRS.GetAddressOf());
+		DX::ThrowIfFailed(device->CreateRasterizerState(&rastDesc, basicCcwRS.GetAddressOf()));
+
+		rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
+		DX::ThrowIfFailed(device->CreateRasterizerState(&rastDesc, wireframeCcwRS.GetAddressOf()));
+
+		rastDesc.FrontCounterClockwise = false;
+		DX::ThrowIfFailed(device->CreateRasterizerState(&rastDesc, wireframeCwRS.GetAddressOf()));
 	}
 
 	void InitSamplers(Microsoft::WRL::ComPtr<ID3D11Device1> device)
@@ -312,7 +321,7 @@ namespace Graphics
 		Ocean::OceanPSO.m_vertexShader = basicVS;
 		Ocean::OceanPSO.m_inputLayout = basicIL;
 		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
-		Ocean::OceanPSO.m_rasterizerState = basicRS;
+		Ocean::OceanPSO.m_rasterizerState = wireframeCwRS;
 		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;
 		Ocean::OceanPSO.m_domainShader = tessellatedQuadDS;

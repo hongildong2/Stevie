@@ -133,10 +133,12 @@ float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, Structur
 	[unroll(cascadesCount)] // ???
 	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
 	{
+	
+		float scaler = simulationScaleInMeter / parameters[cascadeIndex].L;
 		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
 		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
 		
-		float4 sampled = displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+		float4 sampled = scaler * displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
 	
 	
 		// TODO : 샘플한 밸류에 시뮬레이션 크기 고려 스케일링 적용할까말까
@@ -151,6 +153,8 @@ float3 MultiSampleDisplacementModel(Texture2DArray<float4> displacementMaps, Str
 	float2 UV = uv;
 	
 	float3 displacement = SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, UV, simulationScaleInMeter).xyz;
+	
+	
 	
 	for (uint i = 0; i < 4; ++i)
 	{

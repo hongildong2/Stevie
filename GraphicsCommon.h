@@ -16,6 +16,8 @@ namespace Graphics
 
 	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> solidCcwRS;
+	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCcwRS;
+	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeCwRS;
 
 	// Depth Stencil States
 	// extern ComPtr<ID3D11DepthStencilState> basicDSS; // 일반적으로 그리기
