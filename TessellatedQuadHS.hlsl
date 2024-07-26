@@ -42,7 +42,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 	
 	
 	
-	float lodTessFactor = MAX_TESS / dist;
+	float lodTessFactor = float(MAX_TESS) / dist * 3.0;
 	
 	Output.EdgeTessFactor[0] = lodTessFactor;
 	Output.EdgeTessFactor[1] = lodTessFactor;
@@ -56,7 +56,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 }
 
 [domain("quad")]
-[partitioning("fractional_even")]
+[partitioning("pow2")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(4)]
 [patchconstantfunc("CalcHSPatchConstants")]

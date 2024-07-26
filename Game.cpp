@@ -365,14 +365,14 @@ void Game::Render()
 		{
 			m_deviceResources->PIXBeginEvent(L"OceanPlane");
 
-			ID3D11ShaderResourceView* SRVs[3] = { m_ocean->GetDisplacementMapsSRV(), m_ocean->GetDerivativeMapsSRV(), m_ocean->GetCombineParameterSRV()};
+			ID3D11ShaderResourceView* SRVs[3] = { m_ocean->GetDisplacementMapsSRV(), m_ocean->GetDerivativeMapsSRV(), m_ocean->GetCombineParameterSRV() };
 			context->DSSetShaderResources(0, 3, SRVs);
 
 			ID3D11SamplerState* SSs[1] = { Graphics::linearMirrorSS.Get() };
 			context->DSSetSamplers(0, 1, SSs);
 
 			m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos); // 애초에 리소스 같은 자잘한게 이메서드에서 다형적으로 전부 처리되어야지..
-			ID3D11Buffer* CBs[2] = { m_oceanPlane->GetVSCB(), m_ocean->GetCombineWaveCB()};
+			ID3D11Buffer* CBs[2] = { m_oceanPlane->GetVSCB(), m_ocean->GetCombineWaveCB() };
 			context->DSSetConstantBuffers(0, 2, CBs);
 
 			CBs[0] = m_oceanPlane->GetPSCB();
@@ -559,14 +559,14 @@ void Game::CreateDeviceDependentResources()
 
 			m_ocean = std::make_unique<Ocean>(device);
 			MeshData quadPatches;
-			GeometryGenerator::MakeCWQuadPatches(32, &quadPatches);
+			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
 
 
 			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
 			meshes.push_back(std::make_unique<ModelMeshPart>(quadPatches, device));
 			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
 
-			auto manipulate = Matrix::CreateScale(50.f);
+			auto manipulate = Matrix::CreateScale(75.f);
 			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
 			m_oceanPlane->UpdatePosBy(manipulate);
 
