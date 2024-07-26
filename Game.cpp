@@ -555,15 +555,17 @@ void Game::CreateDeviceDependentResources()
 		{
 
 			m_ocean = std::make_unique<Ocean>(device);
-			MeshData quad = GeometryGenerator::MakeSquare(5.0f);
-			quad.indicies = { 0, 1, 2, 3 };
+			MeshData quadPatches;
+			GeometryGenerator::MakeCWQuadPatches(32, &quadPatches);
 
 
 			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
-			meshes.push_back(std::make_unique<ModelMeshPart>(quad, device));
+			meshes.push_back(std::make_unique<ModelMeshPart>(quadPatches, device));
 			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
 
-			m_oceanPlane->UpdatePosBy(Matrix::CreateRotationX(DirectX::XM_PIDIV2));
+			auto manipulate = Matrix::CreateScale(50.f);
+			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
+			m_oceanPlane->UpdatePosBy(manipulate);
 
 			m_oceanPlane->Initialize(device, {});
 		}

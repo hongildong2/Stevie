@@ -180,6 +180,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BasicGeometry.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BasicGeometry.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="Game.cpp" />

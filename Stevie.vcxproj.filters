@@ -14,7 +14,7 @@
     <Filter Include="PostProcess">
       <UniqueIdentifier>{24f3df86-4a95-46ad-bc9a-da649b89ca93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TessellatedQuad">
+    <Filter Include="BasicGeometry">
       <UniqueIdentifier>{d0a96982-dafb-4309-a1c3-1bbc6d9bdab2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -52,6 +52,9 @@
     <ClInclude Include="PostProcess.h">
       <Filter>PostProcess</Filter>
     </ClInclude>
+    <ClInclude Include="BasicGeometry.h">
+      <Filter>BasicGeometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -78,6 +81,9 @@
     </ClCompile>
     <ClCompile Include="PostProcess.cpp">
       <Filter>PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicGeometry.cpp">
+      <Filter>BasicGeometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,10 +145,10 @@
       <Filter>PostProcess</Filter>
     </FxCompile>
     <FxCompile Include="TessellatedQuadHS.hlsl">
-      <Filter>TessellatedQuad</Filter>
+      <Filter>BasicGeometry</Filter>
     </FxCompile>
     <FxCompile Include="TessellatedQuadDS.hlsl">
-      <Filter>TessellatedQuad</Filter>
+      <Filter>BasicGeometry</Filter>
     </FxCompile>
     <FxCompile Include="OceanPS.hlsl">
       <Filter>Ocean</Filter>
