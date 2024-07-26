@@ -65,7 +65,8 @@ public:
 	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFiles files);
 
 	// Rotation, Scale, update component..
-	void UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform);
+	void UpdatePosByTransform(const DirectX::SimpleMath::Matrix& deltaTransform);
+	void UpdatePosByCoordinate(const DirectX::SimpleMath::Vector4 pos);
 
 	void UpdateMaterialConstant(Material& mat);
 	Material GetMaterialConstant() const;
@@ -83,9 +84,15 @@ public:
 		return m_PSConstantBuffer.Get();
 	}
 
+	inline DirectX::SimpleMath::Vector4 GetWorldPos() const
+	{
+		return m_worldPos;
+	}
+
 private:
 	const std::string m_name;
 	std::vector<std::unique_ptr<ModelMeshPart>> m_meshes;
+	DirectX::SimpleMath::Vector4 m_worldPos;
 
 	// constant buffer for model
 	VSConstants m_modelVSConstants;

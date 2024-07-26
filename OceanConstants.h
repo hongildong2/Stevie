@@ -10,6 +10,10 @@ namespace ocean
 	constexpr unsigned int GROUP_Y = N / 16;
 
 	constexpr float DEFAULT_G = 9.8f;
+	constexpr float DEFAULT_DEPTH = 1000.f;
+
+	constexpr float WORLD_SCALER = 75.f;
+	constexpr float SIMULATION_SIZE_IN_METER = 2048.f;
 
 	struct InitialSpectrumWaveConstant
 	{
@@ -21,8 +25,8 @@ namespace ocean
 
 	constexpr InitialSpectrumWaveConstant InitialSpectrumWaveConstantInitializer =
 	{
-		9.8f,
-		1000.f,
+		DEFAULT_G,
+		DEFAULT_DEPTH,
 		{ 0.f }
 	};
 
@@ -35,8 +39,8 @@ namespace ocean
 	static_assert(sizeof(CombineWaveConstant) % 16 == 0, "CB 16byte alignment");
 	constexpr CombineWaveConstant CombineWaveConstantInitializer =
 	{
-		2048.f,
-		false,
+		SIMULATION_SIZE_IN_METER,
+		FALSE,
 		{0.f}
 	};
 

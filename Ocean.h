@@ -31,7 +31,7 @@ public:
 		return m_combineWaveCB.Get();
 	}
 
-	float GetHeight(DirectX::SimpleMath::Vector3 worldPos) const;
+	float GetHeight(DirectX::SimpleMath::Vector2 XZ) const;
 
 private:
 	bool mb_initialized;

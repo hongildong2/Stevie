@@ -56,6 +56,8 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	// 0번에 MVP, 1번에 Light, 2번에 PSConstant. 이거는 어떻게 관리하지?
 	context->VSSetShaderResources(0, 1, textures + 2);
 	context->PSSetShaderResources(4, 6, textures);
+
+	// 밖에서 Override할 수 있게, 딱히 Override안하면 모델에 정해진대로 파이프라인 실행된다.
 }
 
 
@@ -91,15 +93,23 @@ void Model::Draw(ID3D11DeviceContext1* context)
 {
 	assert(context != nullptr);
 	Graphics::SetPipelineState(context, m_PSO);
+
 	for (std::unique_ptr<ModelMeshPart>& mesh : m_meshes)
 	{
 		mesh->Draw(context);
 	}
 }
-void Model::UpdatePosBy(const DirectX::SimpleMath::Matrix& deltaTransform)
+void Model::UpdatePosByTransform(const DirectX::SimpleMath::Matrix& deltaTransform)
 {
 	m_modelVSConstants.worldMatrix *= deltaTransform;
 	m_modelVSConstants.worldMatrixIT = m_modelVSConstants.worldMatrix.Invert().Transpose();
+}
+
+void Model::UpdatePosByCoordinate(const DirectX::SimpleMath::Vector4 pos)
+{
+	DirectX::SimpleMath::Vector4 diff = m_worldPos - pos;
+	UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation({ diff.x, diff.y, diff.z }));
+	m_worldPos = pos;
 }
 
 

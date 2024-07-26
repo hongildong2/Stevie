@@ -1,4 +1,7 @@
 #include "pch.h"
+
+#include <algorithm>
+
 #include "Ocean.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"
@@ -312,7 +315,18 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
 }
 
-float Ocean::GetHeight(DirectX::SimpleMath::Vector3 worldPos) const
+float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const
 {
-	return 0.f;
+	// OceanPlanetop left -75 75, bottom right 75 - 75, 150 x 150, decided by WORLD_SCALER
+	// texture is 512 x 512
+	// sim size is 2048m
+	// -75, -75가 0, 0이 되어야 한다 75, 75가 1,1. xz 와 uv 방향동일
+
+	DirectX::SimpleMath::Vector2 scaled = XZ + DirectX::SimpleMath::Vector2(ocean::WORLD_SCALER, ocean::WORLD_SCALER); // 150 x 150
+	scaled /= 2 * ocean::WORLD_SCALER; // now in uv
+
+	unsigned int x = std::min(static_cast<unsigned int>(ocean::N * scaled.x), ocean::N - 1);
+	unsigned int z = std::min(static_cast<unsigned int>(ocean::N * scaled.y), ocean::N - 1);
+
+	return m_heightMapCPU[z][x];
 }

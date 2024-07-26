@@ -113,6 +113,13 @@ void Game::Tick()
 	m_ocean->Update(context);
 	m_deviceResources->PIXEndEvent();
 
+	for (auto& modelPtr : m_models)
+	{
+		auto pos = modelPtr->GetWorldPos();
+		float height = m_ocean->GetHeight({ pos.x, pos.z });
+
+		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.2f, pos.z, 1.f }); // せせせせ
+	}
 
 	// update game by timer
 
@@ -316,6 +323,9 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
+		// DepthOnly Pass
+
+
 		// Light.Draw()
 		Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
 		context->PSSetConstantBuffers(1, 1, m_lightsConstantBuffer.GetAddressOf());
@@ -551,7 +561,7 @@ void Game::CreateDeviceDependentResources()
 				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
 				});
 
-			m_models.back()->UpdatePosBy(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
+			// m_models.back()->UpdatePosBy(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
 		}
 
 		// Ocean
@@ -566,9 +576,9 @@ void Game::CreateDeviceDependentResources()
 			meshes.push_back(std::make_unique<ModelMeshPart>(quadPatches, device));
 			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
 
-			auto manipulate = Matrix::CreateScale(75.f);
+			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
 			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
-			m_oceanPlane->UpdatePosBy(manipulate);
+			m_oceanPlane->UpdatePosByTransform(manipulate);
 
 			m_oceanPlane->Initialize(device, {});
 		}
