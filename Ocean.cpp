@@ -41,12 +41,8 @@ Ocean::Ocean(ID3D11Device1* device)
 		desc.Format = DXGI_FORMAT_R32G32_FLOAT;
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_initialSpectrumMap.GetAddressOf()));
 
-		// Combined Result, Normal and HeightMap
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		desc.ArraySize = 1;
-		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_normalMap.GetAddressOf()));
-
 		desc.Format = DXGI_FORMAT_R32_FLOAT;
+		desc.ArraySize = 1;
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_heightMapGPU.GetAddressOf()));
 
 		// Stating HeightMap Texture for CPU
@@ -89,16 +85,12 @@ Ocean::Ocean(ID3D11Device1* device)
 		uavDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_initialSpectrumMap.Get(), &uavDesc, m_initialSpectrumMapUAV.GetAddressOf()));
 
-		// heightMap, Normal Map UAV
+		// heightMap UAV
 		ZeroMemory(&uavDesc, sizeof(uavDesc));
 		uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Texture2D.MipSlice = 0;
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_heightMapGPU.Get(), &uavDesc, m_heightMapUAV.GetAddressOf()));
-
-
-		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_normalMap.Get(), &uavDesc, m_normalMapUAV.GetAddressOf()));
 	}
 
 
@@ -121,16 +113,13 @@ Ocean::Ocean(ID3D11Device1* device)
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_initialSpectrumMap.Get(), &srvDesc, m_initialSpectrumMapSRV.GetAddressOf()));
 
 		ZeroMemory(&srvDesc, sizeof(srvDesc));
-		// HeightMap, NormalMap SRVs
+		// HeightMap SRVs
 		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_heightMapGPU.Get(), &srvDesc, m_heightMapSRV.GetAddressOf()));
-
-		srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		DX::ThrowIfFailed(device->CreateShaderResourceView(m_normalMap.Get(), &srvDesc, m_normalMapSRV.GetAddressOf()));
 	}
 
 
@@ -181,7 +170,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 		// TEMP
 		{
-			m_spectrumConstant.time += 0.015f;
+			m_spectrumConstant.time += ocean::TEMP_DELTA_TIME;
 			Utility::DXResource::UpdateConstantBuffer(m_spectrumConstant, context, m_spectrumCB);
 		}
 
@@ -202,7 +191,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 	// Inverse FFT
 	{
-		// run IFFT CS, renew height map from spectrum map, get normal map from height map
+		// run IFFT CS, renew height map from spectrum map, get normal map from derivative map
 		// use FFT texture updated prev time dependent spectrum CS
 		// Run FFT CS twice on FFT texture as it is 2D FFT, one with horizontally and the other one with vertically(order can be changed)
 
@@ -255,15 +244,17 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 	{
 		Graphics::SetPipelineState(context, Graphics::Ocean::combineWavePSO);
 		ID3D11Buffer* combineWaveCBs[1] = { m_combineWaveCB.Get() };
+		// TODO :: UpdateCB
+
 		context->CSSetConstantBuffers(0, 1, combineWaveCBs);
 
-		ID3D11UnorderedAccessView* combineWaveUAVs[2] = { m_heightMapUAV.Get(), m_normalMapUAV.Get() };
-		context->CSSetUnorderedAccessViews(0, 2, combineWaveUAVs, NULL);
+		ID3D11UnorderedAccessView* combineWaveUAVs[1] = { m_heightMapUAV.Get() };
+		context->CSSetUnorderedAccessViews(0, 1, combineWaveUAVs, NULL);
 
-		ID3D11ShaderResourceView* combineWaveSRVs[3] = { m_displacementMapSRV.Get(), m_derivativeMapSRV.Get(), m_combineParameterSRV.Get() };
-		context->CSSetShaderResources(0, 3, combineWaveSRVs);
+		ID3D11ShaderResourceView* combineWaveSRVs[2] = { m_displacementMapSRV.Get(), m_combineParameterSRV.Get() };
+		context->CSSetShaderResources(0, 2, combineWaveSRVs);
 
-		ID3D11SamplerState* combineWaveSSs[1] = { Graphics::linearWrapSS.Get() };
+		ID3D11SamplerState* combineWaveSSs[1] = { Graphics::linearMirrorSS.Get() };
 		context->CSSetSamplers(0, 1, combineWaveSSs);
 
 
@@ -297,16 +288,6 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 
 
 	// TODO : run Foam Simulation on height map(Result IFFT Texture), get Turbulence Map using Jacobian and displacement
-}
-
-ID3D11ShaderResourceView* Ocean::GetNormalMapSRV() const
-{
-	return m_normalMapSRV.Get();
-}
-
-ID3D11ShaderResourceView* Ocean::GetHeightMapSRV() const
-{
-	return m_heightMapSRV.Get();
 }
 
 float Ocean::GetHeight(DirectX::SimpleMath::Vector3 worldPos) const

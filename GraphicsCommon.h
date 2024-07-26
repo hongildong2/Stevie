@@ -10,6 +10,7 @@ namespace Graphics
 	// Samplers
 	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
 	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
+	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearMirrorSS;
 	// extern ComPtr<ID3D11SamplerState> pointClampSS;
 	// extern ComPtr<ID3D11SamplerState> pointWrapSS;
 

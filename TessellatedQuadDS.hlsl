@@ -1,4 +1,5 @@
 #include "Common.hlsli"
+#include "OceanGlobal.hlsli"
 
 struct HS_CONSTANT_DATA_OUTPUT
 {
@@ -6,10 +7,11 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
-Texture2D<float> displacementMap : register(t0);
-Texture2D<float4> normalMap : register(t1);
+Texture2DArray<float4> DisplacementMap : register(t0);
+Texture2DArray<float4> DerivativeMap : register(t1);
+StructuredBuffer<CombineParameter> parameters : register(t2);
 
-SamplerState linearClamp : register(s0);
+SamplerState linearMirror : register(s0);
 
 cbuffer transform : register(b0)
 {
@@ -18,6 +20,15 @@ cbuffer transform : register(b0)
 	float4x4 view;
 	float4x4 proj;
 };
+
+cbuffer Params : register(b1)
+{
+	float simulationScale; // (m)
+	bool bScale; // not in use
+	float2 dummy;
+};
+
+
 
 #define NUM_CONTROL_POINTS 4
 
@@ -57,11 +68,11 @@ PixelShaderInput main(
 	// 모델좌표계에 displacement맵을 해야하는가? 월드좌표계에?
 	// 일단 모델좌표계에 displacement 맵 적용, 파라미터 붙여서 조절가능하게 상수버퍼
 
-	float height = displacementMap.SampleLevel(linearClamp, Output.texcoordinate, 0.0);
+	float height = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, domain, simulationScale).y;
 	Output.positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	
-	float3 normalModel = normalMap.SampleLevel(linearClamp, Output.texcoordinate, 0.0).xyz;
+	float3 normalModel = SampleNormalModel(DerivativeMap, parameters, linearMirror, CASCADE_COUNT, domain, simulationScale);
 	Output.normalWorld = mul(float4(normalModel, 0.f), worldIT).xyz;
 	Output.normalWorld = normalize(Output.normalWorld);
 	

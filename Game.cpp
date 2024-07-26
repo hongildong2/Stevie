@@ -363,21 +363,23 @@ void Game::Render()
 
 		// Ocean
 		{
-			ID3D11ShaderResourceView* SRVs[2] = { m_ocean->GetHeightMapSRV(), m_ocean->GetNormalMapSRV() };
-			ID3D11SamplerState* SSs[1] = { Graphics::linearClampSS.Get() };
-			ID3D11Buffer* CBs[1] = { m_oceanPlane->GetVSCB() };
 			m_deviceResources->PIXBeginEvent(L"OceanPlane");
+
+			ID3D11ShaderResourceView* SRVs[3] = { m_ocean->GetDisplacementMapsSRV(), m_ocean->GetDerivativeMapsSRV(), m_ocean->GetCombineParameterSRV()};
+			context->DSSetShaderResources(0, 3, SRVs);
+
+			ID3D11SamplerState* SSs[1] = { Graphics::linearMirrorSS.Get() };
 			context->DSSetSamplers(0, 1, SSs);
-			context->DSSetShaderResources(0, 2, SRVs);
 
 			m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos); // 애초에 리소스 같은 자잘한게 이메서드에서 다형적으로 전부 처리되어야지..
-			context->DSSetConstantBuffers(0, 1, CBs);
-			// set domain shader resource
+			ID3D11Buffer* CBs[2] = { m_oceanPlane->GetVSCB(), m_ocean->GetCombineWaveCB()};
+			context->DSSetConstantBuffers(0, 2, CBs);
 
 			m_oceanPlane->Draw(context);
 
 			ID3D11ShaderResourceView* release[6] = { 0, };
 			context->DSSetShaderResources(0, 6, release);
+
 			m_deviceResources->PIXEndEvent();
 		}
 	}
@@ -553,7 +555,7 @@ void Game::CreateDeviceDependentResources()
 		{
 
 			m_ocean = std::make_unique<Ocean>(device);
-			MeshData quad = GeometryGenerator::MakeSquare(5.0f);
+			MeshData quad = GeometryGenerator::MakeSquare(50.0f);
 			quad.indicies = { 0, 1, 2, 3 };
 
 

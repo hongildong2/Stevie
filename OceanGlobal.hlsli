@@ -5,6 +5,8 @@
 #define LOG_SIZE 9 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
 
+
+/* JONSWAP Spectrum Functions*/
 struct SpectrumParameters
 {
 	float L;
@@ -107,4 +109,77 @@ float JONSWAP(float omega, float g, float depth, SpectrumParameters param)
 		* pow(abs(param.gamma), r);
 }
 
+/* Wave Cascades */
+
+struct CombineParameter
+{
+	float L;
+	float weight;
+	float shoreModulation;
+	float dummy;
+};
+
+float2 GetScaledUV(float2 uv, float simulationScaleInMeter, float cascadeScaleInMeter)
+{
+	return (simulationScaleInMeter / cascadeScaleInMeter) * uv;
+}
+
+
+// can sample displacement map and normal map both
+float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+{
+	float4 result = 0;
+	
+	[unroll(cascadesCount)] // ???
+	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
+	{
+		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
+		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
+		
+		float4 sampled = displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+	
+	
+		// TODO : 샘플한 밸류에 시뮬레이션 크기 고려 스케일링 적용할까말까
+		result += configFactor * sampled;
+	}
+	
+	return result;
+}
+
+float3 MultiSampleDisplacementModel(Texture2DArray<float4> displacementMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+{
+	float2 UV = uv;
+	
+	float3 displacement = SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, UV, simulationScaleInMeter).xyz;
+	
+	for (uint i = 0; i < 4; ++i)
+	{
+		float2 offsetInTexCoord = float2(displacement.x / simulationScaleInMeter, displacement.z / simulationScaleInMeter);
+		UV -= offsetInTexCoord;
+		displacement = SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, UV, simulationScaleInMeter).xyz;
+	}
+
+	return displacement;
+}
+
+
+float3 SampleNormalModel(Texture2DArray<float4> derivativeMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+{
+	float4 derivative = 0;
+	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
+	{
+		// float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
+		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
+		
+		float4 sampled = derivativeMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+		
+		sampled.z *= simulationScaleInMeter / parameters[cascadeIndex].L;
+		
+		derivative += sampled;
+	}
+	
+	float2 slope = float2(derivative.x / max(0.001, 1 + derivative.z), derivative.y / max(0.001, 1 + derivative.w));
+	
+	return normalize(float3(-slope.x, 1, -slope.y));
+}
 #endif /* __OCEAN_GLOBAL__ */

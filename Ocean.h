@@ -11,8 +11,26 @@ public:
 	void Initialize(ID3D11DeviceContext1* context);
 	void Update(ID3D11DeviceContext1* context); // is timer necessary?
 
-	ID3D11ShaderResourceView* GetNormalMapSRV() const;
-	ID3D11ShaderResourceView* GetHeightMapSRV() const;
+	inline ID3D11ShaderResourceView* GetDisplacementMapsSRV() const
+	{
+		return m_displacementMapSRV.Get();
+	}
+
+	inline ID3D11ShaderResourceView* GetDerivativeMapsSRV() const
+	{
+		return m_derivativeMapSRV.Get();
+	}
+
+	inline ID3D11ShaderResourceView* GetCombineParameterSRV() const
+	{
+		return m_combineParameterSRV.Get();
+	}
+
+	inline ID3D11Buffer* GetCombineWaveCB() const
+	{
+		return m_combineWaveCB.Get();
+	}
+
 	float GetHeight(DirectX::SimpleMath::Vector3 worldPos) const;
 
 private:
@@ -25,11 +43,6 @@ private:
 	std::array<ocean::CombineParameter, ocean::CASCADE_COUNT> m_combineParameters;
 	ocean::CombineWaveConstant m_combineWaveConstant;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_combineWaveCB;
-
-	// Result Normal Map
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_normalMap;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_normalMapUAV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalMapSRV;
 
 	// Result Height Map
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_heightMapGPU;

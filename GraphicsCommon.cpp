@@ -9,6 +9,7 @@ namespace Graphics
 {
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearMirrorSS;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicCcwRS;
@@ -262,16 +263,22 @@ namespace Graphics
 		desc.MinLOD = 0;
 		desc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		HRESULT hr = device->CreateSamplerState(&desc, &linearWrapSS);
+		HRESULT hr = device->CreateSamplerState(&desc, linearWrapSS.GetAddressOf());
 		DX::ThrowIfFailed(hr);
 
 		desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-		hr = device->CreateSamplerState(&desc, &linearClampSS);
+		hr = device->CreateSamplerState(&desc, linearClampSS.GetAddressOf());
 
 		DX::ThrowIfFailed(hr);
 
+
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+
+		DX::ThrowIfFailed(device->CreateSamplerState(&desc, linearMirrorSS.GetAddressOf()));
 	}
 	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	{
