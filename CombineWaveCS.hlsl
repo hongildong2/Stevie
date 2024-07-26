@@ -17,6 +17,18 @@ Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
 StructuredBuffer<CombineParameter> parameters : register(t2);
 
+
+// (m)
+float GetScaler(float simulationScale, float cascadeScale)
+{
+	return simulationScale / cascadeScale;
+}
+
+float2 GetScaledUV(float uv, float simulationScaleInMeter, float cascadeScaleInMeter)
+{
+	return (simulationScaleInMeter / cascadeScaleInMeter) * uv;
+}
+
 cbuffer Params : register(b0)
 {
 	float simulationScale; // (m)
@@ -42,8 +54,10 @@ float3 SampleDisplacement(uint2 xzIndex, float2 offset)
 		float2 scaledUV = float2(uvScaler * UV.x, uvScaler * UV.y);
 		float valueScaler = simulationScale / parameters[cascade].L;
 		
-		float3 sampledDisplacement = valueScaler * DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
 		
+		// TODO : 밸류에 Scaler 적용하는게 올바른가? 보기로는 스케일링 안하는게 더 나음
+		// float3 sampledDisplacement = valueScaler * DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
+		float3 sampledDisplacement = DisplacementMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0).xyz;
 		
 		displacement += factor * sampledDisplacement;
 	}
@@ -66,7 +80,7 @@ float3 GetNormalFromDerivative(uint2 xzIndex)
 		float valueScaler = simulationScale / parameters[cascade].L;
 		float4 sampledDerivative = DerivativeMap.SampleLevel(wrapSampler, float3(scaledUV, cascade), 0.0);
 		
-		sampledDerivative.z *= valueScaler; // TODO 왜 z부분만 스케일링 영향이 있는지 연구해보기!!
+		// sampledDerivative.z *= valueScaler; // TODO 왜 z부분만 스케일링 영향이 있는지 연구해보기!!, 스케일링ㅇ을해야하나?
 		
 		derivative += parameters[cascade].weight * sampledDerivative;
 	}
