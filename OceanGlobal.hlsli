@@ -136,28 +136,35 @@ struct CombineParameter
 	float dummy;
 };
 
+struct OceanSamplingInput
+{
+	Texture2DArray<float4> tex;
+	StructuredBuffer<CombineParameter> parameters;
+	SamplerState ss;
+	uint cascadesCount;
+	float2 uv;
+	float simulationScaleInMeter;
+};
+
 float2 GetScaledUV(float2 uv, float simulationScaleInMeter, float cascadeScaleInMeter)
 {
 	return (simulationScaleInMeter / cascadeScaleInMeter) * uv;
 }
 
-
-// can sample displacement map and normal map both
-float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+float4 SampleOceanTexture(OceanSamplingInput input)
 {
 	float4 result = 0;
 	
-	//[unroll(cascadesCount)] // ???
-	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
+	[unroll(CASCADE_COUNT)]
+	for (uint cascadeIndex = 0; cascadeIndex < input.cascadesCount; ++cascadeIndex)
 	{
-	
 		// 밸류 스케일링은 안하는게 맞는듯
 		// float scaler = simulationScaleInMeter / parameters[cascadeIndex].L;
 		
-		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
-		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
+		float configFactor = input.parameters[cascadeIndex].weight * input.parameters[cascadeIndex].shoreModulation;
+		float2 scaledUV = GetScaledUV(input.uv, input.simulationScaleInMeter, input.parameters[cascadeIndex].L);
 				
-		float4 sampled = displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+		float4 sampled = input.tex.SampleLevel(input.ss, float3(scaledUV, cascadeIndex), 0);
 
 		result += configFactor * sampled;
 	}
@@ -165,37 +172,93 @@ float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, Structur
 	return result;
 }
 
-float3 MultiSampleDisplacementModel(Texture2DArray<float4> displacementMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+float3 MultiSampleDisplacementModel(OceanSamplingInput input)
 {
-	float2 UV = uv;
+	float2 UV = input.uv;
 	
 	float3 displacement = 0;
 	[unroll(SAMPLING_COUNT)]
 	for (uint i = 0; i < SAMPLING_COUNT; ++i)
 	{
 		float2 multiUV = UV + SAMPLING_KERNEL[i];
-		displacement += SampleDisplacementModel(displacementMaps, parameters, ss, CASCADE_COUNT, multiUV, simulationScaleInMeter).xyz;
+		displacement += SampleOceanTexture(input).xyz;
 	}
 	
 	return displacement / float(SAMPLING_COUNT);
 }
 
-
-float3 SampleNormalModel(Texture2DArray<float4> derivativeMaps, StructuredBuffer<CombineParameter> parameters, SamplerState ss, uint cascadesCount, float2 uv, float simulationScaleInMeter)
+float3 SampleNormalModel(OceanSamplingInput input)
 {
-	float4 derivative = 0;
-	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
-	{
-		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
-		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
-		
-		float4 sampled = derivativeMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
-		
-		derivative += sampled * configFactor;
-	}
-	
+	float4 derivative = SampleOceanTexture(input);
 	float2 slope = float2(derivative.x / max(0.001, 1 + derivative.z), derivative.y / max(0.001, 1 + derivative.w));
 	
 	return normalize(float3(-slope.x, 1, -slope.y));
 }
+
+struct FoamOutput
+{
+	float coverage; // lerp(color, albedo, coverage)
+	float3 albedo;
+};
+
+struct FoamParameter
+{
+	float waveSharpness;
+	float foamPersistency;
+	float foamDensity;
+	float foamTrailness;
+	float foamCoverage;
+};
+
+struct FoamInput
+{
+	OceanSamplingInput oceanSampling;
+	FoamParameter foamParam;
+	float2 worldUV;
+	float viewDist;
+};
+
+
+float FoamCoverage(float4 turbulence, float2 worldUV, float bias, FoamParameter param)
+{
+	float foamCurrentVal = lerp(turbulence.y, turbulence.x, param.waveSharpness);
+	float foamPersistentValue = (turbulence.z + turbulence.w) * 0.5;
+	
+	foamCurrentVal = lerp(foamCurrentVal, foamPersistentValue, param.foamPersistency);
+	foamCurrentVal -= 1;
+	foamPersistentValue -= 1;
+	
+	float foamValue = max((foamPersistentValue + param.foamTrailness * (1 - bias)), (foamCurrentVal + param.foamCoverage * (1 - bias)));
+	float surfaceFoam = saturate(foamValue * param.foamDensity);
+
+	return surfaceFoam;
+}
+
+float3 GetFoamShaded(float3 foamAlbedo, float3 lightAlbedo, float NdotL)
+{
+	return foamAlbedo * (NdotL * lightAlbedo);
+}
+
+
+FoamOutput GetFoamOutput(FoamInput input)
+{
+	FoamOutput res;
+	float4 turbulence = SampleOceanTexture(input.oceanSampling);
+	
+	float bias = 0.3; //??
+	res.coverage = FoamCoverage(turbulence, input.worldUV, bias, input.foamParam);
+	
+	// 가까이서보면 Foam Coverage를 극적으로 줄인다.
+	res.coverage *= saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
+	
+	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
+	
+	// TODO : sample foam texture
+	res.albedo = 1;
+	
+	return res;
+}
+
+/* Foam Simulation */
+
 #endif /* __OCEAN_GLOBAL__ */

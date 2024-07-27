@@ -51,7 +51,7 @@ PixelShaderInput main(
 	PixelShaderInput topLeft = patch[0]; // has tex coord (0,0)
 	PixelShaderInput topRight = patch[1];
 	PixelShaderInput bottomRight = patch[2]; // has tex coord (1,1)
-	PixelShaderInput bottomLeft = patch[3]; 
+	PixelShaderInput bottomLeft = patch[3];
 
 	Output.normalWorld = topLeft.normalWorld; // 어차피 평면 quad
 	Output.positionModel = BilinearInterpolation(domain, topLeft.positionModel, topRight.positionModel, bottomRight.positionModel, bottomLeft.positionModel);
@@ -63,12 +63,21 @@ PixelShaderInput main(
 	// 일단 모델좌표계에 displacement 맵 적용, 파라미터 붙여서 조절가능하게 상수버퍼
 	
 	float2 uvModel = Output.texcoordinate;
-	float height = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale).y;
+	OceanSamplingInput heightSamplingInput =
+	{
+		DisplacementMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale
+	};
+	float height = MultiSampleDisplacementModel(heightSamplingInput).y;
 	
-	Output.positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
+	Output.
+		positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	
-	float3 normalModel = SampleNormalModel(DerivativeMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale);
+	OceanSamplingInput normalSamplingInput =
+	{
+		DerivativeMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale
+	};
+	float3 normalModel = SampleNormalModel(normalSamplingInput);
 	Output.normalWorld = mul(float4(normalModel, 0.f), worldIT).xyz;
 	Output.normalWorld = normalize(Output.normalWorld);
 	

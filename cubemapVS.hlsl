@@ -30,6 +30,7 @@ PixelShaderInput main(VertexShaderInput input)
 	output.positionProjection = pos;
 
 	output.texcoordinate = input.texcoordinate;
+	output.positionModel = input.positionModel;
 
 	return output;
 }

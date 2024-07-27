@@ -22,7 +22,12 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	HeightMap.GetDimensions(width, height);
 	
 	float2 UV = float2(float(DTid.x) / float(SIZE), float(DTid.y) / float(SIZE));
-	float3 displacement = MultiSampleDisplacementModel(DisplacementMap, parameters, linearMirror, CASCADE_COUNT, UV, simulationScale).xyz;
+	OceanSamplingInput hi =
+	{
+		DisplacementMap, parameters, linearMirror, CASCADE_COUNT, UV, simulationScale
+	};
+	
+	float3 displacement = MultiSampleDisplacementModel(hi).xyz;
 	
 	
 	HeightMap[DTid.xy] = displacement.y;

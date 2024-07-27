@@ -58,6 +58,8 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
+		Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
+
 		ComputePSO initialSpectrumPSO;
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
@@ -97,7 +99,7 @@ namespace Graphics
 	}
 
 	// https://learn.microsoft.com/ko-kr/windows/win32/direct3d11/how-to--compile-a-shader
-	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
+	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob)
 	{
 		if (!srcFile || !entryPoint || !profile || !blob)
 			return E_INVALIDARG;
@@ -117,7 +119,7 @@ namespace Graphics
 
 		ID3DBlob* shaderBlob = nullptr;
 		ID3DBlob* errorBlob = nullptr;
-		HRESULT hr = D3DCompileFromFile(srcFile, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		HRESULT hr = D3DCompileFromFile(srcFile, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			entryPoint, profile,
 			flags, 0, &shaderBlob, &errorBlob);
 		if (FAILED(hr))
@@ -145,8 +147,6 @@ namespace Graphics
 
 		// Vertex Shaders
 		{
-
-
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
 				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -160,16 +160,19 @@ namespace Graphics
 
 			static_assert((sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 4, "Basic Vertex Input Layout Size");
 
-			DX::ThrowIfFailed(CompileShader(L"PBRVS.hlsl", "main", "vs_5_0", &shaderBlob));
+
+			assert(&shaderBlob != nullptr);
+
+			DX::ThrowIfFailed(CompileShader(L"PBRVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicVS.GetAddressOf());
 
 			// IL만드는데 왜 굳이 쉐이더 바이너리를 넣어줘야할까? 왜 한번만 하면 동일한 레이아웃의 다른 쉐이더들은 안해줘도 될까?
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), basicIL.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"DepthOnlyShaders.hlsl", "DepthOnlyVSMain", "vs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"DepthOnlyShaders.hlsl", "DepthOnlyVSMain", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", NULL,shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
 
 
@@ -185,7 +188,7 @@ namespace Graphics
 
 			static_assert((sizeof(screenQuadLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 2, "Screen Quad Input Layout Size");
 
-			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, screenQuadVS.GetAddressOf());
 
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), screenQuadIL.GetAddressOf());
@@ -193,49 +196,52 @@ namespace Graphics
 
 		// Pixel Shaders
 		{
-			HRESULT hr = CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", &shaderBlob);
-
-			DX::ThrowIfFailed(hr);
+			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
-			hr = CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", &shaderBlob);
-			DX::ThrowIfFailed(hr);
+
+			
+			D3D_SHADER_MACRO defines[1] = { "OCEAN_PBR_PS "};
+			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", defines, shaderBlob.GetAddressOf()));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapPS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, filterCombinePS.GetAddressOf());
 		}
 
 		// Compute Shaders
 		{
-			DX::ThrowIfFailed(CompileShader(L"downBlurCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"downBlurCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, downBlurCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"upBlurCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"upBlurCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, upBlurCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"initialOceanSpectrumCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"initialOceanSpectrumCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::initialSpectrumCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"TimeDependentWaveSpectrumCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"TimeDependentWaveSpectrumCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::timedependentSpectrumCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "PostProcess", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"OceanFFTCS.hlsl", "PostProcess", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::FFTPostProcessCS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::combineWaveCS.GetAddressOf());
 		}
 
 		// Hull, Domain Shaders
 		{
-			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadHS.hlsl", "main", "hs_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadHS.hlsl", "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadHS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadDS.hlsl", "main", "ds_5_0", &shaderBlob));
+			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadDS.hlsl", "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadDS.GetAddressOf());
 		}
 	}
@@ -330,7 +336,7 @@ namespace Graphics
 
 		Ocean::OceanPSO.m_vertexShader = basicVS;
 		Ocean::OceanPSO.m_inputLayout = basicIL;
-		Ocean::OceanPSO.m_pixelShader = basicPS;
+		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
 		Ocean::OceanPSO.m_rasterizerState = basicRS;
 		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;

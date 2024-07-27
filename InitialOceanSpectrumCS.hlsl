@@ -10,6 +10,9 @@ RWTexture2DArray<float2> initialSpectrumTex : register(u0);
 // wave vector x, 1 / magnitude, wave vector z, frequency
 RWTexture2DArray<float4> wavesDataTex : register(u1);
 
+// used in foam simulation, need initialization with -5
+RWTexture2DArray<float4> TurbulencenessTex : register(u2);
+
 // even num is local wave, odd num is wind wave
 // These contains all TARGET_COUNT spectrum wave cascades with z-indexed
 StructuredBuffer<SpectrumParameters> LocalWaveSpectrumParameters : register(t0);
@@ -33,6 +36,9 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float2 k = float2(nx * deltaK, nz * deltaK); // wave vector k, 2pi/L * wave number
 	
 	float kLength = length(k);
+	
+	// turbulence tex init
+	TurbulencenessTex[DTid] = -5;
 	
 	// clamp
 	if (kLength <= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffHigh && kLength >= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffLow)

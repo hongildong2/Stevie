@@ -61,6 +61,8 @@ namespace Graphics
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
+		extern Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
+
 		extern ComputePSO initialSpectrumPSO;
 		extern ComputePSO timedependentSpectrumPSO;
 		extern ComputePSO FFTPSO;
@@ -91,7 +93,7 @@ namespace Graphics
 	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso);
 	void SetPipelineState(ID3D11DeviceContext1* context, ComputePSO& pso);
 
-	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
+	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob);
 
 } // namespace Graphics
 

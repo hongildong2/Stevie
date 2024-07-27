@@ -1,7 +1,11 @@
 #include "OceanGlobal.hlsli"
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
+
+// (Dx, Dy, Dz, Dxz)
 RWTexture2DArray<float4> DisplacementResult : register(u0); // for each cascade
+
+// (Dyx, Dyz, Dxx, Dzz)
 RWTexture2DArray<float4> DerivativeResult : register(u1); // for each cascade
 
 Texture2DArray<float2> initialSpectrums : register(t0);

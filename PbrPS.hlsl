@@ -1,6 +1,12 @@
 #include "Common.hlsli"
 #include "PBRCommons.hlsli"
 
+#ifdef OCEAN_PBR_PS
+#include "OceanGlobal.hlsli"
+#endif
+
+
+
 cbuffer Lights : register(b1)
 {
 	Light dirLight;
@@ -46,10 +52,25 @@ Texture2D<float> roughnessTex : register(t9);
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
 
+# ifdef OCEAN_PBR_PS
+	Texture2DArray<float4> OceanTurbulenceMap : register(t10);
+	StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t11);
+	SamplerState linearMirror : register(s3);
+#endif
 
-float3 GetNormal(PixelShaderInput input)
+
+
+
+
+
+float3 GetNormal(PixelShaderInput input, bool bUseNormalTexture)
 {
 	float3 normalWorld = normalize(input.normalWorld);
+	
+	if (bUseNormalTexture)
+	{
+		return normalWorld;
+	}
     
 
 	float3 normal = normalTex.Sample(linearWrap, input.texcoordinate).rgb;
@@ -78,6 +99,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float metallic;
 	float roughness;
 	
+	float viewDist = distance(eyeWorld, input.positionWorld);
+	
 	if (materialConstant.bUseTexture)
 	{
 		albedo = albedoTex.Sample(linearWrap, input.texcoordinate).rgb;
@@ -94,9 +117,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	
 	
-	float3 N = normalize(GetNormal(input));
+	float3 N = GetNormal(input, materialConstant.bUseTexture);
 	float3 V = normalize(eyeWorld - input.positionWorld);
+	float NdotL = max(dot(input.normalWorld, normalize(dirLight.position - input.positionWorld)), 0.0);
 	
+	// specular 1 == 8%
 	float3 F0 = float3(0.08, 0.08, 0.08) * materialConstant.specular;
 	
 	F0 = lerp(F0, albedo, metallic);
@@ -122,7 +147,26 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 ambient = (kD * diffuse + specular) * ao;
 	float3 color = ambient + Lo;
 	
-	// color = color / (color + float3(1.0, 1.0, 1.0)); // ??
+	#ifdef OCEAN_PBR_PS
+		OceanSamplingInput oceanIn;
+		oceanIn.parameters = OceanCascadeParameters;
+		oceanIn.tex = OceanTurbulenceMap;
+		oceanIn.uv = input.texcoordinate;
+		oceanIn.cascadesCount = CASCADE_COUNT;
+		oceanIn.ss = linearMirror;
+	
+		FoamInput foamIn;
+		foamIn.worldUV = input.texcoordinate;
+		foamIn.viewDist = viewDist;
+		foamIn.sampling = oceanIn;
+	
+		FoamOutput foamOut = GetFoamOutput(foamIn);
+		float3 foamShaded = GetFoamShaded(foamOut.albedo, 1, NdotL);
+
+	
+		color = lerp(color, foamShaded, foamOut.coverage);
+	#endif
+	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1.0f);
 }
