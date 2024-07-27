@@ -151,15 +151,14 @@ float4 SampleDisplacementModel(Texture2DArray<float4> displacementMaps, Structur
 	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
 	{
 	
-		float scaler = simulationScaleInMeter / parameters[cascadeIndex].L;
+		// 밸류 스케일링은 안하는게 맞는듯
+		// float scaler = simulationScaleInMeter / parameters[cascadeIndex].L;
+		
 		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
 		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
-		
-		// float4 sampled = scaler * displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
+				
 		float4 sampled = displacementMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
-	
-	
-		// TODO : 샘플한 밸류에 시뮬레이션 크기 고려 스케일링 적용할까말까
+
 		result += configFactor * sampled;
 	}
 	
@@ -187,14 +186,12 @@ float3 SampleNormalModel(Texture2DArray<float4> derivativeMaps, StructuredBuffer
 	float4 derivative = 0;
 	for (uint cascadeIndex = 0; cascadeIndex < cascadesCount; ++cascadeIndex)
 	{
-		// float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
+		float configFactor = parameters[cascadeIndex].weight * parameters[cascadeIndex].shoreModulation;
 		float2 scaledUV = GetScaledUV(uv, simulationScaleInMeter, parameters[cascadeIndex].L);
 		
 		float4 sampled = derivativeMaps.SampleLevel(ss, float3(scaledUV, cascadeIndex), 0);
 		
-		sampled.z *= simulationScaleInMeter / parameters[cascadeIndex].L;
-		
-		derivative += sampled;
+		derivative += sampled * configFactor;
 	}
 	
 	float2 slope = float2(derivative.x / max(0.001, 1 + derivative.z), derivative.y / max(0.001, 1 + derivative.w));

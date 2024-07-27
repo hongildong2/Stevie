@@ -604,10 +604,10 @@ void Game::CreateDeviceDependentResources()
 		// ²ûÂïÇÏ´Ù, ±â´É±¸Çö ´ÙÇÏ¸é °íÄ¥°Ô¿ä
 		// Cubemap
 		{
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/brightSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
 			std::vector<std::unique_ptr<ModelMeshPart>> cubeMapMeshes;
@@ -641,7 +641,7 @@ void Game::CreateDeviceDependentResources()
 		{
 			m_ocean = std::make_unique<Ocean>(device);
 			MeshData quadPatches;
-			GeometryGenerator::MakeCWQuadPatches(4, &quadPatches);
+			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
 
 
 			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
@@ -657,7 +657,8 @@ void Game::CreateDeviceDependentResources()
 			Material mat = m_oceanPlane->GetMaterialConstant();
 			mat.bUseTexture = FALSE;
 			mat.specular = 0.255f; // unreal's water specular
-			
+			mat.albedo = { 0.1f, 0.1f, 0.13f };
+
 			m_oceanPlane->UpdateMaterialConstant(mat);
 			m_oceanPlane->Initialize(device, {});
 		}
