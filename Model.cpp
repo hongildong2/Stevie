@@ -38,6 +38,10 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	context->VSSetConstantBuffers(0, 1, m_VSConstantsBuffer.GetAddressOf());
 	context->PSSetConstantBuffers(2, 1, m_PSConstantBuffer.GetAddressOf());
 
+	// 밖에서 Override할 수 있게, 딱히 Override안하면 모델에 정해진대로 파이프라인 실행된다.
+	Graphics::SetPipelineState(context, m_PSO);
+
+	// 함정이..
 	if (m_albedoView == nullptr)
 	{
 		return;
@@ -56,8 +60,6 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 	// 0번에 MVP, 1번에 Light, 2번에 PSConstant. 이거는 어떻게 관리하지?
 	context->VSSetShaderResources(0, 1, textures + 2);
 	context->PSSetShaderResources(4, 6, textures);
-
-	// 밖에서 Override할 수 있게, 딱히 Override안하면 모델에 정해진대로 파이프라인 실행된다.
 }
 
 
@@ -92,7 +94,6 @@ void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFile
 void Model::Draw(ID3D11DeviceContext1* context)
 {
 	assert(context != nullptr);
-	Graphics::SetPipelineState(context, m_PSO);
 
 	for (std::unique_ptr<ModelMeshPart>& mesh : m_meshes)
 	{
