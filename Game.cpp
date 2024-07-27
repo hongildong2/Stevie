@@ -452,6 +452,8 @@ void Game::Render()
 			CBs[0] = m_oceanPlane->GetPSCB();
 			context->HSSetConstantBuffers(0, 1, CBs);
 
+			ID3D11ShaderResourceView* release[6] = { 0, };
+
 			// foam tex
 			ID3D11ShaderResourceView* foamSRVs[2] = { m_ocean->GetTurbulenceMapsSRV(), m_ocean->GetCombineParameterSRV() };
 			context->PSSetShaderResources(10, 2, foamSRVs);
@@ -459,7 +461,7 @@ void Game::Render()
 
 			m_oceanPlane->Draw(context);
 
-			ID3D11ShaderResourceView* release[6] = { 0, };
+			context->PSSetShaderResources(10, 2, release);
 			context->DSSetShaderResources(0, 6, release);
 
 			m_deviceResources->PIXEndEvent();
@@ -482,7 +484,11 @@ void Game::Render()
 	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
 		context->CopyResource(m_postProcess->GetFirstTexture(), m_floatBuffer.Get());
-		m_postProcess->Process(context);
+
+		// FirstTexture has rendered tex
+		m_postProcess->ProcessFog(context);
+
+		m_postProcess->ProcessBloom(context);
 
 		ID3D11ShaderResourceView* resources[] = {
 			m_floatSRV.Get(),
@@ -624,7 +630,7 @@ void Game::CreateDeviceDependentResources()
 
 		// Sample model
 		{
-			MeshData sphereMesh = GeometryGenerator::MakeSphere(1.f, 100, 100);
+			MeshData sphereMesh = GeometryGenerator::MakeSphere(0.5f, 100, 100);
 			std::vector<std::unique_ptr<ModelMeshPart>> modelMeshes;
 			modelMeshes.push_back(std::make_unique<ModelMeshPart>(sphereMesh, device));
 
@@ -679,7 +685,7 @@ void Game::CreateWindowSizeDependentResources()
 	auto size = m_deviceResources->GetOutputSize();
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
 		XMConvertToRadians(90.f),
-		float(size.right) / float(size.bottom), 0.1f, 300.f);
+		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
 
 	auto* device = m_deviceResources->GetD3DDevice();
 
@@ -718,6 +724,14 @@ void Game::CreateWindowSizeDependentResources()
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	DX::ThrowIfFailed(device->CreateDepthStencilView(m_depthOnlyBuffer.Get(), &dsvDesc, m_depthOnlyDSV.GetAddressOf()));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	DX::ThrowIfFailed(device->CreateShaderResourceView(m_depthOnlyBuffer.Get(), &srvDesc, m_depthOnlySRV.GetAddressOf()));
 
 
 	// TODO : 라이트 개수만큼 그림자 버퍼 만들기

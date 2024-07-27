@@ -132,7 +132,12 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 irradiance = irradianceMap.Sample(linearWrap, N);
 	float3 diffuse = irradiance * albedo;
 	
+	// 바다 +z에 있는 애들이 환경맵 샘플링하는게 이상함.. (V가 -z 방향을 향하는)
+	// 또는 바다 노멀의 Z 방향이 죄다 +z라서? 바다의 노멀이 +z방향으로 심하게 편향되어있는듯 -> 바다는 규모가 커서 이렇게 큐브맵 IBL하면 안되는듯, 전용 쉐이더 필요
+	
+	float3 reflectInVoxel = (reflect(-V, N) + float3(1, 1, 1)) / 2.0;
 	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), materialConstant.t1);
+	
 	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(max(dot(N, V), 0.0), roughness));
 	
 	float3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);

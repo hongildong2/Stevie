@@ -1,16 +1,7 @@
 #include "Common.hlsli"
 
-struct SamplingVertexShaderInput
-{
-	float3 position : POSITION;
-	float2 texcoord : TEXCOORD;
-};
+#include "ScreenSpace.hlsli"
 
-struct SamplingPixelShaderInput
-{
-	float4 position : SV_POSITION;
-	float2 texcoord : TEXCOORD;
-};
 
 SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {

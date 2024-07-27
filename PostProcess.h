@@ -20,7 +20,8 @@ class PostProcess
 {
 public:
 	void Initialize(ID3D11Device1* device, const RECT size);
-	void Process(ID3D11DeviceContext1* context);
+	void ProcessBloom(ID3D11DeviceContext1* context);
+	void ProcessFog(ID3D11DeviceContext1* context, ID3D11ShaderResourceView* depthOnlySRV);
 	void Draw(ID3D11DeviceContext1* context);
 	void UpdateConstant(PostProcessConstant constant);
 

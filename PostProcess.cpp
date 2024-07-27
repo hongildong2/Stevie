@@ -34,7 +34,7 @@ void PostProcess::Initialize(ID3D11Device1* device, const RECT size)
 	Utility::DXResource::CreateConstantBuffer(m_postProcessConstant, device, m_postProcessCB);
 }
 
-void PostProcess::Process(ID3D11DeviceContext1* context)
+void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 {
 	// denominators should be consistent with compute shader's thread numbers in group
 	// TODO : #define direction in CS?
@@ -68,6 +68,23 @@ void PostProcess::Process(ID3D11DeviceContext1* context)
 		context->Dispatch(group_x / static_cast<UINT>(std::pow(2, i - 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i - 1)) + 1, 1);
 		Utility::ComputeShaderBarrier(context);
 	}
+}
+
+void PostProcess::ProcessFog(ID3D11DeviceContext1* context, ID3D11ShaderResourceView* depthOnlySRV)
+{
+	// idx 0 texture has render result
+	auto* rtv = m_textures[1]->GetRenderTargetView(); // 아직 안썼으니까..
+	context->OMSetRenderTargets(1, &rtv, NULL);
+
+	ID3D11ShaderResourceView* SRVs[2] = { m_textures[0]->GetShaderResourceView(), depthOnlySRV };
+	context->PSSetShaderResources(0, 2, SRVs);
+
+	// set pipeline state
+	m_screenQuad->Draw(context);
+
+	ID3D11ShaderResourceView* release[6] = { NULL, };
+	context->PSSetShaderResources(0, 6, release);
+	context->OMSetRenderTargets(0, NULL, NULL);
 }
 
 void PostProcess::Draw(ID3D11DeviceContext1* context)

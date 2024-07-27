@@ -33,7 +33,8 @@ struct LightConstants
 	Light spotLight;
 };
 
-
+constexpr float NEAR_Z = 0.1f;
+constexpr float FAR_Z = 150.f;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -107,8 +108,9 @@ private:
 	std::unique_ptr<Camera> m_camera;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
 
 	// Ocean
 	std::unique_ptr<Ocean> m_ocean;
