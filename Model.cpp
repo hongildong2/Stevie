@@ -6,16 +6,11 @@
 Model::Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, GraphicsPSO& pso)
 	:m_name(name),
 	m_meshes(std::move(meshes)), // Note that name,expression of rvalue reference is lvalue
-	m_modelPSConstants{ {0.f, 0.f, 0.f}, 0.f, {0.f, } },
+	m_modelPSConstants{ {0.f, 0.f, 0.f}, 0.f, DEFAULT_MATERIAL },
 	m_modelVSConstants{ DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix() },
 	m_PSO(pso)
 {
-	m_meshes.reserve(50);
-
-	m_modelPSConstants.material.metallicFactor = 0.7f;
-	m_modelPSConstants.material.roughnessFactor = 0.3f;
-	m_modelPSConstants.material.aoFactor = 1.f;
-	m_modelPSConstants.material.t1 = 1.f;
+	m_meshes.reserve(10);
 }
 
 void Model::PrepareForRendering(ID3D11DeviceContext1* context,
@@ -58,7 +53,7 @@ void Model::PrepareForRendering(ID3D11DeviceContext1* context,
 
 
 	// 0번에 MVP, 1번에 Light, 2번에 PSConstant. 이거는 어떻게 관리하지?
-	context->VSSetShaderResources(0, 1, textures + 2);
+	context->VSSetShaderResources(0, 1, textures + 2); // height map texture
 	context->PSSetShaderResources(4, 6, textures);
 }
 
@@ -75,7 +70,7 @@ void Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFile
 	{
 		return;
 	}
-	// TODO : Create AssetManaget, get view from it
+
 	// All Textures should be SRGB, linear space
 	DX::ThrowIfFailed(
 		DirectX::CreateWICTextureFromFileEx(device.Get(), files.albedoName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_albedoView.GetAddressOf()));

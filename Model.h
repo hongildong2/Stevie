@@ -5,45 +5,7 @@
 #include <memory>
 
 #include "ModelMeshPart.h"
-
-// temp
-struct VSConstants
-{
-	DirectX::SimpleMath::Matrix worldMatrix;
-	DirectX::SimpleMath::Matrix worldMatrixIT;
-	DirectX::SimpleMath::Matrix viewMatrix;
-	DirectX::SimpleMath::Matrix projMatrix;
-};
-static_assert(sizeof(VSConstants) % 16 == 0, "Constant Buffer Alignment");
-
-struct TextureFiles
-{
-	const wchar_t* albedoName;
-	const wchar_t* aoName;
-	const wchar_t* heightName;
-	const wchar_t* metallicName;
-	const wchar_t* normalName;
-	const wchar_t* roughnessName;
-};
-
-struct Material
-{
-	float metallicFactor;
-	float aoFactor;
-	float roughnessFactor;
-	float t1;
-};
-
-
-struct PSConstants
-{
-	DirectX::SimpleMath::Vector3 eyeWorld;
-	float dummy;
-	Material material;
-};
-
-static_assert(sizeof(PSConstants) % 16 == 0, "PSConstants Alignment");
-
+#include "ModelCommon.h"
 
 // 메쉬역할도 동시에 하는중
 class Model

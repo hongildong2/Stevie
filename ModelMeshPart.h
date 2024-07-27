@@ -1,16 +1,11 @@
 #pragma once
 #include "GraphicsCommon.h"
 
-#include "BasicGeometry.h"
+#include "ModelCommon.h"
 /*
 * reference : https://github.com/microsoft/DirectXTK/wiki/ModelMeshPart
 *
 */
-
-
-
-
-
 
 class ModelMeshPart final
 {

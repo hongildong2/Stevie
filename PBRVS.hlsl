@@ -13,7 +13,7 @@ SamplerState linearClamp : register(s1);
 
 
 
-Texture2D heightTex : register(t6);
+Texture2D<float> heightTex : register(t6);
 
 PixelShaderInput main(VertexShaderInput input)
 {

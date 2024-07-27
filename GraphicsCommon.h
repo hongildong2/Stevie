@@ -61,8 +61,6 @@ namespace Graphics
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
-		extern Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
-
 		extern ComputePSO initialSpectrumPSO;
 		extern ComputePSO timedependentSpectrumPSO;
 		extern ComputePSO FFTPSO;

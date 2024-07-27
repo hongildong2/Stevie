@@ -58,8 +58,6 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
 
-		Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
-
 		ComputePSO initialSpectrumPSO;
 		ComputePSO timedependentSpectrumPSO;
 		ComputePSO FFTPSO;
@@ -206,9 +204,6 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", &shaderBlob));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, filterCombinePS.GetAddressOf());
-
-			DX::ThrowIfFailed(CompileShader(L"OceanPS.hlsl", "main", "ps_5_0", &shaderBlob));
-			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 		}
 
 		// Compute Shaders
@@ -335,7 +330,7 @@ namespace Graphics
 
 		Ocean::OceanPSO.m_vertexShader = basicVS;
 		Ocean::OceanPSO.m_inputLayout = basicIL;
-		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
+		Ocean::OceanPSO.m_pixelShader = basicPS;
 		Ocean::OceanPSO.m_rasterizerState = basicRS;
 		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;

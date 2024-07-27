@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "BasicGeometry.h"
+#include "ModelCommon.h"
 
 namespace GeometryGenerator
 {

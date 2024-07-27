@@ -151,7 +151,7 @@ void Game::UpdateGUI()
 		}
 
 
-		if (ImGui::TreeNode("ModelConstant"))
+		if (ImGui::TreeNode("ModelMaterialConstant"))
 		{
 			unsigned int nth = 0;
 			char buf[20];
@@ -162,18 +162,50 @@ void Game::UpdateGUI()
 				{
 					Material mat = model->GetMaterialConstant();
 
+					ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
+
 					// Vector3 <-> float3는 이렇게
-					ImGui::SliderFloat("metallic", &mat.metallicFactor, 0.f, 1.f);
-					ImGui::SliderFloat("ao", &mat.aoFactor, 0.f, 1.f);
-					ImGui::SliderFloat("roughness", &mat.roughnessFactor, 0.f, 1.f);
+					ImGui::Text("Material Scaler");
+					ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
+					ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
+					ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
 					ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
 
+					ImGui::Text("Material Constant Values");
+					ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
+					ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
+					ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
+					ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
 
 					model->UpdateMaterialConstant(mat);
 
 					ImGui::TreePop();
-
 				}
+			}
+
+			// ㅋㅋ
+			if (ImGui::TreeNode("OCEAN PLANE"))
+			{
+				Material mat = m_oceanPlane->GetMaterialConstant();
+
+				ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
+
+				// Vector3 <-> float3는 이렇게
+				ImGui::Text("Material Scaler");
+				ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
+				ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
+				ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
+				ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
+
+				ImGui::Text("Material Constant Values");
+				ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
+				ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
+				ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
+				ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
+
+				m_oceanPlane->UpdateMaterialConstant(mat);
+
+				ImGui::TreePop();
 			}
 
 			ImGui::TreePop();
@@ -607,20 +639,26 @@ void Game::CreateDeviceDependentResources()
 
 		// Ocean
 		{
-
 			m_ocean = std::make_unique<Ocean>(device);
 			MeshData quadPatches;
-			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
+			GeometryGenerator::MakeCWQuadPatches(4, &quadPatches);
 
 
 			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
 			meshes.push_back(std::make_unique<ModelMeshPart>(quadPatches, device));
 			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
 
+			// size
 			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
 			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
 			m_oceanPlane->UpdatePosByTransform(manipulate);
 
+			// material
+			Material mat = m_oceanPlane->GetMaterialConstant();
+			mat.bUseTexture = FALSE;
+			mat.specular = 0.255f; // unreal's water specular
+			
+			m_oceanPlane->UpdateMaterialConstant(mat);
 			m_oceanPlane->Initialize(device, {});
 		}
 

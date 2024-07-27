@@ -1,4 +1,5 @@
 #include "Common.hlsli"
+#include "PBRCommons.hlsli"
 
 cbuffer Lights : register(b1)
 {
@@ -7,14 +8,25 @@ cbuffer Lights : register(b1)
 	Light spotLight;
 };
 
-cbuffer PSConstant : register(b2)
+struct Material
 {
-	float3 eyeWorld;
-	float dummy;
 	float metallicFactor;
 	float aoFactor;
 	float roughnessFactor;
 	float t1;
+	bool bUseTexture;
+	float3 albedo;
+	float metallic;
+	float roughness;
+	float specular;
+	float dummy;
+};
+
+cbuffer PSConstant : register(b2)
+{
+	float3 eyeWorld;
+	float dummy;
+	Material materialConstant;
 };
 
 
@@ -24,12 +36,12 @@ TextureCube SpecularMap : register(t2);
 Texture2D BRDFMap : register(t3);
 
 
-Texture2D albedoTex : register(t4);
-Texture2D aoTex : register(t5);
-Texture2D hegihtTex : register(t6);
-Texture2D metallicTex : register(t7);
-Texture2D normalTex : register(t8);
-Texture2D roughnessTex : register(t9);
+Texture2D<float3> albedoTex : register(t4);
+Texture2D<float> aoTex : register(t5);
+Texture2D<float> heightTex : register(t6);
+Texture2D<float> metallicTex : register(t7);
+Texture2D<float3> normalTex : register(t8);
+Texture2D<float> roughnessTex : register(t9);
 
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
@@ -57,89 +69,35 @@ float3 GetNormal(PixelShaderInput input)
 	return normalWorld;
 }
 
-float DistributionGGX(float3 N, float3 H, float roughness)
-{
-	float a2 = roughness * roughness;
-	float NdotH = max(dot(N, H), 0.0);
-	float NdotH2 = NdotH * NdotH;
-	
-	float nom = a2;
-	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-	denom = PI * denom * denom;
-	
-	return nom / denom;
-}
-
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-	float r = (roughness + 1.0);
-	float k = (r * r) / 8.0;
-	
-	// float kForIBL = roughness * roughness / 2.0;
-
-	float nom = NdotV;
-	float denom = NdotV * (1.0 - k) + k;
-	
-	return nom / denom;
-}
-  
-float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
-{
-		float NdotV = max(dot(N, V), 0.0);
-		float NdotL = max(dot(N, L), 0.0);
-		float ggx1 = GeometrySchlickGGX(NdotV, roughness);
-		float ggx2 = GeometrySchlickGGX(NdotL, roughness);
-	
-		return ggx1 * ggx2;
-}
-
-float3 fresnelSchlick(float cosTheta, float3 F0)
-{
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
-{
-	return F0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
-
-float3 RadianceLByDirectLight(Light light, float3 F0, float3 N, float3 V, float3 worldPos, float3 albedo, float roughness, float metallic)
-{
-	float3 L = normalize(light.position - worldPos);
-	float3 H = normalize(V + L);
-	
-	float distance = length(light.position - worldPos);
-	float attenuation = 1.0 / (distance * distance);
-	float3 radiance = float3(1.0, 1.0, 1.0); // originally, lightColor * attenuation for pointlight
-	
-	float NDF = DistributionGGX(N, H, roughness);
-	float G = GeometrySmith(N, V, L, roughness);
-	float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-	
-	float3 kS = F;
-	float3 kD = float3(1.0, 1.0, 1.0) - kS;
-	kD *= 1.0 - metallic;
-	
-	float3 numerator = NDF * G * F;
-	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-	float3 specular = numerator / denominator;
-	
-	float NdotL = max(dot(N, L), 0.0);
-	
-	return (kD * albedo / PI + specular) * radiance * NdotL;
-}
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	float3 albedo = albedoTex.Sample(linearWrap, input.texcoordinate).rgb;
-	float ao = aoTex.Sample(linearWrap, input.texcoordinate).r * aoFactor;
-	float metallic = metallicTex.Sample(linearWrap, input.texcoordinate).r * metallicFactor;
-	float roughness = roughnessTex.Sample(linearWrap, input.texcoordinate).r * roughnessFactor;
+
+	float3 albedo;
+	float ao;
+	float metallic;
+	float roughness;
+	
+	if (materialConstant.bUseTexture)
+	{
+		albedo = albedoTex.Sample(linearWrap, input.texcoordinate).rgb;
+		ao = aoTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.aoFactor;
+		metallic = metallicTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.metallicFactor;
+		roughness = roughnessTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.roughnessFactor;
+	}
+	else
+	{
+		albedo = materialConstant.albedo;
+		ao = 1.f;
+		metallic = materialConstant.metallic;
+		roughness = materialConstant.roughness;
+	}
+	
 	
 	float3 N = normalize(GetNormal(input));
 	float3 V = normalize(eyeWorld - input.positionWorld);
 	
-	float3 F0 = float3(0.04, 0.04, 0.04);
+	float3 F0 = float3(0.08, 0.08, 0.08) * materialConstant.specular;
 	
 	F0 = lerp(F0, albedo, metallic);
 	
@@ -156,7 +114,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 irradiance = irradianceMap.Sample(linearWrap, N);
 	float3 diffuse = irradiance * albedo;
 	
-	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), t1);
+	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), materialConstant.t1);
 	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(max(dot(N, V), 0.0), roughness));
 	
 	float3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
