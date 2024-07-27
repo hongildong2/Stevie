@@ -36,6 +36,7 @@ Ocean::Ocean(ID3D11Device1* device)
 		// For Timedependent Spectrum
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_displacementMap.GetAddressOf()));
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_derivativeMap.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_turbulenceMap.GetAddressOf()));
 
 		// Wave vector datas
 		DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_waveVectorData.GetAddressOf()));
@@ -83,6 +84,7 @@ Ocean::Ocean(ID3D11Device1* device)
 
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_displacementMap.Get(), &uavDesc, m_displacementMapUAV.GetAddressOf()));
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_derivativeMap.Get(), &uavDesc, m_derivativeMapUAV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_turbulenceMap.Get(), &uavDesc, m_turbulenceMapUAV.GetAddressOf()));
 		DX::ThrowIfFailed(device->CreateUnorderedAccessView(m_waveVectorData.Get(), &uavDesc, m_waveVectorDataUAV.GetAddressOf()));
 
 		uavDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
@@ -111,6 +113,7 @@ Ocean::Ocean(ID3D11Device1* device)
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_waveVectorData.Get(), &srvDesc, m_waveVectorDataSRV.GetAddressOf()));
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_displacementMap.Get(), &srvDesc, m_displacementMapSRV.GetAddressOf()));
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_derivativeMap.Get(), &srvDesc, m_derivativeMapSRV.GetAddressOf()));
+		DX::ThrowIfFailed(device->CreateShaderResourceView(m_turbulenceMap.Get(), &srvDesc, m_turbulenceMapSRV.GetAddressOf()));
 
 		srvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 		DX::ThrowIfFailed(device->CreateShaderResourceView(m_initialSpectrumMap.Get(), &srvDesc, m_initialSpectrumMapSRV.GetAddressOf()));
@@ -139,8 +142,8 @@ void Ocean::Initialize(ID3D11DeviceContext1* context)
 	// run initspectrum CS, get initial spectrum map
 
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
-	ID3D11UnorderedAccessView* uavs[2] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get() };
-	context->CSSetUnorderedAccessViews(0, 2, uavs, NULL);
+	ID3D11UnorderedAccessView* uavs[3] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get(), m_turbulenceMapUAV.Get() };
+	context->CSSetUnorderedAccessViews(0, 3, uavs, NULL);
 
 	ID3D11ShaderResourceView* srvs[1] = { m_LocalInitialSpectrumParameterSRV.Get() };
 	context->CSSetShaderResources(0, 1, srvs);
@@ -265,6 +268,20 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		}
 	}
 
+	// Foam Simulation
+	{
+		Graphics::SetPipelineState(context, Graphics::Ocean::foamSimulationPSO);
+
+		ID3D11ShaderResourceView* foamSRVs[3] = { m_displacementMapSRV.Get(), m_derivativeMapSRV.Get(), m_combineParameterSRV.Get() };
+		context->CSSetShaderResources(0, 3, foamSRVs);
+
+		ID3D11UnorderedAccessView* foamUAVs[1] = { m_turbulenceMapUAV.Get() };
+		context->CSSetUnorderedAccessViews(0, 1, foamUAVs, NULL);
+
+		context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
+		Utility::ComputeShaderBarrier(context);
+	}
+
 	// Combine wave
 	{
 		Graphics::SetPipelineState(context, Graphics::Ocean::combineWavePSO);
@@ -279,7 +296,7 @@ void Ocean::Update(ID3D11DeviceContext1* context)
 		ID3D11ShaderResourceView* combineWaveSRVs[2] = { m_displacementMapSRV.Get(), m_combineParameterSRV.Get() };
 		context->CSSetShaderResources(0, 2, combineWaveSRVs);
 
-		ID3D11SamplerState* combineWaveSSs[1] = { Graphics::linearMirrorSS.Get() };
+		ID3D11SamplerState* combineWaveSSs[1] = { Graphics::linearWrapSS.Get() };
 		context->CSSetSamplers(0, 1, combineWaveSSs);
 
 

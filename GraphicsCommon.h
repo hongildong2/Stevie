@@ -60,6 +60,7 @@ namespace Graphics
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
+		extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> foamSimulationCS;
 
 		extern Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
 
@@ -68,6 +69,7 @@ namespace Graphics
 		extern ComputePSO FFTPSO;
 		extern ComputePSO FFTPostProcessPSO;
 		extern ComputePSO combineWavePSO;
+		extern ComputePSO foamSimulationPSO;
 
 		extern GraphicsPSO OceanPSO;
 	}

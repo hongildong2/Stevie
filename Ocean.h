@@ -26,6 +26,11 @@ public:
 		return m_combineParameterSRV.Get();
 	}
 
+	inline ID3D11ShaderResourceView* GetTurbulenceMapsSRV() const
+	{
+		return m_turbulenceMapSRV.Get();
+	}
+
 	inline ID3D11Buffer* GetCombineWaveCB() const
 	{
 		return m_combineWaveCB.Get();
@@ -72,10 +77,13 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_displacementMap; // time dependent spectrum, tilde h(k,t), float4 since x-y complex numbers
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_derivativeMap; // derivative of tilde h
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_turbulenceMap;
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_displacementMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_derivativeMapUAV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_turbulenceMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_displacementMapSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_derivativeMapSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_turbulenceMapSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_spectrumCB;
 	ocean::SpectrumConstant m_spectrumConstant;

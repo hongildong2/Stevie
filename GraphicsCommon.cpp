@@ -57,6 +57,7 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> FFTPostProcessCS;
 		Microsoft::WRL::ComPtr<ID3D11ComputeShader> combineWaveCS;
+		Microsoft::WRL::ComPtr<ID3D11ComputeShader> foamSimulationCS;
 
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> oceanPS;
 
@@ -65,6 +66,7 @@ namespace Graphics
 		ComputePSO FFTPSO;
 		ComputePSO FFTPostProcessPSO;
 		ComputePSO combineWavePSO;
+		ComputePSO foamSimulationPSO;
 
 		GraphicsPSO OceanPSO;
 	}
@@ -172,7 +174,7 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"DepthOnlyShaders.hlsl", "DepthOnlyVSMain", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", NULL,shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
 
 
@@ -200,8 +202,8 @@ namespace Graphics
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
 
-			
-			D3D_SHADER_MACRO defines[1] = { "OCEAN_PBR_PS "};
+
+			D3D_SHADER_MACRO defines[2] = { "OCEAN_PBR_PS", "1", NULL, NULL };
 			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", defines, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 
@@ -234,6 +236,9 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"CombineWaveCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::combineWaveCS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"FoamSimulationCS.hlsl", "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::foamSimulationCS.GetAddressOf());
 		}
 
 		// Hull, Domain Shaders
@@ -333,6 +338,7 @@ namespace Graphics
 		Ocean::FFTPSO.m_computeShader = Ocean::FFTCS;
 		Ocean::FFTPostProcessPSO.m_computeShader = Ocean::FFTPostProcessCS;
 		Ocean::combineWavePSO.m_computeShader = Ocean::combineWaveCS;
+		Ocean::foamSimulationPSO.m_computeShader = Ocean::foamSimulationCS;
 
 		Ocean::OceanPSO.m_vertexShader = basicVS;
 		Ocean::OceanPSO.m_inputLayout = basicIL;

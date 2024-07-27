@@ -52,8 +52,8 @@ void Game::Initialize(HWND window, int width, int height)
 	// init light
 	{
 		auto& dirLight = m_lightsConstantsCPU.dirLight;
-		dirLight.position = Vector3(2.f, 2.f, 0.f);
-		dirLight.direction = Vector3(-5.f, -5.f, 0.f);
+		dirLight.position = Vector3(0.f, 10.f, 10.f);
+		dirLight.direction = Vector3(0.f, 0.f, -1.f);
 	}
 
 	m_deviceResources->CreateDeviceResources();
@@ -442,7 +442,7 @@ void Game::Render()
 			ID3D11ShaderResourceView* SRVs[3] = { m_ocean->GetDisplacementMapsSRV(), m_ocean->GetDerivativeMapsSRV(), m_ocean->GetCombineParameterSRV() };
 			context->DSSetShaderResources(0, 3, SRVs);
 
-			ID3D11SamplerState* SSs[1] = { Graphics::linearMirrorSS.Get() };
+			ID3D11SamplerState* SSs[1] = { Graphics::linearWrapSS.Get() };
 			context->DSSetSamplers(0, 1, SSs);
 
 			m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos); // 애초에 리소스 같은 자잘한게 이메서드에서 다형적으로 전부 처리되어야지..
@@ -451,6 +451,11 @@ void Game::Render()
 
 			CBs[0] = m_oceanPlane->GetPSCB();
 			context->HSSetConstantBuffers(0, 1, CBs);
+
+			// foam tex
+			ID3D11ShaderResourceView* foamSRVs[2] = { m_ocean->GetTurbulenceMapsSRV(), m_ocean->GetCombineParameterSRV() };
+			context->PSSetShaderResources(10, 2, foamSRVs);
+
 
 			m_oceanPlane->Draw(context);
 

@@ -52,10 +52,9 @@ Texture2D<float> roughnessTex : register(t9);
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
 
-# ifdef OCEAN_PBR_PS
+#ifdef OCEAN_PBR_PS
 	Texture2DArray<float4> OceanTurbulenceMap : register(t10);
 	StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t11);
-	SamplerState linearMirror : register(s3);
 #endif
 
 
@@ -63,15 +62,9 @@ SamplerState linearClamp : register(s1);
 
 
 
-float3 GetNormal(PixelShaderInput input, bool bUseNormalTexture)
+float3 GetNormal(PixelShaderInput input)
 {
 	float3 normalWorld = normalize(input.normalWorld);
-	
-	if (bUseNormalTexture)
-	{
-		return normalWorld;
-	}
-    
 
 	float3 normal = normalTex.Sample(linearWrap, input.texcoordinate).rgb;
 	normal = 2.0 * normal - 1.0; // 범위 조절 [-1.0, 1.0]
@@ -117,7 +110,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	
 	
-	float3 N = GetNormal(input, materialConstant.bUseTexture);
+	float3 N = materialConstant.bUseTexture ? GetNormal(input) : input.normalWorld;
 	float3 V = normalize(eyeWorld - input.positionWorld);
 	float NdotL = max(dot(input.normalWorld, normalize(dirLight.position - input.positionWorld)), 0.0);
 	
@@ -147,25 +140,33 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 ambient = (kD * diffuse + specular) * ao;
 	float3 color = ambient + Lo;
 	
-	#ifdef OCEAN_PBR_PS
+#ifdef OCEAN_PBR_PS
 		OceanSamplingInput oceanIn;
 		oceanIn.parameters = OceanCascadeParameters;
 		oceanIn.tex = OceanTurbulenceMap;
 		oceanIn.uv = input.texcoordinate;
 		oceanIn.cascadesCount = CASCADE_COUNT;
-		oceanIn.ss = linearMirror;
+		oceanIn.ss = linearWrap;
+		oceanIn.simulationScaleInMeter = SIMULATION_SIZE_IN_METER;
+		
+		FoamParameter tempP;
+		tempP.waveSharpness = 0.8;
+		tempP.foamPersistency = 0.01;
+		tempP.foamDensity = 0.08;
+		tempP.foamCoverage = 0.65;
+		tempP.foamTrailness = 0;
 	
 		FoamInput foamIn;
 		foamIn.worldUV = input.texcoordinate;
 		foamIn.viewDist = viewDist;
-		foamIn.sampling = oceanIn;
+		foamIn.oceanSampling = oceanIn;
+		foamIn.foamParam = tempP;
 	
 		FoamOutput foamOut = GetFoamOutput(foamIn);
-		float3 foamShaded = GetFoamShaded(foamOut.albedo, 1, NdotL);
+		float3 foamShaded = GetFoamShaded(foamOut.albedo, float3(1,1,1), NdotL);
 
-	
-		color = lerp(color, foamShaded, foamOut.coverage);
-	#endif
+	 color = lerp(color, foamShaded, foamOut.coverage);
+#endif
 	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1.0f);

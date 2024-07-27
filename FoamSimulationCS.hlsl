@@ -31,5 +31,4 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	persistent = max(current, persistent);
 	
 	TurbulencenessTex[DTid] = float4(current, persistent);
-
 }

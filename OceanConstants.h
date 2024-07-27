@@ -139,17 +139,17 @@ namespace ocean
 	constexpr InitialSpectrumParameter LOCAL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L));
 	constexpr InitialSpectrumParameter LOCAL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 1.f, DEFAULT_JONSWAP_WIND_DIR, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
 
-	constexpr InitialSpectrumParameter SWELL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 0.3f, 0.f, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L));
-	constexpr InitialSpectrumParameter SWELL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 0.3f, 0.f, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L));
-	constexpr InitialSpectrumParameter SWELL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 0.3f, 0.f, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L));
-	constexpr InitialSpectrumParameter SWELL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 0.3f, 0.f, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
+	constexpr InitialSpectrumParameter SWELL_CASCADE_1 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_1_L, 0.5f, 0.f, JONSWAP_CUTOFF_MIN, JonswapCutoffBoundary(CASCADE_2_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_2 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_2_L, 0.5f, 0.f, JonswapCutoffBoundary(CASCADE_2_L), JonswapCutoffBoundary(CASCADE_3_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_3 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_3_L, 0.5f, 0.f, JonswapCutoffBoundary(CASCADE_3_L), JonswapCutoffBoundary(CASCADE_4_L));
+	constexpr InitialSpectrumParameter SWELL_CASCADE_4 = JONSWAP_SPECTRUM_PARAMETER(CASCADE_4_L, 0.5f, 0.f, JonswapCutoffBoundary(CASCADE_4_L), JONSWAP_CUTOFF_MAX);
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
-		{ CASCADE_1_L, 0.05f, 1.f, 0.f },
-		{CASCADE_2_L, 0.1f, 1.f, 0.f},
-		{CASCADE_3_L, 0.2f, 1.f, 0.f},
-		{CASCADE_4_L, 0.3f, 1.f, 0.f},
+		{ CASCADE_1_L, 0.08f, 1.f, 0.f },
+		{CASCADE_2_L, 0.06f, 1.f, 0.f},
+		{CASCADE_3_L, 0.05f, 1.f, 0.f},
+		{CASCADE_4_L, 0.03f, 1.f, 0.f},
 	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =

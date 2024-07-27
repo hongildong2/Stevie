@@ -38,7 +38,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float kLength = length(k);
 	
 	// turbulence tex init
-	TurbulencenessTex[DTid] = -5;
+	TurbulencenessTex[DTid] = float4(-5.0, -5.0, -5.0, -5.0);
 	
 	// clamp
 	if (kLength <= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffHigh && kLength >= LocalWaveSpectrumParameters[waveCascadeIndex].cutoffLow)

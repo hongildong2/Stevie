@@ -5,22 +5,23 @@
 #define LOG_SIZE 9 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
 #define SAMPLING_COUNT 9
+#define SIMULATION_SIZE_IN_METER 2048.0
 
 #define DELTA 0.001
 
 static const float2 SAMPLING_KERNEL[SAMPLING_COUNT] =
 {
 	float2(-1.0 * DELTA, -1.0 * DELTA),
-	float2(0.0* DELTA, -1.0 * DELTA),
-	float2(1.0* DELTA, -1.0 * DELTA),
+	float2(0.0 * DELTA, -1.0 * DELTA),
+	float2(1.0 * DELTA, -1.0 * DELTA),
 			 
 	float2(-1.0 * DELTA, 0.0 * DELTA),
-	float2(0.0* DELTA, 0.0 * DELTA),
-	float2(1.0* DELTA, 0.0 * DELTA),
+	float2(0.0 * DELTA, 0.0 * DELTA),
+	float2(1.0 * DELTA, 0.0 * DELTA),
 			 
 	float2(-1.0 * DELTA, 1.0 * DELTA),
-	float2(0.0* DELTA, 1.0 * DELTA),
-	float2(1.0* DELTA, 1.0 * DELTA),
+	float2(0.0 * DELTA, 1.0 * DELTA),
+	float2(1.0 * DELTA, 1.0 * DELTA),
 };
 
 /* JONSWAP Spectrum Functions*/
@@ -148,14 +149,14 @@ struct OceanSamplingInput
 
 float2 GetScaledUV(float2 uv, float simulationScaleInMeter, float cascadeScaleInMeter)
 {
-	return (simulationScaleInMeter / cascadeScaleInMeter) * uv;
+	return max(1.0, (simulationScaleInMeter / cascadeScaleInMeter)) * uv;
 }
 
 float4 SampleOceanTexture(OceanSamplingInput input)
 {
 	float4 result = 0;
 	
-	[unroll(CASCADE_COUNT)]
+	// [unroll(CASCADE_COUNT)]
 	for (uint cascadeIndex = 0; cascadeIndex < input.cascadesCount; ++cascadeIndex)
 	{
 		// 밸류 스케일링은 안하는게 맞는듯
@@ -190,7 +191,7 @@ float3 MultiSampleDisplacementModel(OceanSamplingInput input)
 float3 SampleNormalModel(OceanSamplingInput input)
 {
 	float4 derivative = SampleOceanTexture(input);
-	float2 slope = float2(derivative.x / max(0.001, 1 + derivative.z), derivative.y / max(0.001, 1 + derivative.w));
+	float2 slope = float2(derivative.x / max(0.001, 1.0 + derivative.z), derivative.y / max(0.001, 1.0 + derivative.w));
 	
 	return normalize(float3(-slope.x, 1, -slope.y));
 }
@@ -223,6 +224,7 @@ float FoamCoverage(float4 turbulence, float2 worldUV, float bias, FoamParameter 
 {
 	float foamCurrentVal = lerp(turbulence.y, turbulence.x, param.waveSharpness);
 	float foamPersistentValue = (turbulence.z + turbulence.w) * 0.5;
+
 	
 	foamCurrentVal = lerp(foamCurrentVal, foamPersistentValue, param.foamPersistency);
 	foamCurrentVal -= 1;
@@ -236,7 +238,7 @@ float FoamCoverage(float4 turbulence, float2 worldUV, float bias, FoamParameter 
 
 float3 GetFoamShaded(float3 foamAlbedo, float3 lightAlbedo, float NdotL)
 {
-	return foamAlbedo * (NdotL * lightAlbedo);
+	return foamAlbedo + (NdotL * lightAlbedo);
 }
 
 
@@ -245,11 +247,11 @@ FoamOutput GetFoamOutput(FoamInput input)
 	FoamOutput res;
 	float4 turbulence = SampleOceanTexture(input.oceanSampling);
 	
-	float bias = 0.3; //??
+	float bias = 0.0003; //??
 	res.coverage = FoamCoverage(turbulence, input.worldUV, bias, input.foamParam);
 	
 	// 가까이서보면 Foam Coverage를 극적으로 줄인다.
-	res.coverage *= saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
+	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
 	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
 	

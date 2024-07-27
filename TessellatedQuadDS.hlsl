@@ -11,7 +11,7 @@ Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
 StructuredBuffer<CombineParameter> parameters : register(t2);
 
-SamplerState linearMirror : register(s0);
+SamplerState linearWrap : register(s0);
 
 cbuffer transform : register(b0)
 {
@@ -65,7 +65,7 @@ PixelShaderInput main(
 	float2 uvModel = Output.texcoordinate;
 	OceanSamplingInput heightSamplingInput =
 	{
-		DisplacementMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale
+		DisplacementMap, parameters, linearWrap, CASCADE_COUNT, uvModel, simulationScale
 	};
 	float height = MultiSampleDisplacementModel(heightSamplingInput).y;
 	
@@ -75,7 +75,7 @@ PixelShaderInput main(
 	
 	OceanSamplingInput normalSamplingInput =
 	{
-		DerivativeMap, parameters, linearMirror, CASCADE_COUNT, uvModel, simulationScale
+		DerivativeMap, parameters, linearWrap, CASCADE_COUNT, uvModel, simulationScale
 	};
 	float3 normalModel = SampleNormalModel(normalSamplingInput);
 	Output.normalWorld = mul(float4(normalModel, 0.f), worldIT).xyz;
