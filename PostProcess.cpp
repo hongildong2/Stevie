@@ -6,7 +6,7 @@
 
 void PostProcess::Initialize(ID3D11Device1* device, const RECT size)
 {
-	m_textures.reserve(LEVEL + 1);
+	m_textures.reserve(static_cast<size_t>(LEVEL + 1));
 	m_textures.clear();
 	m_originalSize = size;
 
@@ -44,7 +44,7 @@ void PostProcess::Process(ID3D11DeviceContext1* context)
 	context->CSSetSamplers(0, 1, Graphics::linearClampSS.GetAddressOf());
 	Graphics::SetPipelineState(context, Graphics::downBlurPSO);
 	// Downsmaple Blur
-	for (unsigned int i = 0; i < LEVEL; ++i)
+	for (size_t i = 0; i < LEVEL; ++i)
 	{
 		ID3D11ShaderResourceView* from = m_textures[i]->GetShaderResourceView();
 		ID3D11UnorderedAccessView* to = m_textures[i + 1]->GetUnorderedAccessView();
@@ -58,7 +58,7 @@ void PostProcess::Process(ID3D11DeviceContext1* context)
 
 	// Upsample Blur
 	Graphics::SetPipelineState(context, Graphics::upBlurPSO);
-	for (unsigned int i = LEVEL; i > 0; --i)
+	for (size_t i = LEVEL; i > 0; --i)
 	{
 		ID3D11ShaderResourceView* from = m_textures[i]->GetShaderResourceView();
 		ID3D11UnorderedAccessView* to = m_textures[i - 1]->GetUnorderedAccessView();

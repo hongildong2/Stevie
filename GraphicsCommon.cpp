@@ -21,12 +21,11 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> screenQuadVS;
-
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> depthOnlyVS;
 
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
-
 
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
@@ -45,7 +44,7 @@ namespace Graphics
 	GraphicsPSO pbrPSO;
 	GraphicsPSO cubemapPSO;
 	GraphicsPSO filterCombinePSO;
-
+	GraphicsPSO depthOnlyPSO;
 
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
@@ -148,8 +147,7 @@ namespace Graphics
 
 		// Vertex Shaders
 		{
-			HRESULT hr = CompileShader(L"PBRVS.hlsl", "main", "vs_5_0", &shaderBlob);
-			DX::ThrowIfFailed(hr);
+
 
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
 				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -164,13 +162,19 @@ namespace Graphics
 
 			static_assert((sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 4, "Basic Vertex Input Layout Size");
 
+			DX::ThrowIfFailed(CompileShader(L"PBRVS.hlsl", "main", "vs_5_0", &shaderBlob));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicVS.GetAddressOf());
 
-			// cubemapVS
-			hr = CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", &shaderBlob);
-			DX::ThrowIfFailed(hr);
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
+			// IL만드는데 왜 굳이 쉐이더 바이너리를 넣어줘야할까? 왜 한번만 하면 동일한 레이아웃의 다른 쉐이더들은 안해줘도 될까?
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), basicIL.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"DepthOnlyShaders.hlsl", "DepthOnlyVSMain", "vs_5_0", &shaderBlob));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", &shaderBlob));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
+
+
 
 
 
@@ -185,8 +189,8 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", &shaderBlob));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, screenQuadVS.GetAddressOf());
-			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), screenQuadIL.GetAddressOf());
 
+			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), screenQuadIL.GetAddressOf());
 		}
 
 		// Pixel Shaders
@@ -314,6 +318,11 @@ namespace Graphics
 		filterCombinePSO.m_rasterizerState = basicRS;
 		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+		depthOnlyPSO.m_vertexShader = depthOnlyVS;
+		// depthOnlyPSO.m_pixelShader = 설정안해줘도 뎁스버퍼 생김
+		depthOnlyPSO.m_inputLayout = basicIL;
+		depthOnlyPSO.m_rasterizerState = basicRS;
+		depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		upBlurPSO.m_computeShader = upBlurCS;
 		downBlurPSO.m_computeShader = downBlurCS;

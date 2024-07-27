@@ -319,18 +319,55 @@ void Game::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto viewMatrix = m_camera->GetViewMatrix();
+	const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
+
 
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
 		// DepthOnly Pass
+		{
+			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
+			const UINT RETRIEVAL = 2;
+			ID3D11RenderTargetView* savedRTVs[RETRIEVAL] = { 0, };
+			ID3D11DepthStencilView* savedDSV = NULL;
+			// assert (savedDSV != nullptr);
+			context->OMGetRenderTargets(RETRIEVAL, savedRTVs, &savedDSV);
 
+			// set RTV to NULL, DSV to depthonly
+			context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
+
+
+			// Models
+			for (auto& model : m_models)
+			{
+				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+				Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
+				model->Draw(context);
+			}
+
+			// Ocean Plane, TODO : depth전용 quad 만들거나, depthOnlyVS에서 heightMap만 맵핑할 수 잇또록 하기
+			//m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+			//Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
+			//context->IASetPrimitiveTopology(Graphics::Ocean::OceanPSO.m_primitiveTopology); // ...
+			//m_oceanPlane->Draw(context);
+
+			// CubeMap
+			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+			Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
+			m_cubeMap->Draw(context);
+
+			// REDO RTV
+
+			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
+			m_deviceResources->PIXEndEvent();
+		}
 
 		// Light.Draw()
 		Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
 		context->PSSetConstantBuffers(1, 1, m_lightsConstantBuffer.GetAddressOf());
 
-		const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
 
 		// IBL을 위해 0~3번에 큐브맵 텍스쳐 고정
 		ID3D11ShaderResourceView* resources[] = {
@@ -344,18 +381,11 @@ void Game::Render()
 			Graphics::linearWrapSS.Get(),
 			Graphics::linearClampSS.Get()
 		};
+
+
+		// 공용 리소스
+		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
 		context->PSSetSamplers(0, 2, samplers);
-
-		// CubeMap
-		{
-			m_deviceResources->PIXBeginEvent(L"CubeMap");
-			context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
-
-			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			m_cubeMap->Draw(context);
-			m_deviceResources->PIXEndEvent();
-		}
-
 		context->VSSetSamplers(0, 2, samplers);
 
 
@@ -370,6 +400,8 @@ void Game::Render()
 			}
 			m_deviceResources->PIXEndEvent();
 		}
+
+
 
 		// Ocean
 		{
@@ -393,6 +425,15 @@ void Game::Render()
 			ID3D11ShaderResourceView* release[6] = { 0, };
 			context->DSSetShaderResources(0, 6, release);
 
+			m_deviceResources->PIXEndEvent();
+		}
+
+		// CubeMap
+		{
+			m_deviceResources->PIXBeginEvent(L"CubeMap");
+
+			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
+			m_cubeMap->Draw(context);
 			m_deviceResources->PIXEndEvent();
 		}
 	}
@@ -622,6 +663,20 @@ void Game::CreateWindowSizeDependentResources()
 	m_postProcess = std::make_unique<PostProcess>();
 	m_postProcess->Initialize(device, size);
 
+
+	// depth only buffer
+	desc.Format = DXGI_FORMAT_R32_TYPELESS;
+	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_depthOnlyBuffer.GetAddressOf()));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	DX::ThrowIfFailed(device->CreateDepthStencilView(m_depthOnlyBuffer.Get(), &dsvDesc, m_depthOnlyDSV.GetAddressOf()));
+
+
+	// TODO : 라이트 개수만큼 그림자 버퍼 만들기
 }
 
 void Game::OnDeviceLost()
@@ -631,6 +686,8 @@ void Game::OnDeviceLost()
 
 void Game::OnDeviceRestored()
 {
+	// TODO : reset all the resources
+
 	CreateDeviceDependentResources();
 
 	CreateWindowSizeDependentResources();

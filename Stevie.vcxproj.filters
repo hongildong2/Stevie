@@ -17,6 +17,9 @@
     <Filter Include="BasicGeometry">
       <UniqueIdentifier>{d0a96982-dafb-4309-a1c3-1bbc6d9bdab2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DepthMap">
+      <UniqueIdentifier>{1f3df9b2-d454-4771-bd0a-a89d216387ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -152,6 +155,9 @@
     </FxCompile>
     <FxCompile Include="OceanPS.hlsl">
       <Filter>Ocean</Filter>
+    </FxCompile>
+    <FxCompile Include="DepthOnlyShaders.hlsl">
+      <Filter>DepthMap</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

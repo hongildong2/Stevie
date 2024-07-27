@@ -101,12 +101,14 @@ private:
 	float m_pitch;
 	float m_yaw;
 
-	// TODO : Add Input Controller
 
 	/// Scene : models, camera, viewport, lights, cubemap
 	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Camera> m_camera;
 	DirectX::SimpleMath::Matrix m_proj;
+
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
 
 	// Ocean
 	std::unique_ptr<Ocean> m_ocean;

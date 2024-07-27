@@ -181,7 +181,7 @@ namespace ocean
 		BOOL dummy[3];
 	};
 	static_assert(sizeof(FFTConstant) % 16 == 0, "CB 16byte alignment");
-	constexpr FFTConstant FFTConstantInitializer = { ocean::CASCADE_COUNT, FALSE, TRUE, FALSE, TRUE, {0.f} };
+	constexpr FFTConstant FFTConstantInitializer = { ocean::CASCADE_COUNT, FALSE, TRUE, FALSE, TRUE, {FALSE,} };
 
 	struct SpectrumConstant
 	{

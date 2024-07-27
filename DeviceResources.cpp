@@ -398,7 +398,7 @@ bool DeviceResources::WindowSizeChanged(int width, int height)
 	if (!m_window)
 		return false;
 
-	RECT newRc;
+	RECT newRc{ 0, };
 	newRc.left = newRc.top = 0;
 	newRc.right = static_cast<long>(width);
 	newRc.bottom = static_cast<long>(height);
