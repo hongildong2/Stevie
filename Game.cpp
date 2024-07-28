@@ -26,8 +26,7 @@ using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false) :
 	m_pitch(0),
-	m_yaw(0),
-	m_ocean()
+	m_yaw(0)
 {
 	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -37,9 +36,6 @@ Game::Game() noexcept(false) :
 
 
 	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
-
-	m_postProcess = nullptr;
-	m_cubeMap = nullptr;
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
@@ -438,33 +434,8 @@ void Game::Render()
 		// Ocean
 		{
 			m_deviceResources->PIXBeginEvent(L"OceanPlane");
-
-			ID3D11ShaderResourceView* SRVs[3] = { m_ocean->GetDisplacementMapsSRV(), m_ocean->GetDerivativeMapsSRV(), m_ocean->GetCombineParameterSRV() };
-			context->DSSetShaderResources(0, 3, SRVs);
-
-			ID3D11SamplerState* SSs[1] = { Graphics::linearWrapSS.Get() };
-			context->DSSetSamplers(0, 1, SSs);
-
-			m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos); // 애초에 리소스 같은 자잘한게 이메서드에서 다형적으로 전부 처리되어야지..
-			ID3D11Buffer* CBs[2] = { m_oceanPlane->GetVSCB(), m_ocean->GetCombineWaveCB() };
-			context->DSSetConstantBuffers(0, 2, CBs);
-
-			CBs[0] = m_oceanPlane->GetPSCB();
-			context->HSSetConstantBuffers(0, 1, CBs);
-
-			ID3D11ShaderResourceView* release[6] = { 0, };
-
-			// foam tex
-			ID3D11ShaderResourceView* foamSRVs[2] = { m_ocean->GetTurbulenceMapsSRV(), m_ocean->GetCombineParameterSRV() };
-			context->PSSetShaderResources(10, 2, foamSRVs);
-
-
-			m_oceanPlane->Draw(context);
-
-			context->PSSetShaderResources(10, 2, release);
-			context->DSSetShaderResources(0, 6, release);
-
-			m_deviceResources->PIXEndEvent();
+			Model Ocean->Render()
+				m_deviceResources->PIXEndEvent();
 		}
 
 		// CubeMap
@@ -480,7 +451,6 @@ void Game::Render()
 
 
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
-	context->OMSetRenderTargets(0, NULL, NULL); // to release texture2D from RTV
 	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
 		context->CopyResource(m_postProcess->GetFirstTexture(), m_floatBuffer.Get());
@@ -610,9 +580,53 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 
-	// Init Assets
+	// MAKE SCENE CLASS PLEASE
 	{
 		// 끔찍하다, 기능구현 다하면 고칠게요
+
+		// Sample model
+		{
+			MeshData sphereMesh = GeometryGenerator::MakeSphere(0.5f, 100, 100);
+			MeshPart* sph = new MeshPart(sphereMesh, EMeshType::SOLID, device, {
+							L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+				});
+
+			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
+			smaple->AddMeshComponent(std::unique_ptr<MeshPart>(sph));
+			smaple->Initialize(device);
+
+			m_models.push_back(std::move(smaple));
+		}
+
+		// Ocean
+		{
+
+			m_ocean = std::make_unique<Ocean>(device);
+			MeshData quadPatches;
+			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
+			MeshPart* tessellatedQuads = new MeshPart(quadPatches, EMeshType::TESSELLATED, device, {});
+			// material
+			Material mat = DEFAULT_MATERIAL;
+			mat.bUseTexture = FALSE;
+			mat.specular = 0.255f; // unreal's water specular
+			mat.albedo = { 0.1f, 0.1f, 0.13f };
+
+			tessellatedQuads->UpdateMaterialConstant(mat);
+			m_ocean->AddMeshComponent(std::unique_ptr<MeshPart>(tessellatedQuads));
+
+			// size
+			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
+			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
+			m_ocean->UpdatePosByTransform(manipulate);
+
+			m_ocean->Initialize(device);
+		}
+
 		// Cubemap
 		{
 			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
@@ -621,62 +635,13 @@ void Game::CreateDeviceDependentResources()
 			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
-			std::vector<std::unique_ptr<ModelMeshPart>> cubeMapMeshes;
-			cubeMapMeshes.push_back(std::make_unique<ModelMeshPart>(cube, device));
-
-			m_cubeMap = std::make_unique<Model>("cubeMap", std::move(cubeMapMeshes), Graphics::cubemapPSO);
-			m_cubeMap->Initialize(device, {});
-		}
-
-		// Sample model
-		{
-			MeshData sphereMesh = GeometryGenerator::MakeSphere(0.5f, 100, 100);
-			std::vector<std::unique_ptr<ModelMeshPart>> modelMeshes;
-			modelMeshes.push_back(std::make_unique<ModelMeshPart>(sphereMesh, device));
-
-			m_models.push_back(std::make_unique<Model>("SAMPLE SPHERE", std::move(modelMeshes), Graphics::basicPSO));
-
-			m_models.back()->Initialize(device, {
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
-				});
-
-			// m_models.back()->UpdatePosBy(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
-		}
-
-		// Ocean
-		{
-			m_ocean = std::make_unique<Ocean>(device);
-			MeshData quadPatches;
-			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
-
-
-			std::vector<std::unique_ptr<ModelMeshPart>> meshes;
-			meshes.push_back(std::make_unique<ModelMeshPart>(quadPatches, device));
-			m_oceanPlane = std::make_unique<Model>("Tessellated Quad Plane", std::move(meshes), Graphics::Ocean::OceanPSO);
-
-			// size
-			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
-			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
-			m_oceanPlane->UpdatePosByTransform(manipulate);
-
-			// material
-			Material mat = m_oceanPlane->GetMaterialConstant();
-			mat.bUseTexture = FALSE;
-			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.1f, 0.1f, 0.13f };
-
-			m_oceanPlane->UpdateMaterialConstant(mat);
-			m_oceanPlane->Initialize(device, {});
+			MeshPart* cubeMesh = new MeshPart(cube, EMeshType::SOLID, device, {});
+			m_models.emplace_back("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
+			m_models.back()->AddMeshComponent(std::move(std::unique_ptr<MeshPart>(cubeMesh)));
+			m_models.back()->Initialize(device);
 		}
 
 	}
-
-	Utility::DXResource::CreateConstantBuffer(m_lightsConstantsCPU, device, m_lightsConstantBuffer);
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -684,7 +649,7 @@ void Game::CreateWindowSizeDependentResources()
 {
 	auto size = m_deviceResources->GetOutputSize();
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
-		XMConvertToRadians(90.f),
+		XMConvertToRadians(FOV),
 		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
 
 	auto* device = m_deviceResources->GetD3DDevice();
@@ -710,8 +675,9 @@ void Game::CreateWindowSizeDependentResources()
 	DX::ThrowIfFailed(device->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
 	DX::ThrowIfFailed(device->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
-	m_postProcess = std::make_unique<PostProcess>();
-	m_postProcess->Initialize(device, size);
+	m_postProcess.reset();
+	m_postProcess = std::make_unique<PostProcess>(size);
+	m_postProcess->Initialize(device);
 
 
 	// depth only buffer

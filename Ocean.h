@@ -1,15 +1,20 @@
 #pragma once
 #include "OceanConstants.h"
-
-class Ocean
+#include "Model.h"
+class Ocean final : public Model
 {
 public:
-	Ocean(ID3D11Device1* device);
+	Ocean();
+	virtual ~Ocean() = default;
 	Ocean(const Ocean& other) = delete;
 	Ocean& operator=(const Ocean& other) = delete;
 
-	void Initialize(ID3D11DeviceContext1* context);
-	void Update(ID3D11DeviceContext1* context); // is timer necessary?
+	virtual void Initialize(ID3D11Device1* pDevice) override;
+	void InitializeData(ID3D11DeviceContext1* context);
+
+	virtual void Update(ID3D11DeviceContext1* context) override; // is timer necessary?
+	virtual void Render(ID3D11DeviceContext1* pContext) override;
+	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso) override;
 
 	inline ID3D11ShaderResourceView* GetDisplacementMapsSRV() const
 	{

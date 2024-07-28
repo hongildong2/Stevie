@@ -14,27 +14,13 @@
 #include <imgui_impl_win32.h>
 
 #include "Ocean.h"
+#include "GlobalLight.h"
 
-// ¿œ¥‹..
-struct Light
-{
-	DirectX::SimpleMath::Vector3 strength = DirectX::SimpleMath::Vector3(1.0f);              // 12
-	float fallOffStart = 0.0f;                     // 4
-	DirectX::SimpleMath::Vector3 direction = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f); // 12
-	float fallOffEnd = 10.0f;                      // 4
-	DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, -2.0f); // 12
-	float spotPower = 100.0f;                        // 4
-};
 
-struct LightConstants
-{
-	Light dirLight;
-	Light pointLight;
-	Light spotLight;
-};
 
 constexpr float NEAR_Z = 0.1f;
 constexpr float FAR_Z = 150.f;
+constexpr float FOV = 90.f;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -92,36 +78,33 @@ private:
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;
 
-	// control
+
+	// Inputs
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 	std::unique_ptr<DirectX::Mouse> m_mouse;
 	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
-
 	float m_pitch;
 	float m_yaw;
 
 
 	/// Scene : models, camera, viewport, lights, cubemap
-	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Camera> m_camera;
+	std::vector<std::unique_ptr<Model>> m_models;
 	DirectX::SimpleMath::Matrix m_proj;
 
+
+	// Scene - DepthOnly?
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
-
-	// Ocean
 	std::unique_ptr<Ocean> m_ocean;
-	std::unique_ptr<Model> m_oceanPlane;
 
 	// light
-	LightConstants m_lightsConstantsCPU;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsConstantBuffer;
+	GlobalLight m_globalLight;
 
-	// cubemap
-	std::unique_ptr<Model> m_cubeMap;
+	// Global Resources	
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapEnvView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapIrradianceView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;

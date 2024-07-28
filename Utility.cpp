@@ -27,7 +27,6 @@ namespace Utility
 			{
 				DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, nullptr, ppBufOut));
 			}
-
 		}
 
 		void CreateBufferSRV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11ShaderResourceView** ppSRVOut)
@@ -51,7 +50,6 @@ namespace Utility
 				if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
 				{
 					// This is a Structured Buffer
-
 					desc.Format = DXGI_FORMAT_UNKNOWN;
 					desc.BufferEx.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
 				}
@@ -61,6 +59,28 @@ namespace Utility
 				}
 
 			DX::ThrowIfFailed(pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRVOut));
+		}
+
+		void UpdateBuffer(ID3D11DeviceContext1* pContext, ID3D11Buffer* pBuffer, UINT uElementSize, UINT uCount, const void* pData)
+		{
+			assert(pContext != nullptr && pBuffer != nullptr);
+
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+			DX::ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+			assert(uElementSize == mappedResource.RowPitch);
+
+			for (UINT i = 0; i < uCount; ++i)
+			{
+				const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
+				void* pMapped = static_cast<char*>(mappedResource.pData) + (i * mappedResource.RowPitch);
+
+				std::memcpy(pMapped, pDataToWrite, uElementSize);
+			}
+
+			pContext->Unmap(pBuffer, 0);
 		}
 	}
 

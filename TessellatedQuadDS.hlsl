@@ -1,4 +1,4 @@
-#include "Common.hlsli"
+#include "RenderingCommons.hlsli"
 #include "OceanGlobal.hlsli"
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -7,28 +7,11 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
-Texture2DArray<float4> DisplacementMap : register(t0);
-Texture2DArray<float4> DerivativeMap : register(t1);
-StructuredBuffer<CombineParameter> parameters : register(t2);
+Texture2DArray<float4> DisplacementMap : register(t100);
+Texture2DArray<float4> DerivativeMap : register(t101);
+StructuredBuffer<CombineParameter> parameters : register(t102);
 
-SamplerState linearWrap : register(s0);
-
-cbuffer transform : register(b0)
-{
-	float4x4 world;
-	float4x4 worldIT;
-	float4x4 view;
-	float4x4 proj;
-};
-
-cbuffer Params : register(b1)
-{
-	float simulationScale; // (m)
-	bool bScale; // not in use
-	float2 dummy;
-};
-
-
+static const float simulationScale = 2047.0;
 
 #define NUM_CONTROL_POINTS 4
 

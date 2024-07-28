@@ -1,13 +1,4 @@
-#include "Common.hlsli"
-
-cbuffer transform : register(b0)
-{
-	float4x4 world;
-	float4x4 worldIT;
-	float4x4 view;
-	float4x4 proj;
-};
-
+#include "RenderingCommons.hlsli"
 
 float4 DepthOnlyVSMain(VertexShaderInput input) : SV_Position
 {

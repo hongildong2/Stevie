@@ -1,13 +1,12 @@
 #include "ScreenSpace.hlsli"
+#include "RenderingCommons.hlsli"
 
-Texture2D<float3> RenderResult : register(t0);
-Texture2D<float> depthOnlyTex : register(t1);
-
-SamplerState linearClamp : register(s0);
+Texture2D<float3> RenderResult : register(t100);
+Texture2D<float> depthOnlyTex : register(t101);
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
-	float4 viewSpacePosition = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, inverseProjection);
+	float4 viewSpacePosition = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, invProj);
 	
 	float dist = length(viewSpacePosition.xyz); // ÇöÀç ÁÂÇ¥°è´Â ºä °ø°£
 

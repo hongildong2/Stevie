@@ -4,46 +4,42 @@
 #include <vector>
 #include <memory>
 
-#include "ModelMeshPart.h"
+#include "MeshPart.h"
 #include "ModelCommon.h"
+#include "EModelType.h"
 
 // 메쉬역할도 동시에 하는중
 class Model
 {
 public:
-	// 이건 그냥 답이없음, 액터 좀 추가하다가 완전히 갈아없어야됨
-	Model(const char* name, std::vector<std::unique_ptr<ModelMeshPart>>&& meshes, GraphicsPSO& pso);
-	Model(const Model& other) = delete;
+	Model(const char* name, const EModelType type, GraphicsPSO& pso);
+	virtual ~Model() = default;
 
-	~Model() = default;
+	Model(const Model& other) = delete;
 	Model& operator=(const Model& other) = delete;
 
+	void AddMeshComponent(std::unique_ptr<MeshPart> pMesh);
 
-	// TODO : MVP Matrix 정보 Actor로 나중에 옮기기
-	void PrepareForRendering(ID3D11DeviceContext1* context,
-		const DirectX::SimpleMath::Matrix& viewMatrix, const DirectX::SimpleMath::Matrix& projMatrix, const DirectX::SimpleMath::Vector3& eyeWorld);
-	void Draw(ID3D11DeviceContext1* context);
+	virtual void Initialize(ID3D11Device1* pDevice);
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device1> device, TextureFiles files);
+	virtual void Update(ID3D11DeviceContext1* pContext);
+
+	virtual void Render(ID3D11DeviceContext1* pContext);
+	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso);
+
 
 	// Rotation, Scale, update component..
 	void UpdatePosByTransform(const DirectX::SimpleMath::Matrix& deltaTransform);
 	void UpdatePosByCoordinate(const DirectX::SimpleMath::Vector4 pos);
 
-	void UpdateMaterialConstant(Material& mat);
-	Material GetMaterialConstant() const;
-
-	DirectX::SimpleMath::Matrix GetWorldMatrix() const;
-
-	// 죄송합니다
-	inline ID3D11Buffer* GetVSCB() const
+	inline const EModelType GetType() const
 	{
-		return m_VSConstantsBuffer.Get();
+		return m_type;
 	}
 
-	inline ID3D11Buffer* GetPSCB() const
+	inline DirectX::SimpleMath::Matrix GetWorldMatrix() const
 	{
-		return m_PSConstantBuffer.Get();
+		return m_world;
 	}
 
 	inline DirectX::SimpleMath::Vector4 GetWorldPos() const
@@ -51,28 +47,20 @@ public:
 		return m_worldPos;
 	}
 
-private:
+	inline const std::string& GetName() const
+	{
+		return m_name;
+	}
+
+protected:
 	const std::string m_name;
-	std::vector<std::unique_ptr<ModelMeshPart>> m_meshes;
+	const EModelType m_type;
+	std::vector<std::unique_ptr<MeshPart>> m_meshes;
+
 	DirectX::SimpleMath::Vector4 m_worldPos;
-
-	// constant buffer for model
-	VSConstants m_modelVSConstants;
-
-	// TODO : 여긴 최대한 모델에 관련된 정보만 넣고 월드나 픽셀쉐이더의 쉐이더 자체 정보는 다른 버퍼에 있어야지. 버퍼분리하자.
-	PSConstants m_modelPSConstants;
+	DirectX::SimpleMath::Matrix m_world;
+	// row pitch yaw
 
 	GraphicsPSO m_PSO;
-
-	// TODO : View, Proj는 다른 상수버퍼로 분리
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VSConstantsBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_PSConstantBuffer;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_albedoView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_aoview;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_heightView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_metallicView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roughnessView;
 };
 

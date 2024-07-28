@@ -73,7 +73,7 @@ namespace Graphics
 
 
 
-	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso)
+	void SetPipelineState(ID3D11DeviceContext1* context, const GraphicsPSO& pso)
 	{
 		context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);
 		context->PSSetShader(pso.m_pixelShader.Get(), 0, 0);
@@ -90,7 +90,7 @@ namespace Graphics
 		context->IASetPrimitiveTopology(pso.m_primitiveTopology);
 	}
 
-	void SetPipelineState(ID3D11DeviceContext1* context, ComputePSO& pso)
+	void SetPipelineState(ID3D11DeviceContext1* context, const ComputePSO& pso)
 	{
 		context->VSSetShader(NULL, 0, 0);
 		context->PSSetShader(NULL, 0, 0);

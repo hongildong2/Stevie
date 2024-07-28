@@ -1,4 +1,4 @@
-#include "Common.hlsli"
+#include "RenderingCommons.hlsli"
 
 #include "ScreenSpace.hlsli"
 

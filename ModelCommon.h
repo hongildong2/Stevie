@@ -2,16 +2,41 @@
 
 #include "pch.h"
 #include "SimpleMath.h"
+#include "GlobalLight.h"
 
-struct VSConstants
+struct GlobalConstants
 {
-	DirectX::SimpleMath::Matrix worldMatrix;
-	DirectX::SimpleMath::Matrix worldMatrixIT;
-	DirectX::SimpleMath::Matrix viewMatrix;
-	DirectX::SimpleMath::Matrix projMatrix;
-};
-static_assert(sizeof(VSConstants) % 16 == 0, "Constant Buffer Alignment");
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix proj;
+	DirectX::SimpleMath::Matrix viewProj;
 
+	DirectX::SimpleMath::Matrix invView;
+	DirectX::SimpleMath::Matrix invProj;
+	DirectX::SimpleMath::Matrix invViewProj;
+
+	DirectX::SimpleMath::Vector3 eyeWorld;
+	float timeGlobal;
+
+	UINT globalLightsCount;
+	float nearZ;
+	float farZ;
+	float gcDummy;
+
+	LightData globalSunLight;
+};
+
+struct MeshConstants
+{
+	DirectX::SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix worldIT;
+	DirectX::SimpleMath::Matrix worldInv;
+
+	BOOL bUseHeightMap;
+	float heightScale;
+	UINT meshLightsCount;
+	float mcDummy;
+};
+static_assert(sizeof(MeshConstants) % 16 == 0, "Constant Buffer Alignment");
 
 struct TextureFiles
 {
@@ -55,15 +80,7 @@ constexpr Material DEFAULT_MATERIAL =
 	0.f
 };
 
-
-struct PSConstants
-{
-	DirectX::SimpleMath::Vector3 eyeWorld;
-	float dummy;
-	Material material;
-};
-
-static_assert(sizeof(PSConstants) % 16 == 0, "PSConstants Alignment");
+static_assert(sizeof(Material) % 16 == 0, "Material Alignment");
 
 
 struct Vertex

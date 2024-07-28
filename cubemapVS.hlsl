@@ -1,12 +1,5 @@
-#include "Common.hlsli"
+#include "RenderingCommons.hlsli"
 
-cbuffer transform : register(b0)
-{
-	float4x4 world;
-	float4x4 worldIT;
-	float4x4 view;
-	float4x4 proj;
-};
 
 PixelShaderInput main(VertexShaderInput input)
 {

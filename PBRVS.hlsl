@@ -1,19 +1,4 @@
-#include "common.hlsli"
-
-cbuffer transform : register(b0)
-{
-	float4x4 world;
-	float4x4 worldIT;
-	float4x4 view;
-	float4x4 proj;
-};
-
-SamplerState linearWrap : register(s0);
-SamplerState linearClamp : register(s1);
-
-
-
-Texture2D<float> heightTex : register(t6);
+#include "RenderingCommons.hlsli"
 
 PixelShaderInput main(VertexShaderInput input)
 {

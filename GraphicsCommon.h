@@ -92,8 +92,8 @@ namespace Graphics
 	// 주의: 초기화가 느려서 필요한 경우에만 초기화
 	// void InitVolumeShaders(ComPtr<ID3D11Device>& device);
 
-	void SetPipelineState(ID3D11DeviceContext1* context, GraphicsPSO& pso);
-	void SetPipelineState(ID3D11DeviceContext1* context, ComputePSO& pso);
+	void SetPipelineState(ID3D11DeviceContext1* context, const GraphicsPSO& pso);
+	void SetPipelineState(ID3D11DeviceContext1* context, const ComputePSO& pso);
 
 	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob);
 

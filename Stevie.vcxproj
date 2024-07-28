@@ -183,21 +183,25 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="EMeshType.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="GlobalLight.h" />
     <ClInclude Include="ModelCommon.h" />
+    <ClInclude Include="EModelType.h" />
     <ClInclude Include="OceanConstants.h" />
     <ClInclude Include="Ocean.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelMeshPart.h" />
+    <ClInclude Include="MeshPart.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GlobalLight.cpp" />
     <ClCompile Include="ModelCommon.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -206,7 +210,7 @@
     <ClCompile Include="GraphicsPSO.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelMeshPart.cpp" />
+    <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="Ocean.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -230,7 +234,7 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Common.hlsli" />
+    <None Include="RenderingCommons.hlsli" />
     <None Include="OceanGlobal.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </None>

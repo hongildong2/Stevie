@@ -16,30 +16,37 @@ struct PostProcessConstant
 	float dummy;
 };
 
+constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
+{
+	0.f,
+	0.f,
+	0.f,
+	0.2f,
+	1.f,
+	2.2f,
+	1.f,
+	0.f,
+};
+
 class PostProcess
 {
 public:
-	void Initialize(ID3D11Device1* device, const RECT size);
+	PostProcess() = delete;
+	PostProcess(const RECT size);
+
+	~PostProcess() = default;
+
+	PostProcess(const PostProcess& other) = delete;
+	PostProcess& operator=(const PostProcess& other) = delete;
+
+	void Initialize(ID3D11Device1* device);
 	void ProcessBloom(ID3D11DeviceContext1* context);
-	void ProcessFog(ID3D11DeviceContext1* context, ID3D11ShaderResourceView* depthOnlySRV);
-	void Draw(ID3D11DeviceContext1* context);
+	void ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthOnlySRV);
+
+	void Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rtvToDraw);
 	void UpdateConstant(PostProcessConstant constant);
 
-	// TODO : Release
-	inline ID3D11RenderTargetView* GetRenderTargetView() const
-	{
-		return m_textures[0]->GetRenderTargetView();
-	}
-
-	inline ID3D11Texture2D* GetFirstTexture() const
-	{
-		return m_textures[0]->GetRenderTarget();
-	}
-
-	inline ID3D11ShaderResourceView* GetFirstSRV() const
-	{
-		return m_textures[0]->GetShaderResourceView();
-	}
+	void FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pRenderedBuffer);
 
 	inline PostProcessConstant GetConstant() const
 	{
@@ -49,13 +56,19 @@ public:
 
 	enum { LEVEL = 4 };
 private:
+	std::unique_ptr<MeshPart> m_screenQuad;
+	std::unique_ptr<RenderTexture> m_textureToProcess;
+	std::unique_ptr<RenderTexture> m_textureProcessed;
+
+
+	// TODO : list of post effects
+	// Fog
+
+
+	// Bloom
 	RECT m_originalSize;
+	std::vector<std::unique_ptr<RenderTexture>> m_bloomTextures;
 	PostProcessConstant m_postProcessConstant;
-	std::unique_ptr<Model> m_screenQuad;
-
-	// these resources' index indicates mips level 0, 1, 2 itself
-	std::vector<std::unique_ptr<RenderTexture>> m_textures;
-
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_postProcessCB;
 };
 

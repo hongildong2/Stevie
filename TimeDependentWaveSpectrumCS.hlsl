@@ -2,10 +2,8 @@
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
 
-// (Dx, Dy, Dz, Dxz)
 RWTexture2DArray<float4> DisplacementResult : register(u0); // for each cascade
 
-// (Dyx, Dyz, Dxx, Dzz)
 RWTexture2DArray<float4> DerivativeResult : register(u1); // for each cascade
 
 Texture2DArray<float2> initialSpectrums : register(t0);
@@ -53,12 +51,13 @@ void CalculateForCascade(uint3 id)
 	float2 displacementY_dz = ih * wave.z;
 	float2 displacementZ_dz = -lambda * h * wave.z * wave.z * oneOverKLength;
 	
-	// Displacement in frequency Domain, 두개의 복소수, 2차원 Plane Wave이므로
+	// (Dx, Dy, Dz, Dxz)
 	DisplacementResult[id] = float4(float2(displacementX.x - displacementY.y, displacementX.y + displacementY.x),
 							  float2(displacementZ.x - displacementZ_dx.y, displacementZ.y + displacementZ_dx.x));
 	
+	
 	// derivative of h tilde. sampling this is Normal map of ocean surface
-	// TODO : sampling this is Normal map of ocean surface
+	// (Dyx, Dyz, Dxx, Dzz)
 	DerivativeResult[id] = float4(float2(displacementY_dx.x - displacementY_dz.y, displacementY_dx.y + displacementY_dz.x),
 							     float2(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x));
 }

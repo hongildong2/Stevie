@@ -1,60 +1,10 @@
-#include "Common.hlsli"
+#include "RenderingCommons.hlsli"
 #include "PBRCommons.hlsli"
 
 #ifdef OCEAN_PBR_PS
 #include "OceanGlobal.hlsli"
-#endif
-
-
-
-cbuffer Lights : register(b1)
-{
-	Light dirLight;
-	Light pointLight;
-	Light spotLight;
-};
-
-struct Material
-{
-	float metallicFactor;
-	float aoFactor;
-	float roughnessFactor;
-	float t1;
-	bool bUseTexture;
-	float3 albedo;
-	float metallic;
-	float roughness;
-	float specular;
-	float dummy;
-};
-
-cbuffer PSConstant : register(b2)
-{
-	float3 eyeWorld;
-	float dummy;
-	Material materialConstant;
-};
-
-
-TextureCube cubeMap : register(t0);
-TextureCube irradianceMap : register(t1);
-TextureCube SpecularMap : register(t2);
-Texture2D BRDFMap : register(t3);
-
-
-Texture2D<float3> albedoTex : register(t4);
-Texture2D<float> aoTex : register(t5);
-Texture2D<float> heightTex : register(t6);
-Texture2D<float> metallicTex : register(t7);
-Texture2D<float3> normalTex : register(t8);
-Texture2D<float> roughnessTex : register(t9);
-
-SamplerState linearWrap : register(s0);
-SamplerState linearClamp : register(s1);
-
-#ifdef OCEAN_PBR_PS
-	Texture2DArray<float4> OceanTurbulenceMap : register(t10);
-	StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t11);
+	Texture2DArray<float4> OceanTurbulenceMap : register(t100);
+	StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t101);
 #endif
 
 
@@ -112,7 +62,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 N = materialConstant.bUseTexture ? GetNormal(input) : input.normalWorld;
 	float3 V = normalize(eyeWorld - input.positionWorld);
-	float NdotL = max(dot(input.normalWorld, normalize(dirLight.position - input.positionWorld)), 0.0);
 	
 	// specular 1 == 8%
 	float3 F0 = float3(0.08, 0.08, 0.08) * materialConstant.specular;
@@ -121,9 +70,16 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	// Only One Directional Light added
-	Lo += RadianceLByDirectLight(dirLight, F0, N, V, input.positionWorld, albedo, roughness, metallic);
+	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
+	{
+		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic);
+		
+		// TODO : light type differentiation in PBR
+	}
 	
+	// TODO : sunlight illumination
+	
+
 	// IBL
 	float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 	float3 kS = F;
@@ -135,7 +91,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	// 바다 +z에 있는 애들이 환경맵 샘플링하는게 이상함.. (V가 -z 방향을 향하는)
 	// 또는 바다 노멀의 Z 방향이 죄다 +z라서? 바다의 노멀이 +z방향으로 심하게 편향되어있는듯 -> 바다는 규모가 커서 이렇게 큐브맵 IBL하면 안되는듯, 전용 쉐이더 필요
 	
-	float3 reflectInVoxel = (reflect(-V, N) + float3(1, 1, 1)) / 2.0;
 	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), materialConstant.t1);
 	
 	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(max(dot(N, V), 0.0), roughness));
@@ -143,7 +98,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 	
 	float3 ambient = (kD * diffuse + specular) * ao;
-	float3 color = ambient + Lo;
+	
+	
+	float3 color = ambient + Lo; // IBL + Lights
 	
 #ifdef OCEAN_PBR_PS
 		OceanSamplingInput oceanIn;
