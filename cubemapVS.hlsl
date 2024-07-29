@@ -1,6 +1,5 @@
 #include "RenderingCommons.hlsli"
 
-
 PixelShaderInput main(VertexShaderInput input)
 {
     // 불필요한 멤버들도 VertexShaderInput을 통일시켰기 때문에 채워줘야 합니다.

@@ -59,34 +59,48 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
+	#ifdef OCEAN_PBR_PS
+	float2 xzVec = normalize((input.texcoordinate * 2.0) - 1.0);
+	float3 xzVecWorld = float3(xzVec.x, 0, xzVec.y);
+	float3 oceanEnvVec = normalize(xzVecWorld + N);
+	float oceanAlignment = 0.1;
+	#endif
+	
+	#ifndef OCEAN_PBR_PS
 	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
 	{
-		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic);
-		// TODO : light type differentiation in PBR
+		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
 	}
-	
-	// TODO : sunlight illumination
+	#endif
 	
 
 	// IBL
+	// 바다 +z에 있는 애들이 환경맵 샘플링하는게 이상함.. (V가 -z 방향을 향하는)
+	// 또는 바다 노멀의 Z 방향이 죄다 +z라서? 바다의 노멀이 +z방향으로 심하게 편향되어있는듯 -> 바다는 규모가 커서 이렇게 큐브맵 IBL하면 안되는듯, 전용 쉐이더 필요
+	// 임시로 적절한 표면벡터를 만들어서 사용, V는 바다의 스케일에 부적절
+	#ifdef OCEAN_PBR_PS
+	
+	float3 F = fresnelSchlickRoughness(oceanAlignment, F0, roughness);
+	float3 irradiance = irradianceMap.Sample(linearWrap, oceanEnvVec).rgb;
+	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, oceanEnvVec, materialConstant.t1).rgb;
+	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(oceanAlignment, roughness)).xy; // 바다는 크니깐..
+	
+	#else
+	
 	float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+	float3 irradiance = irradianceMap.Sample(linearWrap, N).rgb;
+	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), materialConstant.t1).rgb;
+	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(max(dot(N, V), 0.0), roughness)).xy;
+	
+	#endif
+	
 	float3 kS = F;
 	float3 kD = lerp(1.0 - kS, 0.0, metallic);
 	
-	float3 irradiance = irradianceMap.Sample(linearWrap, N);
 	float3 diffuse = irradiance * albedo;
-	
-	// 바다 +z에 있는 애들이 환경맵 샘플링하는게 이상함.. (V가 -z 방향을 향하는)
-	// 또는 바다 노멀의 Z 방향이 죄다 +z라서? 바다의 노멀이 +z방향으로 심하게 편향되어있는듯 -> 바다는 규모가 커서 이렇게 큐브맵 IBL하면 안되는듯, 전용 쉐이더 필요
-	
-	float3 prefilteredColor = SpecularMap.SampleLevel(linearWrap, reflect(-V, N), materialConstant.t1).rgb;
-	
-	float2 envBRDF = BRDFMap.Sample(linearClamp, float2(max(dot(N, V), 0.0), roughness)).xy;
-	
 	float3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 	
-	float3 ambient = (kD * diffuse + specular) * ao;
-	
+	float3 ambient = (kD * diffuse + specular) * ao;	
 	
 	float3 color = ambient + Lo; // IBL + Lights
 	

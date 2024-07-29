@@ -27,11 +27,11 @@ namespace GeometryGenerator
 			{
 				Vertex v;
 
-				v.position = DirectX::SimpleMath::Vector3::Transform(stackStartPoint, DirectX::SimpleMath::Matrix::CreateRotationY(dTheta * float(i)));
+				v.positionModel = DirectX::SimpleMath::Vector3::Transform(stackStartPoint, DirectX::SimpleMath::Matrix::CreateRotationY(dTheta * float(i)));
 
-				v.normalModel = v.position;
+				v.normalModel = v.positionModel;
 				v.normalModel.Normalize();
-				v.textureCoordination = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.0f - float(j) / numStacks);
+				v.texcoordinate = DirectX::SimpleMath::Vector2(float(i) / numSlices, 1.0f - float(j) / numStacks);
 
 				DirectX::SimpleMath::Vector3 biTangent = DirectX::SimpleMath::Vector3(0.f, 1.f, 0.f);
 
@@ -100,9 +100,9 @@ namespace GeometryGenerator
 		for (size_t i = 0; i < positions.size(); i++)
 		{
 			Vertex v;
-			v.position = positions[i];
+			v.positionModel = positions[i];
 			v.normalModel = normals[i];
-			v.textureCoordination = texcoords[i];
+			v.texcoordinate = texcoords[i];
 			v.tangentModel = Vector3(0.f, 1.f, 0.f);
 
 			// v.color = colors[i];
@@ -236,9 +236,9 @@ namespace GeometryGenerator
 		for (size_t i = 0; i < positions.size(); i++)
 		{
 			Vertex v;
-			v.position = positions[i];
+			v.positionModel = positions[i];
 			v.normalModel = normals[i];
-			v.textureCoordination = texcoords[i];
+			v.texcoordinate = texcoords[i];
 			meshData.verticies.push_back(v);
 		}
 
@@ -282,8 +282,8 @@ namespace GeometryGenerator
 
 				quadTopLeft.normalModel = NORMAL_MODEL;
 				quadTopLeft.tangentModel = TANGENT_MODEL;
-				quadTopLeft.position = topLeft + Vector3(dx * i, -dy * j, 0.f); // j grows -y direction
-				quadTopLeft.textureCoordination = Vector2(du * i, dv * j); // ij and uv grows same direction
+				quadTopLeft.positionModel = topLeft + Vector3(dx * i, -dy * j, 0.f); // j grows -y direction
+				quadTopLeft.texcoordinate = Vector2(du * i, dv * j); // ij and uv grows same direction
 
 				outMesh->verticies.push_back(quadTopLeft);
 				outMesh->indicies.push_back(quadTopLeftIndex);
@@ -292,20 +292,20 @@ namespace GeometryGenerator
 
 				// generate clockwise
 				Vertex quadTopRight = quadTopLeft;
-				quadTopRight.position = quadTopLeft.position + Vector3(dx, 0.f, 0.f);
-				quadTopRight.textureCoordination = quadTopLeft.textureCoordination + Vector2(du, 0.f);
+				quadTopRight.positionModel = quadTopLeft.positionModel + Vector3(dx, 0.f, 0.f);
+				quadTopRight.texcoordinate = quadTopLeft.texcoordinate + Vector2(du, 0.f);
 				outMesh->verticies.push_back(quadTopRight);
 				outMesh->indicies.push_back(quadTopLeftIndex + 1);
 
 				Vertex quadBottomRight = quadTopRight;
-				quadBottomRight.position = quadTopRight.position + Vector3(0.f, -dy, 0.f);
-				quadBottomRight.textureCoordination = quadTopRight.textureCoordination + Vector2(0.f, dv);
+				quadBottomRight.positionModel = quadTopRight.positionModel + Vector3(0.f, -dy, 0.f);
+				quadBottomRight.texcoordinate = quadTopRight.texcoordinate + Vector2(0.f, dv);
 				outMesh->verticies.push_back(quadBottomRight);
 				outMesh->indicies.push_back(quadTopLeftIndex + 2);
 
 				Vertex quadBottomLeft = quadBottomRight;
-				quadBottomLeft.position = quadBottomRight.position + Vector3(-dx, 0.f, 0.f);
-				quadBottomLeft.textureCoordination = quadBottomRight.textureCoordination + Vector2(-du, 0.f);
+				quadBottomLeft.positionModel = quadBottomRight.positionModel + Vector3(-dx, 0.f, 0.f);
+				quadBottomLeft.texcoordinate = quadBottomRight.texcoordinate + Vector2(-du, 0.f);
 				outMesh->verticies.push_back(quadBottomLeft);
 				outMesh->indicies.push_back(quadTopLeftIndex + 3);
 			}

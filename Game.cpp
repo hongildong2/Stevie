@@ -106,7 +106,7 @@ void Game::Tick()
 		auto pos = modelPtr->GetWorldPos();
 		float height = m_ocean->GetHeight({ pos.x, pos.z });
 
-		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.2f, pos.z, 1.f }); // せせせせ
+		// modelPtr->UpdatePosByCoordinate({ pos.x, height, pos.z, 1.f }); // せせせせ
 
 		modelPtr->Update(context);
 	}
@@ -384,7 +384,7 @@ void Game::Render()
 			context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 			context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
 
-
+			m_cubeMap->RenderOverride(context, Graphics::depthOnlyPSO);
 			// Models
 			for (auto& model : m_models)
 			{
@@ -396,6 +396,7 @@ void Game::Render()
 			m_deviceResources->PIXEndEvent();
 		}
 
+		m_cubeMap->Render(context);
 		// Ocean
 		{
 			m_deviceResources->PIXBeginEvent(L"OceanPlane");
@@ -421,7 +422,7 @@ void Game::Render()
 	{
 		m_postProcess->FillTextureToProcess(context, m_floatBuffer.Get());
 
-		m_postProcess->ProcessFog(context, m_depthOnlySRV.Get());
+		// 		m_postProcess->ProcessFog(context, m_depthOnlySRV.Get());
 		m_postProcess->ProcessBloom(context);
 
 		auto* rtv = m_deviceResources->GetRenderTargetView();
@@ -456,6 +457,7 @@ void Game::Clear()
 	ID3D11RenderTargetView* rtvs[1] = {
 		m_floatRTV.Get(),
 	};
+
 	context->OMSetRenderTargets(1, rtvs, depthStencil);
 
 	// Set the viewport.
@@ -550,6 +552,7 @@ void Game::CreateDeviceDependentResources()
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
 			smaple->AddMeshComponent(std::move(sph));
 			smaple->Initialize(device);
+			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.f, -10.f));
 
 			m_models.push_back(std::move(smaple));
 		}
@@ -565,7 +568,7 @@ void Game::CreateDeviceDependentResources()
 			Material mat = DEFAULT_MATERIAL;
 			mat.bUseTexture = FALSE;
 			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.1f, 0.1f, 0.13f };
+			mat.albedo = { 0.1f, 0.1f, 0.9f };
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
@@ -587,10 +590,9 @@ void Game::CreateDeviceDependentResources()
 
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
-			auto cubeMap = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
-			cubeMap->AddMeshComponent(std::move(cubeMesh));
-			cubeMap->Initialize(device);
-			m_models.push_back(std::move(cubeMap));
+			m_cubeMap = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
+			m_cubeMap->AddMeshComponent(std::move(cubeMesh));
+			m_cubeMap->Initialize(device);
 		}
 
 		// Lights

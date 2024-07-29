@@ -137,7 +137,7 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, pDevice, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, pDevice, m_FFTCB);
 	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, pDevice, m_combineWaveCB);
-
+	m_PSO = Graphics::Ocean::OceanPSO;
 	Model::Initialize(pDevice);
 }
 void Ocean::InitializeData(ID3D11DeviceContext1* context)

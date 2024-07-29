@@ -6,7 +6,9 @@
 Model::Model(const char* name, const EModelType type, GraphicsPSO& pso)
 	:m_name(name),
 	m_type(type),
-	m_PSO(pso)
+	m_PSO(pso),
+	m_world(),
+	m_worldPos()
 {
 	m_meshes.reserve(10);
 }

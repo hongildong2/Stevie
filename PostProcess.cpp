@@ -66,7 +66,7 @@ void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 	{
 		ID3D11ShaderResourceView* from = m_bloomTextures[i]->GetShaderResourceView();
 		ID3D11UnorderedAccessView* to = m_bloomTextures[i + 1]->GetUnorderedAccessView();
-		context->CSSetShaderResources(0, 1, &from);
+		context->CSSetShaderResources(100, 1, &from);
 		context->CSSetUnorderedAccessViews(0, 1, &to, NULL);
 
 		context->Dispatch(group_x / static_cast<UINT>(std::pow(2, i + 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i + 1)) + 1, 1);
@@ -80,12 +80,16 @@ void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 	{
 		ID3D11ShaderResourceView* from = m_bloomTextures[i]->GetShaderResourceView();
 		ID3D11UnorderedAccessView* to = m_bloomTextures[i - 1]->GetUnorderedAccessView();
-		context->CSSetShaderResources(0, 1, &from);
+		context->CSSetShaderResources(100, 1, &from);
 		context->CSSetUnorderedAccessViews(0, 1, &to, NULL);
 
 		context->Dispatch(group_x / static_cast<UINT>(std::pow(2, i - 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i - 1)) + 1, 1);
 		Utility::ComputeShaderBarrier(context);
 	}
+
+	m_textureProcessed.swap(m_bloomTextures[0]);
+
+	// Draw를 여기로.
 }
 
 void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthOnlySRV)
@@ -108,11 +112,10 @@ void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourc
 
 void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rtvToDraw)
 {
-	Graphics::SetPipelineState(context, Graphics::filterCombinePSO);
 	Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, context, m_postProcessCB);
-	context->PSSetConstantBuffers(0, 1, m_postProcessCB.GetAddressOf());
+	context->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
 
-	auto* bloomed = m_bloomTextures[0]->GetShaderResourceView();
+	auto* bloomed = m_textureProcessed->GetShaderResourceView();
 	auto* fogged = m_textureToProcess->GetShaderResourceView();
 	ID3D11ShaderResourceView* combineSRVs[2] = { bloomed, fogged };
 	context->PSSetShaderResources(100, 2, combineSRVs);

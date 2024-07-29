@@ -19,7 +19,7 @@
 #include "PostProcess.h"
 
 constexpr float NEAR_Z = 0.1f;
-constexpr float FAR_Z = 150.f;
+constexpr float FAR_Z = 300.f;
 constexpr float FOV = 90.f;
 constexpr float SHADOW_MAP_SIZE = 1024.f;
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -107,6 +107,7 @@ private:
 	std::unique_ptr<Ocean> m_ocean;
 	std::unique_ptr<SceneLights> m_sceneLights;
 	std::unique_ptr<PostProcess> m_postProcess;
+	std::unique_ptr<Model> m_cubeMap;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
 	// Goto Scene

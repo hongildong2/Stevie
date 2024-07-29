@@ -48,5 +48,7 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext, Game* pGame)
 
 	m_globalConstant.globalLightsCount = pGame->m_sceneLights->GetLightsCount();
 
-	Utility::DXResource::UpdateConstantBuffer(m_globalConstant, pContext, m_globalCB);
+	auto toSend = m_globalConstant;
+
+	Utility::DXResource::UpdateConstantBuffer(toSend, pContext, m_globalCB);
 }

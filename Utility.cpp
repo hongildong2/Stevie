@@ -79,7 +79,7 @@ namespace Utility
 			for (UINT i = 0; i < uCount; ++i)
 			{
 				const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
-				void* pMapped = static_cast<char*>(mappedResource.pData) + (i * mappedResource.RowPitch);
+				void* pMapped = static_cast<char*>(mappedResource.pData) + (i * uElementSize);
 
 				std::memcpy(pMapped, pDataToWrite, uElementSize);
 			}

@@ -77,16 +77,17 @@ void MeshPart::Initialize(ID3D11Device1* pDevice)
 void MeshPart::Prepare(ID3D11DeviceContext1* pContext, DirectX::SimpleMath::Matrix& parentWorld)
 {
 	// my world, relative to parent
-	m_meshConstants.world = DirectX::SimpleMath::Matrix::CreateTranslation(m_modelPos) * parentWorld;
-	m_meshConstants.worldInv = m_meshConstants.world.Invert();
-	m_meshConstants.worldIT = m_meshConstants.worldInv.Transpose();
+	auto world = DirectX::SimpleMath::Matrix::CreateTranslation(m_modelPos) * parentWorld;
+	auto worldInv = world.Invert();
+	auto worldIT = world.Invert().Transpose();
 
-	// Row -> Column wise
-	m_meshConstants.world = m_meshConstants.world.Transpose();
-	m_meshConstants.worldInv = m_meshConstants.worldInv.Transpose();
-	m_meshConstants.worldIT = m_meshConstants.worldIT.Transpose();
+	m_meshConstants.world = world.Transpose();
+	m_meshConstants.worldInv = worldInv.Transpose();
+	m_meshConstants.worldIT = worldIT.Transpose();
 
-	Utility::DXResource::UpdateConstantBuffer(m_meshConstants, pContext, m_meshCB);
+	MeshConstants toSend = m_meshConstants;
+
+	Utility::DXResource::UpdateConstantBuffer(toSend, pContext, m_meshCB);
 	Utility::DXResource::UpdateConstantBuffer(m_materialConstants, pContext, m_materialCB);
 }
 
@@ -127,9 +128,12 @@ void MeshPart::Draw(ID3D11DeviceContext1* pContext) const
 		pContext->VSSetShaderResources(30, 6, SRVs);
 	}
 
-
+	ID3D11ShaderResourceView* release[6] = { NULL, };
 
 	pContext->DrawIndexed(m_indexCount, 0, 0);
+
+	pContext->PSSetShaderResources(30, 6, release);
+	pContext->VSSetShaderResources(30, 6, release);
 }
 
 void MeshPart::UpdateMaterialConstant(Material& mat)

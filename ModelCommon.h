@@ -62,8 +62,8 @@ constexpr Material DEFAULT_MATERIAL =
 	TRUE,
 	DirectX::SimpleMath::Vector3(1.f, 1.f, 1.f),
 
-	0.1f,
-	0.1f,
+	0.8f,
+	0.2f,
 	0.5f,
 	0.f
 };
@@ -73,9 +73,9 @@ static_assert(sizeof(Material) % 16 == 0, "Material Alignment");
 
 struct Vertex
 {
-	DirectX::SimpleMath::Vector3 position;
-	DirectX::SimpleMath::Vector2 textureCoordination;
+	DirectX::SimpleMath::Vector3 positionModel;
 	DirectX::SimpleMath::Vector3 normalModel;
+	DirectX::SimpleMath::Vector2 texcoordinate;
 	DirectX::SimpleMath::Vector3 tangentModel;
 };
 

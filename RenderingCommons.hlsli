@@ -66,6 +66,8 @@ struct Material
 
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
+
+// not yet added
 SamplerState shadowPointSampler : register(s2);
 SamplerComparisonState shadowCompareSampler : register(s3);
 SamplerState pointWrapSampler : register(s4);

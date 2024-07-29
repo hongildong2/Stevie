@@ -37,7 +37,7 @@ public:
 
 	inline ID3D11Buffer* GetMaterialCB() const
 	{
-		return m_meshCB.Get();
+		return m_materialCB.Get();
 	}
 
 
