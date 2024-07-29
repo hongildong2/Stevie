@@ -1,4 +1,4 @@
-﻿﻿/**
+/**
  * Real-time Realistic Ocean Lighting using Seamless Transitions from Geometry to BRDF
  * Copyright (c) 2009 INRIA
  * All rights reserved.
@@ -32,7 +32,7 @@
  * Author: Eric Bruneton
  */
 
-#if !defined(BRUNETON_LIGHTING_INCLUDED)
+#ifndef BRUNETON_LIGHTING_INCLUDED
 
 #include "CoordTransform.hlsli"
 #define BRUNETON_LIGHTING_INCLUDED

@@ -1,6 +1,5 @@
 #include "RenderingCommons.hlsli"
-
-#include "ScreenSpace.hlsli"
+#include "CoordTransform.hlsli"
 
 
 SamplingPixelShaderInput main(SamplingVertexShaderInput input)

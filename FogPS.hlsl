@@ -1,4 +1,4 @@
-#include "ScreenSpace.hlsli"
+#include "CoordTransform.hlsli"
 #include "RenderingCommons.hlsli"
 
 Texture2D<float3> RenderResult : register(t100);

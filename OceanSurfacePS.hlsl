@@ -78,7 +78,7 @@ float3 Refraction(float3 oceanColor, float3 lightColor, float NdotL, float2 sss)
 	return color;
 }
 
-float3 LitFoamColor(FoamOutput foamData, float3 N, float3 NdotL, float3 lightColor, float lightAttenuation)
+float3 LitFoamColor(FoamOutput foamData, float3 N, float NdotL, float3 lightColor, float lightAttenuation)
 {
 	const float3 FOAM_TINT_RGB = 0;
 	float ndotl = (0.2 + 0.8 * NdotL) * lightAttenuation;
@@ -162,7 +162,5 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 foamColor = LitFoamColor(foamOut, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
 	color = lerp(color, foamOut.albedo, foamOut.coverage);
 	
-	
-	
-	return color;
+	return float4(color, 1);
 }
