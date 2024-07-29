@@ -37,6 +37,7 @@ struct Light
 	float haloRadius;
 	float haloStrength;
 	
+	matrix proj;
 	matrix viewProj;
 	matrix invProj;
 };

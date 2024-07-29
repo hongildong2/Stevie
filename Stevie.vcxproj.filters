@@ -59,9 +59,10 @@
     <ClInclude Include="ModelCommon.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="ModelMeshPart.h">
-      <Filter>Model</Filter>
-    </ClInclude>
+    <ClInclude Include="EMeshType.h" />
+    <ClInclude Include="GlobalLight.h" />
+    <ClInclude Include="EModelType.h" />
+    <ClInclude Include="MeshPart.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -93,9 +94,8 @@
     <ClCompile Include="ModelCommon.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="ModelMeshPart.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
+    <ClCompile Include="GlobalLight.cpp" />
+    <ClCompile Include="MeshPart.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -118,13 +118,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Common.hlsli" />
     <None Include="OceanGlobal.hlsli">
       <Filter>Ocean</Filter>
     </None>
     <None Include="GPURandom.hlsli">
       <Filter>Ocean</Filter>
     </None>
+    <None Include="RenderingCommons.hlsli" />
+    <None Include="ScreenSpace.hlsli" />
+    <None Include="PBRCommons.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PBRVS.hlsl" />
@@ -164,9 +166,9 @@
     <FxCompile Include="DepthOnlyShaders.hlsl">
       <Filter>DepthMap</Filter>
     </FxCompile>
-    <FxCompile Include="PBRCommons.hlsli" />
     <FxCompile Include="FoamSimulationCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="FogPS.hlsl" />
   </ItemGroup>
 </Project>

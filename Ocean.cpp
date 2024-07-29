@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include <algorithm>
-
 #include "Ocean.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"

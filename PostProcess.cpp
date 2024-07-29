@@ -6,7 +6,9 @@
 
 PostProcess::PostProcess(const RECT size)
 	:m_originalSize(size),
-	m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM)
+	m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM),
+	m_textureToProcess(std::make_unique<RenderTexture>(DXGI_FORMAT_R16G16B16A16_FLOAT)),
+	m_textureProcessed(std::make_unique<RenderTexture>(DXGI_FORMAT_R16G16B16A16_FLOAT))
 {
 	m_bloomTextures.reserve(static_cast<size_t>(LEVEL + 1));
 
@@ -14,10 +16,16 @@ PostProcess::PostProcess(const RECT size)
 void PostProcess::Initialize(ID3D11Device1* device)
 {
 	MeshData quad = GeometryGenerator::MakeSquare(1.f);
-	m_screenQuad = std::make_unique<MeshPart>(quad, device);
+	m_screenQuad = std::make_unique<MeshPart>(quad, EMeshType::SOLID, device, NO_MESH_TEXTURE);
 
 
 	RECT textureSizeByLevel = m_originalSize;
+
+	m_textureProcessed->SetDevice(device);
+	m_textureToProcess->SetDevice(device);
+
+	m_textureProcessed->SetWindow(m_originalSize);
+	m_textureToProcess->SetWindow(m_originalSize);
 
 	for (int i = 0; i <= LEVEL; ++i)
 	{
@@ -100,7 +108,6 @@ void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourc
 
 void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rtvToDraw)
 {
-	// texture to process에 처리된 결과물 있음
 	Graphics::SetPipelineState(context, Graphics::filterCombinePSO);
 	Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, context, m_postProcessCB);
 	context->PSSetConstantBuffers(0, 1, m_postProcessCB.GetAddressOf());
@@ -116,7 +123,7 @@ void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rt
 	m_screenQuad->Draw(context);
 
 	ID3D11ShaderResourceView* release[6] = { 0, };
-	context->PSSetShaderResources(0, 6, release);
+	context->PSSetShaderResources(100, 6, release);
 }
 
 void PostProcess::UpdateConstant(PostProcessConstant constant)

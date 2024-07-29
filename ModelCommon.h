@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch.h"
 #include "SimpleMath.h"
 #include "GlobalLight.h"
 
@@ -46,6 +45,16 @@ struct TextureFiles
 	const wchar_t* metallicName;
 	const wchar_t* normalName;
 	const wchar_t* roughnessName;
+};
+
+constexpr TextureFiles NO_MESH_TEXTURE =
+{
+	nullptr,
+	nullptr,
+	nullptr,
+	nullptr,
+	nullptr,
+	nullptr,
 };
 
 struct Material

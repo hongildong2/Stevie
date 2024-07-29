@@ -1,8 +1,8 @@
 #pragma once
-#include "pch.h"
-#include "DeviceResources.h"
 #include <vector>
+#include "DeviceResources.h"
 #include "RenderTexture.h"
+#include "MeshPart.h"
 
 struct PostProcessConstant
 {

@@ -1,7 +1,7 @@
 #ifndef __PBR_COMMONS__
 #define __PBR_COMMONS__
 
-#include "Common.hlsli"
+#include "RenderingCommons.hlsli"
 
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
@@ -75,10 +75,10 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
 
 float3 RadianceLByDirectLight(Light light, float3 F0, float3 N, float3 V, float3 worldPos, float3 albedo, float roughness, float metallic)
 {
-	float3 L = normalize(light.position - worldPos);
+	float3 L = normalize(light.positionWorld - worldPos);
 	float3 H = normalize(V + L);
 	
-	float distance = length(light.position - worldPos);
+	float distance = length(light.positionWorld - worldPos);
 	float attenuation = 1.0 / (distance * distance);
 	float3 radiance = float3(1.0, 1.0, 1.0); // originally, lightColor * attenuation for pointlight
 	

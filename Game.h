@@ -16,11 +16,11 @@
 #include "Ocean.h"
 #include "GlobalLight.h"
 
-
-
 constexpr float NEAR_Z = 0.1f;
 constexpr float FAR_Z = 150.f;
 constexpr float FOV = 90.f;
+constexpr float SHADOW_MAP_SIZE = 1024.f;
+constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -103,6 +103,8 @@ private:
 
 	// light
 	GlobalLight m_globalLight;
+	GlobalConstants m_globalConstant;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
 
 	// Global Resources	
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapEnvView;

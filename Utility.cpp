@@ -12,14 +12,17 @@ namespace Utility
 			D3D11_BUFFER_DESC desc;
 			ZeroMemory(&desc, sizeof(desc));
 
-			desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 			desc.ByteWidth = uElementSize * uCount;
 			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 			desc.StructureByteStride = uElementSize;
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			desc.Usage = D3D11_USAGE_DYNAMIC;
 
 			if (pInitData)
 			{
 				D3D11_SUBRESOURCE_DATA InitData;
+				ZeroMemory(&InitData, sizeof(D3D11_SUBRESOURCE_DATA));
 				InitData.pSysMem = pInitData;
 				DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, &InitData, ppBufOut));
 			}
@@ -61,7 +64,7 @@ namespace Utility
 			DX::ThrowIfFailed(pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRVOut));
 		}
 
-		void UpdateBuffer(ID3D11DeviceContext1* pContext, ID3D11Buffer* pBuffer, UINT uElementSize, UINT uCount, const void* pData)
+		void UpdateBuffer(ID3D11DeviceContext1* pContext, ID3D11Buffer* pBuffer, UINT uElementSize, UINT uCount, void* pData)
 		{
 			assert(pContext != nullptr && pBuffer != nullptr);
 
@@ -70,7 +73,8 @@ namespace Utility
 
 			DX::ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-			assert(uElementSize == mappedResource.RowPitch);
+			// row pitch means aligned byte size of texture's single row, not element size
+			// assert(uElementSize == mappedResource.RowPitch);
 
 			for (UINT i = 0; i < uCount; ++i)
 			{

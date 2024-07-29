@@ -26,7 +26,8 @@ using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false) :
 	m_pitch(0),
-	m_yaw(0)
+	m_yaw(0),
+	m_globalLight(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z)
 {
 	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -44,14 +45,6 @@ Game::Game() noexcept(false) :
 void Game::Initialize(HWND window, int width, int height)
 {
 	m_deviceResources->SetWindow(window, width, height);
-
-	// init light
-	{
-		auto& dirLight = m_lightsConstantsCPU.dirLight;
-		dirLight.position = Vector3(0.f, 10.f, 10.f);
-		dirLight.direction = Vector3(0.f, 0.f, -1.f);
-	}
-
 	m_deviceResources->CreateDeviceResources();
 	CreateDeviceDependentResources();
 
@@ -105,7 +98,7 @@ void Game::Tick()
 
 	// update envirioment
 	m_deviceResources->PIXBeginEvent(L"OceanUpdate");
-	auto context = m_deviceResources->GetD3DDeviceContext();
+	auto* context = m_deviceResources->GetD3DDeviceContext();
 	m_ocean->Update(context);
 	m_deviceResources->PIXEndEvent();
 
@@ -115,7 +108,30 @@ void Game::Tick()
 		float height = m_ocean->GetHeight({ pos.x, pos.z });
 
 		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.2f, pos.z, 1.f }); // ㅋㅋㅋㅋ
+
+		modelPtr->Update(context);
 	}
+
+	m_globalLight.Update(context);
+
+	m_globalConstant.view = m_camera->GetViewMatrix();
+	m_globalConstant.proj = m_proj;
+	m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
+
+	m_globalConstant.invView = m_globalConstant.view.Invert();
+	m_globalConstant.invProj = m_globalConstant.proj.Invert();
+	m_globalConstant.invViewProj = m_globalConstant.viewProj.Invert();
+
+	m_globalConstant.view = m_globalConstant.view.Transpose();
+	m_globalConstant.proj = m_globalConstant.proj.Transpose();
+	m_globalConstant.viewProj = m_globalConstant.viewProj.Transpose();
+
+	m_globalConstant.invView = m_globalConstant.invView.Transpose();
+	m_globalConstant.invProj = m_globalConstant.invProj.Transpose();
+	m_globalConstant.invViewProj = m_globalConstant.invViewProj.Transpose();
+
+	m_globalConstant.eyeWorld = m_camera->GetEyePos();
+
 
 	// update game by timer
 
@@ -137,75 +153,75 @@ void Game::UpdateGUI()
 	// Controller, Update DTOs
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode("Light"))
-		{
-			// Vector3 <-> float3는 이렇게
-			ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -1.f, 1.f);
-			ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 3.f);
-			ImGui::SliderFloat3("Position", &m_lightsConstantsCPU.dirLight.position.x, -2.f, 3.f);
-			ImGui::TreePop();
-		}
+		//if (ImGui::TreeNode("Light"))
+		//{
+		//	// Vector3 <-> float3는 이렇게
+		//	ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -1.f, 1.f);
+		//	ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 3.f);
+		//	ImGui::SliderFloat3("Position", &m_lightsConstantsCPU.dirLight.position.x, -2.f, 3.f);
+		//	ImGui::TreePop();
+		//}
 
 
-		if (ImGui::TreeNode("ModelMaterialConstant"))
-		{
-			unsigned int nth = 0;
-			char buf[20];
-			for (auto& model : m_models)
-			{
-				snprintf(buf, 20, "%d%s", nth++, "th model");
-				if (ImGui::TreeNode(buf))
-				{
-					Material mat = model->GetMaterialConstant();
+		//if (ImGui::TreeNode("ModelMaterialConstant"))
+		//{
+		//	unsigned int nth = 0;
+		//	char buf[20];
+		//	for (auto& model : m_models)
+		//	{
+		//		snprintf(buf, 20, "%d%s", nth++, "th model");
+		//		if (ImGui::TreeNode(buf))
+		//		{
+		//			Material mat = model->GetMaterialConstant();
 
-					ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
+		//			ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
 
-					// Vector3 <-> float3는 이렇게
-					ImGui::Text("Material Scaler");
-					ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-					ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-					ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-					ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
+		//			// Vector3 <-> float3는 이렇게
+		//			ImGui::Text("Material Scaler");
+		//			ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
+		//			ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
+		//			ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
+		//			ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
 
-					ImGui::Text("Material Constant Values");
-					ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-					ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-					ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-					ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
+		//			ImGui::Text("Material Constant Values");
+		//			ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
+		//			ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
+		//			ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
+		//			ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
 
-					model->UpdateMaterialConstant(mat);
+		//			model->UpdateMaterialConstant(mat);
 
-					ImGui::TreePop();
-				}
-			}
+		//			ImGui::TreePop();
+		//		}
+		//	}
 
-			// ㅋㅋ
-			if (ImGui::TreeNode("OCEAN PLANE"))
-			{
-				Material mat = m_oceanPlane->GetMaterialConstant();
+		//	// ㅋㅋ
+		//	if (ImGui::TreeNode("OCEAN PLANE"))
+		//	{
+		//		Material mat = m_oceanPlane->GetMaterialConstant();
 
-				ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
+		//		ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
 
-				// Vector3 <-> float3는 이렇게
-				ImGui::Text("Material Scaler");
-				ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-				ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-				ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-				ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
+		//		// Vector3 <-> float3는 이렇게
+		//		ImGui::Text("Material Scaler");
+		//		ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
+		//		ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
+		//		ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
+		//		ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
 
-				ImGui::Text("Material Constant Values");
-				ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-				ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-				ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-				ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
+		//		ImGui::Text("Material Constant Values");
+		//		ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
+		//		ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
+		//		ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
+		//		ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
 
-				m_oceanPlane->UpdateMaterialConstant(mat);
+		//		m_oceanPlane->UpdateMaterialConstant(mat);
 
-				ImGui::TreePop();
-			}
+		//		ImGui::TreePop();
+		//	}
 
-			ImGui::TreePop();
-		}
+		//	ImGui::TreePop();
+		//}
 
 		if (ImGui::TreeNode("ImageFilter"))
 		{
@@ -353,14 +369,36 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
+		// Set GlobalConstant
+		ID3D11ShaderResourceView* resources[] = {
+			m_cubemapEnvView.Get(),
+			m_cubemapIrradianceView.Get(),
+			m_cubemapSpecularView.Get(),
+			m_cubemapBRDFView.Get(),
+			m_globalLight.GetLightSRV()
+		};
+
+		ID3D11SamplerState* samplers[] = {
+			Graphics::linearWrapSS.Get(),
+			Graphics::linearClampSS.Get(),
+		};
+
+
+		// TODO : globalConstant 클래스로 만들기, 공용리소스 텍스쳐들 다 설정해주기
+		m_globalConstant.eyeWorld = eyePos;
+		// 공용 리소스
+		context->PSSetShaderResources(0, 5, resources);
+		context->PSSetSamplers(0, 2, samplers);
+		context->VSSetSamplers(0, 2, samplers);
+
 		// DepthOnly Pass
 		{
 			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
 			const UINT RETRIEVAL = 2;
 			ID3D11RenderTargetView* savedRTVs[RETRIEVAL] = { 0, };
 			ID3D11DepthStencilView* savedDSV = NULL;
-			// assert (savedDSV != nullptr);
 			context->OMGetRenderTargets(RETRIEVAL, savedRTVs, &savedDSV);
+			// assert (savedDSV != nullptr);
 
 			// set RTV to NULL, DSV to depthonly
 			context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -370,80 +408,28 @@ void Game::Render()
 			// Models
 			for (auto& model : m_models)
 			{
-				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-				Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
-				model->Draw(context);
+				model->RenderOverride(context, Graphics::depthOnlyPSO);
 			}
 
-			// Ocean Plane, TODO : depth전용 quad 만들거나, depthOnlyVS에서 heightMap만 맵핑할 수 잇또록 하기
-			//m_oceanPlane->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			//Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
-			//context->IASetPrimitiveTopology(Graphics::Ocean::OceanPSO.m_primitiveTopology); // ...
-			//m_oceanPlane->Draw(context);
-
-			// CubeMap
-			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			Graphics::SetPipelineState(context, Graphics::depthOnlyPSO);
-			m_cubeMap->Draw(context);
-
 			// REDO RTV
-
 			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
 			m_deviceResources->PIXEndEvent();
 		}
 
-		// Light.Draw()
-		Utility::DXResource::UpdateConstantBuffer(m_lightsConstantsCPU, context, m_lightsConstantBuffer);
-		context->PSSetConstantBuffers(1, 1, m_lightsConstantBuffer.GetAddressOf());
-
-
-		// IBL을 위해 0~3번에 큐브맵 텍스쳐 고정
-		ID3D11ShaderResourceView* resources[] = {
-			m_cubemapEnvView.Get(),
-			m_cubemapIrradianceView.Get(),
-			m_cubemapSpecularView.Get(),
-			m_cubemapBRDFView.Get(),
-		};
-
-		ID3D11SamplerState* samplers[] = {
-			Graphics::linearWrapSS.Get(),
-			Graphics::linearClampSS.Get()
-		};
-
-
-		// 공용 리소스
-		context->PSSetShaderResources(0, 4, m_cubemapEnvView.GetAddressOf());
-		context->PSSetSamplers(0, 2, samplers);
-		context->VSSetSamplers(0, 2, samplers);
-
-
+		// Ocean
+		{
+			m_deviceResources->PIXBeginEvent(L"OceanPlane");
+			m_ocean->Render(context);
+			m_deviceResources->PIXEndEvent();
+		}
 
 		// Models
 		{
 			m_deviceResources->PIXBeginEvent(L"Models");
 			for (auto& model : m_models)
 			{
-				model->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-				model->Draw(context);
+				model->Render(context);
 			}
-			m_deviceResources->PIXEndEvent();
-		}
-
-
-
-		// Ocean
-		{
-			m_deviceResources->PIXBeginEvent(L"OceanPlane");
-			Model Ocean->Render()
-				m_deviceResources->PIXEndEvent();
-		}
-
-		// CubeMap
-		{
-			m_deviceResources->PIXBeginEvent(L"CubeMap");
-
-			m_cubeMap->PrepareForRendering(context, viewMatrix, m_proj, eyePos);
-			m_cubeMap->Draw(context);
 			m_deviceResources->PIXEndEvent();
 		}
 	}
@@ -453,26 +439,13 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
-		context->CopyResource(m_postProcess->GetFirstTexture(), m_floatBuffer.Get());
+		m_postProcess->FillTextureToProcess(context, m_floatBuffer.Get());
 
-		// FirstTexture has rendered tex
-		m_postProcess->ProcessFog(context);
-
+		m_postProcess->ProcessFog(context, m_depthOnlySRV.Get());
 		m_postProcess->ProcessBloom(context);
 
-		ID3D11ShaderResourceView* resources[] = {
-			m_floatSRV.Get(),
-			m_postProcess->GetFirstSRV()
-		};
-		context->PSSetShaderResources(0, 2, resources);
-
-		auto rtv = m_deviceResources->GetRenderTargetView();
-		context->OMSetRenderTargets(1, &rtv, NULL);
-
-		m_postProcess->Draw(context);
-
-		ID3D11ShaderResourceView* nullSRV[6] = { 0, };
-		context->PSSetShaderResources(0, 6, nullSRV);
+		auto* rtv = m_deviceResources->GetRenderTargetView();
+		m_postProcess->Draw(context, rtv);
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -481,8 +454,6 @@ void Game::Render()
 
 	// Show the new frame.
 	m_deviceResources->Present();
-
-
 }
 
 // Helper method to clear the back buffers.
@@ -582,22 +553,22 @@ void Game::CreateDeviceDependentResources()
 
 	// MAKE SCENE CLASS PLEASE
 	{
-		// 끔찍하다, 기능구현 다하면 고칠게요
-
 		// Sample model
 		{
 			MeshData sphereMesh = GeometryGenerator::MakeSphere(0.5f, 100, 100);
-			MeshPart* sph = new MeshPart(sphereMesh, EMeshType::SOLID, device, {
-							L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
-				});
 
+			TextureFiles texes =
+			{
+				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
+					L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
+					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
+					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
+					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
+					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+			};
+			std::unique_ptr<MeshPart> sph = std::make_unique<MeshPart>(sphereMesh, EMeshType::SOLID, device, texes);
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
-			smaple->AddMeshComponent(std::unique_ptr<MeshPart>(sph));
+			smaple->AddMeshComponent(std::move(sph));
 			smaple->Initialize(device);
 
 			m_models.push_back(std::move(smaple));
@@ -606,10 +577,11 @@ void Game::CreateDeviceDependentResources()
 		// Ocean
 		{
 
-			m_ocean = std::make_unique<Ocean>(device);
+			m_ocean = std::make_unique<Ocean>();
 			MeshData quadPatches;
 			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
-			MeshPart* tessellatedQuads = new MeshPart(quadPatches, EMeshType::TESSELLATED, device, {});
+			auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, device, NO_MESH_TEXTURE);
+
 			// material
 			Material mat = DEFAULT_MATERIAL;
 			mat.bUseTexture = FALSE;
@@ -617,7 +589,7 @@ void Game::CreateDeviceDependentResources()
 			mat.albedo = { 0.1f, 0.1f, 0.13f };
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
-			m_ocean->AddMeshComponent(std::unique_ptr<MeshPart>(tessellatedQuads));
+			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
 
 			// size
 			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
@@ -635,10 +607,29 @@ void Game::CreateDeviceDependentResources()
 			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
-			MeshPart* cubeMesh = new MeshPart(cube, EMeshType::SOLID, device, {});
-			m_models.emplace_back("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
-			m_models.back()->AddMeshComponent(std::move(std::unique_ptr<MeshPart>(cubeMesh)));
-			m_models.back()->Initialize(device);
+			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
+			auto cubeMap = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
+			cubeMap->AddMeshComponent(std::move(cubeMesh));
+			cubeMap->Initialize(device);
+			m_models.push_back(std::move(cubeMap));
+		}
+
+		// Lights
+		{
+			const DirectX::SimpleMath::Matrix I;
+			LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
+			LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.5f, 0.f}, 6.f, ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
+			LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 0.5f, 1.f}, 6.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
+			LightData sunLight = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, -0.9f}, 20.f, {0.f, 50.f, 50.f}, 6.f, ELightType::SUN, 0.02f, 0.01f, 1.f, I, I };
+
+			m_globalLight.AddLight(light1);
+			m_globalLight.AddLight(light2);
+			m_globalLight.AddLight(light3);
+			m_globalLight.Initialize(device);
+
+			m_globalConstant = { I, I,I, I ,I, I , m_camera->GetEyePos(), 0.f, 3, NEAR_Z, FAR_Z, 0.f, sunLight };
+			Utility::DXResource::CreateConstantBuffer(m_globalConstant, device, m_globalCB);
+
 		}
 
 	}

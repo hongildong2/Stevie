@@ -12,7 +12,7 @@
 class MeshPart final
 {
 public:
-	MeshPart(MeshData& mesh, EMeshType meshType, ID3D11Device1* pDevice, TextureFiles tex);
+	MeshPart(MeshData& mesh, const EMeshType meshType, ID3D11Device1* pDevice, const TextureFiles& tex);
 	~MeshPart() = default;
 
 	MeshPart(const MeshPart& other) = delete;

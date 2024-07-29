@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "GlobalLight.h"
 
+#include "Utility.h"
+#include "GlobalLight.h"
 #include "DirectXMath.h"
 
 GlobalLight::GlobalLight(float shadowMapSize, float nearZ, float farZ)
@@ -32,7 +33,7 @@ void GlobalLight::AddLight(const LightData& lightData)
 
 void GlobalLight::Initialize(ID3D11Device1* pDevice)
 {
-	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.GetAddressOf());
+	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateBufferSRV(pDevice, m_lightsSB.Get(), m_lightsSRV.GetAddressOf());
 }
 
@@ -56,5 +57,5 @@ void GlobalLight::Update(ID3D11DeviceContext1* pContext)
 
 
 
-	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), m_lights.size(), m_lights.data());
+	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data());
 }

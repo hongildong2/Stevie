@@ -2,7 +2,14 @@
 
 #include <vector>
 #include "SimpleMath.h"
-#include "DirectXMath.h"
+
+enum class ELightType
+{
+	DIRECTIONAL = 1,
+	POINT = 2,
+	SPOT = 3,
+	SUN = 4
+};
 
 struct LightData
 {
@@ -15,7 +22,7 @@ struct LightData
 	DirectX::SimpleMath::Vector3 positionWorld;
 	float spotPower;
 
-	UINT type;
+	ELightType type;
 	float radius;
 	float haloRadius;
 	float haloStrength;
@@ -51,11 +58,17 @@ public:
 		return m_lights;
 	}
 
+	inline ID3D11ShaderResourceView* GetLightSRV() const
+	{
+		return m_lightsSRV.Get();
+	}
+
 private:
 	std::vector<LightData> m_lights;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
 
+	// shadowmap per light texture 2D
 	D3D11_VIEWPORT m_shadowViewport;
 	DirectX::SimpleMath::Matrix m_proj;
 };

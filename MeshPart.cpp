@@ -2,7 +2,7 @@
 #include "MeshPart.h"
 
 // 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
-MeshPart::MeshPart(MeshData& mesh, EMeshType type, ID3D11Device1* pDevice, TextureFiles tex)
+MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice, const TextureFiles& tex)
 	: m_type(type),
 	m_meshConstants{ DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix() , DirectX::SimpleMath::Matrix(), FALSE, 1.f, 0, 0.f },
 	m_materialConstants(DEFAULT_MATERIAL),
@@ -112,7 +112,7 @@ void MeshPart::Draw(ID3D11DeviceContext1* pContext) const
 	pContext->VSSetConstantBuffers(1, 2, meshCBs);
 	pContext->PSSetConstantBuffers(1, 2, meshCBs);
 
-	if (m_materialConstants.bUseTexture == true && m_albedoView != nullptr)
+	if (m_materialConstants.bUseTexture == TRUE && m_albedoView != nullptr)
 	{
 		ID3D11ShaderResourceView* SRVs[6] = {
 		 m_albedoView.Get(),
