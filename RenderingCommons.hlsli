@@ -32,6 +32,9 @@ struct Light
 	float3 positionWorld;
 	float spotPower;
 	
+	float3 color;
+	float dummy;
+	
 	uint type;
 	float radius;
 	float haloRadius;

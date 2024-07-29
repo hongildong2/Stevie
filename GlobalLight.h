@@ -22,6 +22,9 @@ struct LightData
 	DirectX::SimpleMath::Vector3 positionWorld;
 	float spotPower;
 
+	DirectX::SimpleMath::Vector3 color;
+	float dummy;
+
 	ELightType type;
 	float radius;
 	float haloRadius;

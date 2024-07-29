@@ -1,5 +1,5 @@
-#ifndef __SCREEN_SPACE__
-#define __SCREEN_SPACE__
+#ifndef __COORD_TRANSFORM__
+#define __COORD_TRANSFORM__
 
 
 struct SamplingVertexShaderInput
@@ -34,4 +34,20 @@ float4 TexcoordToView(float2 texcoord, Texture2D<float> depthOnlyTex, SamplerSta
 	return posView;
 }
 
-#endif /* __SCREEN_SPACE_HLSLI__ */
+// to sample skymap from texture cube
+float3 GetSkyCubeNormal(float2 uv)
+{
+	// normal to sky, y is always 1 xz -11 -> 00, xz 1-1 -> 11
+	const float3 UNIT_Y = float3(0, 1, 0);
+	float2 xzVector = (uv * 2.0) - float2(1, 1);
+	xzVector.y = -xzVector.y;
+	xzVector = normalize(xzVector); // unit vector
+	
+	float3 xzUnitVec = float3(xzVector.x, 0, xzVector.y);
+	
+	float3 uvToNormal = normalize(xzUnitVec + UNIT_Y);
+	
+	return uvToNormal;
+}
+
+#endif /* __COORD_TRANSFORM__ */

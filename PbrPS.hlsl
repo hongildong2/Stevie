@@ -1,17 +1,6 @@
 #include "RenderingCommons.hlsli"
 #include "PBRCommons.hlsli"
 
-#ifdef OCEAN_PBR_PS
-#include "OceanGlobal.hlsli"
-	Texture2DArray<float4> OceanTurbulenceMap : register(t100);
-	StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t101);
-#endif
-
-
-
-
-
-
 float3 GetNormal(PixelShaderInput input)
 {
 	float3 normalWorld = normalize(input.normalWorld);
@@ -73,7 +62,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
 	{
 		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic);
-		
 		// TODO : light type differentiation in PBR
 	}
 	
@@ -101,32 +89,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	
 	float3 color = ambient + Lo; // IBL + Lights
-	
-#ifdef OCEAN_PBR_PS
-		OceanSamplingInput oceanIn;
-		oceanIn.parameters = OceanCascadeParameters;
-		oceanIn.tex = OceanTurbulenceMap;
-		oceanIn.uv = input.texcoordinate;
-		oceanIn.cascadesCount = CASCADE_COUNT;
-		oceanIn.ss = linearWrap;
-		oceanIn.simulationScaleInMeter = SIMULATION_SIZE_IN_METER;
-		
-		FoamParameter tempP;
-		tempP.waveSharpness = 0.8;
-		tempP.foamPersistency = 0.01;
-		tempP.foamDensity = 0.08;
-		tempP.foamCoverage = 0.65;
-		tempP.foamTrailness = 0;
-	
-		FoamInput foamIn;
-		foamIn.worldUV = input.texcoordinate;
-		foamIn.viewDist = viewDist;
-		foamIn.oceanSampling = oceanIn;
-		foamIn.foamParam = tempP;
-	
-		FoamOutput foamOut = GetFoamOutput(foamIn);
-	 color = lerp(color, foamOut.albedo, foamOut.coverage);
-#endif
 	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1.0f);

@@ -212,6 +212,7 @@ struct FoamParameter
 	float foamDensity;
 	float foamTrailness;
 	float foamCoverage;
+	float foamValueBias;
 };
 
 struct FoamInput
@@ -223,7 +224,7 @@ struct FoamInput
 };
 
 
-float FoamCoverage(float4 turbulence, float2 worldUV, float bias, FoamParameter param)
+float FoamCoverage(float4 turbulence, float2 worldUV, FoamParameter param)
 {
 	float foamCurrentVal = lerp(turbulence.y, turbulence.x, param.waveSharpness);
 	float foamPersistentValue = (turbulence.z + turbulence.w) * 0.5;
@@ -233,7 +234,7 @@ float FoamCoverage(float4 turbulence, float2 worldUV, float bias, FoamParameter 
 	foamCurrentVal -= 1;
 	foamPersistentValue -= 1;
 	
-	float foamValue = max((foamPersistentValue + param.foamTrailness * (1 - bias)), (foamCurrentVal + param.foamCoverage * (1 - bias)));
+	float foamValue = max((foamPersistentValue + param.foamTrailness * (1 - param.foamValueBias)), (foamCurrentVal + param.foamCoverage * (1 - param.foamValueBias)));
 	float surfaceFoam = saturate(foamValue * param.foamDensity);
 
 	return surfaceFoam;
@@ -250,15 +251,14 @@ FoamOutput GetFoamOutput(FoamInput input)
 	FoamOutput res;
 	float4 turbulence = SampleOceanTexture(input.oceanSampling);
 	
-	float bias = 0.0003; //??
-	res.coverage = FoamCoverage(turbulence, input.worldUV, bias, input.foamParam);
+	res.coverage = FoamCoverage(turbulence, input.worldUV, input.foamParam);
 	
 	// 가까이서보면 Foam Coverage를 극적으로 줄인다.
 	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
 	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
 	
-	// TODO : sample foam texture
+	// TODO : sample foam texture into albedo
 	res.albedo = 1;
 	
 	return res;

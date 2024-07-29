@@ -63,6 +63,7 @@
     <ClInclude Include="GlobalLight.h" />
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="MeshPart.h" />
+    <ClInclude Include="SceneStateObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -96,6 +97,7 @@
     </ClCompile>
     <ClCompile Include="GlobalLight.cpp" />
     <ClCompile Include="MeshPart.cpp" />
+    <ClCompile Include="SceneStateObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -125,7 +127,7 @@
       <Filter>Ocean</Filter>
     </None>
     <None Include="RenderingCommons.hlsli" />
-    <None Include="ScreenSpace.hlsli" />
+    <None Include="CoordTransform.hlsli" />
     <None Include="PBRCommons.hlsli" />
   </ItemGroup>
   <ItemGroup>
@@ -170,5 +172,11 @@
       <Filter>Ocean</Filter>
     </FxCompile>
     <FxCompile Include="FogPS.hlsl" />
+    <FxCompile Include="OceanSurfacePS.hlsl">
+      <Filter>Ocean</Filter>
+    </FxCompile>
+    <FxCompile Include="BrunetonLighting.hlsli">
+      <Filter>Ocean</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
