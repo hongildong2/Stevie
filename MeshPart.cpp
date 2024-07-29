@@ -9,7 +9,8 @@ MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice,
 	m_vertexStride(sizeof(Vertex)),
 	m_vertexOffset(0),
 	m_indexFormat(DXGI_FORMAT_R32_UINT),
-	m_indexCount(static_cast<UINT>(mesh.indicies.size()))
+	m_indexCount(static_cast<UINT>(mesh.indicies.size())),
+	m_modelPos()
 {
 	// init vertex buffer
 	D3D11_BUFFER_DESC bufferDesc;
@@ -85,9 +86,9 @@ void MeshPart::Prepare(ID3D11DeviceContext1* pContext, DirectX::SimpleMath::Matr
 	m_meshConstants.worldInv = worldInv.Transpose();
 	m_meshConstants.worldIT = worldIT.Transpose();
 
-	MeshConstants toSend = m_meshConstants;
+	// MeshConstants toSend = m_meshConstants;
 
-	Utility::DXResource::UpdateConstantBuffer(toSend, pContext, m_meshCB);
+	Utility::DXResource::UpdateConstantBuffer(m_meshConstants, pContext, m_meshCB);
 	Utility::DXResource::UpdateConstantBuffer(m_materialConstants, pContext, m_materialCB);
 }
 

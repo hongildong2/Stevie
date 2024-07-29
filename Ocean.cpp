@@ -159,6 +159,7 @@ void Ocean::InitializeData(ID3D11DeviceContext1* context)
 	context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);
 	Utility::ComputeShaderBarrier(context);
 
+	Model::Update(context);
 	mb_initialized = true;
 }
 
@@ -330,7 +331,7 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 		pContext->Unmap(m_heightMapGPUStaging.Get(), 0);
 	}
 
-	Model::Update(pContext);
+	// Model::Update(pContext); ¾ÈÇØµµµÊ
 }
 
 void Ocean::Render(ID3D11DeviceContext1* pContext)
@@ -368,5 +369,23 @@ float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const
 	unsigned int x = std::min(static_cast<unsigned int>(ocean::N * scaled.x), ocean::N - 1);
 	unsigned int z = std::min(static_cast<unsigned int>(ocean::N * scaled.y), ocean::N - 1);
 
-	return m_heightMapCPU[z][x];
+	constexpr unsigned int offsets[5][2] =
+	{
+		{0, -1},
+		{-1, 0},
+		{0, 1},
+		{1, 0},
+		{0, 0}
+	};
+
+	float height = 0.f;
+	for (const unsigned int* offset : offsets)
+	{
+		unsigned int multiZ = std::min(std::max(0u, z + offset[0]), ocean::N - 1);
+		unsigned int multiX = std::min(std::max(0u, x + offset[1]), ocean::N - 1);
+
+		height += m_heightMapCPU[multiZ][multiX];
+	}
+
+	return height / 5.f;
 }

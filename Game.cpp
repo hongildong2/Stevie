@@ -104,9 +104,11 @@ void Game::Tick()
 	for (auto& modelPtr : m_models)
 	{
 		auto pos = modelPtr->GetWorldPos();
+
+		// 모델들이 시간이 느리니까, 과거를 샘플링하자!
 		float height = m_ocean->GetHeight({ pos.x, pos.z });
 
-		// modelPtr->UpdatePosByCoordinate({ pos.x, height, pos.z, 1.f }); // ㅋㅋㅋㅋ
+		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ㅠㅠㅠ 렌더랑 cpu 높이맵이랑 오차가 넘 심해졌어.. 쉐이더 떡칠하면 이렇게되는가?
 
 		modelPtr->Update(context);
 	}
@@ -215,14 +217,13 @@ void Game::UpdateGUI()
 			ImGui::TreePop();
 		}
 	}
-	// TODO : 쉐이더, 월드에 종속적인 파라미터들은 Game에 멤버로넣고 따로 constant buffer로 떼서 업데이트하기.
-// Call controllers
-/*
-* light.updateDir(vec3)
-* light.updateStrength(float);
-*
-*
-*/
+	// Call controllers
+	/*
+	* light.updateDir(vec3)
+	* light.updateStrength(float);
+	*
+	*
+	*/
 	ImGui::End();
 	ImGui::Render();
 }
@@ -397,12 +398,6 @@ void Game::Render()
 		}
 
 		m_cubeMap->Render(context);
-		// Ocean
-		{
-			m_deviceResources->PIXBeginEvent(L"OceanPlane");
-			m_ocean->Render(context);
-			m_deviceResources->PIXEndEvent();
-		}
 
 		// Models
 		{
@@ -413,6 +408,14 @@ void Game::Render()
 			}
 			m_deviceResources->PIXEndEvent();
 		}
+
+		// Ocean
+		{
+			m_deviceResources->PIXBeginEvent(L"OceanPlane");
+			m_ocean->Render(context);
+			m_deviceResources->PIXEndEvent();
+		}
+
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -552,7 +555,7 @@ void Game::CreateDeviceDependentResources()
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
 			smaple->AddMeshComponent(std::move(sph));
 			smaple->Initialize(device);
-			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.f, -10.f));
+			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 0.5f, 0.f));
 
 			m_models.push_back(std::move(smaple));
 		}
