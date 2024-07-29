@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "GraphicsCommon.h"
-
+#include "Utility.h"
 #include <d3dcompiler.h>
 
 #pragma comment(lib,"d3dcompiler.lib")

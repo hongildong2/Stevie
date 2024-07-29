@@ -1,7 +1,11 @@
 #pragma once
+#include "pch.h"
 
+#include "DeviceResources.h"
 namespace Utility
 {
+
+
 	namespace DXResource
 	{
 		void CreateStructuredBuffer(ID3D11Device* pDevice, UINT uElementSize, UINT uCount, void* pInitData, ID3D11Buffer** ppBufOut);

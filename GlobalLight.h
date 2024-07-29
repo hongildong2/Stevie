@@ -33,13 +33,13 @@ struct LightData
 };
 
 
-class GlobalLight final
+class SceneLights final
 {
 public:
-	GlobalLight(float shadowMapSize, float nearZ, float farZ);
-	~GlobalLight() = default;
-	GlobalLight(const GlobalLight& other) = default;
-	GlobalLight& operator=(const GlobalLight& other) = default;
+	SceneLights(float shadowMapSize, float nearZ, float farZ);
+	~SceneLights() = default;
+	SceneLights(const SceneLights& other) = default;
+	SceneLights& operator=(const SceneLights& other) = default;
 
 	void Update(ID3D11DeviceContext1* pContext);
 
@@ -61,6 +61,11 @@ public:
 	inline ID3D11ShaderResourceView* GetLightSRV() const
 	{
 		return m_lightsSRV.Get();
+	}
+
+	inline const UINT GetLightsCount() const
+	{
+		return static_cast<UINT>(m_lights.size());
 	}
 
 private:

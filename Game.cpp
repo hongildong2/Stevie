@@ -27,7 +27,7 @@ using DirectX::SimpleMath::Quaternion;
 Game::Game() noexcept(false) :
 	m_pitch(0),
 	m_yaw(0),
-	m_globalLight(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z)
+	m_sceneState()
 {
 	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -37,6 +37,9 @@ Game::Game() noexcept(false) :
 
 
 	m_camera = std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY);
+	m_sceneLights  = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
+	m_ocean = std::make_unique<Ocean>();
+
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
@@ -112,26 +115,8 @@ void Game::Tick()
 		modelPtr->Update(context);
 	}
 
-	m_globalLight.Update(context);
-
-	m_globalConstant.view = m_camera->GetViewMatrix();
-	m_globalConstant.proj = m_proj;
-	m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
-
-	m_globalConstant.invView = m_globalConstant.view.Invert();
-	m_globalConstant.invProj = m_globalConstant.proj.Invert();
-	m_globalConstant.invViewProj = m_globalConstant.viewProj.Invert();
-
-	m_globalConstant.view = m_globalConstant.view.Transpose();
-	m_globalConstant.proj = m_globalConstant.proj.Transpose();
-	m_globalConstant.viewProj = m_globalConstant.viewProj.Transpose();
-
-	m_globalConstant.invView = m_globalConstant.invView.Transpose();
-	m_globalConstant.invProj = m_globalConstant.invProj.Transpose();
-	m_globalConstant.invViewProj = m_globalConstant.invViewProj.Transpose();
-
-	m_globalConstant.eyeWorld = m_camera->GetEyePos();
-
+	m_sceneLights->Update(context);
+	m_sceneState->Update(context, this);
 
 	// update game by timer
 
@@ -370,12 +355,14 @@ void Game::Render()
 	// Scene.Draw()
 	{
 		// Set GlobalConstant
+		m_sceneState->PrepareRender(context);
+
 		ID3D11ShaderResourceView* resources[] = {
 			m_cubemapEnvView.Get(),
 			m_cubemapIrradianceView.Get(),
 			m_cubemapSpecularView.Get(),
 			m_cubemapBRDFView.Get(),
-			m_globalLight.GetLightSRV()
+			m_sceneLights->GetLightSRV()
 		};
 
 		ID3D11SamplerState* samplers[] = {
@@ -383,9 +370,6 @@ void Game::Render()
 			Graphics::linearClampSS.Get(),
 		};
 
-
-		// TODO : globalConstant 클래스로 만들기, 공용리소스 텍스쳐들 다 설정해주기
-		m_globalConstant.eyeWorld = eyePos;
 		// 공용 리소스
 		context->PSSetShaderResources(0, 5, resources);
 		context->PSSetSamplers(0, 2, samplers);
@@ -576,8 +560,6 @@ void Game::CreateDeviceDependentResources()
 
 		// Ocean
 		{
-
-			m_ocean = std::make_unique<Ocean>();
 			MeshData quadPatches;
 			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
 			auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, device, NO_MESH_TEXTURE);
@@ -620,15 +602,12 @@ void Game::CreateDeviceDependentResources()
 			LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
 			LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.5f, 0.f}, 6.f, ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
 			LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 0.5f, 1.f}, 6.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
-			LightData sunLight = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, -0.9f}, 20.f, {0.f, 50.f, 50.f}, 6.f, ELightType::SUN, 0.02f, 0.01f, 1.f, I, I };
 
-			m_globalLight.AddLight(light1);
-			m_globalLight.AddLight(light2);
-			m_globalLight.AddLight(light3);
-			m_globalLight.Initialize(device);
 
-			m_globalConstant = { I, I,I, I ,I, I , m_camera->GetEyePos(), 0.f, 3, NEAR_Z, FAR_Z, 0.f, sunLight };
-			Utility::DXResource::CreateConstantBuffer(m_globalConstant, device, m_globalCB);
+			m_sceneLights->AddLight(light1);
+			m_sceneLights->AddLight(light2);
+			m_sceneLights->AddLight(light3);
+			m_sceneLights->Initialize(device);
 
 		}
 

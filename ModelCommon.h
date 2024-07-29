@@ -3,27 +3,6 @@
 #include "SimpleMath.h"
 #include "GlobalLight.h"
 
-struct GlobalConstants
-{
-	DirectX::SimpleMath::Matrix view;
-	DirectX::SimpleMath::Matrix proj;
-	DirectX::SimpleMath::Matrix viewProj;
-
-	DirectX::SimpleMath::Matrix invView;
-	DirectX::SimpleMath::Matrix invProj;
-	DirectX::SimpleMath::Matrix invViewProj;
-
-	DirectX::SimpleMath::Vector3 eyeWorld;
-	float timeGlobal;
-
-	UINT globalLightsCount;
-	float nearZ;
-	float farZ;
-	float gcDummy;
-
-	LightData globalSunLight;
-};
-
 struct MeshConstants
 {
 	DirectX::SimpleMath::Matrix world;

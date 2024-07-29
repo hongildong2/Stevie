@@ -4,7 +4,7 @@
 #include "GlobalLight.h"
 #include "DirectXMath.h"
 
-GlobalLight::GlobalLight(float shadowMapSize, float nearZ, float farZ)
+SceneLights::SceneLights(float shadowMapSize, float nearZ, float farZ)
 	: m_shadowViewport(),
 	m_proj()
 {
@@ -21,7 +21,7 @@ GlobalLight::GlobalLight(float shadowMapSize, float nearZ, float farZ)
 	m_shadowViewport.MinDepth = 0.0f;
 	m_shadowViewport.MaxDepth = 1.0f;
 }
-void GlobalLight::AddLight(const LightData& lightData)
+void SceneLights::AddLight(const LightData& lightData)
 {
 	if (m_lightsSB != nullptr) // buffer already initialized, sorry
 	{
@@ -31,18 +31,17 @@ void GlobalLight::AddLight(const LightData& lightData)
 	m_lights.push_back(lightData);
 }
 
-void GlobalLight::Initialize(ID3D11Device1* pDevice)
+void SceneLights::Initialize(ID3D11Device1* pDevice)
 {
 	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateBufferSRV(pDevice, m_lightsSB.Get(), m_lightsSRV.GetAddressOf());
 }
 
 
-void GlobalLight::Update(ID3D11DeviceContext1* pContext)
+void SceneLights::Update(ID3D11DeviceContext1* pContext)
 {
 	for (auto& l : m_lights)
 	{
-
 		auto view = DirectX::SimpleMath::Matrix::CreateLookAt(l.positionWorld, l.direction, { 0.f, 1.f, 0.f });
 
 		l.proj = m_proj;

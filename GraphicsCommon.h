@@ -1,4 +1,6 @@
 #pragma once
+#include "pch.h"
+
 #include "GraphicsPSO.h"
 #include "ComputePSO.h"
 // 참고: DirectX_Graphic-Samples 미니엔진

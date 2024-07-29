@@ -52,6 +52,8 @@
 #include <stdexcept>
 #include <system_error>
 #include <tuple>
+#include <vector>
+
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
@@ -66,9 +68,7 @@
 #include "GeometricPrimitive.h"
 #include "GraphicsMemory.h"
 #include "Keyboard.h"
-// #include "Model.h"
 #include "Mouse.h"
-#include "PostProcess.h"
 #include "PrimitiveBatch.h"
 #include "ScreenGrab.h"
 #include "SimpleMath.h"

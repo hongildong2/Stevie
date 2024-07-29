@@ -1,4 +1,6 @@
 #pragma once
+#include "pch.h"
+
 #include "OceanConstants.h"
 #include "Model.h"
 class Ocean final : public Model
