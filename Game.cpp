@@ -367,7 +367,7 @@ void Game::Render()
 			context->PSSetSamplers(0, 2, samplers);
 			context->VSSetSamplers(0, 2, samplers);
 		}
-		
+
 		// DepthOnly Pass
 		{
 			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
@@ -415,13 +415,12 @@ void Game::Render()
 	}
 	m_deviceResources->PIXEndEvent();
 
-
+	//
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
-	// post process, multiple RTV로 묶어서 postprocess.Process()로 퉁치고싶은데 왜 인자로 넘겨주면 안되고 이렇게 바깥에서해야하는거지?
 	{
 		m_postProcess->FillTextureToProcess(context, m_floatBuffer.Get());
 
-		// 		m_postProcess->ProcessFog(context, m_depthOnlySRV.Get());
+		m_postProcess->ProcessFog(context, m_depthMapSRV.Get());
 		m_postProcess->ProcessBloom(context);
 
 		auto* rtv = m_deviceResources->GetRenderTargetView();
