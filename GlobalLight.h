@@ -77,7 +77,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
 
-	// shadowmap per light texture 2D
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_shadowMaps; // perLight
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMapsSRV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_shadowMapsDSV;
+
 	D3D11_VIEWPORT m_shadowViewport;
 	DirectX::SimpleMath::Matrix m_proj;
 };
