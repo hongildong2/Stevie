@@ -357,12 +357,13 @@ void Game::Render()
 			context->ClearDepthStencilView(m_depthMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 			context->OMSetRenderTargets(0, NULL, m_depthMapDSV.Get());
 
-			m_skyBox->RenderOverride(context, Graphics::depthOnlyPSO);
+			m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 			// Models
 			for (auto& model : m_models)
 			{
 				model->RenderOverride(context, Graphics::depthOnlyPSO);
 			}
+			m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
 
 			// REDO RTV
 			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);

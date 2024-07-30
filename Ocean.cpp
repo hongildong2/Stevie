@@ -5,7 +5,7 @@
 #include "Utility.h"
 
 Ocean::Ocean()
-	: Model("Ocean", EModelType::OCEAN, Graphics::Ocean::OceanPSO),
+	: Model("Ocean", EModelType::OCEAN, Graphics::Ocean::oceanPSO),
 	mb_initialized(false),
 	m_heightMapCPU{ 0, },
 	m_combineWaveConstant(ocean::CombineWaveConstantInitializer),
@@ -137,7 +137,7 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, pDevice, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, pDevice, m_FFTCB);
 	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, pDevice, m_combineWaveCB);
-	m_PSO = Graphics::Ocean::OceanPSO;
+	m_PSO = Graphics::Ocean::oceanPSO;
 	Model::Initialize(pDevice);
 }
 void Ocean::InitializeData(ID3D11DeviceContext1* context)
@@ -348,7 +348,7 @@ void Ocean::Render(ID3D11DeviceContext1* pContext)
 
 	ID3D11ShaderResourceView* release[6] = { 0, };
 	pContext->PSSetShaderResources(100, 2, release);
-	pContext->DSSetShaderResources(0, 6, release);
+	pContext->DSSetShaderResources(100, 6, release);
 }
 
 void Ocean::RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso)
@@ -369,7 +369,7 @@ float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const
 	unsigned int x = std::min(static_cast<unsigned int>(ocean::N * scaled.x), ocean::N - 1);
 	unsigned int z = std::min(static_cast<unsigned int>(ocean::N * scaled.y), ocean::N - 1);
 
-	constexpr unsigned int offsets[5][2] =
+	constexpr int offsets[5][2] =
 	{
 		{0, -1},
 		{-1, 0},
@@ -379,7 +379,7 @@ float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const
 	};
 
 	float height = 0.f;
-	for (const unsigned int* offset : offsets)
+	for (const int* offset : offsets)
 	{
 		unsigned int multiZ = std::min(std::max(0u, z + offset[0]), ocean::N - 1);
 		unsigned int multiX = std::min(std::max(0u, x + offset[1]), ocean::N - 1);

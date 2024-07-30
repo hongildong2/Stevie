@@ -30,7 +30,7 @@ float4 HorizonBlend(float3 viewDir, float3 viewDist, float3 eyeWorld)
 	
 	float distanceScale = 100 + 7 * abs(eyeWorld.y);
 	
-	float HORIZON_FOG_PARAM = 0.1;
+	float HORIZON_FOG_PARAM = 0.01;
 	
 	float t = exp(-5 / max(HORIZON_FOG_PARAM, 0.01) * (abs(viewDir.y) + distanceScale / (viewDist + distanceScale)));
 	
@@ -64,9 +64,8 @@ float2 SubsurfaceScatteringFactor(float3 viewDir, float3 viewDist, float3 lightD
 
 float3 Refraction(float3 oceanColor, float3 lightColor, float NdotL, float2 sss)
 {
-	float depthScale = 0;
-	const float3 DEPTH_SCATTER_COLOR = oceanColor * 0.1;
-	const float3 SSS_COLOR = oceanColor * 0.3;
+	const float3 DEPTH_SCATTER_COLOR = oceanColor * 0.7;
+	const float3 SSS_COLOR = oceanColor * 0.9;
 	
 	float3 color = DEPTH_SCATTER_COLOR;
 	float3 sssColor = SSS_COLOR;
@@ -97,6 +96,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 tangentX = normalize(cross(tangentY, input.normalWorld));
 
 	float3 V = normalize(input.positionWorld - eyeWorld);
+
 	float3 L = normalize(globalSunLight.positionWorld - input.positionWorld);
 	float NdotL = saturate(dot(input.normalWorld, L));
 	
@@ -110,7 +110,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float viewDist = distance(input.positionWorld, eyeWorld);
 	float windSpeed = 10.0;
-	float waveAlignment = 1;
+	float waveAlignment = 1.0;
 	float scale = 1;
 	BrInput.slopeVarianceSquared = materialConstant.roughnessFactor * (1 + materialConstant.roughness * 0.3)
 								* SlopeVarianceSquared(windSpeed, viewDist, waveAlignment, scale);
@@ -126,8 +126,10 @@ float4 main(PixelShaderInput input) : SV_TARGET
 						* SPECULAR_STRENGTH * globalSunLight.color;
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
-						
+	
+	// 그냥 skymap 텍스쳐 추가
 	float3 reflected = MeanSkyRadiance(cubeMap, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
+	// float3 reflected = MeanSkyRadianceUVWorld(cubeMap, linearWrap, input.texcoordinate, BrInput.slopeVarianceSquared);
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
 	

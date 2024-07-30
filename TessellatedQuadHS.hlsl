@@ -14,7 +14,11 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 {
 	HS_CONSTANT_DATA_OUTPUT Output;
 	
+	#ifdef DEPTH_ONLY
+	const float MAX_TESS = 8;
+	#else
 	const float MAX_TESS = 64;
+	#endif
 	
 	float3 patchCenterWorldPos = 0;
 	[unroll(NUM_CONTROL_POINTS)]

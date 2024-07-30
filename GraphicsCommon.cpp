@@ -33,8 +33,8 @@ namespace Graphics
 
 
 	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
+	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadDepthOnlyHS;
 	Microsoft::WRL::ComPtr<ID3D11DomainShader> tessellatedQuadDS;
-
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
@@ -43,7 +43,9 @@ namespace Graphics
 	GraphicsPSO pbrPSO;
 	GraphicsPSO cubemapPSO;
 	GraphicsPSO filterCombinePSO;
+
 	GraphicsPSO depthOnlyPSO;
+	GraphicsPSO cubeMapDepthOnlyPSO;
 	GraphicsPSO fogPSO;
 
 	ComputePSO downBlurPSO;
@@ -68,7 +70,8 @@ namespace Graphics
 		ComputePSO combineWavePSO;
 		ComputePSO foamSimulationPSO;
 
-		GraphicsPSO OceanPSO;
+		GraphicsPSO oceanPSO;
+		GraphicsPSO depthOnlyPSO;
 	}
 
 
@@ -146,7 +149,7 @@ namespace Graphics
 	void InitShaders(ID3D11Device1* device)
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
-
+		D3D_SHADER_MACRO depthOnlyShaderDefines[2] = { "DEPTH_ONLY", "1", NULL, NULL };
 		// Vertex Shaders
 		{
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -201,9 +204,6 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
-
-
-			// D3D_SHADER_MACRO defines[2] = { "OCEAN_PBR_PS", "1", NULL, NULL };
 			DX::ThrowIfFailed(CompileShader(L"OceanSurfacePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 
@@ -250,8 +250,13 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadHS.hlsl", "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadHS.GetAddressOf());
 
+			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadHS.hlsl", "main", "hs_5_0", depthOnlyShaderDefines, shaderBlob.GetAddressOf()));
+			device->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadDepthOnlyHS.GetAddressOf());
+
 			DX::ThrowIfFailed(CompileShader(L"TessellatedQuadDS.hlsl", "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, tessellatedQuadDS.GetAddressOf());
+
+
 		}
 	}
 
@@ -328,11 +333,13 @@ namespace Graphics
 		filterCombinePSO.m_rasterizerState = basicRS;
 		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-		depthOnlyPSO.m_vertexShader = depthOnlyVS;
-		// depthOnlyPSO.m_pixelShader = ¼³Á¤¾ÈÇØÁàµµ µª½º¹öÆÛ »ý±è
+		depthOnlyPSO.m_vertexShader = depthOnlyVS;		// depthOnlyPSO.m_pixelShader = ¼³Á¤¾ÈÇØÁàµµ µª½º¹öÆÛ »ý±è
 		depthOnlyPSO.m_inputLayout = basicIL;
 		depthOnlyPSO.m_rasterizerState = basicRS;
 		depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+		cubeMapDepthOnlyPSO = depthOnlyPSO;
+		cubeMapDepthOnlyPSO.m_rasterizerState = basicCcwRS;
 
 		fogPSO.m_vertexShader = screenQuadVS;
 		fogPSO.m_inputLayout = screenQuadIL;
@@ -350,13 +357,18 @@ namespace Graphics
 		Ocean::combineWavePSO.m_computeShader = Ocean::combineWaveCS;
 		Ocean::foamSimulationPSO.m_computeShader = Ocean::foamSimulationCS;
 
-		Ocean::OceanPSO.m_vertexShader = basicVS;
-		Ocean::OceanPSO.m_inputLayout = basicIL;
-		Ocean::OceanPSO.m_pixelShader = Ocean::oceanPS;
-		Ocean::OceanPSO.m_rasterizerState = basicRS;
-		Ocean::OceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
-		Ocean::OceanPSO.m_hullShader = tessellatedQuadHS;
-		Ocean::OceanPSO.m_domainShader = tessellatedQuadDS;
+		Ocean::depthOnlyPSO = depthOnlyPSO;
+		Ocean::depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+		Ocean::depthOnlyPSO.m_hullShader = tessellatedQuadDepthOnlyHS;
+		Ocean::depthOnlyPSO.m_domainShader = tessellatedQuadDS;
+
+		Ocean::oceanPSO.m_vertexShader = basicVS;
+		Ocean::oceanPSO.m_inputLayout = basicIL;
+		Ocean::oceanPSO.m_pixelShader = Ocean::oceanPS;
+		Ocean::oceanPSO.m_rasterizerState = basicRS;
+		Ocean::oceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+		Ocean::oceanPSO.m_hullShader = tessellatedQuadHS;
+		Ocean::oceanPSO.m_domainShader = tessellatedQuadDS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)

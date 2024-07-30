@@ -40,6 +40,7 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
+	extern Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadDepthOnlyHS;
 	extern Microsoft::WRL::ComPtr<ID3D11DomainShader> tessellatedQuadDS;
 
 	// Input Layouts
@@ -51,8 +52,11 @@ namespace Graphics
 	extern GraphicsPSO basicPSO;
 	extern GraphicsPSO cubemapPSO;
 	extern GraphicsPSO filterCombinePSO;
-	extern GraphicsPSO depthOnlyPSO;
 	extern GraphicsPSO fogPSO;
+
+	extern GraphicsPSO depthOnlyPSO;
+	extern GraphicsPSO cubeMapDepthOnlyPSO;
+
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;
@@ -75,7 +79,8 @@ namespace Graphics
 		extern ComputePSO combineWavePSO;
 		extern ComputePSO foamSimulationPSO;
 
-		extern GraphicsPSO OceanPSO;
+		extern GraphicsPSO oceanPSO;
+		extern GraphicsPSO depthOnlyPSO;
 	}
 
 

@@ -125,10 +125,32 @@ float3 MeanSkyRadiance(TextureCube skyCube, SamplerState skyMapSampler, float3 V
 	float3 duyNormal = GetSkyCubeNormal(duyUV);
 	
 	
-	result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
-	//result = tex2D(_SkyMap, u0 * (0.5 / 1.1) + 0.5); no sample grad
+	// result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
+	result = skyCube.Sample(skyMapSampler, texCubeNormal);
 
 	return result.rgb;
 }
 
+float3 MeanSkyRadianceUVWorld(TextureCube skyCube, SamplerState skyMapSampler, float2 uvWorld, float2 sigmaSq)
+{
+	float4 result;
+	const float eps = 0.001;
+	float2 u0 = uvWorld;
+	float2 dux = eps;
+	float2 duy = eps;
+
+	float2 uv = u0 * (0.5 / 1.1) + 0.5;
+	float2 duxUV = dux * (0.5 / 1.1);
+	float2 duyUV = duy * (0.5 / 1.1);
+	
+	float3 texCubeNormal = GetSkyCubeNormal(uv);
+	float3 duxNormal = GetSkyCubeNormal(duxUV);
+	float3 duyNormal = GetSkyCubeNormal(duyUV);
+	
+	
+	// result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
+	result = skyCube.Sample(skyMapSampler, texCubeNormal);
+
+	return result.rgb;
+}
 #endif

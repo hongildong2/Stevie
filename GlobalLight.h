@@ -62,14 +62,15 @@ public:
 		return m_lights;
 	}
 
+	// 이런식으로 하는게 맞을까? 요걸 사용하는 클래스에서 조작을 하는게 맞는것같은데..
 	inline ID3D11ShaderResourceView* GetLightSRV() const
 	{
 		return m_lightsSRV.Get();
 	}
 
-	inline const UINT GetLightsCount() const
+	inline const unsigned int GetLightsCount() const
 	{
-		return static_cast<UINT>(m_lights.size());
+		return static_cast<unsigned int>(m_lights.size());
 	}
 
 private:
@@ -79,7 +80,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_shadowMaps; // perLight
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMapsSRV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_shadowMapsDSV;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_shadowMapsDSVs;
 
 	D3D11_VIEWPORT m_shadowViewport;
 	DirectX::SimpleMath::Matrix m_proj;
