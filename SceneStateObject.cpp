@@ -8,8 +8,10 @@
 void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 {
 	const DirectX::SimpleMath::Matrix I;
-	LightData sunLight = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, -0.9f}, 20.f, {0.f, 50.f, 50.f}, 6.f, {1.f,1.f,1.f}, 0.f ,ELightType::SUN, 0.02f, 0.01f, 1.f, I,
+	LightData sunLight = { {5.f, 5.f, 5.f}, 0.f, {0.f, -0.2f, -1.f}, 20.f, {0.f, 50.f, 50.f}, 6.f, {1.f,1.f,1.f}, 0.f ,ELightType::SUN, 0.02f, 0.01f, 1.f, I,
 	I };
+	sunLight.direction.Normalize();
+
 	m_globalConstant = { I, I,I, I ,I, I , {0.f, 0.f, 0.f}, 0.f, 3, NEAR_Z, FAR_Z, 0.f, sunLight };
 
 	Utility::DXResource::CreateConstantBuffer(m_globalConstant, pDevice, m_globalCB);
