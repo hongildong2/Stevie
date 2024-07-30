@@ -203,8 +203,8 @@ namespace Graphics
 
 
 
-			D3D_SHADER_MACRO defines[2] = { "OCEAN_PBR_PS", "1", NULL, NULL };
-			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", defines, shaderBlob.GetAddressOf()));
+			// D3D_SHADER_MACRO defines[2] = { "OCEAN_PBR_PS", "1", NULL, NULL };
+			DX::ThrowIfFailed(CompileShader(L"OceanSurfacePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 
 			DX::ThrowIfFailed(CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
