@@ -4,11 +4,11 @@
 #include "Utility.h"
 #include "MeshPart.h"
 
-PostProcess::PostProcess(const RECT size)
+PostProcess::PostProcess(const RECT size, DXGI_FORMAT pipelineFormat)
 	:m_originalSize(size),
 	m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM),
-	m_textureToProcess(std::make_unique<RenderTexture>(DXGI_FORMAT_R16G16B16A16_FLOAT)),
-	m_textureProcessed(std::make_unique<RenderTexture>(DXGI_FORMAT_R16G16B16A16_FLOAT))
+	m_textureToProcess(std::make_unique<RenderTexture>(pipelineFormat)),
+	m_textureProcessed(std::make_unique<RenderTexture>(pipelineFormat))
 {
 	m_bloomTextures.reserve(static_cast<size_t>(LEVEL + 1));
 
@@ -29,7 +29,7 @@ void PostProcess::Initialize(ID3D11Device1* device)
 
 	for (int i = 0; i <= LEVEL; ++i)
 	{
-		std::unique_ptr<RenderTexture> buffer = std::make_unique<RenderTexture>(DXGI_FORMAT_R16G16B16A16_FLOAT);
+		std::unique_ptr<RenderTexture> buffer = std::make_unique<RenderTexture>(m_textureToProcess->GetFormat());
 		buffer->SetDevice(device);
 		buffer->SetWindow(textureSizeByLevel);
 		m_bloomTextures.push_back(std::move(buffer));
@@ -88,19 +88,17 @@ void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 	}
 
 	m_textureProcessed.swap(m_bloomTextures[0]);
-
-	// Draw를 여기로.
 }
 
-void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthOnlySRV)
+void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthMapSRV)
 {
 	auto* rtvToDraw = m_textureProcessed->GetRenderTargetView();
 	pContext->OMSetRenderTargets(1, &rtvToDraw, NULL);
 
-	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthOnlySRV };
+	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthMapSRV };
 	pContext->PSSetShaderResources(100, 2, SRVs);
 
-	Graphics::SetPipelineState(pContext, Graphics::depthOnlyPSO);
+	Graphics::SetPipelineState(pContext, Graphics::fogPSO);
 	m_screenQuad->Draw(pContext);
 
 	ID3D11ShaderResourceView* release[6] = { NULL, };
@@ -116,8 +114,8 @@ void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rt
 	context->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
 
 	auto* bloomed = m_textureProcessed->GetShaderResourceView();
-	auto* fogged = m_textureToProcess->GetShaderResourceView();
-	ID3D11ShaderResourceView* combineSRVs[2] = { bloomed, fogged };
+	auto* notBloomed = m_textureToProcess->GetShaderResourceView();
+	ID3D11ShaderResourceView* combineSRVs[2] = { bloomed, notBloomed };
 	context->PSSetShaderResources(100, 2, combineSRVs);
 
 	context->OMSetRenderTargets(1, &rtvToDraw, NULL);

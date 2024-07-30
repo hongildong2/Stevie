@@ -1,17 +1,19 @@
 //
 // Game.h
 //
-
 #pragma once
+#include "pch.h"
+
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_win32.h>
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "Camera.h"
 #include "GraphicsPSO.h"
 #include "ComputePSO.h"
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
+
 
 #include "Ocean.h"
 #include "GlobalLight.h"
@@ -98,9 +100,9 @@ private:
 
 
 	// RenderPassObject?? -> into RenderGraph
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthMapDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthMapSRV;
 
 	// Scene members
 	std::vector<std::unique_ptr<Model>> m_models;
@@ -110,7 +112,7 @@ private:
 	std::unique_ptr<Model> m_cubeMap;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
-	// Goto Scene
+	// Goto SceneState
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapEnvView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapIrradianceView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;

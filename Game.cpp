@@ -5,14 +5,8 @@
 #include "pch.h"
 #include "Game.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <string>
-
 #include "Model.h"
 #include "GraphicsCommon.h"
-
 #include "Utility.h"
 
 extern void ExitGame() noexcept;
@@ -351,27 +345,29 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
-		// Set GlobalConstant
-		m_sceneState->PrepareRender(context);
+		// 글로벌 상태, 공용 리소스 설정
+		{
+			m_sceneState->PrepareRender(context);
 
-		ID3D11ShaderResourceView* resources[] = {
-			m_cubemapEnvView.Get(),
-			m_cubemapIrradianceView.Get(),
-			m_cubemapSpecularView.Get(),
-			m_cubemapBRDFView.Get(),
-			m_sceneLights->GetLightSRV()
-		};
+			ID3D11ShaderResourceView* resources[] = {
+				m_cubemapEnvView.Get(),
+				m_cubemapIrradianceView.Get(),
+				m_cubemapSpecularView.Get(),
+				m_cubemapBRDFView.Get(),
+				m_sceneLights->GetLightSRV()
+			};
 
-		ID3D11SamplerState* samplers[] = {
-			Graphics::linearWrapSS.Get(),
-			Graphics::linearClampSS.Get(),
-		};
+			ID3D11SamplerState* samplers[] = {
+				Graphics::linearWrapSS.Get(),
+				Graphics::linearClampSS.Get(),
+			};
 
-		// 공용 리소스
-		context->PSSetShaderResources(0, 5, resources);
-		context->PSSetSamplers(0, 2, samplers);
-		context->VSSetSamplers(0, 2, samplers);
-
+			// 공용 리소스
+			context->PSSetShaderResources(0, 5, resources);
+			context->PSSetSamplers(0, 2, samplers);
+			context->VSSetSamplers(0, 2, samplers);
+		}
+		
 		// DepthOnly Pass
 		{
 			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
@@ -382,8 +378,8 @@ void Game::Render()
 			// assert (savedDSV != nullptr);
 
 			// set RTV to NULL, DSV to depthonly
-			context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-			context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
+			context->ClearDepthStencilView(m_depthMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			context->OMSetRenderTargets(0, NULL, m_depthMapDSV.Get());
 
 			m_cubeMap->RenderOverride(context, Graphics::depthOnlyPSO);
 			// Models
@@ -444,23 +440,19 @@ void Game::Render()
 void Game::Clear()
 {
 	m_deviceResources->PIXBeginEvent(L"Clear");
-
+	// 여길 정리할 방법은??
 	// Clear the views.
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto depthStencil = m_deviceResources->GetDepthStencilView();
-
 	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 
 	context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
 	context->ClearRenderTargetView(backBufferRTV, Colors::Black);
-
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// for post process
 	ID3D11RenderTargetView* rtvs[1] = {
 		m_floatRTV.Get(),
 	};
-
 	context->OMSetRenderTargets(1, rtvs, depthStencil);
 
 	// Set the viewport.
@@ -627,12 +619,12 @@ void Game::CreateWindowSizeDependentResources()
 		XMConvertToRadians(FOV),
 		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
 
-	auto* device = m_deviceResources->GetD3DDevice();
+	auto* pDevice = m_deviceResources->GetD3DDevice();
 
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
-	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // for HDR Pipeline
+	desc.Format = HDR_BUFFER_FORMAT; // for HDR Pipeline
 	desc.Width = size.right;
 	desc.Height = size.bottom;
 	desc.MipLevels = 1;
@@ -645,26 +637,26 @@ void Game::CreateWindowSizeDependentResources()
 	desc.CPUAccessFlags = 0;
 
 	// HDR Pipeline
-	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_floatBuffer.GetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_floatBuffer.GetAddressOf()));
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R16G16B16A16_FLOAT);
-	DX::ThrowIfFailed(device->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
-	DX::ThrowIfFailed(device->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
 	m_postProcess.reset();
-	m_postProcess = std::make_unique<PostProcess>(size);
-	m_postProcess->Initialize(device);
+	m_postProcess = std::make_unique<PostProcess>(size, HDR_BUFFER_FORMAT);
+	m_postProcess->Initialize(pDevice);
 
 
 	// depth only buffer
 	desc.Format = DXGI_FORMAT_R32_TYPELESS;
 	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	DX::ThrowIfFailed(device->CreateTexture2D(&desc, NULL, m_depthOnlyBuffer.GetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	DX::ThrowIfFailed(device->CreateDepthStencilView(m_depthOnlyBuffer.Get(), &dsvDesc, m_depthOnlyDSV.GetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(m_depthMap.Get(), &dsvDesc, m_depthMapDSV.GetAddressOf()));
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
@@ -672,7 +664,7 @@ void Game::CreateWindowSizeDependentResources()
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	DX::ThrowIfFailed(device->CreateShaderResourceView(m_depthOnlyBuffer.Get(), &srvDesc, m_depthOnlySRV.GetAddressOf()));
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_depthMap.Get(), &srvDesc, m_depthMapSRV.GetAddressOf()));
 
 
 	// TODO : 라이트 개수만큼 그림자 버퍼 만들기

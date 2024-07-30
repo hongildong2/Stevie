@@ -34,6 +34,7 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
+	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> fogPS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
@@ -51,6 +52,7 @@ namespace Graphics
 	extern GraphicsPSO cubemapPSO;
 	extern GraphicsPSO filterCombinePSO;
 	extern GraphicsPSO depthOnlyPSO;
+	extern GraphicsPSO fogPSO;
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;

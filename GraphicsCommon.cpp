@@ -26,6 +26,7 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> fogPS;
 
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
@@ -33,8 +34,6 @@ namespace Graphics
 
 	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
 	Microsoft::WRL::ComPtr<ID3D11DomainShader> tessellatedQuadDS;
-
-
 
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
@@ -45,6 +44,7 @@ namespace Graphics
 	GraphicsPSO cubemapPSO;
 	GraphicsPSO filterCombinePSO;
 	GraphicsPSO depthOnlyPSO;
+	GraphicsPSO fogPSO;
 
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
@@ -212,6 +212,10 @@ namespace Graphics
 
 			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, filterCombinePS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"FogPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, fogPS.GetAddressOf());
+
 		}
 
 		// Compute Shaders
@@ -329,6 +333,12 @@ namespace Graphics
 		depthOnlyPSO.m_inputLayout = basicIL;
 		depthOnlyPSO.m_rasterizerState = basicRS;
 		depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+		fogPSO.m_vertexShader = screenQuadVS;
+		fogPSO.m_inputLayout = screenQuadIL;
+		fogPSO.m_pixelShader = fogPS;
+		fogPSO.m_rasterizerState = basicRS;
+		fogPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		upBlurPSO.m_computeShader = upBlurCS;
 		downBlurPSO.m_computeShader = downBlurCS;

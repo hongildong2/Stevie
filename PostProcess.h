@@ -9,10 +9,10 @@ struct PostProcessConstant
 	float dx;
 	float dy;
 	float dummy1;
-	float strength = 0.2f;
-	float exposure = 1.f; // option1 in c++
-	float gamma = 2.2f; // option2 in c++
-	float blur = 1.f; // option3 in c++
+	float strength;
+	float exposure;
+	float gamma;
+	float blur;
 	float dummy;
 };
 
@@ -31,9 +31,7 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 class PostProcess
 {
 public:
-	PostProcess() = delete;
-	PostProcess(const RECT size);
-
+	PostProcess(const RECT size, DXGI_FORMAT pipelineFormat);
 	~PostProcess() = default;
 
 	PostProcess(const PostProcess& other) = delete;
