@@ -94,6 +94,8 @@ void Game::Tick()
 	m_ocean->Update(context);
 	m_deviceResources->PIXEndEvent();
 
+
+	// TODO :: Turn This Logic into Physics Component Update
 	for (auto& modelPtr : m_models)
 	{
 		auto pos = modelPtr->GetWorldPos();
@@ -199,12 +201,12 @@ void Game::UpdateGUI()
 
 		if (ImGui::TreeNode("ImageFilter"))
 		{
-			PostProcessConstant constant = m_postProcess->GetConstant();
+			PostProcessConstant constant = m_sceneState->GetPostProcess()->GetConstant();
 			ImGui::SliderFloat("strength", &constant.strength, 0.f, 1.f);
 			ImGui::SliderFloat("exposure", &constant.exposure, 0.f, 3.f);
 			ImGui::SliderFloat("gamma", &constant.gamma, 0.f, 3.f);
 
-			m_postProcess->UpdateConstant(constant);
+			m_sceneState->GetPostProcess()->UpdateConstant(constant);
 			ImGui::TreePop();
 		}
 	}
@@ -355,7 +357,7 @@ void Game::Render()
 			context->ClearDepthStencilView(m_depthMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 			context->OMSetRenderTargets(0, NULL, m_depthMapDSV.Get());
 
-			m_cubeMap->RenderOverride(context, Graphics::depthOnlyPSO);
+			m_skyBox->RenderOverride(context, Graphics::depthOnlyPSO);
 			// Models
 			for (auto& model : m_models)
 			{
@@ -367,7 +369,7 @@ void Game::Render()
 			m_deviceResources->PIXEndEvent();
 		}
 
-		m_cubeMap->Render(context);
+		m_skyBox->Render(context);
 
 		// Models
 		{
@@ -389,16 +391,10 @@ void Game::Render()
 	}
 	m_deviceResources->PIXEndEvent();
 
-	//
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	{
-		m_postProcess->FillTextureToProcess(context, m_floatBuffer.Get());
-
-		m_postProcess->ProcessFog(context, m_depthMapSRV.Get());
-		m_postProcess->ProcessBloom(context);
-
 		auto* rtv = m_deviceResources->GetRenderTargetView();
-		m_postProcess->Draw(context, rtv);
+		m_sceneState->ProcessRender(context, m_floatBuffer.Get(), m_depthMapSRV.Get(), rtv);
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -553,9 +549,9 @@ void Game::CreateDeviceDependentResources()
 		{
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
-			m_cubeMap = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
-			m_cubeMap->AddMeshComponent(std::move(cubeMesh));
-			m_cubeMap->Initialize(device);
+			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
+			m_skyBox->AddMeshComponent(std::move(cubeMesh));
+			m_skyBox->Initialize(device);
 		}
 		m_sceneState->Initialize(device);
 
@@ -569,7 +565,7 @@ void Game::CreateWindowSizeDependentResources()
 	auto* pDevice = m_deviceResources->GetD3DDevice();
 
 	// TODO : vector<IWindowSizeDependent>, iter
-	m_sceneState->OnWindowSizeChange(pDevice, size);
+	m_sceneState->OnWindowSizeChange(pDevice, size, HDR_BUFFER_FORMAT);
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
@@ -591,28 +587,21 @@ void Game::CreateWindowSizeDependentResources()
 	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
-	m_postProcess.reset();
-	m_postProcess = std::make_unique<PostProcess>(size, HDR_BUFFER_FORMAT);
-	m_postProcess->Initialize(pDevice);
-
-
 
 	desc.Format = DXGI_FORMAT_R32_TYPELESS;
 	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));
 
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(m_depthMap.Get(), &dsvDesc, m_depthMapDSV.GetAddressOf()));
-
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_depthMap.Get(), &srvDesc, m_depthMapSRV.GetAddressOf()));
 
 

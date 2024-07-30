@@ -60,9 +60,6 @@ private:
 
 
 	// TODO : list of post effects
-	// Fog
-
-
 	// Bloom
 	RECT m_originalSize;
 	std::vector<std::unique_ptr<RenderTexture>> m_bloomTextures;

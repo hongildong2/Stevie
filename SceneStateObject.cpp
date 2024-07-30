@@ -100,10 +100,23 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 	m_sceneLights->Update(pContext);
 }
 
-void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, RECT size)
+void SceneStateObject::ProcessRender(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
+{
+	m_postProcess->FillTextureToProcess(pContext, pBufferToProcess);
+
+	m_postProcess->ProcessFog(pContext, pDepthMapSRV);
+	m_postProcess->ProcessBloom(pContext);
+
+	m_postProcess->Draw(pContext, pRTVToPresent);
+}
+
+void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, RECT size, DXGI_FORMAT bufferFormat)
 {
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
 		XMConvertToRadians(FOV),
 		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
 
+	m_postProcess.reset();
+	m_postProcess = std::make_unique<PostProcess>(size, bufferFormat);
+	m_postProcess->Initialize(pDevice);
 }
