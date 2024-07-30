@@ -94,29 +94,20 @@ private:
 	float m_yaw;
 
 
-	/// Scene : models, camera, viewport, lights, cubemap
-	std::unique_ptr<Camera> m_camera; // SceneStateObject has single camera to draw, Scene has multiple Cameras ready
-	DirectX::SimpleMath::Matrix m_proj; // Goto SceneStateObject
+	/// Scene : models, lights, scene state
 
+	// Scene members
+	std::vector<std::unique_ptr<Model>> m_models;
+	std::unique_ptr<Ocean> m_ocean;
+	std::unique_ptr<PostProcess> m_postProcess;
+	std::unique_ptr<Model> m_cubeMap;
+	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
 	// RenderPassObject?? -> into RenderGraph
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthMapDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthMapSRV;
 
-	// Scene members
-	std::vector<std::unique_ptr<Model>> m_models;
-	std::unique_ptr<Ocean> m_ocean;
-	std::unique_ptr<SceneLights> m_sceneLights;
-	std::unique_ptr<PostProcess> m_postProcess;
-	std::unique_ptr<Model> m_cubeMap;
-	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
-
-	// Goto SceneState
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapEnvView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapIrradianceView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapBRDFView;
 
 	// RenderPassObject
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;

@@ -188,6 +188,7 @@
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="GlobalLight.h" />
+    <ClInclude Include="IWindowSizeDependent.h" />
     <ClInclude Include="ModelCommon.h" />
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="OceanConstants.h" />

@@ -33,6 +33,12 @@ void SceneLights::AddLight(const LightData& lightData)
 
 void SceneLights::Initialize(ID3D11Device1* pDevice)
 {
+	// Add sunlight here
+	using namespace DirectX::SimpleMath;
+	LightData sun = { {5.f, 5.f, 5.f}, 0.f, {0.f, -0.2f, -1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SUN, 0.02f, 0.01f, 1.f, Matrix(), Matrix() };
+	sun.direction.Normalize();
+	m_lights.push_back(sun);
+
 	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateBufferSRV(pDevice, m_lightsSB.Get(), m_lightsSRV.GetAddressOf());
 }
@@ -53,8 +59,5 @@ void SceneLights::Update(ID3D11DeviceContext1* pContext)
 		l.viewProj = l.viewProj.Transpose();
 		l.invProj = l.invProj.Transpose();
 	}
-
-
-
 	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data());
 }

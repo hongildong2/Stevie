@@ -64,6 +64,7 @@
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="SceneStateObject.h" />
+    <ClInclude Include="IWindowSizeDependent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

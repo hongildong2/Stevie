@@ -90,6 +90,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 {
 	const float WATER_F0 = 0.02;
 	const float3 UP_VEC = float3(0, 1, 0);
+	Light globalSunLight = globalLights[getSunlightIndex()];
 	
 	float3 tangentY = float3(0, input.normalWorld.z, -input.normalWorld.y);
 	tangentY /= max(0.001, length(tangentY));

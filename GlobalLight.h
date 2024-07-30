@@ -41,6 +41,7 @@ class SceneLights final
 public:
 	SceneLights(float shadowMapSize, float nearZ, float farZ);
 	~SceneLights() = default;
+
 	SceneLights(const SceneLights& other) = default;
 	SceneLights& operator=(const SceneLights& other) = default;
 

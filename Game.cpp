@@ -21,8 +21,7 @@ using DirectX::SimpleMath::Quaternion;
 Game::Game() noexcept(false) :
 	m_pitch(0),
 	m_yaw(0),
-	m_sceneState(std::make_unique<SceneStateObject>()),
-	m_camera(std::make_unique<Camera>(DirectX::SimpleMath::Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), DirectX::SimpleMath::Vector3::UnitY))
+	m_sceneState(std::make_unique<SceneStateObject>())
 {
 	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -106,9 +105,7 @@ void Game::Tick()
 
 		modelPtr->Update(context);
 	}
-
-	m_sceneLights->Update(context);
-	m_sceneState->Update(context, this);
+	m_sceneState->Update(context);
 
 	// update game by timer
 
@@ -257,7 +254,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (kb.Home)
 		{
-			m_camera->Reset();
+			m_sceneState->GetCamera()->Reset();
 			m_pitch = m_yaw = 0;
 		}
 
@@ -287,7 +284,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		move *= Camera::MOVEMENT_GAIN;
 
-		m_camera->UpdatePosBy(move);
+		m_sceneState->GetCamera()->UpdatePosBy(move);
 
 		// no bound currently
 		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))
@@ -315,7 +312,7 @@ void Game::Update(DX::StepTimer const& timer)
 		float r = cosf(m_pitch);
 		float z = r * cosf(m_yaw);
 		float x = r * sinf(m_yaw);
-		m_camera->UpdateLookAtBy(Vector3(x, y, z));
+		m_sceneState->GetCamera()->UpdateLookAtBy(Vector3(x, y, z));
 	}
 
 
@@ -336,37 +333,14 @@ void Game::Render()
 	// clear renderTarget, clear depth-stencil buffer => set renderTarget with depth-stencil buffer, set viewport
 	Clear();
 
-
 	auto context = m_deviceResources->GetD3DDeviceContext();
-	auto viewMatrix = m_camera->GetViewMatrix();
-	const Vector3 eyePos = m_camera->GetEyePos(); // 지금은 이것만
-
 
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
 		// 글로벌 상태, 공용 리소스 설정
-		{
-			m_sceneState->PrepareRender(context);
+		m_sceneState->PrepareRender(context);
 
-			ID3D11ShaderResourceView* resources[] = {
-				m_cubemapEnvView.Get(),
-				m_cubemapIrradianceView.Get(),
-				m_cubemapSpecularView.Get(),
-				m_cubemapBRDFView.Get(),
-				m_sceneLights->GetLightSRV()
-			};
-
-			ID3D11SamplerState* samplers[] = {
-				Graphics::linearWrapSS.Get(),
-				Graphics::linearClampSS.Get(),
-			};
-
-			// 공용 리소스
-			context->PSSetShaderResources(0, 5, resources);
-			context->PSSetSamplers(0, 2, samplers);
-			context->VSSetSamplers(0, 2, samplers);
-		}
 
 		// DepthOnly Pass
 		{
@@ -577,34 +551,12 @@ void Game::CreateDeviceDependentResources()
 
 		// Cubemap
 		{
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-			DX::ThrowIfFailed(CreateDDSTextureFromFileEx(device, L"./Assets/IBL/OVERCAST_SKY/SKYSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
-
 			MeshData cube = GeometryGenerator::MakeBox(100.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
 			m_cubeMap = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			m_cubeMap->AddMeshComponent(std::move(cubeMesh));
 			m_cubeMap->Initialize(device);
 		}
-
-		// Lights
-		{
-			m_sceneLights = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
-
-			const DirectX::SimpleMath::Matrix I;
-			LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
-			LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.5f, 0.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
-			LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 0.5f, 1.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
-
-
-			m_sceneLights->AddLight(light1);
-			m_sceneLights->AddLight(light2);
-			m_sceneLights->AddLight(light3);
-			m_sceneLights->Initialize(device);
-		}
-
 		m_sceneState->Initialize(device);
 
 	}
@@ -613,13 +565,11 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-	auto size = m_deviceResources->GetOutputSize();
-	m_proj = Matrix::CreatePerspectiveFieldOfView(
-		XMConvertToRadians(FOV),
-		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
-
+	RECT size = m_deviceResources->GetOutputSize();
 	auto* pDevice = m_deviceResources->GetD3DDevice();
 
+	// TODO : vector<IWindowSizeDependent>, iter
+	m_sceneState->OnWindowSizeChange(pDevice, size);
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
@@ -646,7 +596,7 @@ void Game::CreateWindowSizeDependentResources()
 	m_postProcess->Initialize(pDevice);
 
 
-	// depth only buffer
+
 	desc.Format = DXGI_FORMAT_R32_TYPELESS;
 	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));

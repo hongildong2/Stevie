@@ -87,15 +87,18 @@ cbuffer GlobalConstants : register(b0)
 	matrix invViewProj; // Projection Space to World
 	
 	float3 eyeWorld;
-	float timeGlobal;
+	float globalTime;
 	
-	uint globalLightsCount; // sunLight not count
+	uint globalLightsCount; // sunLight not count, sunlight at index(count) of light SB;
 	float nearZ;
 	float farZ;
 	float gcDummy;
-	
-	Light globalSunLight;
 };
+
+uint getSunlightIndex()
+{
+	return globalLightsCount;
+}
 
 cbuffer MeshConstants : register(b1)
 {
