@@ -150,6 +150,7 @@ namespace Graphics
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 		D3D_SHADER_MACRO depthOnlyShaderDefines[2] = { "DEPTH_ONLY", "1", NULL, NULL };
+		D3D_SHADER_MACRO oceanShaderDefines[2] = { "OCEAN_SHADER", "1", NULL, NULL };
 		// Vertex Shaders
 		{
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -204,7 +205,7 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"OceanSurfacePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", oceanShaderDefines, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 
 			DX::ThrowIfFailed(CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));

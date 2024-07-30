@@ -262,6 +262,15 @@ float ScreenSpaceContactFoam(Texture2D<float> depthMap, SamplerState ss, float4 
 	return saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
 }
 
+float3 LitFoamColor(FoamOutput foamData, TextureCube irradianceMap, SamplerState ss, float3 N, float NdotL, float3 lightColor, float lightAttenuation)
+{
+	const float3 FOAM_TINT_RGB = 0;
+	float ndotl = (0.2 + 0.8 * NdotL) * lightAttenuation;
+	float3 envDiffuse = irradianceMap.Sample(ss, N);
+	return foamData.albedo * (ndotl * lightColor + envDiffuse);
+}
+
+
 FoamOutput GetFoamOutput(FoamInput input)
 {
 	FoamOutput res;

@@ -16,7 +16,7 @@ SceneStateObject::SceneStateObject()
 void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 {
 	const DirectX::SimpleMath::Matrix I;
-	m_globalConstant = { I, I,I, I ,I, I , {0.f, 0.f, 0.f}, 0.f, 4, NEAR_Z, FAR_Z, 0.f };
+	m_globalConstant = { I, I,I, I ,I, I , {}, 0.f, {}, 4, NEAR_Z, FAR_Z, 0.f };
 
 	Utility::DXResource::CreateConstantBuffer(m_globalConstant, pDevice, m_globalCB);
 
@@ -91,6 +91,7 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 		m_globalConstant.invViewProj = m_globalConstant.invViewProj.Transpose();
 
 		m_globalConstant.eyeWorld = m_camera->GetEyePos();
+		m_globalConstant.eyeDir = m_camera->GetEyeDir();
 
 		// TODO : update time by timer
 

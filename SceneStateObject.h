@@ -19,10 +19,12 @@ struct GlobalConstants
 	DirectX::SimpleMath::Vector3 eyeWorld;
 	float globalTime;
 
+	DirectX::SimpleMath::Vector3 eyeDir;
 	UINT globalLightsCount;
+
 	float nearZ;
 	float farZ;
-	float gcDummy;
+	float gcDummy[2];
 };
 
 class Game;

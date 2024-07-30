@@ -22,7 +22,10 @@ DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
 {
 	return m_EyePos;
 }
-
+DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
+{
+	return m_ViewDir;
+}
 void Camera::UpdateLookAtBy(DirectX::SimpleMath::Vector3 viewDir)
 {
 	m_ViewDir = m_EyePos + viewDir;

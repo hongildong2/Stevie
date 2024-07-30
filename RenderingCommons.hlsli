@@ -89,10 +89,12 @@ cbuffer GlobalConstants : register(b0)
 	float3 eyeWorld;
 	float globalTime;
 	
-	uint globalLightsCount; // sunLight not count, sunlight at index(count) of light SB;
+	float3 eyeDir;
+	uint globalLightsCount;
+	
 	float nearZ;
 	float farZ;
-	float gcDummy;
+	float2 gcDummy;
 };
 
 uint getSunlightIndex()

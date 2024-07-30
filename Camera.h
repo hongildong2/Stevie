@@ -6,6 +6,7 @@ public:
 	Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector);
 	DirectX::SimpleMath::Matrix GetViewMatrix() const;
 	DirectX::SimpleMath::Vector3 GetEyePos() const;
+	DirectX::SimpleMath::Vector3 GetEyeDir() const;
 	void UpdateLookAtBy(DirectX::SimpleMath::Vector3 viewDir);
 	void UpdatePosBy(DirectX::SimpleMath::Vector3 pos);
 	void Reset();

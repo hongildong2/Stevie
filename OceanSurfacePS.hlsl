@@ -77,13 +77,6 @@ float3 Refraction(float3 oceanColor, float3 lightColor, float NdotL, float2 sss)
 	return color;
 }
 
-float3 LitFoamColor(FoamOutput foamData, float3 N, float NdotL, float3 lightColor, float lightAttenuation)
-{
-	const float3 FOAM_TINT_RGB = 0;
-	float ndotl = (0.2 + 0.8 * NdotL) * lightAttenuation;
-	float3 envDiffuse = irradianceMap.Sample(linearWrap, N);
-	return foamData.albedo * (ndotl * lightColor + envDiffuse);
-}
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
@@ -95,15 +88,17 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	tangentY /= max(0.001, length(tangentY));
 	float3 tangentX = normalize(cross(tangentY, input.normalWorld));
 
-	float3 V = normalize(input.positionWorld - eyeWorld);
-
-	float3 L = normalize(globalSunLight.positionWorld - input.positionWorld);
+	
+	// float3 V = normalize(input.positionWorld - eyeWorld); 이것도 카메라의 방향 자체를 해야할듯
+	float3 V = normalize(-eyeDir);
+	// float3 L = normalize(globalSunLight.positionWorld - input.positionWorld); 해는 이렇게하면 안되지, 해는 크고 멀리있으니까
+	float3 L = normalize(-globalSunLight.direction);
 	float NdotL = saturate(dot(input.normalWorld, L));
 	
 	// Brunton Ocean PBR
 	BrunetonInput BrInput;
 	BrInput.lightDirWorld = globalSunLight.direction;
-	BrInput.viewDirWorld = V;
+	BrInput.viewDirWorld = eyeDir;
 	BrInput.normalWorld = input.normalWorld;
 	BrInput.tangentXWorld = tangentX;
 	BrInput.tangentYWorld = tangentY;
@@ -111,7 +106,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float viewDist = distance(input.positionWorld, eyeWorld);
 	float windSpeed = 10.0;
 	float waveAlignment = 1.0;
-	float scale = 1;
+	float scale = 0.1;
 	BrInput.slopeVarianceSquared = materialConstant.roughnessFactor * (1 + materialConstant.roughness * 0.3)
 								* SlopeVarianceSquared(windSpeed, viewDist, waveAlignment, scale);
 								
@@ -119,7 +114,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float effectiveFresnel = saturate(WATER_F0 + (1 - WATER_F0) * meanFresnel);
 	
 	const float MIN_ROUGHNESS_BIAS = 0.02;
-	const float SPECULAR_STRENGTH = materialConstant.t1;
+	const float SPECULAR_STRENGTH = 100;
 	
 	// Calc BRDF
 	float specular = ReflectedSunRadiance(BrInput.lightDirWorld, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, max(1e-4, BrInput.slopeVarianceSquared + MIN_ROUGHNESS_BIAS))
@@ -127,9 +122,10 @@ float4 main(PixelShaderInput input) : SV_TARGET
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
 	
-	// 그냥 skymap 텍스쳐 추가
+	/*
+	 TODO : reflected가 엄청 강하고, specular는 너무 약하다.
+	*/
 	float3 reflected = MeanSkyRadiance(cubeMap, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
-	// float3 reflected = MeanSkyRadianceUVWorld(cubeMap, linearWrap, input.texcoordinate, BrInput.slopeVarianceSquared);
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
 	
@@ -162,7 +158,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	FoamOutput foamOut = GetFoamOutput(foamIn);
 	
 	const float SUN_SHADOW_ATTENUATION = 0.8;
-	float3 foamColor = LitFoamColor(foamOut, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
+	float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
 	color = lerp(color, foamOut.albedo, foamOut.coverage);
 	
 	return float4(color, 1);

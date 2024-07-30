@@ -16,7 +16,7 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
 	
 	float distFog = saturate((dist - fogMin) / (fogMax - fogMin));
 	
-	float fogStrength = 0.4;
+	float fogStrength = 0.14;
 	float fogFactor = exp(-distFog * fogStrength);
 
 	
