@@ -3,5 +3,5 @@
 
 class IWindowSizeDependent
 {
-	virtual void OnWindowSizeChange(ID3D11Device1* pDevice, RECT size) = 0;
+	virtual void OnWindowSizeChange(ID3D11Device1* pDevice, RECT size, DXGI_FORMAT bufferFormat) = 0;
 };
