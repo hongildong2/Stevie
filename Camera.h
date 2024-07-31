@@ -29,9 +29,9 @@ public:
 	// Rotate? Move?
 
 private:
-	DirectX::SimpleMath::Vector3 m_EyePosWorld;
-	DirectX::SimpleMath::Vector3 m_LookAtTargetPosWorld;
-	DirectX::SimpleMath::Vector3 m_UpVector;
+	DirectX::SimpleMath::Vector3 m_eyePosWorld;
+	DirectX::SimpleMath::Vector3 m_lookAtTargetPosWorld;
+	DirectX::SimpleMath::Vector3 m_upVector;
 
 	float m_pitch;
 	float m_yaw;

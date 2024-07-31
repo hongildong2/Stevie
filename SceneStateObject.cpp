@@ -29,9 +29,9 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 	// Light
 	{
 		m_sceneLights = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
-		LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
-		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.5f, 0.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
-		LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 0.5f, 1.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
+		LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 10.f, -5.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
+		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 5.f, 0.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
+		LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 5.f, 3.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
 
 
 		m_sceneLights->AddLight(light1);
@@ -113,9 +113,7 @@ void SceneStateObject::ProcessRender(ID3D11DeviceContext1* pContext, ID3D11Textu
 
 void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, RECT size, DXGI_FORMAT bufferFormat)
 {
-	m_proj = Matrix::CreatePerspectiveFieldOfView(
-		XMConvertToRadians(FOV),
-		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
+	m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(FOV), float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
 
 	m_postProcess.reset();
 	m_postProcess = std::make_unique<PostProcess>(size, bufferFormat);

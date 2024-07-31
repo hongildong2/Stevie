@@ -10,9 +10,9 @@ const float Camera::MOVEMENT_GAIN = 0.07f;
 
 
 Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Vector3 viewDirWorld, DirectX::SimpleMath::Vector3 upVector) 
-: m_EyePosWorld(eyePosWorld)
-, m_LookAtTargetPosWorld(eyePosWorld + viewDirWorld)
-, m_UpVector(upVector)
+: m_eyePosWorld(eyePosWorld)
+, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
+, m_upVector(upVector)
 , m_pitch(0.f)
 , m_yaw(0.f)
 {
@@ -20,17 +20,17 @@ Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Ve
 
 DirectX::SimpleMath::Matrix Camera::GetViewMatrix() const
 {
-	return DirectX::SimpleMath::Matrix::CreateLookAt(m_EyePosWorld, m_LookAtTargetPosWorld, m_UpVector);
+	return DirectX::SimpleMath::Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
 }
 
 DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
 {
-	return m_EyePosWorld;
+	return m_eyePosWorld;
 }
 
 DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
 {
-	DirectX::SimpleMath::Vector3 viewDir = m_LookAtTargetPosWorld - m_EyePosWorld;
+	DirectX::SimpleMath::Vector3 viewDir = m_lookAtTargetPosWorld - m_eyePosWorld;
 	viewDir.Normalize();
 	return viewDir;
 }
@@ -40,12 +40,12 @@ DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
 // viewDir은 Model 좌표계 기준 camera model == world
 void Camera::UpdateLookAt(DirectX::SimpleMath::Vector3& viewDirModel)
 {
-	m_LookAtTargetPosWorld = m_EyePosWorld + viewDirModel;
+	m_lookAtTargetPosWorld = m_eyePosWorld + viewDirModel;
 }
 
 void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
 {
-	m_EyePosWorld += deltaPos;
+	m_eyePosWorld += deltaPos;
 
 	using namespace DirectX;
 	using namespace DirectX::SimpleMath;
@@ -80,7 +80,7 @@ void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
 
 void Camera::Reset()
 {
-	m_EyePosWorld = Camera::START_POSITION;
+	m_eyePosWorld = Camera::START_POSITION;
 	m_pitch = 0;
 	m_yaw = 0;
 }

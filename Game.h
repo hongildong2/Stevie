@@ -99,7 +99,6 @@ private:
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
 	// RenderResource, RenderPass, RenderGraph, RHI
-
 	// RenderResource, RenderPass use these RenderResource objects
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthMapDSV;

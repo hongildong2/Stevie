@@ -7,8 +7,7 @@ enum class ELightType
 {
 	DIRECTIONAL = 1,
 	POINT = 2,
-	SPOT = 3,
-	SUN = 4
+	SPOT = 3
 };
 
 struct LightData
@@ -83,6 +82,7 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_shadowMapsDSVs;
 
 	D3D11_VIEWPORT m_shadowViewport;
-	DirectX::SimpleMath::Matrix m_proj;
+	const float m_nearZ;
+	const float m_farZ;
 };
 

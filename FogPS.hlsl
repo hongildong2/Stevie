@@ -6,8 +6,8 @@ Texture2D<float> depthOnlyTex : register(t101);
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
-	float4 viewSpacePosition = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, invProj);
-	float dist = length(viewSpacePosition.xyz);
+	float4 positionViewSpace = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, invProj);
+	float dist = length(positionViewSpace.xyz);
 	
 	float3 fogColor = float3(1, 1, 1); // TODO : Sample noise voxel texture, dynamic fog
 	

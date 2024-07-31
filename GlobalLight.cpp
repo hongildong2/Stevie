@@ -5,15 +5,10 @@
 #include "DirectXMath.h"
 
 SceneLights::SceneLights(float shadowMapSize, float nearZ, float farZ)
-	: m_shadowViewport(),
-	m_proj()
+	: m_shadowViewport{ NULL, }
+	, m_nearZ()
+	, m_farZ()
 {
-	// Row space matrix
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(
-		DirectX::XMConvertToRadians(90.f),
-		float(shadowMapSize) / float(shadowMapSize), nearZ, farZ);
-
-	ZeroMemory(&m_shadowViewport, sizeof(D3D11_VIEWPORT));
 	m_shadowViewport.TopLeftX = 0;
 	m_shadowViewport.TopLeftY = 0;
 	m_shadowViewport.Width = float(shadowMapSize);
@@ -33,16 +28,10 @@ void SceneLights::AddLight(const LightData& lightData)
 
 void SceneLights::Initialize(ID3D11Device1* pDevice)
 {
-	// Add sunlight here
-	using namespace DirectX::SimpleMath;
-	LightData sun = { {5.f, 5.f, 5.f}, 0.f, {0.f, -2.f, -1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SUN, 0.02f, 0.01f, 1.f, Matrix(), Matrix() };
-	sun.direction.Normalize();
-	m_lights.push_back(sun);
-
 	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateBufferSRV(pDevice, m_lightsSB.Get(), m_lightsSRV.GetAddressOf());
 
-	const UINT LIGHTS_COUNT = GetLightsCount(); // include sun
+	const UINT LIGHTS_COUNT = GetLightsCount();
 
 	// TODO : RenderResource -> DepthMap, ShadowMaps
 	D3D11_TEXTURE2D_DESC desc;
@@ -100,13 +89,23 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 
 void SceneLights::Update(ID3D11DeviceContext1* pContext)
 {
+	const float ORTHO_SIZE = 10.f; // defined in world space unit
+	const float FOV_IN_ANGLE = 105.f;
+
 	for (auto& l : m_lights)
 	{
-		auto view = DirectX::SimpleMath::Matrix::CreateLookAt(l.positionWorld, l.direction, { 0.f, 1.f, 0.f });
+		// TODO : 섀도우맵이 렌더링하는 뷰 프러스트럼을 전부 커버할 수 있도록 Directional light의 position을 camera의 position에 따라 변경
+		auto view = DirectX::SimpleMath::Matrix::CreateLookAt(l.positionWorld, l.positionWorld + l.direction, { 0.f, 1.f, 0.f });
 
-		l.proj = m_proj;
-		l.viewProj = view * m_proj;
-		l.invProj = m_proj.Invert();
+		// different with viewport, proj matrix coord unit is defined in world space
+		auto proj = l.type == ELightType::DIRECTIONAL ?
+					DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, m_nearZ, m_farZ)
+					:
+					DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(FOV_IN_ANGLE), 1, m_nearZ, m_farZ);
+	
+		l.proj = proj;
+		l.viewProj = view * proj;
+		l.invProj = proj.Invert();
 
 		// for shader
 		l.proj = l.proj.Transpose();

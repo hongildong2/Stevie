@@ -79,17 +79,33 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	F0 = lerp(F0, albedo, metallic);
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	#ifdef OCEAN_SHADER
-	// must add sunlight!
 	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
 	{
 		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
 	}
 	#else
 	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
-	{
+	{	
 		Lo += RadianceLByDirectLight(globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
+		
+		//// shadow
+		//Light currentLight = globalLights[lightIndex];
+		//// current pixels's world Space -> shadow viewport's view space -> depth(z) comparison
+		//float4 positionLightProjection = mul(float4(input.positionWorld, 1), currentLight.viewProj); // 아직 ScreenSpace가 아닌 NDC에 있다.
+		
+		//float2 positionLightScreen = positionLightProjection.xy / positionLightProjection.w; // 왜??
+		//float depthToObject = length(positionLightProjection); // 왜??
+		
+		//// 샘플링하는 좌표를 어떻게? -> From Projection Space, NDC to Screen Space
+		//float depthByLight = globalShadowMaps.Sample(shadowPointSampler, float3(positionLightScreen, lightIndex));
+		
+		// sunlight는 뷰포트의 제한때문에 그림자하기가 조금 곤란. -> 내가 렌더링할 View Frustrum의 섀도우맵이 잘 생성되도록 sunLight는 위치를 계속 조정해줘야할듯 눈의 위치를 기준으로 sunlight 위치가 업데이트 되도록??
+		// 아니면 eyePos와 sunlightDir만가지고 pixel -> Pos In Camera's View Frustrum -> Using Sun Dir, RayMarching In View Space, Get ScreenSpace xy for each marching => depthmap에는 depth정보가 다 사라져서 depthCubemap이 필요할듯
 	}
 	#endif
+	
+	
+	
 	
 
 	// IBL	
