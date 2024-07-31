@@ -19,8 +19,6 @@ using DirectX::SimpleMath::Matrix;
 using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false) :
-	m_pitch(0),
-	m_yaw(0),
 	m_sceneState(std::make_unique<SceneStateObject>())
 {
 	// for post processing in compute shader
@@ -236,16 +234,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
-			Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
+			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f)
 				* Camera::ROTATION_GAIN;
-
-			m_pitch -= delta.y;
-			m_yaw -= delta.x;
-
+			m_sceneState->GetCamera()->UpdatePitchYaw(deltaRotationRadian);
 		}
 
-		m_mouse->SetMode(mouse.rightButton
-			? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		m_mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		auto kb = m_keyboard->GetState();
 		m_keys.Update(kb);
@@ -257,7 +251,6 @@ void Game::Update(DX::StepTimer const& timer)
 		if (kb.Home)
 		{
 			m_sceneState->GetCamera()->Reset();
-			m_pitch = m_yaw = 0;
 		}
 
 		Vector3 move = Vector3::Zero;
@@ -280,13 +273,13 @@ void Game::Update(DX::StepTimer const& timer)
 		if (kb.Down || kb.S)
 			move.z -= 1.f;
 
-		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 
-		move = Vector3::Transform(move, q);
+		// Get Camera PitchYaw Quarternion
+		Quaternion q = m_sceneState->GetCamera()->GetPitchYawInQuarternion();
+		move = Vector3::Transform(move, q); // represented in camera space
 
-		move *= Camera::MOVEMENT_GAIN;
-
-		m_sceneState->GetCamera()->UpdatePosBy(move);
+		Vector3 deltaMove = move * Camera::MOVEMENT_GAIN;
+		m_sceneState->GetCamera()->UpdatePos(deltaMove);
 
 		// no bound currently
 		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))
@@ -294,27 +287,6 @@ void Game::Update(DX::StepTimer const& timer)
 
 		//m_cameraPos = Vector3::Min(m_cameraPos, halfBound);
 		//m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
-
-		// MOUSE : limit pitch to straight up or straight down
-		constexpr float limit = XM_PIDIV2 - 0.01f;
-		m_pitch = std::max(-limit, m_pitch);
-		m_pitch = std::min(+limit, m_pitch);
-
-		// keep longitude in sane range by wrapping
-		if (m_yaw > XM_PI)
-		{
-			m_yaw -= XM_2PI;
-		}
-		else if (m_yaw < -XM_PI)
-		{
-			m_yaw += XM_2PI;
-		}
-
-		float y = sinf(m_pitch);
-		float r = cosf(m_pitch);
-		float z = r * cosf(m_yaw);
-		float x = r * sinf(m_yaw);
-		m_sceneState->GetCamera()->UpdateLookAtBy(Vector3(x, y, z));
 	}
 
 

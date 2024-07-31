@@ -90,9 +90,6 @@ private:
 	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
-	float m_pitch;
-	float m_yaw;
-
 
 	/// Scene : models, lights, scene state
 	// Scene members
@@ -113,5 +110,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
-
 };
