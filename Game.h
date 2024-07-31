@@ -16,7 +16,7 @@
 
 
 #include "Ocean.h"
-#include "GlobalLight.h"
+#include "SceneLights.h"
 #include "SceneStateObject.h"
 #include "PostProcess.h"
 

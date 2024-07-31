@@ -55,7 +55,7 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	m_cubemapIrradianceView.Get(),
 	m_cubemapSpecularView.Get(),
 	m_cubemapBRDFView.Get(),
-	m_sceneLights->GetLightSRV()
+	m_sceneLights->GetLightsSRV()
 	};
 
 	ID3D11SamplerState* samplers[] = {
@@ -101,7 +101,7 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 	m_sceneLights->Update(pContext);
 }
 
-void SceneStateObject::ProcessRender(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
+void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
 {
 	m_postProcess->FillTextureToProcess(pContext, pBufferToProcess);
 

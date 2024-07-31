@@ -141,6 +141,8 @@ StructuredBuffer<Light> globalLights : register(t4);
 Texture2D<float> cameraDepthMap : register(t10);
 
 Texture2DArray<float> globalShadowMaps : register(t20); // For each global light, == light shadow map
+StructuredBuffer<Light> selectedLight : register(t21); // access light at zero to draw shadowmap
+
 
 Texture2D<float3> albedoTex : register(t30);
 Texture2D<float> aoTex : register(t31);

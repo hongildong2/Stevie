@@ -323,22 +323,74 @@ void Game::Render()
 			ID3D11RenderTargetView* savedRTVs[RETRIEVAL] = { 0, };
 			ID3D11DepthStencilView* savedDSV = NULL;
 			context->OMGetRenderTargets(RETRIEVAL, savedRTVs, &savedDSV);
+
+			UINT savedVPCount = 10;
+			D3D11_VIEWPORT savedVPs[10] = { NULL, };
+			context->RSGetViewports(&savedVPCount, savedVPs);
 			// assert (savedDSV != nullptr);
 
-			// set RTV to NULL, DSV to depthonly
-			context->ClearDepthStencilView(m_depthMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-			context->OMSetRenderTargets(0, NULL, m_depthMapDSV.Get());
+			// DepthOnly Pass를 어떻게하면 좋을까? 버퍼와 DSV는 대체 어디로 가야하는가? 나중에 정리하기
+			ID3D11DepthStencilView* DSVToFill = nullptr;
+			const D3D11_VIEWPORT* viewPortToUse = nullptr;
+			ZeroMemory(&viewPortToUse, sizeof(D3D11_VIEWPORT));
 
-			m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
-			// Models
-			for (auto& model : m_models)
+			// DepthMap
 			{
-				model->RenderOverride(context, Graphics::depthOnlyPSO);
-			}
-			m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+				DSVToFill = m_depthMapDSV.Get();
+				D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
+				viewPortToUse = &screenVP;
 
-			// REDO RTV
+				context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
+				context->OMSetRenderTargets(0, NULL, DSVToFill);
+
+				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
+				// Models
+				for (auto& model : m_models)
+				{
+					model->RenderOverride(context, Graphics::depthOnlyPSO);
+				}
+				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+			}
+
+			ZeroMemory(&viewPortToUse, sizeof(D3D11_VIEWPORT));
+			// ShadowMap
+			{
+				const UINT LIGHTS_COUNT = m_sceneState->GetSceneLights()->GetLightsCount();
+				auto& sceneLights = m_sceneState->GetSceneLights();
+				const std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>>& DSVs = sceneLights->GetShadowMapDSVs();
+				const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& SRVs = sceneLights->GetLightSRVs();
+
+				viewPortToUse = sceneLights->GetShadowViewport();
+				context->RSSetViewports(1, viewPortToUse);
+
+				for (unsigned int lightIndex = 0; lightIndex < LIGHTS_COUNT; ++lightIndex)
+				{
+					DSVToFill = DSVs[lightIndex].Get();
+					context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
+					context->OMSetRenderTargets(0, NULL, DSVToFill);
+
+					// 카메라를 light시점으로 옮겨야한다 -> 쉐이더에서 Structured Buffer 사용
+					// depthonly vertex쉐이더에서 지금 어느 라이트가 선택됐는지 알아야한다.
+					// 또는 StructuredBuffer의 Subresource로 참조해서 21번에 Light를 지정해준다.
+					ID3D11ShaderResourceView* currentLightSRV = SRVs[lightIndex].Get();
+					context->VSSetShaderResources(21, 1, &currentLightSRV);
+
+					m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
+					// Models
+					for (auto& model : m_models)
+					{
+						model->RenderOverride(context, Graphics::depthOnlyPSO);
+					}
+					m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+
+					ID3D11ShaderResourceView* release[1] = { NULL, };
+					context->VSSetShaderResources(21, 1, release);
+				}
+			}
+
+			// REDO
 			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
+			context->RSSetViewports(savedVPCount, savedVPs);
 			m_deviceResources->PIXEndEvent();
 		}
 
@@ -367,7 +419,7 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	{
 		auto* rtv = m_deviceResources->GetRenderTargetView();
-		m_sceneState->ProcessRender(context, m_floatBuffer.Get(), m_depthMapSRV.Get(), rtv);
+		m_sceneState->RenderProcess(context, m_floatBuffer.Get(), m_depthMapSRV.Get(), rtv);
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -570,15 +622,13 @@ void Game::CreateWindowSizeDependentResources()
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(m_depthMap.Get(), &dsvDesc, m_depthMapDSV.GetAddressOf()));
+
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_depthMap.Get(), &srvDesc, m_depthMapSRV.GetAddressOf()));
-
-
-	// TODO : 라이트 개수만큼 그림자 버퍼 만들기
 }
 
 void Game::OnDeviceLost()

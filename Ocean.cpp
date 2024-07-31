@@ -65,13 +65,13 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	// Structured Buffer
 	{
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters, m_LocalInitialSpectrumParameterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_LocalInitialSpectrumParameterSB.Get(), m_LocalInitialSpectrumParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_LocalInitialSpectrumParameterSB.Get(), 0, m_LocalInitialSpectrumParameterSRV.GetAddressOf());
 
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters, m_SwellInitialSpectrumParameterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_SwellInitialSpectrumParameterSB.Get(), m_SwellInitialSpectrumParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_SwellInitialSpectrumParameterSB.Get(), 0, m_SwellInitialSpectrumParameterSRV.GetAddressOf());
 
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters, m_combineParamterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_combineParamterSB.Get(), m_combineParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_combineParamterSB.Get(), 0, m_combineParameterSRV.GetAddressOf());
 	}
 
 

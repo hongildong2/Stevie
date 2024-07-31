@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SimpleMath.h"
-#include "GlobalLight.h"
+#include "SceneLights.h"
 
 struct MeshConstants
 {

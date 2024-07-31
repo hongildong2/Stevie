@@ -60,7 +60,7 @@
       <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="EMeshType.h" />
-    <ClInclude Include="GlobalLight.h" />
+    <ClInclude Include="SceneLights.h" />
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="SceneStateObject.h" />
@@ -96,7 +96,7 @@
     <ClCompile Include="ModelCommon.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalLight.cpp" />
+    <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="SceneStateObject.cpp" />
   </ItemGroup>

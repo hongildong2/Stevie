@@ -1,7 +1,7 @@
 #include "pch.h"
 
+#include "SceneLights.h"
 #include "Utility.h"
-#include "GlobalLight.h"
 #include "DirectXMath.h"
 
 SceneLights::SceneLights(float shadowMapSize, float nearZ, float farZ)
@@ -28,10 +28,19 @@ void SceneLights::AddLight(const LightData& lightData)
 
 void SceneLights::Initialize(ID3D11Device1* pDevice)
 {
-	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_lightsSB.GetAddressOf());
-	Utility::DXResource::CreateBufferSRV(pDevice, m_lightsSB.Get(), m_lightsSRV.GetAddressOf());
+	const unsigned int LIGHTS_COUNT = GetLightsCount();
+	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), LIGHTS_COUNT, m_lights.data(), m_lightsSB.GetAddressOf());
+	Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), 0, m_lightsSRV.GetAddressOf());
 
-	const UINT LIGHTS_COUNT = GetLightsCount();
+
+	for (unsigned int i = 0; i < LIGHTS_COUNT; ++i)
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), i, srv.GetAddressOf());
+		m_lightSRVs.push_back(srv);
+	}
+
+
 
 	// TODO : RenderResource -> DepthMap, ShadowMaps
 	D3D11_TEXTURE2D_DESC desc;
