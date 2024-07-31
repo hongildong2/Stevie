@@ -353,7 +353,7 @@ void Ocean::Render(ID3D11DeviceContext1* pContext)
 
 void Ocean::RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso)
 {
-	return; // does not render
+	Model::RenderOverride(pContext, pso);
 }
 
 float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const

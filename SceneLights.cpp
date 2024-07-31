@@ -6,8 +6,8 @@
 
 SceneLights::SceneLights(float shadowMapSize, float nearZ, float farZ)
 	: m_shadowViewport{ NULL, }
-	, m_nearZ()
-	, m_farZ()
+	, m_nearZ(nearZ)
+	, m_farZ(farZ)
 {
 	m_shadowViewport.TopLeftX = 0;
 	m_shadowViewport.TopLeftY = 0;
@@ -99,23 +99,33 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 void SceneLights::Update(ID3D11DeviceContext1* pContext)
 {
 	const float ORTHO_SIZE = 10.f; // defined in world space unit
-	const float FOV_IN_ANGLE = 105.f;
+	const float FOV_IN_ANGLE = 120.f;
 
 	for (auto& l : m_lights)
 	{
+		DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+		if (std::abs(up.Dot(l.direction) + 1.0f) < 1e-5)
+		{
+			up = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+
+		}
+
 		// TODO : 섀도우맵이 렌더링하는 뷰 프러스트럼을 전부 커버할 수 있도록 Directional light의 position을 camera의 position에 따라 변경
-		auto view = DirectX::SimpleMath::Matrix::CreateLookAt(l.positionWorld, l.positionWorld + l.direction, { 0.f, 1.f, 0.f });
+		auto view = DirectX::SimpleMath::Matrix::CreateLookAt(l.positionWorld, l.positionWorld + l.direction, up);
 
 		// different with viewport, proj matrix coord unit is defined in world space
 		auto proj = l.type == ELightType::DIRECTIONAL ?
-					DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, m_nearZ, m_farZ)
-					:
-					DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(FOV_IN_ANGLE), 1, m_nearZ, m_farZ);
-	
+			DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, m_nearZ, m_farZ)
+			:
+			DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(FOV_IN_ANGLE), 1, m_nearZ, m_farZ);
+
 		l.proj = proj;
 		l.viewProj = view * proj;
 		l.invProj = proj.Invert();
 
+
+		auto pos = l.positionWorld + l.direction;
+		auto res = DirectX::SimpleMath::Vector3::Transform(pos, l.viewProj);
 		// for shader
 		l.proj = l.proj.Transpose();
 		l.viewProj = l.viewProj.Transpose();

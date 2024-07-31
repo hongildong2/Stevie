@@ -10,7 +10,8 @@ struct SamplingVertexShaderInput
 
 struct SamplingPixelShaderInput
 {
-	float4 position : SV_POSITION;
+	float3 positionModel : POSITION;
+	float4 positionProj : SV_POSITION; // 여기에 뭔 값이라도 넣어줘야 파이프라인에서 래스터를 하지!! screen quad는 그냥 우연으로 됐던것 뿐
 	float2 texcoord : TEXCOORD;
 };
 
@@ -40,9 +41,7 @@ float3 GetSkyCubeNormal(float2 uv)
 	// normal to sky, y is always 1 xz -11 -> 00, xz 1-1 -> 11
 	const float3 UNIT_Y = float3(0, 1, 0);
 	float2 xzVector = (uv * 2.0) - float2(1, 1);
-	xzVector.y = -xzVector.y;
-	xzVector = normalize(xzVector); // unit vector
-	
+	xzVector.y = -xzVector.y;	
 	float3 xzUnitVec = float3(xzVector.x, 0, xzVector.y);
 	
 	float3 uvToNormal = normalize(xzUnitVec + UNIT_Y);

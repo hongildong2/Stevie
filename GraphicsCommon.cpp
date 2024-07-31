@@ -22,6 +22,9 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> screenQuadVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> depthOnlyVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowMapVS;
+
+
 
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
@@ -37,7 +40,7 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11DomainShader> tessellatedQuadDS;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
 
 	GraphicsPSO basicPSO;
 	GraphicsPSO pbrPSO;
@@ -47,6 +50,10 @@ namespace Graphics
 	GraphicsPSO depthOnlyPSO;
 	GraphicsPSO cubeMapDepthOnlyPSO;
 	GraphicsPSO fogPSO;
+
+	GraphicsPSO cubeMapShadowMapPSO;
+	GraphicsPSO shadowMapPSO;
+
 
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
@@ -72,6 +79,8 @@ namespace Graphics
 
 		GraphicsPSO oceanPSO;
 		GraphicsPSO depthOnlyPSO;
+		GraphicsPSO shadowMapPSO;
+
 	}
 
 
@@ -151,14 +160,17 @@ namespace Graphics
 		Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob;
 		D3D_SHADER_MACRO depthOnlyShaderDefines[2] = { "DEPTH_ONLY", "1", NULL, NULL };
 		D3D_SHADER_MACRO oceanShaderDefines[2] = { "OCEAN_SHADER", "1", NULL, NULL };
+		D3D_SHADER_MACRO skyBoxShaderDefines[2] = { "SKY_BOX", "1", NULL, NULL };
+		D3D_SHADER_MACRO shadowMapSD[2] = { "SHADOW_MAP", "1", NULL, NULL };
+
 		// Vertex Shaders
 		{
 			D3D11_INPUT_ELEMENT_DESC layout[] = {
 				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			  { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24,
+			  { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -175,17 +187,22 @@ namespace Graphics
 			// IL만드는데 왜 굳이 쉐이더 바이너리를 넣어줘야할까? 왜 한번만 하면 동일한 레이아웃의 다른 쉐이더들은 안해줘도 될까?
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), basicIL.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"DepthOnlyShaders.hlsl", "DepthOnlyVSMain", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
-
-			DX::ThrowIfFailed(CompileShader(L"CubemapVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
 
+			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", depthOnlyShaderDefines, shaderBlob.GetAddressOf()));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", depthOnlyShaderDefines, shaderBlob.GetAddressOf()));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", shadowMapSD, shaderBlob.GetAddressOf()));
+			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, shadowMapVS.GetAddressOf());
 
 
 
-
-			D3D11_INPUT_ELEMENT_DESC screenQuadLayout[] = {
+			D3D11_INPUT_ELEMENT_DESC screenQuadLayout[] =
+			{
 				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
 			  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12,
@@ -195,9 +212,13 @@ namespace Graphics
 			static_assert((sizeof(screenQuadLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC)) == 2, "Screen Quad Input Layout Size");
 
 			DX::ThrowIfFailed(CompileShader(L"ScreenQuadVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, screenQuadVS.GetAddressOf());
+			DX::ThrowIfFailed(device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, screenQuadVS.GetAddressOf()));
 
-			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), screenQuadIL.GetAddressOf());
+			DX::ThrowIfFailed(device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), samplingIL.GetAddressOf()));
+
+
+
+
 		}
 
 		// Pixel Shaders
@@ -205,10 +226,15 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", oceanShaderDefines, shaderBlob.GetAddressOf()));
+			// oceanPS
+			//DX::ThrowIfFailed(CompileShader(L"PBRPS.hlsl", "main", "ps_5_0", oceanShaderDefines, shaderBlob.GetAddressOf()));
+			//device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
+
+			DX::ThrowIfFailed(CompileShader(L"OceanSurfacePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::oceanPS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"CubemapPS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
+
+			DX::ThrowIfFailed(CompileShader(L"skyboxPS.hlsl", "main", "ps_5_0", skyBoxShaderDefines, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapPS.GetAddressOf());
 
 			DX::ThrowIfFailed(CompileShader(L"FilterCombinePS.hlsl", "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
@@ -329,7 +355,7 @@ namespace Graphics
 		cubemapPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		filterCombinePSO.m_vertexShader = screenQuadVS;
-		filterCombinePSO.m_inputLayout = screenQuadIL;
+		filterCombinePSO.m_inputLayout = samplingIL;
 		filterCombinePSO.m_pixelShader = filterCombinePS;
 		filterCombinePSO.m_rasterizerState = basicRS;
 		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -339,11 +365,17 @@ namespace Graphics
 		depthOnlyPSO.m_rasterizerState = basicRS;
 		depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+		shadowMapPSO = depthOnlyPSO;
+		shadowMapPSO.m_vertexShader = shadowMapVS;
+
 		cubeMapDepthOnlyPSO = depthOnlyPSO;
 		cubeMapDepthOnlyPSO.m_rasterizerState = basicCcwRS;
 
+		cubeMapShadowMapPSO = shadowMapPSO;
+		cubeMapShadowMapPSO.m_rasterizerState = basicCcwRS;
+
 		fogPSO.m_vertexShader = screenQuadVS;
-		fogPSO.m_inputLayout = screenQuadIL;
+		fogPSO.m_inputLayout = basicIL;
 		fogPSO.m_pixelShader = fogPS;
 		fogPSO.m_rasterizerState = basicRS;
 		fogPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -362,6 +394,9 @@ namespace Graphics
 		Ocean::depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::depthOnlyPSO.m_hullShader = tessellatedQuadDepthOnlyHS;
 		Ocean::depthOnlyPSO.m_domainShader = tessellatedQuadDS;
+
+		Ocean::shadowMapPSO = Ocean::depthOnlyPSO;
+		Ocean::shadowMapPSO.m_vertexShader = shadowMapVS;
 
 		Ocean::oceanPSO.m_vertexShader = basicVS;
 		Ocean::oceanPSO.m_inputLayout = basicIL;

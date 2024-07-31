@@ -5,9 +5,11 @@
 SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {
 	SamplingPixelShaderInput output;
-    
-	output.position = float4(input.position, 1.0);
+	
+	// for full screen quad draw
+	output.positionProj = float4(input.position, 1);
+	output.positionModel = input.position; // screenquadVS
 	output.texcoord = input.texcoord;
-
+	
 	return output;
 }

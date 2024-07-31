@@ -147,9 +147,9 @@ namespace ocean
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
 		{ CASCADE_1_L, 0.08f, 1.f, 0.f },
-		{CASCADE_2_L, 0.06f, 1.f, 0.f},
+		{CASCADE_2_L, 0.07f, 1.f, 0.f},
 		{CASCADE_3_L, 0.05f, 1.f, 0.f},
-		{CASCADE_4_L, 0.03f, 1.f, 0.f},
+		{CASCADE_4_L, 0.06f, 1.f, 0.f},
 	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =

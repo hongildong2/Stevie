@@ -1,4 +1,5 @@
 #include "RenderingCommons.hlsli"
+#include "CoordTransform.hlsli"
 
 #define NUM_CONTROL_POINTS 4
 
@@ -8,17 +9,20 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
-HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
-	InputPatch<PixelShaderInput, NUM_CONTROL_POINTS> ip,
-	uint PatchID : SV_PrimitiveID)
+
+//걍 새로만들어
+#ifdef DEPTH_ONLY
+HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<SamplingPixelShaderInput, NUM_CONTROL_POINTS> ip)
+#else
+HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CONTROL_POINTS> ip)
+#endif
 {
 	HS_CONSTANT_DATA_OUTPUT Output;
 	
 	#ifdef DEPTH_ONLY
-	const float MAX_TESS = 8;
+	float lodTessFactor = 2;
 	#else
 	const float MAX_TESS = 64;
-	#endif
 	
 	float3 patchCenterWorldPos = 0;
 	[unroll(NUM_CONTROL_POINTS)]
@@ -37,7 +41,11 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 	
 	
 	float lodTessFactor = float(MAX_TESS) / dist * 3.0;
+
+	#endif
 	
+
+		
 	Output.EdgeTessFactor[0] = lodTessFactor;
 	Output.EdgeTessFactor[1] = lodTessFactor;
 	Output.EdgeTessFactor[2] = lodTessFactor;
@@ -48,6 +56,25 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 
 	return Output;
 }
+
+
+#ifdef DEPTH_ONLY
+[domain("quad")]
+[partitioning("pow2")]
+[outputtopology("triangle_cw")]
+[outputcontrolpoints(4)]
+[patchconstantfunc("CalcHSPatchConstants")]
+[maxtessfactor(8.0f)]
+	SamplingPixelShaderInput
+	main(
+
+	InputPatch<SamplingPixelShaderInput, NUM_CONTROL_POINTS> ip,
+	uint i : SV_OutputControlPointID,
+	uint PatchID : SV_PrimitiveID)
+{
+	return ip[i]; // no need to manipulate
+}
+#else
 
 [domain("quad")]
 [partitioning("pow2")]
@@ -64,3 +91,6 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 {
 	return ip[i]; // no need to manipulate
 }
+
+
+#endif

@@ -6,8 +6,8 @@
 struct VertexShaderInput
 {
 	float3 positionModel : POSITION; //¸ðµ¨ ÁÂÇ¥°èÀÇ À§Ä¡ position
-	float3 normalModel : NORMAL; // ¸ðµ¨ ÁÂÇ¥°èÀÇ normal    
 	float2 texcoordinate : TEXCOORD;
+	float3 normalModel : NORMAL; // ¸ðµ¨ ÁÂÇ¥°èÀÇ normal    
 	float3 tangentModel : TANGENT;
 };
 
@@ -96,11 +96,6 @@ cbuffer GlobalConstants : register(b0)
 	float farZ;
 	float2 gcDummy;
 };
-
-uint getSunlightIndex()
-{
-	return globalLightsCount;
-}
 
 cbuffer MeshConstants : register(b1)
 {

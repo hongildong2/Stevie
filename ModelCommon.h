@@ -74,8 +74,8 @@ static_assert(sizeof(Material) % 16 == 0, "Material Alignment");
 struct Vertex
 {
 	DirectX::SimpleMath::Vector3 positionModel;
-	DirectX::SimpleMath::Vector3 normalModel;
 	DirectX::SimpleMath::Vector2 texcoordinate;
+	DirectX::SimpleMath::Vector3 normalModel;
 	DirectX::SimpleMath::Vector3 tangentModel;
 };
 

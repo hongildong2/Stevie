@@ -125,8 +125,8 @@ float3 MeanSkyRadiance(TextureCube skyCube, SamplerState skyMapSampler, float3 V
 	float3 duyNormal = GetSkyCubeNormal(duyUV);
 	
 	
-	// result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
-	result = skyCube.Sample(skyMapSampler, texCubeNormal);
+	result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
+	//result = skyCube.Sample(skyMapSampler, texCubeNormal);
 
 	return result.rgb;
 }

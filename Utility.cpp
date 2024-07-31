@@ -36,6 +36,10 @@ namespace Utility
 		{
 			D3D11_BUFFER_DESC descBuf = {};
 			pBuffer->GetDesc(&descBuf);
+			const UINT BUFFER_TOTAL_SIZE = descBuf.ByteWidth;
+			const UINT BUFFER_ELEMENT_SIZE = descBuf.StructureByteStride;
+			const UINT BUFFER_LENGTH = BUFFER_TOTAL_SIZE / BUFFER_ELEMENT_SIZE;
+			assert(subResourceIndex < BUFFER_LENGTH);
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
@@ -53,7 +57,7 @@ namespace Utility
 				{
 					// This is a Structured Buffer
 					desc.Format = DXGI_FORMAT_UNKNOWN;
-					desc.BufferEx.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
+					desc.BufferEx.NumElements = BUFFER_LENGTH - subResourceIndex;
 				}
 				else
 				{

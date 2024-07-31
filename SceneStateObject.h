@@ -84,6 +84,6 @@ private:
 	std::unique_ptr<Camera> m_camera; // TODO : shared_ptr with Scene class
 
 
-	DirectX::SimpleMath::Matrix m_proj;
+	DirectX::SimpleMath::Matrix m_proj; // move to camera
 };
 

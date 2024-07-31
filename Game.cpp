@@ -332,27 +332,26 @@ void Game::Render()
 			// DepthOnly Pass를 어떻게하면 좋을까? 버퍼와 DSV는 대체 어디로 가야하는가? 나중에 정리하기
 			ID3D11DepthStencilView* DSVToFill = nullptr;
 			const D3D11_VIEWPORT* viewPortToUse = nullptr;
-			ZeroMemory(&viewPortToUse, sizeof(D3D11_VIEWPORT));
 
 			// DepthMap
 			{
 				DSVToFill = m_depthMapDSV.Get();
+				context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
+
 				D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
 				viewPortToUse = &screenVP;
 
-				context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
 				context->OMSetRenderTargets(0, NULL, DSVToFill);
 
-				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 				// Models
 				for (auto& model : m_models)
 				{
 					model->RenderOverride(context, Graphics::depthOnlyPSO);
 				}
+				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
 			}
 
-			ZeroMemory(&viewPortToUse, sizeof(D3D11_VIEWPORT));
 			// ShadowMap
 			{
 				const UINT LIGHTS_COUNT = m_sceneState->GetSceneLights()->GetLightsCount();
@@ -366,22 +365,23 @@ void Game::Render()
 				for (unsigned int lightIndex = 0; lightIndex < LIGHTS_COUNT; ++lightIndex)
 				{
 					DSVToFill = DSVs[lightIndex].Get();
+					ID3D11ShaderResourceView* currentLightSRV = SRVs[lightIndex].Get();
+
 					context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
 					context->OMSetRenderTargets(0, NULL, DSVToFill);
 
 					// 카메라를 light시점으로 옮겨야한다 -> 쉐이더에서 Structured Buffer 사용
 					// depthonly vertex쉐이더에서 지금 어느 라이트가 선택됐는지 알아야한다.
 					// 또는 StructuredBuffer의 Subresource로 참조해서 21번에 Light를 지정해준다.
-					ID3D11ShaderResourceView* currentLightSRV = SRVs[lightIndex].Get();
 					context->VSSetShaderResources(21, 1, &currentLightSRV);
 
-					m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 					// Models
 					for (auto& model : m_models)
 					{
-						model->RenderOverride(context, Graphics::depthOnlyPSO);
+						model->RenderOverride(context, Graphics::shadowMapPSO);
 					}
-					m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+					m_skyBox->RenderOverride(context, Graphics::cubeMapShadowMapPSO);
+					m_ocean->RenderOverride(context, Graphics::Ocean::shadowMapPSO);
 
 					ID3D11ShaderResourceView* release[1] = { NULL, };
 					context->VSSetShaderResources(21, 1, release);
@@ -394,7 +394,6 @@ void Game::Render()
 			m_deviceResources->PIXEndEvent();
 		}
 
-		m_skyBox->Render(context);
 
 		// Models
 		{
@@ -412,6 +411,7 @@ void Game::Render()
 			m_ocean->Render(context);
 			m_deviceResources->PIXEndEvent();
 		}
+		m_skyBox->Render(context);
 
 	}
 	m_deviceResources->PIXEndEvent();
