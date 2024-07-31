@@ -240,14 +240,9 @@ float FoamCoverage(float4 turbulence, float2 worldUV, FoamParameter param)
 	return surfaceFoam;
 }
 
-float ScreenSpaceContactFoam(Texture2D<float> depthMap, SamplerState ss, float4 positionProjection, float viewDepth, float oceanWorldUV)
+
+void ScreenSpaceContactFoam(in FoamOutput foamRendered, Texture2D <float>depthMap, SamplerState ss, float4 positionProjection, float viewDepth)
 {
-	// calculate depth diff of current fragment and depthmap
-	
-	
-	/// sss
-	// projection 공간에 있는 vertex를, screen space로 강제로 내린다. 이게 왜 강제로 내리는걸까?
-	// check transformation
 	float2 positionScreenSpace = positionProjection.xy / positionProjection.w;
 	float objDepth = depthMap.Sample(ss, positionScreenSpace);
 
@@ -258,8 +253,10 @@ float ScreenSpaceContactFoam(Texture2D<float> depthMap, SamplerState ss, float4 
 	
 	depthDiff = abs(depthDiff) * contactTexture;
 	
-	const float CONTACT_FOAM_RANGE = 0.2;
-	return saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
+	const float CONTACT_FOAM_RANGE = 1;
+	float contactFoam = saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
+	
+	foamRendered.coverage = saturate(foamRendered.coverage + contactFoam);
 }
 
 float3 LitFoamColor(FoamOutput foamData, TextureCube irradianceMap, SamplerState ss, float3 N, float NdotL, float3 lightColor, float lightAttenuation)
@@ -282,6 +279,7 @@ FoamOutput GetFoamOutput(FoamInput input)
 	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
 	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
+	
 	
 	// TODO : sample foam texture into albedo
 	res.albedo = 1;
