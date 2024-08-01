@@ -41,8 +41,8 @@ struct Light
 	float haloStrength;
 	
 	matrix proj;
-	matrix viewProj;
 	matrix invProj;
+	matrix viewProj;
 };
 
 struct Material
@@ -114,7 +114,10 @@ cbuffer MaterialConstants : register(b2)
 	Material materialConstant;
 };
 
-
+cbuffer shadowLight : register(b3)
+{
+	Light shadowLightTest;
+}
 /* 
 	Textures 
 
