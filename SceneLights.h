@@ -9,6 +9,11 @@ enum class ELightType
 	SPOT = 3
 };
 
+struct ShadowNinjaCBDATA
+{
+	DirectX::SimpleMath::Matrix lightViewProj;
+};
+
 struct LightData
 {
 	DirectX::SimpleMath::Vector3 radiance;
@@ -76,10 +81,13 @@ public:
 		return m_shadowMapsDSVs;
 	}
 
-	inline const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& GetLightSRVs() const
+	inline const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& GetLightSBs() const
 	{
-		return m_lightSRVs;
+		return m_lightSBs;
 	}
+
+	ShadowNinjaCBDATA m_lightViewProjCPU;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightViewProjCB;
 
 private:
 	std::vector<LightData> m_lights;
@@ -92,7 +100,7 @@ private:
 
 	// References single designated light
 	std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_shadowMapsDSVs;
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_lightSRVs;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_lightSBs; // this does not work
 
 	D3D11_VIEWPORT m_shadowViewport;
 	const float m_nearZ;

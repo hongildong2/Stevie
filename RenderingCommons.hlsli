@@ -113,11 +113,6 @@ cbuffer MaterialConstants : register(b2)
 {
 	Material materialConstant;
 };
-
-cbuffer shadowLight : register(b3)
-{
-	Light shadowLightTest;
-}
 /* 
 	Textures 
 

@@ -8,6 +8,7 @@ SceneLights::SceneLights(float shadowMapSize, float nearZ, float farZ)
 	: m_shadowViewport{ NULL, }
 	, m_nearZ(nearZ)
 	, m_farZ(farZ)
+	, m_lightViewProjCPU()
 {
 	m_shadowViewport.TopLeftX = 0;
 	m_shadowViewport.TopLeftY = 0;
@@ -29,15 +30,16 @@ void SceneLights::AddLight(const LightData& lightData)
 void SceneLights::Initialize(ID3D11Device1* pDevice)
 {
 	const unsigned int LIGHTS_COUNT = GetLightsCount();
+
 	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), LIGHTS_COUNT, m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), 0, m_lightsSRV.GetAddressOf());
-
+	Utility::DXResource::CreateConstantBuffer(m_lightViewProjCPU, pDevice, m_lightViewProjCB);
 
 	for (unsigned int i = 0; i < LIGHTS_COUNT; ++i)
 	{
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), i, srv.GetAddressOf());
-		m_lightSRVs.push_back(srv);
+		m_lightSBs.push_back(srv);
 	}
 
 
@@ -64,7 +66,7 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY; // 이게 어떻게 되는거임??
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY; // 이게 어떻게 되는거임?? ptr
 
 	dsvDesc.Texture2DArray.MipSlice = 0;
 	dsvDesc.Flags = 0;
@@ -77,6 +79,7 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 
 		m_shadowMapsDSVs.push_back(shadowMapDSV);
 	}
+
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -119,17 +122,9 @@ void SceneLights::Update(ID3D11DeviceContext1* pContext)
 			:
 			DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(FOV_IN_ANGLE), 1, m_nearZ, m_farZ);
 
-		l.proj = proj;
-		l.viewProj = view * proj;
-		l.invProj = proj.Invert();
-
-
-		auto pos = l.positionWorld + l.direction;
-		auto res = DirectX::SimpleMath::Vector3::Transform(pos, l.viewProj);
-		// for shader
-		l.proj = l.proj.Transpose();
-		l.viewProj = l.viewProj.Transpose();
-		l.invProj = l.invProj.Transpose();
+		l.proj = proj.Transpose();
+		l.viewProj = (view * proj).Transpose();
+		l.invProj = proj.Invert().Transpose();
 	}
 	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data());
 }

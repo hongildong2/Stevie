@@ -4,7 +4,7 @@
 
 struct SamplingVertexShaderInput
 {
-	float3 position : POSITION;
+	float3 positionModel : POSITION;
 	float2 texcoord : TEXCOORD;
 };
 

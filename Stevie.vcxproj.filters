@@ -133,8 +133,6 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PBRVS.hlsl" />
-    <FxCompile Include="CubemapPS.hlsl" />
-    <FxCompile Include="CubemapVS.hlsl" />
     <FxCompile Include="PBRPS.hlsl" />
     <FxCompile Include="InitialOceanSpectrumCS.hlsl">
       <Filter>Ocean</Filter>
@@ -166,9 +164,6 @@
     <FxCompile Include="TessellatedQuadDS.hlsl">
       <Filter>Model</Filter>
     </FxCompile>
-    <FxCompile Include="DepthOnlyShaders.hlsl">
-      <Filter>DepthMap</Filter>
-    </FxCompile>
     <FxCompile Include="FoamSimulationCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
@@ -179,5 +174,8 @@
     <FxCompile Include="BrunetonLighting.hlsli">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="SamplingVS.hlsl" />
+    <FxCompile Include="skyboxPS.hlsl" />
+    <FxCompile Include="ShadowVS.hlsl" />
   </ItemGroup>
 </Project>

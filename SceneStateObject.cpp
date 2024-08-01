@@ -30,7 +30,7 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 	{
 		m_sceneLights = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
 		LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 10.f, -5.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
-		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.f, 0.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
+		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f,1.f}, 20.f, {0.f, 0.2f, -5.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
 		LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 5.f, 3.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
 
 
@@ -50,7 +50,7 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	pContext->DSSetConstantBuffers(0, 1, m_globalCB.GetAddressOf());
 	pContext->GSSetConstantBuffers(0, 1, m_globalCB.GetAddressOf());
 
-	ID3D11ShaderResourceView* resources[] = {
+	ID3D11ShaderResourceView* resources[5] = {
 	m_cubemapEnvView.Get(),
 	m_cubemapIrradianceView.Get(),
 	m_cubemapSpecularView.Get(),
@@ -58,13 +58,14 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	m_sceneLights->GetLightsSRV()
 	};
 
-	ID3D11SamplerState* samplers[] = {
+	ID3D11SamplerState* samplers[2] = {
 		Graphics::linearWrapSS.Get(),
 		Graphics::linearClampSS.Get(),
 	};
 
 	// 공용 리소스
 	pContext->PSSetShaderResources(0, 5, resources);
+	pContext->VSSetShaderResources(4, 1, resources + 4); // scenelight structured buffer to VS
 	pContext->PSSetSamplers(0, 2, samplers);
 	pContext->VSSetSamplers(0, 2, samplers);
 }

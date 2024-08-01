@@ -96,12 +96,12 @@ void Game::Tick()
 	// TODO :: Turn This Logic into Physics Component Update
 	for (auto& modelPtr : m_models)
 	{
-		auto pos = modelPtr->GetWorldPos();
+		// auto pos = modelPtr->GetWorldPos();
 
 		// 모델들이 시간이 느리니까, 과거를 샘플링하자!
-		float height = m_ocean->GetHeight({ pos.x, pos.z });
+		//float height = m_ocean->GetHeight({ pos.x, pos.z });
 
-		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ㅠㅠㅠ 렌더랑 cpu 높이맵이랑 오차가 넘 심해졌어.. 쉐이더 떡칠하면 이렇게되는가?
+		// modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ㅠㅠㅠ 렌더랑 cpu 높이맵이랑 오차가 넘 심해졌어.. 쉐이더 떡칠하면 이렇게되는가?
 
 		modelPtr->Update(context);
 	}
@@ -350,22 +350,34 @@ void Game::Render()
 				}
 				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+
+				context->OMSetRenderTargets(0, NULL, NULL);
 			}
+
+
 
 			// ShadowMap
 			{
 				const UINT LIGHTS_COUNT = m_sceneState->GetSceneLights()->GetLightsCount();
 				auto& sceneLights = m_sceneState->GetSceneLights();
 				const std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>>& DSVs = sceneLights->GetShadowMapDSVs();
-				const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& SRVs = sceneLights->GetLightSRVs();
+				const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& SBs = sceneLights->GetLightSBs();
+				const auto& Ls = sceneLights->GetLights();
 
 				viewPortToUse = sceneLights->GetShadowViewport();
 				context->RSSetViewports(1, viewPortToUse);
+				auto* cb = sceneLights->m_lightViewProjCB.Get();
+				context->VSSetConstantBuffers(3, 1, &cb);
 
+				// TODO : 고상하게하는것 포기, Texture2DArray가 공통리소스라서, 실행전 데이터가 정적으로 정해지지 않으면 그냥 바보되는듯, 동일한 리소스에 대해 뷰만 다르게 접근할 때
+				// 뷰만 다르게 접근할 때 각각 실행 Path가 다르다면, 실행해야할 데이터나 코드가 정적이지 않고 동적이라면 정의되지 않은 동작 발생으로 바보되는듯
+				// 그냥 텍스쳐 뷰 전부다 따로 떼고 상수버퍼로 때우는수밖에 없다..
 				for (unsigned int lightIndex = 0; lightIndex < LIGHTS_COUNT; ++lightIndex)
 				{
+					sceneLights->m_lightViewProjCPU.lightViewProj = Ls[lightIndex].viewProj;
+					Utility::DXResource::UpdateConstantBuffer(sceneLights->m_lightViewProjCPU, context, sceneLights->m_lightViewProjCB);
 					DSVToFill = DSVs[lightIndex].Get();
-					ID3D11ShaderResourceView* currentLightSRV = SRVs[lightIndex].Get();
+					ID3D11ShaderResourceView* currentLightOffsetedSB = SBs[lightIndex].Get();
 
 					context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
 					context->OMSetRenderTargets(0, NULL, DSVToFill);
@@ -373,7 +385,8 @@ void Game::Render()
 					// 카메라를 light시점으로 옮겨야한다 -> 쉐이더에서 Structured Buffer 사용
 					// depthonly vertex쉐이더에서 지금 어느 라이트가 선택됐는지 알아야한다.
 					// 또는 StructuredBuffer의 Subresource로 참조해서 21번에 Light를 지정해준다.
-					context->VSSetShaderResources(21, 1, &currentLightSRV);
+					// 이거 안통함, 내가 생각한대로 참조 위치가 변하지 않고 인덱싱이 그대로 유지됨
+					context->VSSetShaderResources(21, 1, &currentLightOffsetedSB);
 
 					// Models
 					for (auto& model : m_models)
@@ -384,9 +397,13 @@ void Game::Render()
 					m_ocean->RenderOverride(context, Graphics::Ocean::shadowMapPSO);
 
 					ID3D11ShaderResourceView* release[1] = { NULL, };
+					ID3D11Buffer* releaseCB[1] = { NULL, };
 					context->VSSetShaderResources(21, 1, release);
+					context->OMSetRenderTargets(0, NULL, NULL);
 				}
 			}
+
+
 
 			// REDO
 			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
@@ -557,7 +574,7 @@ void Game::CreateDeviceDependentResources()
 			Material mat = DEFAULT_MATERIAL;
 			mat.bUseTexture = FALSE;
 			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.1f, 0.1f, 0.9f };
+			mat.albedo = { 0.f, 105.f / 255.f, 148.f / 255.f };
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));

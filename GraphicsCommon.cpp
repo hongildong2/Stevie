@@ -196,7 +196,7 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", depthOnlyShaderDefines, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, depthOnlyVS.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", shadowMapSD, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(L"ShadowVS.hlsl", "main", "vs_5_0", shadowMapSD, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, shadowMapVS.GetAddressOf());
 
 
@@ -361,12 +361,13 @@ namespace Graphics
 		filterCombinePSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		depthOnlyPSO.m_vertexShader = depthOnlyVS;		// depthOnlyPSO.m_pixelShader = ¼³Á¤¾ÈÇØÁàµµ µª½º¹öÆÛ »ý±è
-		depthOnlyPSO.m_inputLayout = basicIL;
+		depthOnlyPSO.m_inputLayout = samplingIL;
 		depthOnlyPSO.m_rasterizerState = basicRS;
 		depthOnlyPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		shadowMapPSO = depthOnlyPSO;
 		shadowMapPSO.m_vertexShader = shadowMapVS;
+		shadowMapPSO.m_inputLayout = samplingIL;
 
 		cubeMapDepthOnlyPSO = depthOnlyPSO;
 		cubeMapDepthOnlyPSO.m_rasterizerState = basicCcwRS;
@@ -397,6 +398,7 @@ namespace Graphics
 
 		Ocean::shadowMapPSO = Ocean::depthOnlyPSO;
 		Ocean::shadowMapPSO.m_vertexShader = shadowMapVS;
+		Ocean::shadowMapPSO.m_inputLayout = samplingIL;
 
 		Ocean::oceanPSO.m_vertexShader = basicVS;
 		Ocean::oceanPSO.m_inputLayout = basicIL;
