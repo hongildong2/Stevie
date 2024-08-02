@@ -7,10 +7,10 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-constexpr float NEAR_Z = 0.1f;
-constexpr float FAR_Z = 100.f;
-constexpr float FOV = 90.f;
-constexpr float SHADOW_MAP_SIZE = 1024.f;
+float SceneStateObject::NEAR_Z = 0.1f;
+float SceneStateObject::FAR_Z = 100.f;
+float SceneStateObject::FOV = 90.f;
+float SceneStateObject::SHADOW_MAP_SIZE = 1024.f;
 
 SceneStateObject::SceneStateObject()
 	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
@@ -32,15 +32,18 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 
 	// Light
 	{
-		m_sceneLights = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
-		LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 10.f, -5.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
-		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f,1.f}, 20.f, {0.f, 0.2f, -5.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
-		LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 5.f, 3.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
+		m_sceneLights = std::make_unique<SceneLights>();
 
+		using DirectX::SimpleMath::Vector3;
+		auto sundir = Vector3(0.f, -2.f, -1.f);
+		sundir.Normalize();
+		std::unique_ptr<Light> l1 = std::make_unique<Light>(ELightType::SPOT, Vector3(0.f, 0.f, -1.f), Vector3(0.f, 1.f, 2.f));
+		std::unique_ptr<Light> l2 = std::make_unique<Light>(ELightType::POINT, Vector3(0.f, 0.f, 1.f), Vector3(0.f, 1.f, -2.f));
+		std::unique_ptr<Light> l3 = std::make_unique<Light>(ELightType::DIRECTIONAL, sundir, Vector3(0.f, 1.f, 2.f));
 
-		m_sceneLights->AddLight(light1);
-		m_sceneLights->AddLight(light2);
-		m_sceneLights->AddLight(light3);
+		m_sceneLights->AddLight(std::move(l1));
+		m_sceneLights->AddLight(std::move(l2));
+		m_sceneLights->AddLight(std::move(l3));
 		m_sceneLights->Initialize(pDevice);
 	}
 
@@ -59,7 +62,7 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	m_cubemapIrradianceView.Get(),
 	m_cubemapSpecularView.Get(),
 	m_cubemapBRDFView.Get(),
-	m_sceneLights->GetLightsSRV()
+	m_sceneLights->GetLightsSBSRV()
 	};
 
 	ID3D11SamplerState* samplers[2] = {
@@ -72,14 +75,18 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	pContext->VSSetShaderResources(4, 1, resources + 4); // scenelight structured buffer to VS
 	pContext->PSSetSamplers(0, 2, samplers);
 	pContext->VSSetSamplers(0, 2, samplers);
+
+	//cameara, light에서 뎁스맵가져오고 공용으로 설정하기
+	ID3D11ShaderResourceView* depthSRV = m_camera->GetDepthMapSRV(); // set to slot 10
+	ID3D11ShaderResourceView* const* aa = m_sceneLights->GetShadowMapSRVs(); // slot 11 ~ 11 + LIGHT COUNT
 }
 
 void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 {
 	// Global Constant
 	{
-		m_globalConstant.view = m_camera->GetViewMatrix();
-		m_globalConstant.proj = m_camera->GetProjMatrix();
+		m_globalConstant.view = m_camera->GetViewRow();
+		m_globalConstant.proj = m_camera->GetProjRow();
 		m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
 
 		m_globalConstant.invView = m_globalConstant.view.Invert();
@@ -106,6 +113,7 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 	m_sceneLights->Update(pContext);
 }
 
+// RenderPass
 void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
 {
 	m_postProcess->FillTextureToProcess(pContext, pBufferToProcess);

@@ -68,6 +68,7 @@
     <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="IDepthRenderable.h" />
     <ClInclude Include="DepthOnlyResources.h" />
+    <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="SceneStateObject.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
+    <ClCompile Include="Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

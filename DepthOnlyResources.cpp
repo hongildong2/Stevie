@@ -4,7 +4,6 @@
 
 namespace DepthOnlyResources
 {
-	constexpr UINT SAVED_RTV_COUNTS = 8;
 	UINT SavedDSVCount;
 	UINT SavedVPCount;
 	ID3D11DepthStencilView* savedDSV;
@@ -13,7 +12,7 @@ namespace DepthOnlyResources
 	Microsoft::WRL::ComPtr<ID3D11Buffer> depthOnlyCB;
 	std::unordered_set<const IDepthRenderable*> depthOnlyObjects;
 
-	void InitDepthOnlyResources(ID3D11Device* pDevice)
+	void InitDepthOnlyResources(ID3D11Device1* pDevice)
 	{
 		SavedDSVCount = 0;
 		SavedVPCount = 0;
@@ -25,6 +24,7 @@ namespace DepthOnlyResources
 
 
 		DepthOnlyConstant temp;
+		ZeroMemory(&temp, sizeof(DepthOnlyConstant));
 		Utility::DXResource::CreateConstantBuffer(temp, pDevice, depthOnlyCB);
 	}
 
@@ -34,14 +34,15 @@ namespace DepthOnlyResources
 	}
 
 	// To RenderPass class
-	void SaveRSOMStates(ID3D11DeviceContext1* pContext)
+	void BeginDepthOnlyPass(ID3D11DeviceContext1* pContext)
 	{
 		pContext->OMGetRenderTargets(DepthOnlyResources::SAVED_RTV_COUNTS, DepthOnlyResources::savedRTVs, &DepthOnlyResources::savedDSV);
 		pContext->RSGetViewports(&DepthOnlyResources::SavedVPCount, DepthOnlyResources::savedVPs);
 	}
 
+	// TODO :: 복구제대로안됨
 	// RenderPassClass...
-	void RestoreRSOMStates(ID3D11DeviceContext1* pContext)
+	void EndDepthOnlyPass(ID3D11DeviceContext1* pContext)
 	{
 		assert(savedDSV != nullptr);
 

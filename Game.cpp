@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"
+#include "DepthOnlyResources.h"
 
 extern void ExitGame() noexcept;
 
@@ -312,38 +313,16 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
-		// 글로벌 상태, 공용 리소스 설정
-		m_sceneState->PrepareRender(context);
 
-
-		// DepthOnly Pass
+		m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
+		// DepthOnlyPass
 		{
-			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
-			const UINT RETRIEVAL = 2;
-			ID3D11RenderTargetView* savedRTVs[RETRIEVAL] = { 0, };
-			ID3D11DepthStencilView* savedDSV = NULL;
-			context->OMGetRenderTargets(RETRIEVAL, savedRTVs, &savedDSV);
-
-			UINT savedVPCount = 10;
-			D3D11_VIEWPORT savedVPs[10] = { NULL, };
-			context->RSGetViewports(&savedVPCount, savedVPs);
-			// assert (savedDSV != nullptr);
-
-			// DepthOnly Pass를 어떻게하면 좋을까? 버퍼와 DSV는 대체 어디로 가야하는가? 나중에 정리하기
-			ID3D11DepthStencilView* DSVToFill = nullptr;
-			const D3D11_VIEWPORT* viewPortToUse = nullptr;
-
-			// DepthMap
+			DepthOnlyResources::BeginDepthOnlyPass(context);
+			const auto& createDEEPPTHHH = DepthOnlyResources::GetDepthRenderableObjects();
+			for (auto& obj : createDEEPPTHHH)
 			{
-				DSVToFill = m_depthMapDSV.Get();
-				context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
+				obj->SetContextDepthOnly(context);
 
-				D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
-				viewPortToUse = &screenVP;
-
-				context->OMSetRenderTargets(0, NULL, DSVToFill);
-
-				// Models
 				for (auto& model : m_models)
 				{
 					model->RenderOverride(context, Graphics::depthOnlyPSO);
@@ -351,67 +330,14 @@ void Game::Render()
 				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
 				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
 
-				context->OMSetRenderTargets(0, NULL, NULL);
 			}
-
-
-
-			// ShadowMap
-			{
-				const UINT LIGHTS_COUNT = m_sceneState->GetSceneLights()->GetLightsCount();
-				auto& sceneLights = m_sceneState->GetSceneLights();
-				const std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>>& DSVs = sceneLights->GetShadowMapDSVs();
-				const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& SBs = sceneLights->GetLightSBs();
-				const auto& Ls = sceneLights->GetLights();
-
-				viewPortToUse = sceneLights->GetShadowViewport();
-				context->RSSetViewports(1, viewPortToUse);
-				auto* cb = sceneLights->m_lightViewProjCB.Get();
-				context->VSSetConstantBuffers(3, 1, &cb);
-
-				// TODO : 고상하게하는것 포기, Texture2DArray가 공통리소스라서, 실행전 데이터가 정적으로 정해지지 않으면 그냥 바보되는듯, 동일한 리소스에 대해 뷰만 다르게 접근할 때
-				// 뷰만 다르게 접근할 때 각각 실행 Path가 다르다면, 실행해야할 데이터나 코드가 정적이지 않고 동적이라면 정의되지 않은 동작 발생으로 바보되는듯
-				// 그냥 텍스쳐 뷰 전부다 따로 떼고 상수버퍼로 때우는수밖에 없다..
-				for (unsigned int lightIndex = 0; lightIndex < LIGHTS_COUNT; ++lightIndex)
-				{
-					sceneLights->m_lightViewProjCPU.lightViewProj = Ls[lightIndex].viewProj;
-					Utility::DXResource::UpdateConstantBuffer(sceneLights->m_lightViewProjCPU, context, sceneLights->m_lightViewProjCB);
-					DSVToFill = DSVs[lightIndex].Get();
-					ID3D11ShaderResourceView* currentLightOffsetedSB = SBs[lightIndex].Get();
-
-					context->ClearDepthStencilView(DSVToFill, D3D11_CLEAR_DEPTH, 1.0f, 0); // set RTV to NULL, Depth Only
-					context->OMSetRenderTargets(0, NULL, DSVToFill);
-
-					// 카메라를 light시점으로 옮겨야한다 -> 쉐이더에서 Structured Buffer 사용
-					// depthonly vertex쉐이더에서 지금 어느 라이트가 선택됐는지 알아야한다.
-					// 또는 StructuredBuffer의 Subresource로 참조해서 21번에 Light를 지정해준다.
-					// 이거 안통함, 내가 생각한대로 참조 위치가 변하지 않고 인덱싱이 그대로 유지됨
-					context->VSSetShaderResources(21, 1, &currentLightOffsetedSB);
-
-					// Models
-					for (auto& model : m_models)
-					{
-						model->RenderOverride(context, Graphics::shadowMapPSO);
-					}
-					m_skyBox->RenderOverride(context, Graphics::cubeMapShadowMapPSO);
-					m_ocean->RenderOverride(context, Graphics::Ocean::shadowMapPSO);
-
-					ID3D11ShaderResourceView* release[1] = { NULL, };
-					ID3D11Buffer* releaseCB[1] = { NULL, };
-					context->VSSetShaderResources(21, 1, release);
-					context->OMSetRenderTargets(0, NULL, NULL);
-				}
-			}
-
-
-
-			// REDO
-			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
-			context->RSSetViewports(savedVPCount, savedVPs);
-			m_deviceResources->PIXEndEvent();
+			DepthOnlyResources::EndDepthOnlyPass(context);
 		}
+		m_deviceResources->PIXEndEvent();
 
 
+		// 글로벌 상태, 공용 리소스 설정
+		m_sceneState->PrepareRender(context);
 		// Models
 		{
 			m_deviceResources->PIXBeginEvent(L"Models");
@@ -538,6 +464,7 @@ void Game::CreateDeviceDependentResources()
 	auto* device = m_deviceResources->GetD3DDevice();
 
 	Graphics::InitCommonStates(device);
+	DepthOnlyResources::InitDepthOnlyResources(device);
 
 	// MAKE SCENE CLASS PLEASE
 	{
@@ -596,7 +523,6 @@ void Game::CreateDeviceDependentResources()
 			m_skyBox->Initialize(device);
 		}
 		m_sceneState->Initialize(device);
-
 	}
 }
 

@@ -22,14 +22,14 @@ Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Ve
 {
 }
 
-DirectX::SimpleMath::Matrix Camera::GetViewMatrix() const
+void Camera::UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian)
+{
+	m_pitch -= deltaRadian.y;
+	m_yaw -= deltaRadian.x;
+}
+DirectX::SimpleMath::Matrix Camera::GetViewRow() const
 {
 	return DirectX::SimpleMath::Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
-}
-
-DirectX::SimpleMath::Matrix Camera::GetProjMatrix() const
-{
-	return m_proj;
 }
 
 DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
@@ -50,6 +50,11 @@ DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
 void Camera::UpdateLookAt(DirectX::SimpleMath::Vector3& viewDirModel)
 {
 	m_lookAtTargetPosWorld = m_eyePosWorld + viewDirModel;
+}
+
+DirectX::SimpleMath::Quaternion Camera::GetPitchYawInQuarternion() const
+{
+	return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 }
 
 void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
@@ -87,22 +92,12 @@ void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
 	UpdateLookAt(camearaViewDirModel);
 }
 
-DepthOnlyConstant Camera::GetDepthOnlyConstant() const
-{
-	DepthOnlyConstant disaster =
-	{
-		GetViewMatrix(),
-		GetProjMatrix()
-	};
-
-	return disaster;
-}
-
 void Camera::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
 {
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(m_fov), float(vp.Width) / float(vp.Height), m_nearZ, m_farZ);
+	IDepthRenderable::m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(m_fov), float(vp.Width) / float(vp.Height), m_nearZ, m_farZ);
 	m_depthTex.reset();
 	m_depthTex = std::make_unique<DepthTexture>(vp);
+	m_depthTex->Initialize(pDevice);
 }
 
 void Camera::Reset()

@@ -79,5 +79,13 @@ private:
 
 	std::unique_ptr<SceneLights> m_sceneLights; // TODO : move to Scene class
 	std::unique_ptr<Camera> m_camera; // TODO : shared_ptr with Scene class
+
+
+public:
+	static float NEAR_Z;
+	static float FAR_Z;
+	static float FOV;
+	static float SHADOW_MAP_SIZE;
+
 };
 
