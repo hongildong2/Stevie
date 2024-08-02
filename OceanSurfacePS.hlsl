@@ -126,9 +126,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
 	
-	/*
-	 TODO : reflected가 엄청 강하고, specular는 너무 약하다.
-	*/
 	float3 reflected = MeanSkyRadiance(cubeMap, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);

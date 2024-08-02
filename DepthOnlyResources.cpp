@@ -38,7 +38,6 @@ void DepthOnlyResources::BeginDepthOnlyPass(ID3D11DeviceContext1* pContext)
 	pContext->RSGetViewports(&m_savedVPCount, m_savedVPs);
 }
 
-// TODO :: 복구제대로안됨
 // RenderPassClass...
 void DepthOnlyResources::EndDepthOnlyPass(ID3D11DeviceContext1* pContext)
 {
@@ -64,6 +63,5 @@ void DepthOnlyResources::OnRegisterDepthOnlyObject(const IDepthRenderable* pObj)
 
 void DepthOnlyResources::OnDestoryDepthOnlyObject(const IDepthRenderable* pObj)
 {
-	// 나중에..
 	m_depthOnlyObjects.erase(pObj);
 }

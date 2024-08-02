@@ -43,7 +43,6 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 void SceneLights::Update(ID3D11DeviceContext1* pContext)
 {
 	const unsigned int LIGHTS_COUNT = GetLightsCount();
-	// TODO : fil light data buffer, update buffer
 	for (unsigned int i = 0; i < LIGHTS_COUNT; ++i)
 	{
 		auto& lightRef = m_lights[i];

@@ -289,7 +289,6 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 	{
 		Graphics::SetPipelineState(pContext, Graphics::Ocean::combineWavePSO);
 		ID3D11Buffer* combineWaveCBs[1] = { m_combineWaveCB.Get() };
-		// TODO :: UpdateCB
 
 		pContext->CSSetConstantBuffers(0, 1, combineWaveCBs);
 

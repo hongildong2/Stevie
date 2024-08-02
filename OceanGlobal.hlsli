@@ -9,8 +9,6 @@
 
 #define DELTA 0.001
 
-// TODO : 텍스쳐 리소스들도 여기에 붙여넣기
-
 
 static const float2 SAMPLING_KERNEL[SAMPLING_COUNT] =
 {

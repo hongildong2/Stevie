@@ -31,7 +31,7 @@ class Game final : public DX::IDeviceNotify
 public:
 
 	Game() noexcept(false);
-	~Game() = default; // TODO : destroy cubemap
+	~Game() = default;
 
 	Game(Game&&) = default;
 	Game& operator= (Game&&) = default;
@@ -95,6 +95,7 @@ private:
 	std::unique_ptr<Ocean> m_ocean;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
+	// TODO : RenderTexture·Î ±³Ã¼
 	// RenderResource
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
