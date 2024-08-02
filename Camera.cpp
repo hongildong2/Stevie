@@ -9,18 +9,27 @@ const float Camera::MOVEMENT_GAIN = 0.07f;
 
 
 
-Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Vector3 viewDirWorld, DirectX::SimpleMath::Vector3 upVector) 
-: m_eyePosWorld(eyePosWorld)
-, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
-, m_upVector(upVector)
-, m_pitch(0.f)
-, m_yaw(0.f)
+Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Vector3 viewDirWorld, DirectX::SimpleMath::Vector3 upVector, float nearZ, float farZ, float fov)
+	: IDepthRenderable()
+	, m_eyePosWorld(eyePosWorld)
+	, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
+	, m_upVector(upVector)
+	, m_pitch(0.f)
+	, m_yaw(0.f)
+	, m_nearZ(nearZ)
+	, m_farZ(farZ)
+	, m_fov(fov)
 {
 }
 
 DirectX::SimpleMath::Matrix Camera::GetViewMatrix() const
 {
 	return DirectX::SimpleMath::Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
+}
+
+DirectX::SimpleMath::Matrix Camera::GetProjMatrix() const
+{
+	return m_proj;
 }
 
 DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
@@ -76,6 +85,24 @@ void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
 	float x = r * sinf(m_yaw);
 	auto camearaViewDirModel = Vector3(x, y, z);
 	UpdateLookAt(camearaViewDirModel);
+}
+
+DepthOnlyConstant Camera::GetDepthOnlyConstant() const
+{
+	DepthOnlyConstant disaster =
+	{
+		GetViewMatrix(),
+		GetProjMatrix()
+	};
+
+	return disaster;
+}
+
+void Camera::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
+{
+	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(m_fov), float(vp.Width) / float(vp.Height), m_nearZ, m_farZ);
+	m_depthTex.reset();
+	m_depthTex = std::make_unique<DepthTexture>(vp);
 }
 
 void Camera::Reset()

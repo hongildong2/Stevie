@@ -182,11 +182,14 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
+    <ClInclude Include="DepthOnlyResources.h" />
+    <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EMeshType.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="IDepthRenderable.h" />
     <ClInclude Include="SceneLights.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
     <ClInclude Include="ModelCommon.h" />
@@ -203,6 +206,8 @@
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DepthOnlyResources.cpp" />
+    <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="ModelCommon.cpp" />
     <ClCompile Include="Camera.cpp" />

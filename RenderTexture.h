@@ -27,7 +27,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_unorderedAccessView;
 
-
 	DXGI_FORMAT m_format;
 
 	size_t m_width;

@@ -604,10 +604,11 @@ void Game::CreateDeviceDependentResources()
 void Game::CreateWindowSizeDependentResources()
 {
 	RECT size = m_deviceResources->GetOutputSize();
+	D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
 	auto* pDevice = m_deviceResources->GetD3DDevice();
 
 	// TODO : vector<IWindowSizeDependent>, iter
-	m_sceneState->OnWindowSizeChange(pDevice, size, HDR_BUFFER_FORMAT);
+	m_sceneState->OnWindowSizeChange(pDevice, screenVP, HDR_BUFFER_FORMAT);
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));

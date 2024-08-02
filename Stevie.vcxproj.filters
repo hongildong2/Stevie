@@ -65,6 +65,9 @@
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="SceneStateObject.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
+    <ClInclude Include="DepthTexture.h" />
+    <ClInclude Include="IDepthRenderable.h" />
+    <ClInclude Include="DepthOnlyResources.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -99,6 +102,8 @@
     <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="SceneStateObject.cpp" />
+    <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="DepthOnlyResources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

@@ -1,17 +1,13 @@
 #pragma once
 #include "pch.h"
 #include "SimpleMath.h"
+#include "IDepthRenderable.h"
 
 enum class ELightType
 {
 	DIRECTIONAL = 1,
 	POINT = 2,
 	SPOT = 3
-};
-
-struct ShadowNinjaCBDATA
-{
-	DirectX::SimpleMath::Matrix lightViewProj;
 };
 
 struct LightData
@@ -33,29 +29,37 @@ struct LightData
 	float haloRadius;
 	float haloStrength;
 
+	DirectX::SimpleMath::Matrix view;
 	DirectX::SimpleMath::Matrix proj;
 	DirectX::SimpleMath::Matrix invProj;
-	DirectX::SimpleMath::Matrix viewProj; // light's view
 };
 
 
-class SceneLights final
+class SceneLights final : public IDepthRenderable
 {
 public:
-	SceneLights(float shadowMapSize, float nearZ, float farZ);
-	~SceneLights() = default;
+	SceneLights(float nearZ, float farZ);
+	virtual ~SceneLights() = default;
 
-	SceneLights(const SceneLights& other) = default;
-	SceneLights& operator=(const SceneLights& other) = default;
+	SceneLights(const SceneLights& other) = delete;
+	SceneLights& operator=(const SceneLights& other) = delete;
 
 	void Update(ID3D11DeviceContext1* pContext);
 	void Initialize(ID3D11Device1* pDevice);
 	void AddLight(const LightData& lightData);
 
-	inline const D3D11_VIEWPORT* GetShadowViewport() const
+	// 개망했다. Light 클래스 IDepthRenderable로 분리해야한다.
+	// Structured Buffer는 .. 라이트클래스에서 값복사로 받아와서 여기서 업데이트 하는걸로
+	// Light 관리 클래스로 바꾸자...
+	virtual DepthOnlyConstant GetDepthOnlyConstant() const override;
+	virtual void SetContextDepthOnly(ID3D11DeviceContext1* pContext) override;
+
+	inline const unsigned int GetCurrentLightIndex() const
 	{
-		return &m_shadowViewport;
+		return m_lightIndex;
 	}
+
+	void SetNextLight();
 
 	// mutable
 	inline const std::vector<LightData>& GetLights()
@@ -75,35 +79,15 @@ public:
 		return static_cast<unsigned int>(m_lights.size());
 	}
 
-	// ㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴ
-	inline const std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>>& GetShadowMapDSVs() const
-	{
-		return m_shadowMapsDSVs;
-	}
-
-	inline const std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>& GetLightSBs() const
-	{
-		return m_lightSBs;
-	}
-
-	ShadowNinjaCBDATA m_lightViewProjCPU;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightViewProjCB;
-
 private:
 	std::vector<LightData> m_lights;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
 
-	// Array, can access light's data with light index
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_shadowMaps;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMapsSRV;
+	std::vector<std::unique_ptr<DepthTexture>> m_depthTextures;
 
-	// References single designated light
-	std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_shadowMapsDSVs;
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_lightSBs; // this does not work
-
-	D3D11_VIEWPORT m_shadowViewport;
 	const float m_nearZ;
 	const float m_farZ;
+	unsigned int m_lightIndex;
 };
 

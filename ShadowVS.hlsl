@@ -21,7 +21,8 @@ float4 main(SamplingVertexShaderInput input) : SV_Position
 	float4 pos = mul(float4(input.positionModel, 1.f), world);
 	
 	// float4 target = float4(shadowLightTest.positionWorld + shadowLightTest.direction, 1);
-	output.positionProj = mul(pos, globalLights[1].viewProj);
+	pos = mul(pos, globalLights[1].view);
+	output.positionProj = mul(pos, globalLights[1].proj);
 
 
 	return output.positionProj;

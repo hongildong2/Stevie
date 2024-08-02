@@ -20,10 +20,7 @@
 #include "SceneStateObject.h"
 #include "PostProcess.h"
 
-constexpr float NEAR_Z = 0.1f;
-constexpr float FAR_Z = 100.f;
-constexpr float FOV = 90.f;
-constexpr float SHADOW_MAP_SIZE = 1024.f;
+
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and

@@ -2,14 +2,18 @@
 
 #include "SceneStateObject.h"
 #include "Utility.h"
-#include "Game.h"
 #include "DirectXTex.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+constexpr float NEAR_Z = 0.1f;
+constexpr float FAR_Z = 100.f;
+constexpr float FOV = 90.f;
+constexpr float SHADOW_MAP_SIZE = 1024.f;
+
 SceneStateObject::SceneStateObject()
-	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY))
+	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
 {
 }
 
@@ -75,7 +79,7 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 	// Global Constant
 	{
 		m_globalConstant.view = m_camera->GetViewMatrix();
-		m_globalConstant.proj = m_proj;
+		m_globalConstant.proj = m_camera->GetProjMatrix();
 		m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
 
 		m_globalConstant.invView = m_globalConstant.view.Invert();
@@ -112,11 +116,17 @@ void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Textu
 	m_postProcess->Draw(pContext, pRTVToPresent);
 }
 
-void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, RECT size, DXGI_FORMAT bufferFormat)
+void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
 {
-	m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(FOV), float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
+	RECT SS = { NULL, };
+	SS.left = 0;
+	SS.top = 0;
+	SS.right = vp.Width;
+	SS.bottom = vp.Height;
 
 	m_postProcess.reset();
-	m_postProcess = std::make_unique<PostProcess>(size, bufferFormat);
+	m_postProcess = std::make_unique<PostProcess>(SS, bufferFormat);
 	m_postProcess->Initialize(pDevice);
+
+	m_camera->OnWindowSizeChange(pDevice, vp, bufferFormat);
 }
