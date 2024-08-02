@@ -9,16 +9,10 @@ struct DepthOnlyConstant
 
 class IDepthRenderable;
 
-namespace DepthOnlyResources
+class DepthOnlyResources final
 {
-	static const UINT SAVED_RTV_COUNTS = 8;
-	extern UINT SavedDSVCount;
-	extern UINT SavedVPCount;
-	extern ID3D11DepthStencilView* savedDSV;
-	extern ID3D11RenderTargetView* savedRTVs[SAVED_RTV_COUNTS];
-	extern D3D11_VIEWPORT savedVPs[10];
-	extern Microsoft::WRL::ComPtr<ID3D11Buffer> depthOnlyCB;
-
+public:
+	Microsoft::WRL::ComPtr<ID3D11Buffer> GetDepthOnlyCB();
 	void InitDepthOnlyResources(ID3D11Device1* pDevice);
 	void BeginDepthOnlyPass(ID3D11DeviceContext1* pContext);
 	void EndDepthOnlyPass(ID3D11DeviceContext1* pContext);
@@ -26,4 +20,36 @@ namespace DepthOnlyResources
 
 	void OnRegisterDepthOnlyObject(const IDepthRenderable* pObj);
 	void OnDestoryDepthOnlyObject(const IDepthRenderable* pObj);
-}
+
+	static DepthOnlyResources* const GetInstance()
+	{
+		if (mInstance == nullptr)
+		{
+			mInstance = new DepthOnlyResources();
+		}
+
+		return mInstance;
+	}
+
+	static void Destroy()
+	{
+		delete mInstance;
+		mInstance = nullptr;
+	}
+
+private:
+	DepthOnlyResources();
+	~DepthOnlyResources() = default;
+	static DepthOnlyResources* mInstance;
+
+	enum { SAVED_RTV_COUNTS = 4 };
+	ID3D11DepthStencilView* m_savedDSV;
+	ID3D11RenderTargetView* m_savedRTVs[SAVED_RTV_COUNTS];
+
+	UINT m_savedVPCount;
+	D3D11_VIEWPORT m_savedVPs[10];
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_depthOnlyCB;
+	std::unordered_set<const IDepthRenderable*> m_depthOnlyObjects;
+};
+

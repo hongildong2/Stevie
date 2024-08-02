@@ -10,12 +10,14 @@ public:
 	IDepthRenderable()
 		: m_depthTex()
 	{
-		DepthOnlyResources::OnRegisterDepthOnlyObject(this);
+		auto* dor = DepthOnlyResources::GetInstance();
+		dor->OnRegisterDepthOnlyObject(this);
 	}
 
 	virtual ~IDepthRenderable()
 	{
-		DepthOnlyResources::OnDestoryDepthOnlyObject(this);
+		auto* dor = DepthOnlyResources::GetInstance();
+		dor->OnDestoryDepthOnlyObject(this);
 	}
 
 	virtual DirectX::SimpleMath::Matrix GetViewRow() const = 0;
@@ -28,6 +30,13 @@ public:
 	{
 		m_depthTex->Initialize(pDevice);
 	}
+
+
+	inline ID3D11ShaderResourceView* GetDepthBufferSRV() const
+	{
+		return IDepthRenderable::m_depthTex->GetSRV();
+	}
+
 
 	void GetDepthOnlyConstantColumn(DepthOnlyConstant* outDepthOnlyConstantColumnWise) const
 	{
@@ -49,8 +58,11 @@ public:
 
 		DepthOnlyConstant temp;
 		GetDepthOnlyConstantColumn(&temp);
-		Utility::DXResource::UpdateConstantBuffer(temp, pContext, DepthOnlyResources::depthOnlyCB);
-		pContext->VSSetConstantBuffers(3, 1, DepthOnlyResources::depthOnlyCB.GetAddressOf());
+		auto* dor = DepthOnlyResources::GetInstance();
+		auto a = dor->GetDepthOnlyCB();
+		ID3D11Buffer* cbs[1] = { a.Get() };
+		Utility::DXResource::UpdateConstantBuffer(temp, pContext, a);
+		pContext->VSSetConstantBuffers(3, 1, cbs);
 	}
 
 protected:

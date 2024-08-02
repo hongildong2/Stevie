@@ -76,8 +76,8 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	pContext->PSSetSamplers(0, 2, samplers);
 	pContext->VSSetSamplers(0, 2, samplers);
 
-	//cameara, light에서 뎁스맵가져오고 공용으로 설정하기
-	ID3D11ShaderResourceView* depthSRV = m_camera->GetDepthMapSRV(); // set to slot 10
+	// TODO : cameara, light에서 뎁스맵가져오고 공용으로 설정하기
+	ID3D11ShaderResourceView* depthSRV = m_camera->GetDepthBufferSRV(); // set to slot 10
 	ID3D11ShaderResourceView* const* aa = m_sceneLights->GetShadowMapSRVs(); // slot 11 ~ 11 + LIGHT COUNT
 }
 
@@ -114,11 +114,11 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 }
 
 // RenderPass
-void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
+void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11RenderTargetView* pRTVToPresent)
 {
 	m_postProcess->FillTextureToProcess(pContext, pBufferToProcess);
 
-	m_postProcess->ProcessFog(pContext, pDepthMapSRV);
+	m_postProcess->ProcessFog(pContext, m_camera->GetDepthBufferSRV());
 	m_postProcess->ProcessBloom(pContext);
 
 	m_postProcess->Draw(pContext, pRTVToPresent);

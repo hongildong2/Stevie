@@ -43,12 +43,6 @@ public:
 	void GetLightData(LightData* outLightData) const;
 	DirectX::SimpleMath::Matrix GetViewRow() const override;
 
-	inline ID3D11ShaderResourceView* GetShadowMapSRV() const
-	{
-		return IDepthRenderable::m_depthTex->GetSRV();
-	}
-
-
 private:
 	DirectX::SimpleMath::Vector3 m_radiance;
 	DirectX::SimpleMath::Vector3 m_direction;

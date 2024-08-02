@@ -317,8 +317,9 @@ void Game::Render()
 		m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
 		// DepthOnlyPass
 		{
-			DepthOnlyResources::BeginDepthOnlyPass(context);
-			const auto& createDEEPPTHHH = DepthOnlyResources::GetDepthRenderableObjects();
+			auto* dor = DepthOnlyResources::GetInstance();
+			dor->BeginDepthOnlyPass(context);
+			const auto& createDEEPPTHHH = dor->GetDepthRenderableObjects();
 			for (auto& obj : createDEEPPTHHH)
 			{
 				obj->SetContextDepthOnly(context);
@@ -331,7 +332,7 @@ void Game::Render()
 				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
 
 			}
-			DepthOnlyResources::EndDepthOnlyPass(context);
+			dor->EndDepthOnlyPass(context);
 		}
 		m_deviceResources->PIXEndEvent();
 
@@ -362,7 +363,7 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	{
 		auto* rtv = m_deviceResources->GetRenderTargetView();
-		m_sceneState->RenderProcess(context, m_floatBuffer.Get(), m_depthMapSRV.Get(), rtv);
+		m_sceneState->RenderProcess(context, m_floatBuffer.Get(), rtv);
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -464,7 +465,8 @@ void Game::CreateDeviceDependentResources()
 	auto* device = m_deviceResources->GetD3DDevice();
 
 	Graphics::InitCommonStates(device);
-	DepthOnlyResources::InitDepthOnlyResources(device);
+	auto* dop = DepthOnlyResources::GetInstance();
+	dop->InitDepthOnlyResources(device);
 
 	// MAKE SCENE CLASS PLEASE
 	{
@@ -529,18 +531,17 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-	RECT size = m_deviceResources->GetOutputSize();
 	D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
 	auto* pDevice = m_deviceResources->GetD3DDevice();
 
-	// TODO : vector<IWindowSizeDependent>, iter
 	m_sceneState->OnWindowSizeChange(pDevice, screenVP, HDR_BUFFER_FORMAT);
+
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Format = HDR_BUFFER_FORMAT; // for HDR Pipeline
-	desc.Width = size.right;
-	desc.Height = size.bottom;
+	desc.Width = screenVP.Width;
+	desc.Height = screenVP.Height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
@@ -556,23 +557,6 @@ void Game::CreateWindowSizeDependentResources()
 	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
-
-	desc.Format = DXGI_FORMAT_R32_TYPELESS;
-	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(m_depthMap.Get(), &dsvDesc, m_depthMapDSV.GetAddressOf()));
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_depthMap.Get(), &srvDesc, m_depthMapSRV.GetAddressOf()));
 }
 
 void Game::OnDeviceLost()

@@ -34,7 +34,7 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 	for (unsigned int i = 0; i < LIGHTS_COUNT; ++i)
 	{
 		m_lights[i]->Initialize(pDevice);
-		m_shadowMapSRVs[i] = m_lights[i]->GetShadowMapSRV();
+		m_shadowMapSRVs[i] = m_lights[i]->GetDepthBufferSRV();
 	}
 	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), LIGHTS_COUNT, m_lights.data(), m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), 0, m_lightsSBSRV.GetAddressOf());

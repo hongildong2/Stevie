@@ -45,7 +45,7 @@ public:
 	void PrepareRender(ID3D11DeviceContext1* pContext);
 
 	// 이건좀 아닌듯.. 렌더패스 관리할 아이디어가 필요하다, Move To Scene class
-	void RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent);
+	void RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11RenderTargetView* pRTVToPresent);
 
 	void OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat) override;
 

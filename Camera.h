@@ -19,12 +19,6 @@ public:
 
 	void OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat) override;
 
-	inline ID3D11ShaderResourceView* GetDepthMapSRV() const
-	{
-		return IDepthRenderable::m_depthTex->GetSRV();
-	}
-
-
 
 private:
 	DirectX::SimpleMath::Vector3 m_eyePosWorld;

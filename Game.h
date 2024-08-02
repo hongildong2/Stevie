@@ -95,13 +95,6 @@ private:
 	std::unique_ptr<Ocean> m_ocean;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
-	// RenderResource, RenderPass, RenderGraph, RHI
-	// RenderResource, RenderPass use these RenderResource objects
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthMapDSV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthMapSRV;
-
-
 	// RenderResource
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;

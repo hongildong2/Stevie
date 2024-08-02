@@ -183,6 +183,5 @@
     </FxCompile>
     <FxCompile Include="SamplingVS.hlsl" />
     <FxCompile Include="skyboxPS.hlsl" />
-    <FxCompile Include="ShadowVS.hlsl" />
   </ItemGroup>
 </Project>
