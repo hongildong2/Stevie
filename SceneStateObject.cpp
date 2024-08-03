@@ -8,7 +8,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 float SceneStateObject::NEAR_Z = 0.1f;
-float SceneStateObject::FAR_Z = 100.f;
+float SceneStateObject::FAR_Z = 120.f;
 float SceneStateObject::FOV = 90.f;
 float SceneStateObject::SHADOW_MAP_SIZE = 1024.f;
 
@@ -35,11 +35,19 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 		m_sceneLights = std::make_unique<SceneLights>();
 
 		using DirectX::SimpleMath::Vector3;
-		auto sundir = Vector3(0.f, -2.f, -1.f);
+
+		auto sundir = Vector3(0.f, -1.f, -3.f);
 		sundir.Normalize();
-		std::unique_ptr<Light> l1 = std::make_unique<Light>(ELightType::SPOT, Vector3(0.f, 0.f, -1.f), Vector3(0.f, 1.f, 2.f));
-		std::unique_ptr<Light> l2 = std::make_unique<Light>(ELightType::POINT, Vector3(0.f, 0.f, 1.f), Vector3(0.f, 1.f, -2.f));
-		std::unique_ptr<Light> l3 = std::make_unique<Light>(ELightType::DIRECTIONAL, sundir, Vector3(0.f, 1.f, 2.f));
+
+		auto spotDir = Vector3(0.f, -1.f, -3.f);
+		spotDir.Normalize();
+
+		auto pointDir = Vector3(0.f, -1.f, 3.f);
+		pointDir.Normalize();
+
+		std::unique_ptr<Light> l1 = std::make_unique<Light>(ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 2.f));
+		std::unique_ptr<Light> l2 = std::make_unique<Light>(ELightType::POINT, pointDir, Vector3(0.f, 7.f, -2.f));
+		std::unique_ptr<Light> l3 = std::make_unique<Light>(ELightType::DIRECTIONAL, sundir, Vector3(0.f, 40.f, 40.f));
 
 		m_sceneLights->AddLight(std::move(l1));
 		m_sceneLights->AddLight(std::move(l2));
@@ -65,20 +73,24 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	m_sceneLights->GetLightsSBSRV()
 	};
 
-	ID3D11SamplerState* samplers[2] = {
+	ID3D11SamplerState* samplers[4] = {
 		Graphics::linearWrapSS.Get(),
 		Graphics::linearClampSS.Get(),
+		Graphics::shadowPointSS.Get(),
+		Graphics::shadowCompareSS.Get()
 	};
 
 	// 공용 리소스
 	pContext->PSSetShaderResources(0, 5, resources);
 	pContext->VSSetShaderResources(4, 1, resources + 4); // scenelight structured buffer to VS
-	pContext->PSSetSamplers(0, 2, samplers);
-	pContext->VSSetSamplers(0, 2, samplers);
+	pContext->PSSetSamplers(0, 4, samplers);
+	pContext->VSSetSamplers(0, 4, samplers);
 
-	// TODO : cameara, light에서 뎁스맵가져오고 공용으로 설정하기
 	ID3D11ShaderResourceView* depthSRV = m_camera->GetDepthBufferSRV(); // set to slot 10
-	ID3D11ShaderResourceView* const* aa = m_sceneLights->GetShadowMapSRVs(); // slot 11 ~ 11 + LIGHT COUNT
+	ID3D11ShaderResourceView* const* lightsSRVs = m_sceneLights->GetShadowMapSRVs(); // slot 11 ~ 11 + LIGHT COUNT
+
+	pContext->PSSetShaderResources(10, 1, &depthSRV);
+	pContext->PSSetShaderResources(11, m_sceneLights->GetLightsCount(), lightsSRVs);
 }
 
 void SceneStateObject::Update(ID3D11DeviceContext1* pContext)

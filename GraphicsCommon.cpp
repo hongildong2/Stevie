@@ -10,6 +10,8 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> linearMirrorSS;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowPointSS;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowCompareSS;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicCcwRS;
@@ -180,7 +182,7 @@ namespace Graphics
 			// IL만드는데 왜 굳이 쉐이더 바이너리를 넣어줘야할까? 왜 한번만 하면 동일한 레이아웃의 다른 쉐이더들은 안해줘도 될까?
 			device->CreateInputLayout(layout, (sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), basicIL.GetAddressOf());
 
-			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", skyBoxShaderDefines, shaderBlob.GetAddressOf()));
 			device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cubemapVS.GetAddressOf());
 
 			DX::ThrowIfFailed(CompileShader(L"SamplingVS.hlsl", "main", "vs_5_0", depthOnlyShaderDefines, shaderBlob.GetAddressOf()));
@@ -324,6 +326,22 @@ namespace Graphics
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
 
 		DX::ThrowIfFailed(device->CreateSamplerState(&desc, linearMirrorSS.GetAddressOf()));
+
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.BorderColor[0] = 1.0f; // 큰 Z값
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		DX::ThrowIfFailed(device->CreateSamplerState(&desc, shadowPointSS.GetAddressOf()));
+
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		desc.BorderColor[0] = 100.0f; // 큰 Z값
+		desc.Filter =
+			D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		DX::ThrowIfFailed(device->CreateSamplerState(&desc, shadowCompareSS.GetAddressOf()));
 	}
 	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	{

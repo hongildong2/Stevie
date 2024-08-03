@@ -135,7 +135,7 @@
       <Filter>Ocean</Filter>
     </None>
     <None Include="RenderingCommons.hlsli" />
-    <None Include="CoordTransform.hlsli" />
+    <None Include="ScreenSpace.hlsli" />
     <None Include="PBRCommons.hlsli" />
   </ItemGroup>
   <ItemGroup>

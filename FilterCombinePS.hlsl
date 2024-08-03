@@ -1,4 +1,4 @@
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 Texture2D g_texture0 : register(t100);
 Texture2D g_texture1 : register(t101);
 

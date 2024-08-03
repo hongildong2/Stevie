@@ -84,7 +84,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
 {
 	const float WATER_F0 = 0.02;
 	const float3 UP_VEC = float3(0, 1, 0);
-	Light globalSunLight = globalLights[0];
+	Light globalSunLight = globalLights[2];
+	Texture2D sunShadowMap = shadowMaps[2];
+
 	
 	float3 tangentY = float3(0, input.normalWorld.z, -input.normalWorld.y);
 	tangentY /= max(0.001, length(tangentY));
@@ -106,11 +108,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	BrInput.tangentYWorld = tangentY;
 	
 	float viewDist = distance(input.positionWorld, eyeWorld);
-	float windSpeed = 13.0;
-	float waveAlignment = 0.64;
+	float windSpeed = 5.0;
+	float waveAlignment = 1;
 	float scale = 2048;
-	float roughFac = 0.1;
-	float roughness = 0.3;
+	float roughFac = 10;
+	float roughness = materialConstant.roughness;
 	BrInput.slopeVarianceSquared = roughFac * (1 + roughness * 0.3)
 								* SlopeVarianceSquared(windSpeed, viewDist, waveAlignment, scale);
 								
@@ -118,9 +120,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float effectiveFresnel = saturate(WATER_F0 + (1 - WATER_F0) * meanFresnel * 0.015); // 0.033 too much effective fresnel, skymap mapping is weird
 	
 	const float MIN_ROUGHNESS_BIAS = 0.02;
-	const float SPECULAR_STRENGTH = 10;
+	const float SPECULAR_STRENGTH = 2.5;
 	
 	// Calc BRDF
+	float shadowFactorBySunlight = GetShadowFactor(sunShadowMap, globalSunLight, input.positionWorld);
+
 	float specular = ReflectedSunRadiance(BrInput.lightDirWorld, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, max(1e-4, BrInput.slopeVarianceSquared + MIN_ROUGHNESS_BIAS))
 						* SPECULAR_STRENGTH * globalSunLight.color;
 						
@@ -131,6 +135,17 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
 	
 	float3 color = specular + lerp(refracted, reflected, effectiveFresnel);
+	color *= shadowFactorBySunlight;
+	
+	
+	float3 Lo = 0; // By DirectLight
+	
+	for (uint lightIndex = 0; lightIndex < globalLightsCount - 1; ++lightIndex)
+	{
+		Lo += RadianceLByDirectLight(shadowMaps[lightIndex], globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);	
+	}
+	
+	color += Lo;
 	color = lerp(color, horizon.rgb, horizon.a);
 	
 	// Foam

@@ -128,75 +128,6 @@ void Game::UpdateGUI()
 	// Controller, Update DTOs
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		//if (ImGui::TreeNode("Light"))
-		//{
-		//	// Vector3 <-> float3는 이렇게
-		//	ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -1.f, 1.f);
-		//	ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 3.f);
-		//	ImGui::SliderFloat3("Position", &m_lightsConstantsCPU.dirLight.position.x, -2.f, 3.f);
-		//	ImGui::TreePop();
-		//}
-
-
-		//if (ImGui::TreeNode("ModelMaterialConstant"))
-		//{
-		//	unsigned int nth = 0;
-		//	char buf[20];
-		//	for (auto& model : m_models)
-		//	{
-		//		snprintf(buf, 20, "%d%s", nth++, "th model");
-		//		if (ImGui::TreeNode(buf))
-		//		{
-		//			Material mat = model->GetMaterialConstant();
-
-		//			ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
-
-		//			// Vector3 <-> float3는 이렇게
-		//			ImGui::Text("Material Scaler");
-		//			ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
-
-		//			ImGui::Text("Material Constant Values");
-		//			ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-		//			ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-		//			ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-		//			ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
-
-		//			model->UpdateMaterialConstant(mat);
-
-		//			ImGui::TreePop();
-		//		}
-		//	}
-
-		//	// ㅋㅋ
-		//	if (ImGui::TreeNode("OCEAN PLANE"))
-		//	{
-		//		Material mat = m_oceanPlane->GetMaterialConstant();
-
-		//		ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
-
-		//		// Vector3 <-> float3는 이렇게
-		//		ImGui::Text("Material Scaler");
-		//		ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
-
-		//		ImGui::Text("Material Constant Values");
-		//		ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-		//		ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-		//		ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-		//		ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
-
-		//		m_oceanPlane->UpdateMaterialConstant(mat);
-
-		//		ImGui::TreePop();
-		//	}
-
-		//	ImGui::TreePop();
-		//}
 
 		if (ImGui::TreeNode("ImageFilter"))
 		{
@@ -209,13 +140,7 @@ void Game::UpdateGUI()
 			ImGui::TreePop();
 		}
 	}
-	// Call controllers
-	/*
-	* light.updateDir(vec3)
-	* light.updateStrength(float);
-	*
-	*
-	*/
+
 	ImGui::End();
 	ImGui::Render();
 }
@@ -487,9 +412,19 @@ void Game::CreateDeviceDependentResources()
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
 			smaple->AddMeshComponent(std::move(sph));
 			smaple->Initialize(device);
-			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 0.5f, 0.f));
+			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
 
 			m_models.push_back(std::move(smaple));
+
+
+			MeshData plane = GeometryGenerator::MakeSquare(5.f);
+			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
+			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
+			samplane->AddMeshComponent(std::move(plane2));
+			samplane->Initialize(device);
+			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
+
+			m_models.push_back(std::move(samplane));
 		}
 
 		// Ocean
@@ -518,7 +453,7 @@ void Game::CreateDeviceDependentResources()
 
 		// Cubemap
 		{
-			MeshData cube = GeometryGenerator::MakeBox(100.f);
+			MeshData cube = GeometryGenerator::MakeBox(75.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
 			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			m_skyBox->AddMeshComponent(std::move(cubeMesh));

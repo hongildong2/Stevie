@@ -36,6 +36,10 @@ void DepthOnlyResources::BeginDepthOnlyPass(ID3D11DeviceContext1* pContext)
 {
 	pContext->OMGetRenderTargets(SAVED_RTV_COUNTS, m_savedRTVs, &m_savedDSV);
 	pContext->RSGetViewports(&m_savedVPCount, m_savedVPs);
+
+	// release DSVs from PS Shader resource in 10 ~ 29
+	ID3D11ShaderResourceView* release[20] = { NULL, };
+	pContext->PSSetShaderResources(10, 20, release);
 }
 
 // RenderPassClass...

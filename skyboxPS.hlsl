@@ -1,5 +1,5 @@
 #include "RenderingCommons.hlsli"
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET0
 {

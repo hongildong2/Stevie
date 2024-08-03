@@ -1,4 +1,4 @@
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 #include "RenderingCommons.hlsli"
 
 Texture2D<float3> RenderResult : register(t100);
@@ -16,7 +16,7 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
 	
 	float distFog = saturate((dist - fogMin) / (fogMax - fogMin));
 	
-	float fogStrength = 0.14;
+	float fogStrength = 0.2;
 	float fogFactor = exp(-distFog * fogStrength);
 
 	

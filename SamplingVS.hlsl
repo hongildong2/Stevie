@@ -1,5 +1,5 @@
 #include "RenderingCommons.hlsli"
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 
 SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {
@@ -13,6 +13,9 @@ SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 	#ifdef DEPTH_ONLY
 	float4 viewPos = mul(pos, depthView);
 	output.positionProj = mul(viewPos, depthProj);
+	#elif SKY_BOX
+	float4 viewPos = mul(float4(input.positionModel, 0), view);
+	output.positionProj = mul(float4(viewPos.xyz, 1), proj);
 	#else
 	float4 viewPos = mul(pos, view);
 	output.positionProj = mul(viewPos, proj);

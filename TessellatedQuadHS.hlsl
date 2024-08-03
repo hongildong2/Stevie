@@ -1,5 +1,5 @@
 #include "RenderingCommons.hlsli"
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 
 #define NUM_CONTROL_POINTS 4
 

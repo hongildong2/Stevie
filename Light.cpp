@@ -7,10 +7,11 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	, m_direction(direction)
 	, m_positionWorld(posWorld)
 	, m_radiance{ 2.f, 2.f, 2.f }
+	, m_color{ 255.f / 255.f, 238.f / 255.f, 80.f / 255.f }
 	, m_fallOffStart(0.f)
 	, m_fallOffEnd(20.f)
 	, m_spotPower(6.f)
-	, m_radius(0.02f)
+	, m_radius(0.03f)
 	, m_haloRadius(0.01f)
 	, m_haloStrength(1.f)
 {
@@ -44,11 +45,15 @@ void Light::GetLightData(LightData* outLightData) const
 	outLightData->haloRadius = m_haloRadius;
 	outLightData->haloStrength = m_haloStrength;
 
-	outLightData->viewColumn = GetViewRow().Transpose();
-	outLightData->projColumn = GetProjRow().Transpose();
-	outLightData->projColumn = outLightData->projColumn.Invert();
+	auto view = GetViewRow();
+	auto proj = GetProjRow();
+	outLightData->viewColumn = view.Transpose();
+	outLightData->projColumn = proj.Transpose();
 
+	auto invProj = proj.Invert();
+	outLightData->invProjColumn = invProj.Transpose();
 }
+
 DirectX::SimpleMath::Matrix Light::GetViewRow() const
 {
 	DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);

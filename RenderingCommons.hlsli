@@ -39,6 +39,7 @@ struct Light
 	float radius;
 	float haloRadius;
 	float haloStrength;
+	
 	matrix view;
 	matrix proj;
 	matrix invProj;
@@ -65,13 +66,8 @@ struct Material
 
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
-
-// not yet added
 SamplerState shadowPointSampler : register(s2);
 SamplerComparisonState shadowCompareSampler : register(s3);
-SamplerState pointWrapSampler : register(s4);
-SamplerState linearMirrorSampler : register(s5);
-SamplerState pointClampSampler : register(s6);
 
 /* Resources */
 
@@ -129,6 +125,7 @@ cbuffer DepthMapConstant : register(b3)
 */
 
 
+
 TextureCube cubeMap : register(t0);
 TextureCube irradianceMap : register(t1);
 TextureCube SpecularMap : register(t2);
@@ -136,8 +133,7 @@ Texture2D BRDFMap : register(t3);
 StructuredBuffer<Light> globalLights : register(t4);
 
 Texture2D<float> cameraDepthMap : register(t10);
-
-
+Texture2D shadowMaps[3] : register(t11);
 
 Texture2D<float3> albedoTex : register(t30);
 Texture2D<float> aoTex : register(t31);
@@ -148,5 +144,4 @@ Texture2D<float> roughnessTex : register(t35);
 // StructuredBuffer<Light> meshLights : register(t36);
 
 static const float PI = 3.14159265359;
-
 #endif // __COMMON_HLSLI__

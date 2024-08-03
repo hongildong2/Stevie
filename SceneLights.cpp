@@ -36,7 +36,7 @@ void SceneLights::Initialize(ID3D11Device1* pDevice)
 		m_lights[i]->Initialize(pDevice);
 		m_shadowMapSRVs[i] = m_lights[i]->GetDepthBufferSRV();
 	}
-	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), LIGHTS_COUNT, m_lights.data(), m_lightsSB.GetAddressOf());
+	Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(LightData), LIGHTS_COUNT, m_lightDataBuffer, m_lightsSB.GetAddressOf());
 	Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_lightsSB.Get(), 0, m_lightsSBSRV.GetAddressOf());
 }
 
@@ -51,5 +51,5 @@ void SceneLights::Update(ID3D11DeviceContext1* pContext)
 		lightRef->GetLightData(bufferPtr);
 	}
 
-	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lightDataBuffer);
+	Utility::DXResource::UpdateBuffer(pContext, m_lightsSB.Get(), sizeof(LightData), LIGHTS_COUNT, m_lightDataBuffer);
 }
