@@ -438,7 +438,7 @@ void Game::CreateDeviceDependentResources()
 			Material mat = DEFAULT_MATERIAL;
 			mat.bUseTexture = FALSE;
 			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.f, 105.f / 255.f, 148.f / 255.f };
+			mat.albedo = { 0.f, 41.f / 255.f, 73.f / 255.f };
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));

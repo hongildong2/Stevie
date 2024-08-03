@@ -1,8 +1,9 @@
 #ifndef __OCEAN_GLOBAL__
 #define __OCEAN_GLOBAL__
 
-#define SIZE 512 // 512 by 512 DFT
-#define LOG_SIZE 9 // log2  512
+#define SIZE 1024 // 512 by 512 DFT
+#define FFT_SIZE 1024 // if SIZE < 1024, SIZE = FFT_SIZE
+#define LOG_SIZE 10 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
 #define SAMPLING_COUNT 9
 #define SIMULATION_SIZE_IN_METER 2048.0

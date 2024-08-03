@@ -117,7 +117,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 								* SlopeVarianceSquared(windSpeed, viewDist, waveAlignment, scale);
 								
 	float meanFresnel = MeanFresnel(BrInput.viewDirWorld, BrInput.normalWorld, BrInput.slopeVarianceSquared);
-	float effectiveFresnel = saturate(WATER_F0 + (1 - WATER_F0) * meanFresnel * 0.015); // 0.033 too much effective fresnel, skymap mapping is weird
+	float effectiveFresnel = saturate(WATER_F0 + (1 - WATER_F0) * meanFresnel * 0.02); // 0.033 too much effective fresnel, skymap mapping is weird
 	
 	const float MIN_ROUGHNESS_BIAS = 0.02;
 	const float SPECULAR_STRENGTH = 2.5;
