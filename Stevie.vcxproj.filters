@@ -60,11 +60,15 @@
       <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="EMeshType.h" />
-    <ClInclude Include="GlobalLight.h" />
+    <ClInclude Include="SceneLights.h" />
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="SceneStateObject.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
+    <ClInclude Include="DepthTexture.h" />
+    <ClInclude Include="IDepthRenderable.h" />
+    <ClInclude Include="DepthOnlyResources.h" />
+    <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -96,9 +100,12 @@
     <ClCompile Include="ModelCommon.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalLight.cpp" />
+    <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="SceneStateObject.cpp" />
+    <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="DepthOnlyResources.cpp" />
+    <ClCompile Include="Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -128,13 +135,11 @@
       <Filter>Ocean</Filter>
     </None>
     <None Include="RenderingCommons.hlsli" />
-    <None Include="CoordTransform.hlsli" />
+    <None Include="ScreenSpace.hlsli" />
     <None Include="PBRCommons.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PBRVS.hlsl" />
-    <FxCompile Include="CubemapPS.hlsl" />
-    <FxCompile Include="CubemapVS.hlsl" />
     <FxCompile Include="PBRPS.hlsl" />
     <FxCompile Include="InitialOceanSpectrumCS.hlsl">
       <Filter>Ocean</Filter>
@@ -166,9 +171,6 @@
     <FxCompile Include="TessellatedQuadDS.hlsl">
       <Filter>Model</Filter>
     </FxCompile>
-    <FxCompile Include="DepthOnlyShaders.hlsl">
-      <Filter>DepthMap</Filter>
-    </FxCompile>
     <FxCompile Include="FoamSimulationCS.hlsl">
       <Filter>Ocean</Filter>
     </FxCompile>
@@ -179,5 +181,7 @@
     <FxCompile Include="BrunetonLighting.hlsli">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="SamplingVS.hlsl" />
+    <FxCompile Include="skyboxPS.hlsl" />
   </ItemGroup>
 </Project>

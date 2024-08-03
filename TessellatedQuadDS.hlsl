@@ -67,9 +67,7 @@ PixelShaderInput main(
 	Output.positionProjection = mul(float4(Output.positionWorld, 1.f), view);
 	Output.positionProjection = mul(Output.positionProjection, proj);
 	
-	
-	// TODO : need to calculate
-	Output.tangentWorld = mul(float4(topLeft.tangentWorld, 0.f), worldIT).xyz;
+	Output.tangentWorld = normalize(float3(0, Output.normalWorld.z, -Output.normalWorld.y));
 	
 	return Output;
 }

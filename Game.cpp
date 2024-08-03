@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"
+#include "DepthOnlyResources.h"
 
 extern void ExitGame() noexcept;
 
@@ -19,8 +20,6 @@ using DirectX::SimpleMath::Matrix;
 using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false) :
-	m_pitch(0),
-	m_yaw(0),
 	m_sceneState(std::make_unique<SceneStateObject>())
 {
 	// for post processing in compute shader
@@ -98,12 +97,12 @@ void Game::Tick()
 	// TODO :: Turn This Logic into Physics Component Update
 	for (auto& modelPtr : m_models)
 	{
-		auto pos = modelPtr->GetWorldPos();
+		// auto pos = modelPtr->GetWorldPos();
 
 		// 모델들이 시간이 느리니까, 과거를 샘플링하자!
-		float height = m_ocean->GetHeight({ pos.x, pos.z });
+		//float height = m_ocean->GetHeight({ pos.x, pos.z });
 
-		modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ㅠㅠㅠ 렌더랑 cpu 높이맵이랑 오차가 넘 심해졌어.. 쉐이더 떡칠하면 이렇게되는가?
+		// modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ㅠㅠㅠ 렌더랑 cpu 높이맵이랑 오차가 넘 심해졌어.. 쉐이더 떡칠하면 이렇게되는가?
 
 		modelPtr->Update(context);
 	}
@@ -129,75 +128,6 @@ void Game::UpdateGUI()
 	// Controller, Update DTOs
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		//if (ImGui::TreeNode("Light"))
-		//{
-		//	// Vector3 <-> float3는 이렇게
-		//	ImGui::SliderFloat3("Dir", &m_lightsConstantsCPU.dirLight.direction.x, -1.f, 1.f);
-		//	ImGui::SliderFloat3("Strength", &m_lightsConstantsCPU.dirLight.strength.x, 0.f, 3.f);
-		//	ImGui::SliderFloat3("Position", &m_lightsConstantsCPU.dirLight.position.x, -2.f, 3.f);
-		//	ImGui::TreePop();
-		//}
-
-
-		//if (ImGui::TreeNode("ModelMaterialConstant"))
-		//{
-		//	unsigned int nth = 0;
-		//	char buf[20];
-		//	for (auto& model : m_models)
-		//	{
-		//		snprintf(buf, 20, "%d%s", nth++, "th model");
-		//		if (ImGui::TreeNode(buf))
-		//		{
-		//			Material mat = model->GetMaterialConstant();
-
-		//			ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
-
-		//			// Vector3 <-> float3는 이렇게
-		//			ImGui::Text("Material Scaler");
-		//			ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-		//			ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
-
-		//			ImGui::Text("Material Constant Values");
-		//			ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-		//			ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-		//			ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-		//			ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
-
-		//			model->UpdateMaterialConstant(mat);
-
-		//			ImGui::TreePop();
-		//		}
-		//	}
-
-		//	// ㅋㅋ
-		//	if (ImGui::TreeNode("OCEAN PLANE"))
-		//	{
-		//		Material mat = m_oceanPlane->GetMaterialConstant();
-
-		//		ImGui::Checkbox("bUseTexture", reinterpret_cast<bool*>(&mat.bUseTexture));
-
-		//		// Vector3 <-> float3는 이렇게
-		//		ImGui::Text("Material Scaler");
-		//		ImGui::SliderFloat("metallicScaler", &mat.metallicFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("aoScaler", &mat.aoFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("roughnessScaler", &mat.roughnessFactor, 0.f, 1.f);
-		//		ImGui::SliderFloat("t1", &mat.t1, 0.f, 10.f);
-
-		//		ImGui::Text("Material Constant Values");
-		//		ImGui::SliderFloat3("albedo", &mat.albedo.x, 0.f, 1.f);
-		//		ImGui::SliderFloat("metallic", &mat.metallic, 0.f, 1.f);
-		//		ImGui::SliderFloat("roughness", &mat.roughness, 0.f, 1.f);
-		//		ImGui::SliderFloat("specular", &mat.specular, 0.f, 12.5f);
-
-		//		m_oceanPlane->UpdateMaterialConstant(mat);
-
-		//		ImGui::TreePop();
-		//	}
-
-		//	ImGui::TreePop();
-		//}
 
 		if (ImGui::TreeNode("ImageFilter"))
 		{
@@ -210,13 +140,7 @@ void Game::UpdateGUI()
 			ImGui::TreePop();
 		}
 	}
-	// Call controllers
-	/*
-	* light.updateDir(vec3)
-	* light.updateStrength(float);
-	*
-	*
-	*/
+
 	ImGui::End();
 	ImGui::Render();
 }
@@ -236,16 +160,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
-			Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
+			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f)
 				* Camera::ROTATION_GAIN;
-
-			m_pitch -= delta.y;
-			m_yaw -= delta.x;
-
+			m_sceneState->GetCamera()->UpdatePitchYaw(deltaRotationRadian);
 		}
 
-		m_mouse->SetMode(mouse.rightButton
-			? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		m_mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		auto kb = m_keyboard->GetState();
 		m_keys.Update(kb);
@@ -257,7 +177,6 @@ void Game::Update(DX::StepTimer const& timer)
 		if (kb.Home)
 		{
 			m_sceneState->GetCamera()->Reset();
-			m_pitch = m_yaw = 0;
 		}
 
 		Vector3 move = Vector3::Zero;
@@ -280,13 +199,13 @@ void Game::Update(DX::StepTimer const& timer)
 		if (kb.Down || kb.S)
 			move.z -= 1.f;
 
-		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 
-		move = Vector3::Transform(move, q);
+		// Get Camera PitchYaw Quarternion
+		Quaternion q = m_sceneState->GetCamera()->GetPitchYawInQuarternion();
+		move = Vector3::Transform(move, q); // represented in camera space
 
-		move *= Camera::MOVEMENT_GAIN;
-
-		m_sceneState->GetCamera()->UpdatePosBy(move);
+		Vector3 deltaMove = move * Camera::MOVEMENT_GAIN;
+		m_sceneState->GetCamera()->UpdatePos(deltaMove);
 
 		// no bound currently
 		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))
@@ -294,27 +213,6 @@ void Game::Update(DX::StepTimer const& timer)
 
 		//m_cameraPos = Vector3::Min(m_cameraPos, halfBound);
 		//m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
-
-		// MOUSE : limit pitch to straight up or straight down
-		constexpr float limit = XM_PIDIV2 - 0.01f;
-		m_pitch = std::max(-limit, m_pitch);
-		m_pitch = std::min(+limit, m_pitch);
-
-		// keep longitude in sane range by wrapping
-		if (m_yaw > XM_PI)
-		{
-			m_yaw -= XM_2PI;
-		}
-		else if (m_yaw < -XM_PI)
-		{
-			m_yaw += XM_2PI;
-		}
-
-		float y = sinf(m_pitch);
-		float r = cosf(m_pitch);
-		float z = r * cosf(m_yaw);
-		float x = r * sinf(m_yaw);
-		m_sceneState->GetCamera()->UpdateLookAtBy(Vector3(x, y, z));
 	}
 
 
@@ -340,38 +238,32 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Scene");
 	// Scene.Draw()
 	{
+
+		m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
+		// DepthOnlyPass
+		{
+			auto* dor = DepthOnlyResources::GetInstance();
+			dor->BeginDepthOnlyPass(context);
+			const auto& createDEEPPTHHH = dor->GetDepthRenderableObjects();
+			for (auto& obj : createDEEPPTHHH)
+			{
+				obj->SetContextDepthOnly(context);
+
+				for (auto& model : m_models)
+				{
+					model->RenderOverride(context, Graphics::depthOnlyPSO);
+				}
+				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
+				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
+
+			}
+			dor->EndDepthOnlyPass(context);
+		}
+		m_deviceResources->PIXEndEvent();
+
+
 		// 글로벌 상태, 공용 리소스 설정
 		m_sceneState->PrepareRender(context);
-
-
-		// DepthOnly Pass
-		{
-			m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
-			const UINT RETRIEVAL = 2;
-			ID3D11RenderTargetView* savedRTVs[RETRIEVAL] = { 0, };
-			ID3D11DepthStencilView* savedDSV = NULL;
-			context->OMGetRenderTargets(RETRIEVAL, savedRTVs, &savedDSV);
-			// assert (savedDSV != nullptr);
-
-			// set RTV to NULL, DSV to depthonly
-			context->ClearDepthStencilView(m_depthMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-			context->OMSetRenderTargets(0, NULL, m_depthMapDSV.Get());
-
-			m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
-			// Models
-			for (auto& model : m_models)
-			{
-				model->RenderOverride(context, Graphics::depthOnlyPSO);
-			}
-			m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
-
-			// REDO RTV
-			context->OMSetRenderTargets(RETRIEVAL, savedRTVs, savedDSV);
-			m_deviceResources->PIXEndEvent();
-		}
-
-		m_skyBox->Render(context);
-
 		// Models
 		{
 			m_deviceResources->PIXBeginEvent(L"Models");
@@ -388,6 +280,7 @@ void Game::Render()
 			m_ocean->Render(context);
 			m_deviceResources->PIXEndEvent();
 		}
+		m_skyBox->Render(context);
 
 	}
 	m_deviceResources->PIXEndEvent();
@@ -395,7 +288,7 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"PostProcess");
 	{
 		auto* rtv = m_deviceResources->GetRenderTargetView();
-		m_sceneState->ProcessRender(context, m_floatBuffer.Get(), m_depthMapSRV.Get(), rtv);
+		m_sceneState->RenderProcess(context, m_floatBuffer.Get(), rtv);
 	}
 	m_deviceResources->PIXEndEvent();
 
@@ -497,6 +390,8 @@ void Game::CreateDeviceDependentResources()
 	auto* device = m_deviceResources->GetD3DDevice();
 
 	Graphics::InitCommonStates(device);
+	auto* dop = DepthOnlyResources::GetInstance();
+	dop->InitDepthOnlyResources(device);
 
 	// MAKE SCENE CLASS PLEASE
 	{
@@ -517,9 +412,19 @@ void Game::CreateDeviceDependentResources()
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
 			smaple->AddMeshComponent(std::move(sph));
 			smaple->Initialize(device);
-			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 0.5f, 0.f));
+			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
 
 			m_models.push_back(std::move(smaple));
+
+
+			MeshData plane = GeometryGenerator::MakeSquare(5.f);
+			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
+			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
+			samplane->AddMeshComponent(std::move(plane2));
+			samplane->Initialize(device);
+			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
+
+			m_models.push_back(std::move(samplane));
 		}
 
 		// Ocean
@@ -533,7 +438,7 @@ void Game::CreateDeviceDependentResources()
 			Material mat = DEFAULT_MATERIAL;
 			mat.bUseTexture = FALSE;
 			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.1f, 0.1f, 0.9f };
+			mat.albedo = { 0.f, 41.f / 255.f, 73.f / 255.f };
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
@@ -548,31 +453,30 @@ void Game::CreateDeviceDependentResources()
 
 		// Cubemap
 		{
-			MeshData cube = GeometryGenerator::MakeBox(100.f);
+			MeshData cube = GeometryGenerator::MakeBox(75.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
 			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			m_skyBox->AddMeshComponent(std::move(cubeMesh));
 			m_skyBox->Initialize(device);
 		}
 		m_sceneState->Initialize(device);
-
 	}
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-	RECT size = m_deviceResources->GetOutputSize();
+	D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
 	auto* pDevice = m_deviceResources->GetD3DDevice();
 
-	// TODO : vector<IWindowSizeDependent>, iter
-	m_sceneState->OnWindowSizeChange(pDevice, size, HDR_BUFFER_FORMAT);
+	m_sceneState->OnWindowSizeChange(pDevice, screenVP, HDR_BUFFER_FORMAT);
+
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Format = HDR_BUFFER_FORMAT; // for HDR Pipeline
-	desc.Width = size.right;
-	desc.Height = size.bottom;
+	desc.Width = screenVP.Width;
+	desc.Height = screenVP.Height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
@@ -588,25 +492,6 @@ void Game::CreateWindowSizeDependentResources()
 	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
 
-
-	desc.Format = DXGI_FORMAT_R32_TYPELESS;
-	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_depthMap.GetAddressOf()));
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(m_depthMap.Get(), &dsvDesc, m_depthMapDSV.GetAddressOf()));
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_depthMap.Get(), &srvDesc, m_depthMapSRV.GetAddressOf()));
-
-
-	// TODO : 라이트 개수만큼 그림자 버퍼 만들기
 }
 
 void Game::OnDeviceLost()

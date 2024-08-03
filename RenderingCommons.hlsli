@@ -6,8 +6,8 @@
 struct VertexShaderInput
 {
 	float3 positionModel : POSITION; //¸ðµ¨ ÁÂÇ¥°èÀÇ À§Ä¡ position
-	float3 normalModel : NORMAL; // ¸ðµ¨ ÁÂÇ¥°èÀÇ normal    
 	float2 texcoordinate : TEXCOORD;
+	float3 normalModel : NORMAL; // ¸ðµ¨ ÁÂÇ¥°èÀÇ normal    
 	float3 tangentModel : TANGENT;
 };
 
@@ -40,8 +40,8 @@ struct Light
 	float haloRadius;
 	float haloStrength;
 	
+	matrix view;
 	matrix proj;
-	matrix viewProj;
 	matrix invProj;
 };
 
@@ -66,13 +66,8 @@ struct Material
 
 SamplerState linearWrap : register(s0);
 SamplerState linearClamp : register(s1);
-
-// not yet added
 SamplerState shadowPointSampler : register(s2);
 SamplerComparisonState shadowCompareSampler : register(s3);
-SamplerState pointWrapSampler : register(s4);
-SamplerState linearMirrorSampler : register(s5);
-SamplerState pointClampSampler : register(s6);
 
 /* Resources */
 
@@ -97,11 +92,6 @@ cbuffer GlobalConstants : register(b0)
 	float2 gcDummy;
 };
 
-uint getSunlightIndex()
-{
-	return globalLightsCount;
-}
-
 cbuffer MeshConstants : register(b1)
 {
 	matrix world;
@@ -119,17 +109,21 @@ cbuffer MaterialConstants : register(b2)
 	Material materialConstant;
 };
 
-
+cbuffer DepthMapConstant : register(b3)
+{
+	matrix depthView;
+	matrix depthProj;
+};
 /* 
 	Textures 
 
 	0 ~ 9 IBL Textures, t4 is GlobalLights Structured Buffer
-	10 ~ 19 DepthMap Textures
-	20 ~ 29 ShadowMap Textures
+	10 ~ 29 DepthMap, ShadowMap Textures
 	30 ~ 59 Mesh Textures
 	60 ~ 99 Environment Textures
 	100 ~  Misc
 */
+
 
 
 TextureCube cubeMap : register(t0);
@@ -139,8 +133,7 @@ Texture2D BRDFMap : register(t3);
 StructuredBuffer<Light> globalLights : register(t4);
 
 Texture2D<float> cameraDepthMap : register(t10);
-
-Texture2DArray<float> globalShadowMap : register(t20); // For each global light, == light shadow map
+Texture2D shadowMaps[3] : register(t11);
 
 Texture2D<float3> albedoTex : register(t30);
 Texture2D<float> aoTex : register(t31);
@@ -151,5 +144,4 @@ Texture2D<float> roughnessTex : register(t35);
 // StructuredBuffer<Light> meshLights : register(t36);
 
 static const float PI = 3.14159265359;
-
 #endif // __COMMON_HLSLI__

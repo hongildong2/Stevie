@@ -1,15 +1,14 @@
 #ifndef __OCEAN_GLOBAL__
 #define __OCEAN_GLOBAL__
 
-#define SIZE 512 // 512 by 512 DFT
-#define LOG_SIZE 9 // log2  512
+#define SIZE 1024 // 512 by 512 DFT
+#define FFT_SIZE 1024 // if SIZE < 1024, SIZE = FFT_SIZE
+#define LOG_SIZE 10 // log2  512
 #define CASCADE_COUNT 4 // total 4 wave cascades
 #define SAMPLING_COUNT 9
 #define SIMULATION_SIZE_IN_METER 2048.0
 
 #define DELTA 0.001
-
-// TODO : 텍스쳐 리소스들도 여기에 붙여넣기
 
 
 static const float2 SAMPLING_KERNEL[SAMPLING_COUNT] =
@@ -240,14 +239,9 @@ float FoamCoverage(float4 turbulence, float2 worldUV, FoamParameter param)
 	return surfaceFoam;
 }
 
-float ScreenSpaceContactFoam(Texture2D<float> depthMap, SamplerState ss, float4 positionProjection, float viewDepth, float oceanWorldUV)
+
+void ScreenSpaceContactFoam(in FoamOutput foamRendered, Texture2D <float>depthMap, SamplerState ss, float4 positionProjection, float viewDepth)
 {
-	// calculate depth diff of current fragment and depthmap
-	
-	
-	/// sss
-	// projection 공간에 있는 vertex를, screen space로 강제로 내린다. 이게 왜 강제로 내리는걸까?
-	// check transformation
 	float2 positionScreenSpace = positionProjection.xy / positionProjection.w;
 	float objDepth = depthMap.Sample(ss, positionScreenSpace);
 
@@ -258,8 +252,10 @@ float ScreenSpaceContactFoam(Texture2D<float> depthMap, SamplerState ss, float4 
 	
 	depthDiff = abs(depthDiff) * contactTexture;
 	
-	const float CONTACT_FOAM_RANGE = 0.2;
-	return saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
+	const float CONTACT_FOAM_RANGE = 1;
+	float contactFoam = saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
+	
+	foamRendered.coverage = saturate(foamRendered.coverage + contactFoam);
 }
 
 float3 LitFoamColor(FoamOutput foamData, TextureCube irradianceMap, SamplerState ss, float3 N, float NdotL, float3 lightColor, float lightAttenuation)
@@ -282,6 +278,7 @@ FoamOutput GetFoamOutput(FoamInput input)
 	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
 	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
+	
 	
 	// TODO : sample foam texture into albedo
 	res.albedo = 1;

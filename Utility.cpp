@@ -32,15 +32,18 @@ namespace Utility
 			}
 		}
 
-		void CreateBufferSRV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11ShaderResourceView** ppSRVOut)
+		void CreateStructuredBufferSRV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, UINT subResourceIndex, ID3D11ShaderResourceView** ppSRVOut)
 		{
 			D3D11_BUFFER_DESC descBuf = {};
 			pBuffer->GetDesc(&descBuf);
+			const UINT BUFFER_TOTAL_SIZE = descBuf.ByteWidth;
+			const UINT BUFFER_ELEMENT_SIZE = descBuf.StructureByteStride;
+			const UINT BUFFER_LENGTH = BUFFER_TOTAL_SIZE / BUFFER_ELEMENT_SIZE;
+			assert(subResourceIndex < BUFFER_LENGTH);
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
-			desc.BufferEx.FirstElement = 0;
-
+			desc.BufferEx.FirstElement = subResourceIndex;
 			if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
 			{
 				// This is a Raw Buffer
@@ -54,7 +57,7 @@ namespace Utility
 				{
 					// This is a Structured Buffer
 					desc.Format = DXGI_FORMAT_UNKNOWN;
-					desc.BufferEx.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
+					desc.BufferEx.NumElements = BUFFER_LENGTH - subResourceIndex;
 				}
 				else
 				{

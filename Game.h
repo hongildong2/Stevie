@@ -16,14 +16,11 @@
 
 
 #include "Ocean.h"
-#include "GlobalLight.h"
+#include "SceneLights.h"
 #include "SceneStateObject.h"
 #include "PostProcess.h"
 
-constexpr float NEAR_Z = 0.1f;
-constexpr float FAR_Z = 300.f;
-constexpr float FOV = 90.f;
-constexpr float SHADOW_MAP_SIZE = 1024.f;
+
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
@@ -34,7 +31,7 @@ class Game final : public DX::IDeviceNotify
 public:
 
 	Game() noexcept(false);
-	~Game() = default; // TODO : destroy cubemap
+	~Game() = default;
 
 	Game(Game&&) = default;
 	Game& operator= (Game&&) = default;
@@ -90,9 +87,6 @@ private:
 	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
-	float m_pitch;
-	float m_yaw;
-
 
 	/// Scene : models, lights, scene state
 	// Scene members
@@ -101,17 +95,9 @@ private:
 	std::unique_ptr<Ocean> m_ocean;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
-	// RenderResource, RenderPass, RenderGraph, RHI
-
-	// RenderResource, RenderPass use these RenderResource objects
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthMapDSV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthMapSRV;
-
-
+	// TODO : RenderTexture·Î ±³Ã¼
 	// RenderResource
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
-
 };

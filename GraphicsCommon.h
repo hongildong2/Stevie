@@ -13,8 +13,8 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearWrapSS;
 	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearClampSS;
 	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> linearMirrorSS;
-	// extern ComPtr<ID3D11SamplerState> pointClampSS;
-	// extern ComPtr<ID3D11SamplerState> pointWrapSS;
+	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowPointSS;
+	extern Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowCompareSS;
 
 	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> basicRS;
 	extern Microsoft::WRL::ComPtr<ID3D11RasterizerState> solidCcwRS;
@@ -27,9 +27,10 @@ namespace Graphics
 
 	// Shaders
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
-	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS;
+	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> cubemapVS; // namespace cubemap
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> screenQuadVS;
 	extern Microsoft::WRL::ComPtr<ID3D11VertexShader> depthOnlyVS;
+
 
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
@@ -45,18 +46,17 @@ namespace Graphics
 
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
-	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> screenQuadIL;
+	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
 
 
 	// Pipeline State Object
 	extern GraphicsPSO basicPSO;
 	extern GraphicsPSO cubemapPSO;
 	extern GraphicsPSO filterCombinePSO;
-	extern GraphicsPSO fogPSO;
 
 	extern GraphicsPSO depthOnlyPSO;
 	extern GraphicsPSO cubeMapDepthOnlyPSO;
-
+	extern GraphicsPSO fogPSO;
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;

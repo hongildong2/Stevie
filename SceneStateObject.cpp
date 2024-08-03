@@ -2,14 +2,18 @@
 
 #include "SceneStateObject.h"
 #include "Utility.h"
-#include "Game.h"
 #include "DirectXTex.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+float SceneStateObject::NEAR_Z = 0.1f;
+float SceneStateObject::FAR_Z = 120.f;
+float SceneStateObject::FOV = 90.f;
+float SceneStateObject::SHADOW_MAP_SIZE = 1024.f;
+
 SceneStateObject::SceneStateObject()
-	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY))
+	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
 {
 }
 
@@ -28,15 +32,26 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 
 	// Light
 	{
-		m_sceneLights = std::make_unique<SceneLights>(SHADOW_MAP_SIZE, NEAR_Z, FAR_Z);
-		LightData light1 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, 1.f}, 20.f, {0.f, 0.f, -2.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::DIRECTIONAL, 0.02f, 0.01f, 1.f, I, I };
-		LightData light2 = { {5.f, 5.f, 5.f}, 0.f, {0.f, -1.f, 0.f}, 20.f, {0.f, 1.5f, 0.f}, 6.f, {1.f, 1.f, 1.f}, 0.f,ELightType::SPOT, 0.04f, 0.01f, 1.f, I, I };
-		LightData light3 = { {5.f, 5.f, 5.f}, 0.f, {0.f, 0.f, -1.f}, 20.f, {0.f, 0.5f, 1.f}, 6.f, {1.f, 1.f, 1.f}, 0.f, ELightType::POINT, 0.02f, 0.01f, 1.f, I, I };
+		m_sceneLights = std::make_unique<SceneLights>();
 
+		using DirectX::SimpleMath::Vector3;
 
-		m_sceneLights->AddLight(light1);
-		m_sceneLights->AddLight(light2);
-		m_sceneLights->AddLight(light3);
+		auto sundir = Vector3(0.f, -1.f, -3.f);
+		sundir.Normalize();
+
+		auto spotDir = Vector3(0.f, -1.f, -3.f);
+		spotDir.Normalize();
+
+		auto pointDir = Vector3(0.f, -1.f, 3.f);
+		pointDir.Normalize();
+
+		std::unique_ptr<Light> l1 = std::make_unique<Light>(ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 2.f));
+		std::unique_ptr<Light> l2 = std::make_unique<Light>(ELightType::POINT, pointDir, Vector3(0.f, 7.f, -2.f));
+		std::unique_ptr<Light> l3 = std::make_unique<Light>(ELightType::DIRECTIONAL, sundir, Vector3(0.f, 40.f, 40.f));
+
+		m_sceneLights->AddLight(std::move(l1));
+		m_sceneLights->AddLight(std::move(l2));
+		m_sceneLights->AddLight(std::move(l3));
 		m_sceneLights->Initialize(pDevice);
 	}
 
@@ -50,31 +65,40 @@ void SceneStateObject::PrepareRender(ID3D11DeviceContext1* pContext)
 	pContext->DSSetConstantBuffers(0, 1, m_globalCB.GetAddressOf());
 	pContext->GSSetConstantBuffers(0, 1, m_globalCB.GetAddressOf());
 
-	ID3D11ShaderResourceView* resources[] = {
+	ID3D11ShaderResourceView* resources[5] = {
 	m_cubemapEnvView.Get(),
 	m_cubemapIrradianceView.Get(),
 	m_cubemapSpecularView.Get(),
 	m_cubemapBRDFView.Get(),
-	m_sceneLights->GetLightSRV()
+	m_sceneLights->GetLightsSBSRV()
 	};
 
-	ID3D11SamplerState* samplers[] = {
+	ID3D11SamplerState* samplers[4] = {
 		Graphics::linearWrapSS.Get(),
 		Graphics::linearClampSS.Get(),
+		Graphics::shadowPointSS.Get(),
+		Graphics::shadowCompareSS.Get()
 	};
 
 	// 공용 리소스
 	pContext->PSSetShaderResources(0, 5, resources);
-	pContext->PSSetSamplers(0, 2, samplers);
-	pContext->VSSetSamplers(0, 2, samplers);
+	pContext->VSSetShaderResources(4, 1, resources + 4); // scenelight structured buffer to VS
+	pContext->PSSetSamplers(0, 4, samplers);
+	pContext->VSSetSamplers(0, 4, samplers);
+
+	ID3D11ShaderResourceView* depthSRV = m_camera->GetDepthBufferSRV(); // set to slot 10
+	ID3D11ShaderResourceView* const* lightsSRVs = m_sceneLights->GetShadowMapSRVs(); // slot 11 ~ 11 + LIGHT COUNT
+
+	pContext->PSSetShaderResources(10, 1, &depthSRV);
+	pContext->PSSetShaderResources(11, m_sceneLights->GetLightsCount(), lightsSRVs);
 }
 
 void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 {
 	// Global Constant
 	{
-		m_globalConstant.view = m_camera->GetViewMatrix();
-		m_globalConstant.proj = m_proj;
+		m_globalConstant.view = m_camera->GetViewRow();
+		m_globalConstant.proj = m_camera->GetProjRow();
 		m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
 
 		m_globalConstant.invView = m_globalConstant.view.Invert();
@@ -101,23 +125,28 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 	m_sceneLights->Update(pContext);
 }
 
-void SceneStateObject::ProcessRender(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11ShaderResourceView* pDepthMapSRV, ID3D11RenderTargetView* pRTVToPresent)
+// RenderPass
+void SceneStateObject::RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11RenderTargetView* pRTVToPresent)
 {
 	m_postProcess->FillTextureToProcess(pContext, pBufferToProcess);
 
-	m_postProcess->ProcessFog(pContext, pDepthMapSRV);
+	m_postProcess->ProcessFog(pContext, m_camera->GetDepthBufferSRV());
 	m_postProcess->ProcessBloom(pContext);
 
 	m_postProcess->Draw(pContext, pRTVToPresent);
 }
 
-void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, RECT size, DXGI_FORMAT bufferFormat)
+void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
 {
-	m_proj = Matrix::CreatePerspectiveFieldOfView(
-		XMConvertToRadians(FOV),
-		float(size.right) / float(size.bottom), NEAR_Z, FAR_Z);
+	RECT SS = { NULL, };
+	SS.left = 0;
+	SS.top = 0;
+	SS.right = vp.Width;
+	SS.bottom = vp.Height;
 
 	m_postProcess.reset();
-	m_postProcess = std::make_unique<PostProcess>(size, bufferFormat);
+	m_postProcess = std::make_unique<PostProcess>(SS, bufferFormat);
 	m_postProcess->Initialize(pDevice);
+
+	m_camera->OnWindowSizeChange(pDevice, vp, bufferFormat);
 }

@@ -9,35 +9,100 @@ const float Camera::MOVEMENT_GAIN = 0.07f;
 
 
 
-Camera::Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector) : m_EyePos(eyePos), m_ViewDir(viewDir), m_UpVector(upVector)
+Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Vector3 viewDirWorld, DirectX::SimpleMath::Vector3 upVector, float nearZ, float farZ, float fov)
+	: IDepthRenderable()
+	, m_eyePosWorld(eyePosWorld)
+	, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
+	, m_upVector(upVector)
+	, m_pitch(0.f)
+	, m_yaw(0.f)
+	, m_nearZ(nearZ)
+	, m_farZ(farZ)
+	, m_fov(fov)
 {
-
 }
-DirectX::SimpleMath::Matrix Camera::GetViewMatrix() const
+
+void Camera::UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian)
 {
-	return DirectX::SimpleMath::Matrix::CreateLookAt(m_EyePos, m_ViewDir, m_UpVector);
+	m_pitch -= deltaRadian.y;
+	m_yaw -= deltaRadian.x;
+}
+DirectX::SimpleMath::Matrix Camera::GetViewRow() const
+{
+	return DirectX::SimpleMath::Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
 }
 
 DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
 {
-	return m_EyePos;
-}
-DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
-{
-	return m_ViewDir;
-}
-void Camera::UpdateLookAtBy(DirectX::SimpleMath::Vector3 viewDir)
-{
-	m_ViewDir = m_EyePos + viewDir;
+	return m_eyePosWorld;
 }
 
-void Camera::UpdatePosBy(DirectX::SimpleMath::Vector3 pos)
+DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
 {
-	m_EyePos += pos;
+	DirectX::SimpleMath::Vector3 viewDir = m_lookAtTargetPosWorld - m_eyePosWorld;
+	viewDir.Normalize();
+	return viewDir;
+}
+
+// LookAt은 viewDir가 아니라, 바라보는 Point이다. eyePosWorld + viewDir = LookAt
+// LookAt = eyePosWorld + viewDir
+// viewDir은 Model 좌표계 기준 camera model == world
+void Camera::UpdateLookAt(DirectX::SimpleMath::Vector3& viewDirModel)
+{
+	m_lookAtTargetPosWorld = m_eyePosWorld + viewDirModel;
+}
+
+DirectX::SimpleMath::Quaternion Camera::GetPitchYawInQuarternion() const
+{
+	return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
+}
+
+void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
+{
+	m_eyePosWorld += deltaPos;
+
+	using namespace DirectX;
+	using namespace DirectX::SimpleMath;
+
+	constexpr float limit = XM_PIDIV2 - 0.01f;
+	m_pitch = std::max(-limit, m_pitch);
+	m_pitch = std::min(+limit, m_pitch);
+
+	// keep longitude in sane range by wrapping
+	if (m_yaw > XM_PI)
+	{
+		m_yaw -= XM_2PI;
+	}
+	else if (m_yaw < -XM_PI)
+	{
+		m_yaw += XM_2PI;
+	}
+
+	/*
+		initially, camera's model space is aligned with world space because we defined it in same coordinate system
+		camera's view dir is represented in camera's model space`s unit sphere
+		using pitch yaw as angles
+	*/
+	// defined by angles in unit sphere
+	float y = sinf(m_pitch);
+	float r = cosf(m_pitch);
+	float z = r * cosf(m_yaw);
+	float x = r * sinf(m_yaw);
+	auto camearaViewDirModel = Vector3(x, y, z);
+	UpdateLookAt(camearaViewDirModel);
+}
+
+void Camera::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
+{
+	IDepthRenderable::m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(m_fov), float(vp.Width) / float(vp.Height), m_nearZ, m_farZ);
+	m_depthTex.reset();
+	m_depthTex = std::make_unique<DepthTexture>(vp);
+	m_depthTex->Initialize(pDevice);
 }
 
 void Camera::Reset()
 {
-	m_EyePos = Camera::START_POSITION;
-
+	m_eyePosWorld = Camera::START_POSITION;
+	m_pitch = 0;
+	m_yaw = 0;
 }

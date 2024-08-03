@@ -65,13 +65,13 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	// Structured Buffer
 	{
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters, m_LocalInitialSpectrumParameterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_LocalInitialSpectrumParameterSB.Get(), m_LocalInitialSpectrumParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_LocalInitialSpectrumParameterSB.Get(), 0, m_LocalInitialSpectrumParameterSRV.GetAddressOf());
 
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters, m_SwellInitialSpectrumParameterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_SwellInitialSpectrumParameterSB.Get(), m_SwellInitialSpectrumParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_SwellInitialSpectrumParameterSB.Get(), 0, m_SwellInitialSpectrumParameterSRV.GetAddressOf());
 
 		Utility::DXResource::CreateStructuredBuffer(pDevice, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters, m_combineParamterSB.GetAddressOf());
-		Utility::DXResource::CreateBufferSRV(pDevice, m_combineParamterSB.Get(), m_combineParameterSRV.GetAddressOf());
+		Utility::DXResource::CreateStructuredBufferSRV(pDevice, m_combineParamterSB.Get(), 0, m_combineParameterSRV.GetAddressOf());
 	}
 
 
@@ -203,6 +203,7 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 		// run IFFT CS, renew height map from spectrum map, get normal map from derivative map
 		// use FFT texture updated prev time dependent spectrum CS
 		// Run FFT CS twice on FFT texture as it is 2D FFT, one with horizontally and the other one with vertically(order can be changed)
+		const unsigned int FFT_GROUP_X = ocean::N / 1025u + 1;
 
 		ID3D11Buffer* FFTCBs[1] = { m_FFTCB.Get() };
 		ID3D11UnorderedAccessView* FFTUAVs[1] = { m_displacementMapUAV.Get() };
@@ -289,7 +290,6 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 	{
 		Graphics::SetPipelineState(pContext, Graphics::Ocean::combineWavePSO);
 		ID3D11Buffer* combineWaveCBs[1] = { m_combineWaveCB.Get() };
-		// TODO :: UpdateCB
 
 		pContext->CSSetConstantBuffers(0, 1, combineWaveCBs);
 
@@ -353,7 +353,8 @@ void Ocean::Render(ID3D11DeviceContext1* pContext)
 
 void Ocean::RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso)
 {
-	return; // does not render
+	return;
+	//Model::RenderOverride(pContext, pso);
 }
 
 float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const

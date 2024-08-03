@@ -1,13 +1,15 @@
 #include "RenderingCommons.hlsli"
-#include "CoordTransform.hlsli"
+#include "ScreenSpace.hlsli"
 
 
 SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {
 	SamplingPixelShaderInput output;
-    
-	output.position = float4(input.position, 1.0);
+	
+	// for full screen quad draw
+	output.positionProj = float4(input.positionModel, 1);
+	output.positionModel = input.positionModel; // screenquadVS
 	output.texcoord = input.texcoord;
-
+	
 	return output;
 }

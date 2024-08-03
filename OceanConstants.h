@@ -4,13 +4,13 @@
 namespace ocean
 {
 	constexpr unsigned int CASCADE_COUNT = 4; // total 4 different wave cascade
-	constexpr unsigned int N = 512; // fourier grid size, M = N
+	constexpr unsigned int N = 1024; // fourier grid size, M = N
 
 	constexpr unsigned int GROUP_X = N / 16;
 	constexpr unsigned int GROUP_Y = N / 16;
 
 	constexpr float DEFAULT_G = 9.8f;
-	constexpr float DEFAULT_DEPTH = 1000.f;
+	constexpr float DEFAULT_DEPTH = 400.f;
 
 	constexpr float WORLD_SCALER = 75.f;
 	constexpr float SIMULATION_SIZE_IN_METER = 2048.f;
@@ -146,10 +146,10 @@ namespace ocean
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
-		{ CASCADE_1_L, 0.08f, 1.f, 0.f },
-		{CASCADE_2_L, 0.06f, 1.f, 0.f},
+		{ CASCADE_1_L, 0.103f, 1.f, 0.f },
+		{CASCADE_2_L, 0.073f, 1.f, 0.f},
 		{CASCADE_3_L, 0.05f, 1.f, 0.f},
-		{CASCADE_4_L, 0.03f, 1.f, 0.f},
+		{CASCADE_4_L, 0.04f, 1.f, 0.f},
 	} };
 
 	constexpr std::array<InitialSpectrumParameter, CASCADE_COUNT> LocalInitialSpectrumParameterInitializer =

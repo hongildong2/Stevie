@@ -2,6 +2,11 @@
 #define __PBR_COMMONS__
 
 #include "RenderingCommons.hlsli"
+#include "ScreenSpace.hlsli"
+
+#define DIRECTIONAL_LIGHT (1)
+#define POINT_LIGHT (2)
+#define SPOT_LIGHT (3)
 
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
@@ -73,14 +78,35 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
 	return F0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float3 RadianceLByDirectLight(Light light, float3 F0, float3 N, float3 V, float3 worldPos, float3 albedo, float roughness, float metallic)
+float3 GetRadianceValue(Light light, float3 posWorld, float3 normalWorld, float shadowFactor)
+{
+	float3 L = light.positionWorld - posWorld;
+	float lightDist = length(L);
+	float spotFactor = 1;
+	L /= lightDist;
+	
+	if (light.type == DIRECTIONAL_LIGHT)
+	{
+		L = -light.direction;
+		lightDist = 1;
+	}
+	else if (light.type == SPOT_LIGHT)
+	{
+		spotFactor = pow(max(-dot(L, light.direction), 0.0f), light.spotPower);
+	}
+	
+	float attenuation = saturate((light.fallOffEnd - lightDist) / (light.fallOffEnd - light.fallOffStart));
+	
+	return light.radiance * spotFactor * attenuation * shadowFactor;
+}
+
+float3 RadianceLByDirectLight(Texture2D shadowMap, Light light, float3 F0, float3 N, float3 V, float3 worldPos, float3 albedo, float roughness, float metallic)
 {
 	float3 L = normalize(light.positionWorld - worldPos);
 	float3 H = normalize(V + L);
 	
-	float distance = length(light.positionWorld - worldPos);
-	float attenuation = 1.0 / (distance * distance);
-	float3 radiance = float3(1.0, 1.0, 1.0); // originally, lightColor * attenuation for pointlight
+	float shadowFactor = GetShadowFactor(shadowMap, light, worldPos);
+	float3 radiance = GetRadianceValue(light, worldPos, N, shadowFactor);
 	
 	float NDF = DistributionGGX(N, H, roughness);
 	float G = GeometrySmith(N, V, L, roughness);
@@ -91,11 +117,13 @@ float3 RadianceLByDirectLight(Light light, float3 F0, float3 N, float3 V, float3
 	kD *= 1.0 - metallic;
 	
 	float3 numerator = NDF * G * F;
-	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+	float denominator = max(4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0), 1e-5);
 	float3 specular = numerator / denominator;
 	
 	float NdotL = max(dot(N, L), 0.0);
 	
+	
+	// Why divide by PI?
 	return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 

@@ -24,7 +24,7 @@ cbuffer FFTInfo : register(b0)
 // 논문에만 x,z 벡터고 연산은 그냥 서로 독립적으로 진행하면 됨
 // Bit reversion ordering이 곤란하다
 
-groupshared float4 buffer[2][SIZE]; // N/2 <-> N 번갈아가면서 버퍼역할 바꾸기
+groupshared float4 buffer[2][FFT_SIZE]; // N/2 <-> N 번갈아가면서 버퍼역할 바꾸기
 
 float2 ComplexMult(float2 a, float2 b)
 {
@@ -71,7 +71,7 @@ float4 DoFft(uint threadIndex, float4 input)
 
 
 // As we calculated time-dependent wave spectrum, N = 1 is already calculated, we do IFFT from there.
-[numthreads(SIZE, 1, 1)]
+[numthreads(FFT_SIZE, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit reversed
 {
 	const uint threadIndex = DTid.x;
