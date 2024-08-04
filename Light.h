@@ -35,7 +35,7 @@ struct LightData
 };
 
 
-class Light final : public AObject, public IDepthRenderable
+class Light final : public AObject, public AGUIComponent, public IDepthRenderable
 {
 public:
 	Light(const ELightType type, const 	DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);

@@ -7,9 +7,10 @@
 #include "MeshPart.h"
 #include "ModelCommon.h"
 #include "EModelType.h"
+#include "AGUIComponent.h"
 
 // 메쉬역할도 동시에 하는중
-class Model : public AObject
+class Model : public AObject, public AGUIComponent
 {
 public:
 	Model(const char* name, const EModelType type, GraphicsPSO& pso);

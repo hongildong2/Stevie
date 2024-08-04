@@ -3,13 +3,15 @@
 #include "Utility.h"
 #include "ModelCommon.h"
 #include "EMeshType.h"
+#include "AObject.h"
+#include "AGUIComponent.h"
 
 /*
 * reference : https://github.com/microsoft/DirectXTK/wiki/ModelMeshPart
 *
 */
 
-class MeshPart final
+class MeshPart final : public AObject, public AGUIComponent
 {
 public:
 	MeshPart(MeshData& mesh, const EMeshType meshType, ID3D11Device1* pDevice, const TextureFiles& tex);
