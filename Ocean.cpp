@@ -203,7 +203,6 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 		// run IFFT CS, renew height map from spectrum map, get normal map from derivative map
 		// use FFT texture updated prev time dependent spectrum CS
 		// Run FFT CS twice on FFT texture as it is 2D FFT, one with horizontally and the other one with vertically(order can be changed)
-		const unsigned int FFT_GROUP_X = ocean::N / 1025u + 1;
 
 		ID3D11Buffer* FFTCBs[1] = { m_FFTCB.Get() };
 		ID3D11UnorderedAccessView* FFTUAVs[1] = { m_displacementMapUAV.Get() };

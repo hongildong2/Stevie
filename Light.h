@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "IDepthRenderable.h"
+#include "AObject.h"
 
 enum class ELightType
 {
@@ -34,7 +35,7 @@ struct LightData
 };
 
 
-class Light final : public IDepthRenderable
+class Light final : public AObject, public IDepthRenderable
 {
 public:
 	Light(const ELightType type, const 	DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);

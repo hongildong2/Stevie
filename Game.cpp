@@ -9,6 +9,7 @@
 #include "GraphicsCommon.h"
 #include "Utility.h"
 #include "DepthOnlyResources.h"
+#include "AObjectManager.h"
 
 extern void ExitGame() noexcept;
 
@@ -42,7 +43,6 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_deviceResources->CreateWindowSizeDependentResources();
 	CreateWindowSizeDependentResources();
-
 
 	// GUI Init
 	{
@@ -391,6 +391,8 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 	auto* dop = DepthOnlyResources::GetInstance();
+	auto* man = AObjectManager::GetInstance();
+
 	dop->InitDepthOnlyResources(device);
 
 	// MAKE SCENE CLASS PLEASE

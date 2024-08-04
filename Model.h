@@ -9,7 +9,7 @@
 #include "EModelType.h"
 
 // 메쉬역할도 동시에 하는중
-class Model
+class Model : public AObject
 {
 public:
 	Model(const char* name, const EModelType type, GraphicsPSO& pso);

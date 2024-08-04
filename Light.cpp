@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "SceneStateObject.h"
 #include "Light.h"
+#include "AObject.h"
 
 Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
-	:m_type(type)
+	: AObject(EObjectComponentsFlag::GUI)
+	, m_type(type)
 	, m_direction(direction)
 	, m_positionWorld(posWorld)
 	, m_radiance{ 2.f, 2.f, 2.f }

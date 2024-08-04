@@ -2,9 +2,12 @@
 
 #include "Model.h"
 #include "Utility.h"
+#include "AObject.h"
+
 
 Model::Model(const char* name, const EModelType type, GraphicsPSO& pso)
-	:m_name(name),
+	: AObject(EObjectComponentsFlag::GUI),
+	m_name(name),
 	m_type(type),
 	m_PSO(pso),
 	m_world(),

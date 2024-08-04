@@ -13,6 +13,8 @@
 #include "Camera.h"
 #include "GraphicsPSO.h"
 #include "ComputePSO.h"
+#include "AObject.h"
+#include "GUI/GUI.h"
 
 
 #include "Ocean.h"
@@ -61,6 +63,7 @@ public:
 	// Properties
 	void GetDefaultSize(int& width, int& height) const noexcept;
 
+
 private:
 
 
@@ -80,23 +83,23 @@ private:
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;
 
+	// GUI Component
+	std::unique_ptr<GUI> m_GUI;
 
-	// Input Class
+	// Input Component
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 	std::unique_ptr<DirectX::Mouse> m_mouse;
 	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
 
-	/// Scene : models, lights, scene state
-	// Scene members
+	// Gameplay, Render Components
 	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Model> m_skyBox;
 	std::unique_ptr<Ocean> m_ocean;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
-	// TODO : RenderTexture·Î ±³Ã¼
-	// RenderResource
+	// Renderer Component, Different Thread
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
