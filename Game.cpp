@@ -10,6 +10,8 @@
 #include "Utility.h"
 #include "DepthOnlyResources.h"
 #include "AObjectManager.h"
+#include "AObject.h"
+#include "GUI\GUI.h"
 
 extern void ExitGame() noexcept;
 
@@ -23,15 +25,39 @@ using DirectX::SimpleMath::Quaternion;
 Game::Game() noexcept(false) :
 	m_sceneState(std::make_unique<SceneStateObject>())
 {
-	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
-	// TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
-	//   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
-	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display
-
 	m_deviceResources->RegisterDeviceNotify(this);
+
+	/* TODO::Load Asset, Model, Environment Here Before Initialize Call.
+	* If AObject is constructed, AObjectManager will automatically Register Objects Here To Underlying Components
+	* Then Initialize Call will Initialize It All.
+	*
+	*/
+
+	auto* man = AObjectManager::GetInstance();
+	man->RegisterIObjectHandler(this);
 }
 
+// Register Object to Components
+void Game::Register(AObject* obj)
+{
+	assert(obj != nullptr);
+	EObjectComponentsFlag componentFlags = obj->GetComponents();
+	if ((componentFlags & EObjectComponentsFlag::GUI) == EObjectComponentsFlag::GUI)
+	{
+		m_GUI->Register(obj);
+	}
+
+	// TODO :: More Components Like this
+
+}
+// UnRegister Object from Components
+void Game::UnRegister(AObject* obj)
+{
+	assert(obj != nullptr);
+	EObjectComponentsFlag componentFlags = obj->GetComponents();
+
+}
 
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)

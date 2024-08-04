@@ -3,15 +3,22 @@
 #include "Light.h"
 #include "Ocean.h"
 #include "Model.h"
+#include "MeshPart.h"
+#include "IObjectHandler.h"
+#include "AGUIComponent.h"
 
-class GUI
+class GUI final : public IObjectHandler
 {
-
 public:
+	GUI(); // TODO :: reserve STL
+	void Register(AObject* obj) override;
+	void UnRegister(AObject* obj) override;
+	void Update(); // TODO :: Iterate object, call services using bit flags
+	void Initialize(); // TODO :: Initialize ImGui Here
+	void Render(); // TODO :: Render ImGui
+
 private:
 
-	std::vector<Light*> m_lights;
-	std::vector<Ocean*> m_oceans;
-	std::vector<Model*> m_models;
+	std::unordered_set<AGUIComponent*> m_GUIComponents;
 };
 

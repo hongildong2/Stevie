@@ -180,6 +180,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AGUIComponent.h" />
     <ClInclude Include="AObjectManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
@@ -195,6 +196,7 @@
     <ClInclude Include="AObject.h" />
     <ClInclude Include="GUI\EGUIType.h" />
     <ClInclude Include="IDepthRenderable.h" />
+    <ClInclude Include="IObjectHandler.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="GUI\LightService.h" />
     <ClInclude Include="GUI\ModelService.h" />

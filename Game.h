@@ -15,6 +15,7 @@
 #include "ComputePSO.h"
 #include "AObject.h"
 #include "GUI/GUI.h"
+#include "IObjectHandler.h"
 
 
 #include "Ocean.h"
@@ -27,7 +28,7 @@ constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
-class Game final : public DX::IDeviceNotify
+class Game final : public DX::IDeviceNotify, public IObjectHandler
 {
 	friend class SceneStateObject;
 public:
@@ -63,6 +64,9 @@ public:
 	// Properties
 	void GetDefaultSize(int& width, int& height) const noexcept;
 
+	// Object Management
+	void Register(AObject* obj) override;
+	void UnRegister(AObject* obj) override;
 
 private:
 
