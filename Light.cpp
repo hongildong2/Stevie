@@ -4,7 +4,8 @@
 #include "AObject.h"
 
 Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
-	: AObject(EObjectComponentsFlag::GUI)
+	: AObject(EObjectType::LIGHT)
+	, IGUIComponent(EGUIType::LIGHT)
 	, m_type(type)
 	, m_direction(direction)
 	, m_positionWorld(posWorld)
@@ -17,6 +18,7 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	, m_haloRadius(0.01f)
 	, m_haloStrength(1.f)
 {
+	AObject::SetComponentFlag(EComponentsFlag::GUI);
 	IDepthRenderable::m_proj = type == ELightType::DIRECTIONAL ?
 		DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, SceneStateObject::NEAR_Z, SceneStateObject::FAR_Z)
 		:
@@ -32,6 +34,11 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	m_depthTex = std::make_unique<DepthTexture>(vp);
 }
 
+
+const AObject* Light::GetThis() const
+{
+	return this;
+}
 void Light::GetLightData(LightData* outLightData) const
 {
 	outLightData->radiance = m_radiance;

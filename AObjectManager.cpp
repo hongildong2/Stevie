@@ -20,11 +20,13 @@ void AObjectManager::OnConstruct(AObject* obj)
 void AObjectManager::OnInitialized(AObject* obj)
 {
 	// m_objects.insert(obj);
+	// m_hander.Register(obj);
 	// m_toInitialize.erase(obj);
 }
 
 void AObjectManager::OnDestruction(AObject* obj)
 {
+	// m_hander.UnRegister(obj);
 	// m_toDestroy.erase(obj);
 }
 

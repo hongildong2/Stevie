@@ -72,16 +72,13 @@
     <ClInclude Include="GUI\GUI.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\OceanService.h">
+    <ClInclude Include="GUI\OceanController.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="MeshService.h">
+    <ClInclude Include="GUI\ModelController.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\ModelService.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\LightService.h">
+    <ClInclude Include="GUI\LightController.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\DTOs.h">
@@ -96,6 +93,20 @@
     <ClInclude Include="AObjectManager.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="IObjectHandler.h" />
+    <ClInclude Include="IGUIComponent.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentHandler.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponent.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GodService.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -136,16 +147,13 @@
     <ClCompile Include="GUI\GUI.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MeshService.cpp">
+    <ClCompile Include="GUI\ModelController.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\ModelService.cpp">
+    <ClCompile Include="GUI\OceanController.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\OceanService.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\LightService.cpp">
+    <ClCompile Include="GUI\LightController.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="AObject.cpp">
@@ -154,6 +162,10 @@
     <ClCompile Include="AObjectManager.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="IComponentManager.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GodService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

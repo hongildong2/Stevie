@@ -180,7 +180,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AGUIComponent.h" />
     <ClInclude Include="AObjectManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
@@ -189,19 +188,23 @@
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EMeshType.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GodService.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="GUI\DTOs.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="AObject.h" />
     <ClInclude Include="GUI\EGUIType.h" />
+    <ClInclude Include="IComponent.h" />
+    <ClInclude Include="IComponentHandler.h" />
+    <ClInclude Include="IComponentManager.h" />
     <ClInclude Include="IDepthRenderable.h" />
+    <ClInclude Include="IGUIComponent.h" />
     <ClInclude Include="IObjectHandler.h" />
     <ClInclude Include="Light.h" />
-    <ClInclude Include="GUI\LightService.h" />
-    <ClInclude Include="GUI\ModelService.h" />
-    <ClInclude Include="GUI\OceanService.h" />
-    <ClInclude Include="MeshService.h" />
+    <ClInclude Include="GUI\LightController.h" />
+    <ClInclude Include="GUI\ModelController.h" />
+    <ClInclude Include="GUI\OceanController.h" />
     <ClInclude Include="SceneLights.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
     <ClInclude Include="ModelCommon.h" />
@@ -222,12 +225,13 @@
     <ClCompile Include="AObjectManager.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="GodService.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="IComponentManager.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="GUI\LightService.cpp" />
-    <ClCompile Include="GUI\ModelService.cpp" />
-    <ClCompile Include="GUI\OceanService.cpp" />
-    <ClCompile Include="MeshService.cpp" />
+    <ClCompile Include="GUI\LightController.cpp" />
+    <ClCompile Include="GUI\ModelController.cpp" />
+    <ClCompile Include="GUI\OceanController.cpp" />
     <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="ModelCommon.cpp" />
     <ClCompile Include="Camera.cpp" />

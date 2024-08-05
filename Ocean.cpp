@@ -15,6 +15,11 @@ Ocean::Ocean()
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
+	IGUIComponent::m_type = EGUIType::OCEAN;
+}
+const AObject* Ocean::GetThis() const
+{
+	return this;
 }
 
 void Ocean::Initialize(ID3D11Device1* pDevice)

@@ -1,12 +1,15 @@
 #pragma once
 #include "pch.h"
+#include "AObject.h"
 
-enum class EGUIFlags
+enum class EGUIType
 {
-	MODEL = 1 << 0,
-	MATERIAL = 1 << 1,
-	LIGHT = 1 << 2,
-	OCEAN = 1 << 3
+	MODEL = 0,
+	LIGHT,
+	OCEAN,
+	LENGTH
 };
 
-DEFINE_ENUM_FLAG_OPERATORS(EGUIFlags)
+DEFINE_ENUM_FLAG_OPERATORS(EGUIType)
+
+static_assert(static_cast<int>(EGUIType::LENGTH) == static_cast<int>(EObjectType::LENGTH), "THERE MUST BE GUI DEFINED FOR EACH OBJECT");

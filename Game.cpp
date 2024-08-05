@@ -9,9 +9,9 @@
 #include "GraphicsCommon.h"
 #include "Utility.h"
 #include "DepthOnlyResources.h"
-#include "AObjectManager.h"
 #include "AObject.h"
-#include "GUI\GUI.h"
+#include "AObjectManager.h"
+#include "IComponentManager.h"
 
 extern void ExitGame() noexcept;
 
@@ -35,28 +35,25 @@ Game::Game() noexcept(false) :
 	*/
 
 	auto* man = AObjectManager::GetInstance();
+	auto comp = IComponentManager::GetInstance();
+
+
 	man->RegisterIObjectHandler(this);
+
+	m_GUI = std::make_unique<GUI>();
+	comp->RegisterComponentHandler(m_GUI.get());
 }
 
-// Register Object to Components
+// Resource Management
 void Game::Register(AObject* obj)
 {
 	assert(obj != nullptr);
-	EObjectComponentsFlag componentFlags = obj->GetComponents();
-	if ((componentFlags & EObjectComponentsFlag::GUI) == EObjectComponentsFlag::GUI)
-	{
-		m_GUI->Register(obj);
-	}
-
-	// TODO :: More Components Like this
-
 }
-// UnRegister Object from Components
+
+// Resource Management
 void Game::UnRegister(AObject* obj)
 {
 	assert(obj != nullptr);
-	EObjectComponentsFlag componentFlags = obj->GetComponents();
-
 }
 
 // Initialize the Direct3D resources required to run.
@@ -124,7 +121,6 @@ void Game::Tick()
 	for (auto& modelPtr : m_models)
 	{
 		// auto pos = modelPtr->GetWorldPos();
-
 		// 모델들이 시간이 느리니까, 과거를 샘플링하자!
 		//float height = m_ocean->GetHeight({ pos.x, pos.z });
 
@@ -417,7 +413,6 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 	auto* dop = DepthOnlyResources::GetInstance();
-	auto* man = AObjectManager::GetInstance();
 
 	dop->InitDepthOnlyResources(device);
 

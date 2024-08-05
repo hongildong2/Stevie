@@ -11,6 +11,8 @@ public:
 	Ocean(const Ocean& other) = delete;
 	Ocean& operator=(const Ocean& other) = delete;
 
+	const AObject* GetThis() const override;
+
 	virtual void Initialize(ID3D11Device1* pDevice) override;
 	void InitializeData(ID3D11DeviceContext1* context);
 
