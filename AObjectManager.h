@@ -26,6 +26,7 @@ public:
 	{
 		m_hanlder = handler;
 	}
+
 	static AObjectManager* const GetInstance()
 	{
 		if (mInstance == nullptr)

@@ -15,6 +15,7 @@ public:
 
 	virtual void Initialize(ID3D11Device1* pDevice) override;
 	void InitializeData(ID3D11DeviceContext1* context);
+	void OnInitialParameterChanged();
 
 	virtual void Update(ID3D11DeviceContext1* context) override; // is timer necessary?
 	virtual void Render(ID3D11DeviceContext1* pContext) override;

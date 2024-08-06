@@ -35,11 +35,9 @@ Game::Game() noexcept(false) :
 	*/
 
 	auto* man = AObjectManager::GetInstance();
-	auto comp = IComponentManager::GetInstance();
-
-
 	man->RegisterIObjectHandler(this);
 
+	auto* comp = IComponentManager::GetInstance();
 	m_GUI = std::make_unique<GUI>();
 	comp->RegisterComponentHandler(m_GUI.get());
 }

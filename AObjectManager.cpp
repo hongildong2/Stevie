@@ -39,7 +39,7 @@ void AObjectManager::CollectGarbage()
 {
 	for (auto* obj : m_toDestroy)
 	{
-		// TODO : For Each Component layer, delist AObject From it
+		// TODO : For Each Component layer, delist AObject's IComponent From Layer's IComponentManager
 		m_objects.erase(obj);
 		// delete obj;
 	}

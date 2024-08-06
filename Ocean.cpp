@@ -168,6 +168,10 @@ void Ocean::InitializeData(ID3D11DeviceContext1* context)
 	mb_initialized = true;
 }
 
+void Ocean::OnInitialParameterChanged()
+{
+	mb_initialized = false;
+}
 void Ocean::Update(ID3D11DeviceContext1* pContext)
 {
 	// If wave constant changed, re-run InitData routine

@@ -20,6 +20,7 @@ void AObject::Destroy()
 	m_bInstantiated = false;
 }
 
+// No Current Usage
 void AObject::CompleteInitialization()
 {
 	auto* man = AObjectManager::GetInstance();

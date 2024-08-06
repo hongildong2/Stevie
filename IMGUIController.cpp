@@ -122,6 +122,8 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 
 		drawOcean(&oceanDTO);
 
+
+		pOcean->OnInitialParameterChanged();
 		ImGui::TreePop();
 	}
 	
