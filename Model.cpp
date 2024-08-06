@@ -5,9 +5,8 @@
 
 
 Model::Model(const char* name, const EModelType type, GraphicsPSO& pso)
-	: AObject(EObjectType::MODEL),
+	: AObject(name, EObjectType::MODEL),
 	IGUIComponent(EGUIType::MODEL),
-	m_name(name),
 	m_type(type),
 	m_PSO(pso),
 	m_world(),

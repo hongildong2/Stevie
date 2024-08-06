@@ -114,6 +114,8 @@ cbuffer DepthMapConstant : register(b3)
 	matrix depthView;
 	matrix depthProj;
 };
+
+// cbuffer 5 ~ Not Reserved
 /* 
 	Textures 
 

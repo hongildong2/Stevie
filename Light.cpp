@@ -3,8 +3,8 @@
 #include "Light.h"
 #include "AObject.h"
 
-Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
-	: AObject(EObjectType::LIGHT)
+Light::Light(const char* name, const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
+	: AObject(name, EObjectType::LIGHT)
 	, IGUIComponent(EGUIType::LIGHT)
 	, m_type(type)
 	, m_direction(direction)
@@ -71,7 +71,6 @@ void Light::UpdateLightData(LightData& data)
 	m_fallOffStart = data.fallOffStart;
 
 	m_direction = data.direction;
-	m_positionWorld = data.positionWorld;
 	m_spotPower = data.spotPower;
 
 	m_color = data.color;
@@ -79,7 +78,10 @@ void Light::UpdateLightData(LightData& data)
 	m_haloRadius = data.haloRadius;
 	m_haloStrength = data.haloStrength;
 }
-
+void Light::UpdatePosWorld(const DirectX::SimpleMath::Vector3& posWorld)
+{
+	m_positionWorld = posWorld;
+}
 DirectX::SimpleMath::Matrix Light::GetViewRow() const
 {
 	DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);

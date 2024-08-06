@@ -51,18 +51,12 @@ public:
 		return m_worldPos;
 	}
 
-	inline const std::string& GetName() const
-	{
-		return m_name;
-	}
-
 	inline const std::vector<std::unique_ptr<MeshPart>>& GetMeshes() const
 	{
 		return m_meshes;
 	}
 
 protected:
-	const std::string m_name;
 	const EModelType m_type;
 	std::vector<std::unique_ptr<MeshPart>> m_meshes;
 

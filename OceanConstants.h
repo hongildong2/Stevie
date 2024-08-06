@@ -193,7 +193,7 @@ namespace ocean
 
 
 	// Rendering Parameters
-	struct RenderingParameters
+	struct RenderingParameter
 	{
 		float horizonFogParameter; // currently 1.8
 		float sssNormalStrength; // 0.2, SubsurfacScattering
@@ -202,7 +202,8 @@ namespace ocean
 
 		float sssSunStrength; // 3
 		float sssEnvironmentStrength; // 3
-		float dummy[2];
+		float directLightScaler; // 15
+		float roughnessMultiplier; // 10
 
 		DirectX::SimpleMath::Vector3 depthScatterColor; // oceanColor * 0.7;
 		float sssSpread; // 0.014
@@ -227,7 +228,7 @@ namespace ocean
 		float foamValueBias; // 0.03 0~1
 	};
 
-	constexpr RenderingParameters RenderingParamsInitialzer =
+	constexpr RenderingParameter RenderingParamsInitialzer =
 	{
 		1.8f,
 		0.2f,
@@ -236,13 +237,13 @@ namespace ocean
 
 		3.f,
 		3.f,
-		0.f,
-		0.f,
+		15.f,
+		10.f,
 
-		{1,1,1},
+		{ 0.f, 0.18f, 0.3f },
 		0.014,
 
-		{1,1,1},
+		{ 0.f, 0.18f, 0.3f },
 		2.f,
 
 		5.0f,
@@ -260,5 +261,5 @@ namespace ocean
 		0.5f,
 		0.03f
 	};
-	static_assert(sizeof(RenderingParameters) % 16 == 0, "CB 16byte alignment");
+	static_assert(sizeof(RenderingParameter) % 16 == 0, "CB 16byte alignment");
 }

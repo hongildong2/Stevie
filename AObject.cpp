@@ -2,14 +2,16 @@
 #include "AObject.h"
 #include "AObjectManager.h"
 
-AObject::AObject(const EObjectType type)
-	: m_type(type)
+AObject::AObject(const char* name, const EObjectType type)
+	: m_name(name)
+	, m_type(type)
 	, m_objectComponentsFlag(EComponentsFlag::NONE)
 	, m_bInstantiated(true) // Àá½Ã¸¸..
 {
 	auto* man = AObjectManager::GetInstance();
 	man->OnConstruct(this);
 }
+
 void AObject::SetComponentFlag(const EComponentsFlag flag)
 {
 	m_objectComponentsFlag |= flag;

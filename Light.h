@@ -39,13 +39,14 @@ struct LightData
 class Light final : public AObject, public IGUIComponent, public IDepthRenderable
 {
 public:
-	Light(const ELightType type, const 	DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
+	Light(const char* name, const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
 	~Light() = default;
 
 	AObject* GetThis() override;
 
 	void GetLightData(LightData* outLightData) const;
 	void UpdateLightData(LightData& data);
+	void UpdatePosWorld(const DirectX::SimpleMath::Vector3& posWorld);
 	DirectX::SimpleMath::Matrix GetViewRow() const override;
 
 private:

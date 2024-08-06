@@ -14,7 +14,7 @@ Ocean::Ocean()
 	m_LocalInitialSpectrumParameters(ocean::LocalInitialSpectrumParameterInitializer),
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer),
-	m_renderParams(ocean::RenderingParamsInitialzer)
+	m_renderParameter(ocean::RenderingParamsInitialzer)
 {
 	IGUIComponent::m_type = EGUIType::OCEAN;
 }
@@ -143,7 +143,7 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, pDevice, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, pDevice, m_FFTCB);
 	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, pDevice, m_combineWaveCB);
-	Utility::DXResource::CreateConstantBuffer(m_renderParams, pDevice, m_renderParamsCB);
+	Utility::DXResource::CreateConstantBuffer(m_renderParameter, pDevice, m_renderParameterCB);
 	m_PSO = Graphics::Ocean::oceanPSO;
 	Model::Initialize(pDevice);
 }
@@ -151,6 +151,9 @@ void Ocean::InitializeData(ID3D11DeviceContext1* context)
 {
 	// 실행은 되는데 그래픽 디버거에 안잡힘 -> 당연히 첫프레임에만 동작하고 마니까 
 	// run initspectrum CS, get initial spectrum map
+
+	Utility::DXResource::UpdateBuffer(context, m_combineParamterSB.Get(), sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, m_combineParameters.data());
+	Utility::DXResource::UpdateBuffer(context, m_LocalInitialSpectrumParameterSB.Get(), sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, m_LocalInitialSpectrumParameters.data());
 
 	Graphics::SetPipelineState(context, Graphics::Ocean::initialSpectrumPSO);
 	ID3D11UnorderedAccessView* uavs[3] = { m_initialSpectrumMapUAV.Get(), m_waveVectorDataUAV.Get(), m_turbulenceMapUAV.Get() };
@@ -182,7 +185,7 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 		InitializeData(pContext);
 	}
 
-	Utility::DXResource::UpdateConstantBuffer(m_renderParams, pContext, m_renderParamsCB);
+	Utility::DXResource::UpdateConstantBuffer(m_renderParameter, pContext, m_renderParameterCB);
 
 	// Timedepedent Spectrum, from InitialSpectrum
 	{
@@ -348,7 +351,7 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 
 void Ocean::Render(ID3D11DeviceContext1* pContext)
 {
-	
+
 	ID3D11ShaderResourceView* SRVs[3] = { GetDisplacementMapsSRV(), GetDerivativeMapsSRV(), GetCombineParameterSRV() };
 	pContext->DSSetShaderResources(100, 3, SRVs);
 	ID3D11ShaderResourceView* foamSRVs[2] = { GetTurbulenceMapsSRV(), GetCombineParameterSRV() };
@@ -356,6 +359,8 @@ void Ocean::Render(ID3D11DeviceContext1* pContext)
 
 	ID3D11SamplerState* SSs[1] = { Graphics::linearWrapSS.Get() };
 	pContext->DSSetSamplers(0, 1, SSs);
+
+	pContext->PSSetConstantBuffers(5, 1, m_renderParameterCB.GetAddressOf());
 
 	Model::Render(pContext);
 
@@ -402,4 +407,28 @@ float Ocean::GetHeight(DirectX::SimpleMath::Vector2 XZ) const
 	}
 
 	return height / 5.f;
+}
+
+
+void Ocean::UpdateCombineParameter(const std::array<ocean::CombineParameter, ocean::CASCADE_COUNT>& updatedCombineParameters)
+{
+	for (unsigned int i = 0; i < ocean::CASCADE_COUNT; ++i)
+	{
+		m_combineParameters[i] = updatedCombineParameters[i];
+	}
+}
+void Ocean::UpdateInitialSpectrumParameter(const std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& updatedInitialSpectrumParameters)
+{
+	for (unsigned int i = 0; i < ocean::CASCADE_COUNT; ++i)
+	{
+		m_LocalInitialSpectrumParameters[i] = updatedInitialSpectrumParameters[i];
+	}
+}
+void Ocean::UpdateOceanConfiguration(const ocean::OceanConfigurationConstant& updatedOceanConfig)
+{
+	m_oceanConfigurationConstant = updatedOceanConfig;
+}
+void Ocean::UpdateRenderingParameter(const ocean::RenderingParameter& renderingParam)
+{
+	m_renderParameter = renderingParam;
 }
