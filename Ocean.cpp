@@ -13,7 +13,8 @@ Ocean::Ocean()
 	m_oceanConfigurationConstant(ocean::OceanConfigurationInitializer), // what is differnt with {}?
 	m_LocalInitialSpectrumParameters(ocean::LocalInitialSpectrumParameterInitializer),
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
-	m_FFTConstant(ocean::FFTConstantInitializer)
+	m_FFTConstant(ocean::FFTConstantInitializer),
+	m_renderParams(ocean::RenderingParamsInitialzer)
 {
 	IGUIComponent::m_type = EGUIType::OCEAN;
 }
@@ -142,6 +143,7 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, pDevice, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, pDevice, m_FFTCB);
 	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, pDevice, m_combineWaveCB);
+	Utility::DXResource::CreateConstantBuffer(m_renderParams, pDevice, m_renderParamsCB);
 	m_PSO = Graphics::Ocean::oceanPSO;
 	Model::Initialize(pDevice);
 }
@@ -179,6 +181,8 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 	{
 		InitializeData(pContext);
 	}
+
+	Utility::DXResource::UpdateConstantBuffer(m_renderParams, pContext, m_renderParamsCB);
 
 	// Timedepedent Spectrum, from InitialSpectrum
 	{
@@ -344,6 +348,7 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 
 void Ocean::Render(ID3D11DeviceContext1* pContext)
 {
+	
 	ID3D11ShaderResourceView* SRVs[3] = { GetDisplacementMapsSRV(), GetDerivativeMapsSRV(), GetCombineParameterSRV() };
 	pContext->DSSetShaderResources(100, 3, SRVs);
 	ID3D11ShaderResourceView* foamSRVs[2] = { GetTurbulenceMapsSRV(), GetCombineParameterSRV() };

@@ -125,11 +125,15 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 		oceanDTO.cascadeCombineParameters = pOcean->GetCascadeCombineParameters();
 		oceanDTO.initialSpectrumParameters = pOcean->GetInitialSpectrumParameters();
 		oceanDTO.oceanConfiguration = pOcean->GetOceanConfiguration();
+		oceanDTO.renderingParams = pOcean->GetRenderingParams();
 
 		drawOcean(&oceanDTO);
 
-
-		pOcean->OnInitialParameterChanged();
+		if (oceanDTO.bResetInitialSpectrumData == true)
+		{
+			pOcean->OnInitialParameterChanged();
+		}
+		
 
 
 		ImGui::TreePop();
@@ -213,7 +217,16 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 				ImGui::TreePop();
 			}
 		}
+		// 트리 열어서 수정했을때만 재계산
+		pInOutOceanDTO->bResetInitialSpectrumData = true;
+		ImGui::TreePop();
+	}
 
+	if (ImGui::TreeNode("Pixel Shader Rendering Parameters"))
+	{
+		ocean::RenderingParameters& renderParams = pInOutOceanDTO->renderingParams;
+
+		// TODO :: 만들기...
 
 		ImGui::TreePop();
 	}

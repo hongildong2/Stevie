@@ -21,6 +21,8 @@ public:
 	virtual void Render(ID3D11DeviceContext1* pContext) override;
 	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso) override;
 
+	// TODO :: 파라미터 Update 메서드 만들기...
+
 	inline ID3D11ShaderResourceView* GetDisplacementMapsSRV() const
 	{
 		return m_displacementMapSRV.Get();
@@ -59,6 +61,11 @@ public:
 	inline const ocean::OceanConfigurationConstant& GetOceanConfiguration() const
 	{
 		return m_oceanConfigurationConstant;
+	}
+
+	inline const ocean::RenderingParameters& GetRenderingParams() const
+	{
+		return m_renderParams;
 	}
 
 
@@ -117,5 +124,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_FFTCB;
 	ocean::FFTConstant m_FFTConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_renderParamsCB;
+	ocean::RenderingParameters m_renderParams;
 };
 

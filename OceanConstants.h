@@ -191,4 +191,74 @@ namespace ocean
 	static_assert(sizeof(SpectrumConstant) % 16 == 0, "CB 16byte alignment");
 	constexpr SpectrumConstant SpectrumConstantInitializer = { 0.f , {0.f} };
 
+
+	// Rendering Parameters
+	struct RenderingParameters
+	{
+		float horizonFogParameter; // currently 1.8
+		float sssNormalStrength; // 0.2, SubsurfacScattering
+		float sssOceanWaveReferenceHeight; // 5;
+		float sssWaveHeightBias; // 1.3
+
+		float sssSunStrength; // 3
+		float sssEnvironmentStrength; // 3
+		float dummy[2];
+
+		DirectX::SimpleMath::Vector3 depthScatterColor; // oceanColor * 0.7;
+		float sssSpread; // 0.014
+
+		DirectX::SimpleMath::Vector3 sssColor; // oceanColor * 0.9
+		float sssFadeDistance; // 2
+
+		// Wave Variance, affects fresnel and roughness
+		float windSpeed; // 5.0
+		float waveAlignment; // 1
+		float scale; // 2048
+		float meanFresnelWeight; // 0.02
+
+		float specularStrength; // 2.5
+		float shadowMultiplier; // 1
+		float foamWaveSharpness; // 0.9 :: Foam Parameters
+		float foamPersistency; // 0.5
+
+		float foamDensity; //0.11
+		float foamCoverage; // 0.65
+		float foamTrailness; // 0.5
+		float foamValueBias; // 0.03 0~1
+	};
+
+	constexpr RenderingParameters RenderingParamsInitialzer =
+	{
+		1.8f,
+		0.2f,
+		5.f,
+		1.3f,
+
+		3.f,
+		3.f,
+		0.f,
+		0.f,
+
+		{1,1,1},
+		0.014,
+
+		{1,1,1},
+		2.f,
+
+		5.0f,
+		1.0f,
+		2048.f,
+		0.02f,
+
+		2.5f,
+		1.f,
+		0.9f,
+		0.5f,
+
+		0.11f,
+		0.65f,
+		0.5f,
+		0.03f
+	};
+	static_assert(sizeof(RenderingParameters) % 16 == 0, "CB 16byte alignment");
 }
