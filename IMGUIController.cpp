@@ -14,13 +14,14 @@ using namespace DirectX::SimpleMath;
 
 void IMGUIController::UpdateBegin()
 {
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::Begin("Scene Control");
+	ImGui::Begin("Scene Control	");
 
 	ImGui::Text("Average %.3f ms/frame (%.1f FPS)",
 		1000.0f / ImGui::GetIO().Framerate,
 		ImGui::GetIO().Framerate);
-
 }
 
 void IMGUIController::UpdateEnd()
@@ -35,17 +36,20 @@ bool IMGUIController::Initialize(ID3D11Device1* pDevice, ID3D11DeviceContext1* p
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
+	io.Fonts->AddFontDefault();
+	io.Fonts->Build();
 	io.DisplaySize = ImVec2(float(width), float(height));
 	ImGui::StyleColorsLight();
 
 
-	// Setup Platform/Renderer backends
-	if (!ImGui_ImplDX11_Init(pDevice, pContext))
+
+	if (!ImGui_ImplWin32_Init(window))
 	{
 		return false;
 	}
 
-	if (!ImGui_ImplWin32_Init(window))
+	// Setup Platform/Renderer backends
+	if (!ImGui_ImplDX11_Init(pDevice, pContext))
 	{
 		return false;
 	}
@@ -59,7 +63,7 @@ void IMGUIController::Render()
 
 bool IMGUIController::UpdateModel(Model* pModel)
 {
-	if(ImGui::TreeNode("Model"))
+	if (ImGui::TreeNode("Model"))
 	{
 		PosWorldDTO posDTO;
 		posDTO.pos = pModel->GetWorldPos();
@@ -77,7 +81,7 @@ bool IMGUIController::UpdateModel(Model* pModel)
 
 		ImGui::TreePop();
 	}
-	
+
 	return true;
 }
 
@@ -126,7 +130,7 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 		pOcean->OnInitialParameterChanged();
 		ImGui::TreePop();
 	}
-	
+
 	return true;
 }
 
@@ -150,7 +154,7 @@ void IMGUIController::drawLight(LightDTO* pInOutLightDTO)
 		ImGui::SliderFloat3("direction", &(pInOutLightDTO->direction.x), -3.f, 3.f);
 		pInOutLightDTO->direction.Normalize();
 
-		ImGui::SliderFloat("fallOffStart", &(pInOutLightDTO->fallOffStart),0.f, 10.f);
+		ImGui::SliderFloat("fallOffStart", &(pInOutLightDTO->fallOffStart), 0.f, 10.f);
 		ImGui::SliderFloat("fallOffEnd", &(pInOutLightDTO->fallOffEnd), 10.f, 50.f);
 		ImGui::SliderFloat("spotPower", &(pInOutLightDTO->spotPower), 0.f, 10.f);
 
@@ -199,13 +203,13 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 
 			if (ImGui::TreeNode("Wave Cascade Combine Parameters"))
 			{
-				
+
 				ImGui::SliderFloat("Cascade Weight", &(cascadeCombineParam.weight), 0.f, 0.2f);
 				ImGui::SliderFloat("Shore Modulation", &(cascadeCombineParam.weight), 0.f, 2.f);
 				ImGui::TreePop();
 			}
 		}
-	
+
 
 		ImGui::TreePop();
 	}
