@@ -2,14 +2,12 @@
 #include "GUI.h"
 #include "AObject.h"
 
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
-
 GUI::GUI()
 	: m_GUIComponents()
+	, m_IMGUIController()
 {
 	m_GUIComponents.reserve(100);
+	m_IMGUIController = std::make_unique<IMGUIController>();
 }
 
 void GUI::Register(IComponent* obj)
@@ -29,41 +27,23 @@ void GUI::UnRegister(IComponent* obj)
 
 bool GUI::Initialize(ID3D11Device1* pDevice, ID3D11DeviceContext1* pContext, HWND window, int width, int height)
 {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	(void)io;
-	io.DisplaySize = ImVec2(float(width), float(height));
-	ImGui::StyleColorsLight();
-
-	// Setup Platform/Renderer backends
-	if (!ImGui_ImplDX11_Init(pDevice, pContext))
-	{
-		return false;
-	}
-
-	if (!ImGui_ImplWin32_Init(window))
-	{
-		return false;
-	}
-
-	return true;
+	return m_IMGUIController->Initialize(pDevice, pContext, window, width, height);
 }
 
 void GUI::Update()
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-	ImGui::Begin("Scene Control");
-
+	m_IMGUIController->UpdateBegin();
 
 
 	for (auto* guiComponent : m_GUIComponents)
 	{
 		EGUIType type = guiComponent->GetGUIType();
 		const AObject* rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf = guiComponent->GetThis();
+		if (rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf->IsInstantiated() == false)
+		{
+			continue;
+		}
+
 
 		switch (type)
 		{
@@ -85,13 +65,10 @@ void GUI::Update()
 		}
 	}
 
-
-
-	ImGui::End();
-	ImGui::Render();
+	m_IMGUIController->UpdateEnd();
 }
 
 void GUI::Render()
 {
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	m_IMGUIController->Render();
 }

@@ -188,7 +188,6 @@
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EMeshType.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GodService.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="GUI\DTOs.h" />
@@ -200,11 +199,9 @@
     <ClInclude Include="IComponentManager.h" />
     <ClInclude Include="IDepthRenderable.h" />
     <ClInclude Include="IGUIComponent.h" />
+    <ClInclude Include="IMGUIController.h" />
     <ClInclude Include="IObjectHandler.h" />
     <ClInclude Include="Light.h" />
-    <ClInclude Include="GUI\LightController.h" />
-    <ClInclude Include="GUI\ModelController.h" />
-    <ClInclude Include="GUI\OceanController.h" />
     <ClInclude Include="SceneLights.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
     <ClInclude Include="ModelCommon.h" />
@@ -225,13 +222,10 @@
     <ClCompile Include="AObjectManager.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
-    <ClCompile Include="GodService.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
     <ClCompile Include="IComponentManager.cpp" />
+    <ClCompile Include="IMGUIController.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="GUI\LightController.cpp" />
-    <ClCompile Include="GUI\ModelController.cpp" />
-    <ClCompile Include="GUI\OceanController.cpp" />
     <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="ModelCommon.cpp" />
     <ClCompile Include="Camera.cpp" />
