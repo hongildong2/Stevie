@@ -71,23 +71,10 @@ void Game::Initialize(HWND window, int width, int height)
 	{
 		auto* device = m_deviceResources->GetD3DDevice();
 		auto* context = m_deviceResources->GetD3DDeviceContext();
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
-		(void)io;
-		io.DisplaySize = ImVec2(float(width), float(height));
-		ImGui::StyleColorsLight();
-
-		// Setup Platform/Renderer backends
-		if (!ImGui_ImplDX11_Init(device, context))
+		if (m_GUI->Initialize(device, context, window, width, height) == false)
 		{
 			ExitGame();
-		}
-
-		if (!ImGui_ImplWin32_Init(window))
-		{
-			ExitGame();
-		}
+		}		
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
@@ -117,54 +104,14 @@ void Game::Tick()
 	m_deviceResources->PIXEndEvent();
 
 
-	// TODO :: Turn This Logic into Physics Component Update
 	for (auto& modelPtr : m_models)
 	{
-		// auto pos = modelPtr->GetWorldPos();
-		// ¸ğµ¨µéÀÌ ½Ã°£ÀÌ ´À¸®´Ï±î, °ú°Å¸¦ »ùÇÃ¸µÇÏÀÚ!
-		//float height = m_ocean->GetHeight({ pos.x, pos.z });
-
-		// modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ¤Ğ¤Ğ¤Ğ ·»´õ¶û cpu ³ôÀÌ¸ÊÀÌ¶û ¿ÀÂ÷°¡ ³Ñ ½ÉÇØÁ³¾î.. ½¦ÀÌ´õ ¶±Ä¥ÇÏ¸é ÀÌ·¸°ÔµÇ´Â°¡?
-
 		modelPtr->Update(context);
 	}
 	m_sceneState->Update(context);
 
-	// update game by timer
 
 	Render();
-}
-
-void Game::UpdateGUI()
-{
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-	ImGui::Begin("Scene Control");
-
-	ImGui::Text("Average %.3f ms/frame (%.1f FPS)",
-		1000.0f / ImGui::GetIO().Framerate,
-		ImGui::GetIO().Framerate);
-
-	// Controller, Update DTOs
-	{
-		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-		if (ImGui::TreeNode("ImageFilter"))
-		{
-			PostProcessConstant constant = m_sceneState->GetPostProcess()->GetConstant();
-			ImGui::SliderFloat("strength", &constant.strength, 0.f, 1.f);
-			ImGui::SliderFloat("exposure", &constant.exposure, 0.f, 3.f);
-			ImGui::SliderFloat("gamma", &constant.gamma, 0.f, 3.f);
-
-			m_sceneState->GetPostProcess()->UpdateConstant(constant);
-			ImGui::TreePop();
-		}
-	}
-
-	ImGui::End();
-	ImGui::Render();
 }
 
 
@@ -173,7 +120,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 
-	UpdateGUI();
+	m_GUI->Update();
 
 	// Update Control, CleanUp later
 	{
@@ -315,7 +262,7 @@ void Game::Render()
 	m_deviceResources->PIXEndEvent();
 
 
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	m_GUI->Render();
 
 	// Show the new frame.
 	m_deviceResources->Present();

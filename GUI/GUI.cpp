@@ -49,6 +49,7 @@ bool GUI::Initialize(ID3D11Device1* pDevice, ID3D11DeviceContext1* pContext, HWN
 
 	return true;
 }
+
 void GUI::Update()
 {
 	ImGui_ImplDX11_NewFrame();

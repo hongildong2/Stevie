@@ -17,6 +17,8 @@ public:
 	bool Initialize(ID3D11Device1* pDevice, ID3D11DeviceContext1* pContext, HWND window, int width, int height); // TODO :: Initialize ImGui Here
 	void Render(); // TODO :: Render ImGui
 
+
+
 private:
 
 	std::unordered_set<IGUIComponent*> m_GUIComponents;

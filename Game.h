@@ -3,11 +3,6 @@
 //
 #pragma once
 #include "pch.h"
-
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
-
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "Camera.h"
@@ -68,11 +63,9 @@ public:
 	void Register(AObject* obj) override;
 	void UnRegister(AObject* obj) override;
 
+
 private:
-
-
 	void Update(DX::StepTimer const& timer);
-	void UpdateGUI();
 
 	void Render();
 
