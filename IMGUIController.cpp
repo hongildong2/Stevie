@@ -100,6 +100,8 @@ bool IMGUIController::UpdateLight(Light* pLight)
 		LightDTO lightDTO = data;
 		drawLight(&lightDTO);
 		pLight->UpdateLightData(lightDTO);
+
+		ImGui::TreePop();
 	}
 
 	return true;
@@ -128,6 +130,8 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 
 
 		pOcean->OnInitialParameterChanged();
+
+
 		ImGui::TreePop();
 	}
 
