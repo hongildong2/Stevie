@@ -27,7 +27,7 @@ struct OceanDTO
 {
 	ocean::InitialSpectrumWaveConstant initialWaveConstants;
 	std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT> initialSpectrumParameters;
-	std::array<CombineParameter, CASCADE_COUNT> cascadeCombineParameters;
+	std::array<ocean::CombineParameter, ocean::CASCADE_COUNT> cascadeCombineParameters;
 };
 
 struct PostProcessDTO

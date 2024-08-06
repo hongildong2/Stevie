@@ -61,15 +61,17 @@ bool IMGUIController::UpdateModel(const Model* pModel)
 {
 	Vector4 pos = pModel->GetWorldPos();
 	PosWorldDTO dto;
+	return true;
 }
 
 bool IMGUIController::UpdateLight(const Light* pLight)
 {
-
+	return true;
 }
 
 bool IMGUIController::UpdateOcean(const Ocean* pOcean)
 {
+	return true;
 
 }
 

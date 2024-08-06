@@ -48,16 +48,13 @@ void GUI::Update()
 		switch (type)
 		{
 		case EGUIType::MODEL:
-			const Model* model = static_cast<const Model*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf);
-			// CALL MODEL CONTROLLER
+			m_IMGUIController->UpdateModel(static_cast<const Model*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		case EGUIType::LIGHT:
-			// CALL LIGHT CONTROLLER
-			const Light* light = static_cast<const Light*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf);
+			m_IMGUIController->UpdateLight(static_cast<const Light*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		case EGUIType::OCEAN:
-			// CALL OCEAN CONTROLLER
-			const Ocean* ocean = static_cast<const Ocean*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf);
+			m_IMGUIController->UpdateOcean(static_cast<const Ocean*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		default:
 			assert(false);
