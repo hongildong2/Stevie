@@ -20,9 +20,9 @@ public:
 	bool Initialize(ID3D11Device1* pDevice, ID3D11DeviceContext1* pContext, HWND window, int width, int height);
 	void Render();
 
-	bool UpdateModel(const Model* pModel);
-	bool UpdateLight(const Light* pLight);
-	bool UpdateOcean(const Ocean* pOcean);
+	bool UpdateModel(Model* pModel);
+	bool UpdateLight(Light* pLight);
+	bool UpdateOcean(Ocean* pOcean);
 
 private:
 	void drawPos(PosWorldDTO* pInOutPositionDTO);

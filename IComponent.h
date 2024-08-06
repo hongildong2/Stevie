@@ -19,7 +19,7 @@ public:
 		cMan->OnDestruct(this);
 	}
 
-	virtual const AObject* GetThis() const = 0;
+	virtual AObject* GetThis() = 0;
 	inline const EComponentsFlag GetComponentType() const
 	{
 		return m_type;

@@ -42,9 +42,10 @@ public:
 	Light(const ELightType type, const 	DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
 	~Light() = default;
 
-	const AObject* GetThis() const override;
+	AObject* GetThis() override;
 
 	void GetLightData(LightData* outLightData) const;
+	void UpdateLightData(LightData& data);
 	DirectX::SimpleMath::Matrix GetViewRow() const override;
 
 private:

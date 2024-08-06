@@ -35,10 +35,11 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 }
 
 
-const AObject* Light::GetThis() const
+AObject* Light::GetThis()
 {
 	return this;
 }
+
 void Light::GetLightData(LightData* outLightData) const
 {
 	outLightData->radiance = m_radiance;
@@ -61,6 +62,22 @@ void Light::GetLightData(LightData* outLightData) const
 
 	auto invProj = proj.Invert();
 	outLightData->invProjColumn = invProj.Transpose();
+}
+
+void Light::UpdateLightData(LightData& data)
+{
+	m_radiance = data.radiance;
+	m_fallOffEnd = data.fallOffEnd;
+	m_fallOffStart = data.fallOffStart;
+
+	m_direction = data.direction;
+	m_positionWorld = data.positionWorld;
+	m_spotPower = data.spotPower;
+
+	m_color = data.color;
+	m_radius = data.radius;
+	m_haloRadius = data.haloRadius;
+	m_haloStrength = data.haloStrength;
 }
 
 DirectX::SimpleMath::Matrix Light::GetViewRow() const

@@ -5,7 +5,7 @@
 
 struct PosWorldDTO
 {
-	DirectX::SimpleMath::Vector3 pos;
+	DirectX::SimpleMath::Vector4 pos;
 };
 
 struct RotationWorldDTO
@@ -16,16 +16,17 @@ struct RotationWorldDTO
 
 struct MaterialDTO : public Material
 {
+	MaterialDTO(const Material& rhs);
 };
 
 struct LightDTO : public LightData
 {
-
+	LightDTO(const LightData& rhs);
 };
 
 struct OceanDTO
 {
-	ocean::InitialSpectrumWaveConstant initialWaveConstants;
+	ocean::OceanConfigurationConstant oceanConfiguration;
 	std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT> initialSpectrumParameters;
 	std::array<ocean::CombineParameter, ocean::CASCADE_COUNT> cascadeCombineParameters;
 };

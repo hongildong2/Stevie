@@ -57,22 +57,75 @@ void IMGUIController::Render()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-bool IMGUIController::UpdateModel(const Model* pModel)
+bool IMGUIController::UpdateModel(Model* pModel)
 {
-	Vector4 pos = pModel->GetWorldPos();
-	PosWorldDTO dto;
+	if(ImGui::TreeNode("Model"))
+	{
+		PosWorldDTO posDTO;
+		posDTO.pos = pModel->GetWorldPos();
+		drawPos(&posDTO);
+		pModel->UpdatePosByCoordinate(posDTO.pos);
+
+		auto& meshes = pModel->GetMeshes();
+		for (auto& mesh : meshes)
+		{
+			MaterialDTO matDTO = mesh->GetMaterialConstant();
+
+			drawMaterial(&matDTO);
+			mesh->UpdateMaterialConstant(matDTO);
+		}
+
+		ImGui::TreePop();
+	}
+	
 	return true;
 }
 
-bool IMGUIController::UpdateLight(const Light* pLight)
+bool IMGUIController::UpdateLight(Light* pLight)
 {
+	if (ImGui::TreeNode("Light"))
+	{
+		LightData data;
+		pLight->GetLightData(&data);
+
+		PosWorldDTO posDTO;
+		posDTO.pos = Vector4(data.positionWorld.x, data.positionWorld.y, data.positionWorld.z, 1.f);
+		drawPos(&posDTO);
+
+
+		LightDTO lightDTO = data;
+		drawLight(&lightDTO);
+		pLight->UpdateLightData(lightDTO);
+	}
+
 	return true;
 }
 
-bool IMGUIController::UpdateOcean(const Ocean* pOcean)
+bool IMGUIController::UpdateOcean(Ocean* pOcean)
 {
-	return true;
+	if (ImGui::TreeNode("Ocean"))
+	{
+		auto& meshes = pOcean->GetMeshes();
+		for (auto& mesh : meshes)
+		{
+			MaterialDTO matDTO = mesh->GetMaterialConstant();
 
+			drawMaterial(&matDTO);
+			mesh->UpdateMaterialConstant(matDTO);
+		}
+
+		OceanDTO oceanDTO;
+		ZeroMemory(&oceanDTO, sizeof(OceanDTO));
+		oceanDTO.cascadeCombineParameters = pOcean->GetCascadeCombineParameters();
+		oceanDTO.initialSpectrumParameters = pOcean->GetInitialSpectrumParameters();
+		oceanDTO.oceanConfiguration = pOcean->GetOceanConfiguration();
+
+		drawOcean(&oceanDTO);
+
+		ImGui::TreePop();
+	}
+	
+	return true;
 }
 
 void IMGUIController::drawPos(PosWorldDTO* pInOutPositionDTO)
@@ -113,8 +166,8 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 {
 	if (ImGui::TreeNode("Ocean Wave Initial Parameters"))
 	{
-		ImGui::SliderFloat("Gravity", &(pInOutOceanDTO->initialWaveConstants.g), 1.f, 20.f);
-		ImGui::SliderFloat("Ocean Depth", &(pInOutOceanDTO->initialWaveConstants.depth), 300.f, 2000.f);
+		ImGui::SliderFloat("Gravity", &(pInOutOceanDTO->oceanConfiguration.g), 1.f, 20.f);
+		ImGui::SliderFloat("Ocean Depth", &(pInOutOceanDTO->oceanConfiguration.depth), 300.f, 2000.f);
 
 
 		std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& initialSpectrumParameters = pInOutOceanDTO->initialSpectrumParameters;
@@ -166,7 +219,7 @@ void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO)
 		ImGui::SliderFloat("Roughness Factor", &(pInOutMaterialDTO->roughnessFactor), 0.f, 1.f);
 		ImGui::SliderFloat("t1", &(pInOutMaterialDTO->t1), 0.f, 5.f);
 
-		ImGui::Checkbox("Use Textures", (bool*)(&(pInOutMaterialDTO->bUseTexture)));
+		// ImGui::Checkbox("Use Textures", (bool*)(&(pInOutMaterialDTO->bUseTexture)));
 
 		ImGui::SliderFloat("metallic", &(pInOutMaterialDTO->metallic), 0.f, 1.f);
 		ImGui::SliderFloat("roughness", &(pInOutMaterialDTO->roughness), 0.f, 1.f);

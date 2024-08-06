@@ -222,6 +222,7 @@
     <ClCompile Include="AObjectManager.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="DTOs.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
     <ClCompile Include="IComponentManager.cpp" />
     <ClCompile Include="IMGUIController.cpp" />

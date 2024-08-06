@@ -38,7 +38,7 @@ void GUI::Update()
 	for (auto* guiComponent : m_GUIComponents)
 	{
 		EGUIType type = guiComponent->GetGUIType();
-		const AObject* rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf = guiComponent->GetThis();
+		AObject* rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf = guiComponent->GetThis();
 		if (rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf->IsInstantiated() == false)
 		{
 			continue;
@@ -48,13 +48,13 @@ void GUI::Update()
 		switch (type)
 		{
 		case EGUIType::MODEL:
-			m_IMGUIController->UpdateModel(static_cast<const Model*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
+			m_IMGUIController->UpdateModel(static_cast<Model*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		case EGUIType::LIGHT:
-			m_IMGUIController->UpdateLight(static_cast<const Light*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
+			m_IMGUIController->UpdateLight(static_cast<Light*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		case EGUIType::OCEAN:
-			m_IMGUIController->UpdateOcean(static_cast<const Ocean*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
+			m_IMGUIController->UpdateOcean(static_cast<Ocean*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		default:
 			assert(false);

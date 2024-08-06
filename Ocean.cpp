@@ -10,14 +10,14 @@ Ocean::Ocean()
 	m_heightMapCPU{ 0, },
 	m_combineWaveConstant(ocean::CombineWaveConstantInitializer),
 	m_combineParameters(ocean::CombineParameterInitializer),
-	m_initialSpectrumWaveConstant(ocean::InitialSpectrumWaveConstantInitializer), // what is differnt with {}?
+	m_oceanConfigurationConstant(ocean::OceanConfigurationInitializer), // what is differnt with {}?
 	m_LocalInitialSpectrumParameters(ocean::LocalInitialSpectrumParameterInitializer),
 	m_spectrumConstant(ocean::SpectrumConstantInitializer),
 	m_FFTConstant(ocean::FFTConstantInitializer)
 {
 	IGUIComponent::m_type = EGUIType::OCEAN;
 }
-const AObject* Ocean::GetThis() const
+AObject* Ocean::GetThis()
 {
 	return this;
 }
@@ -138,7 +138,7 @@ void Ocean::Initialize(ID3D11Device1* pDevice)
 
 
 
-	Utility::DXResource::CreateConstantBuffer(m_initialSpectrumWaveConstant, pDevice, m_initialSpectrumWaveCB);
+	Utility::DXResource::CreateConstantBuffer(m_oceanConfigurationConstant, pDevice, m_oceanConfigurationCB);
 	Utility::DXResource::CreateConstantBuffer(m_spectrumConstant, pDevice, m_spectrumCB);
 	Utility::DXResource::CreateConstantBuffer(m_FFTConstant, pDevice, m_FFTCB);
 	Utility::DXResource::CreateConstantBuffer(m_combineWaveConstant, pDevice, m_combineWaveCB);
@@ -157,8 +157,8 @@ void Ocean::InitializeData(ID3D11DeviceContext1* context)
 	ID3D11ShaderResourceView* srvs[1] = { m_LocalInitialSpectrumParameterSRV.Get() };
 	context->CSSetShaderResources(0, 1, srvs);
 
-	Utility::DXResource::UpdateConstantBuffer(m_initialSpectrumWaveConstant, context, m_initialSpectrumWaveCB);
-	ID3D11Buffer* cbs[1] = { m_initialSpectrumWaveCB.Get() };
+	Utility::DXResource::UpdateConstantBuffer(m_oceanConfigurationConstant, context, m_oceanConfigurationCB);
+	ID3D11Buffer* cbs[1] = { m_oceanConfigurationCB.Get() };
 	context->CSSetConstantBuffers(0, 1, cbs);
 
 	context->Dispatch(ocean::GROUP_X, ocean::GROUP_Y, 1);

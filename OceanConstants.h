@@ -15,15 +15,15 @@ namespace ocean
 	constexpr float WORLD_SCALER = 75.f;
 	constexpr float SIMULATION_SIZE_IN_METER = 2048.f;
 
-	struct InitialSpectrumWaveConstant
+	struct OceanConfigurationConstant
 	{
 		float g;
 		float depth;
 		float dummy[2];
 	};
-	static_assert(sizeof(InitialSpectrumWaveConstant) % 16 == 0, "CB 16byte alignment");
+	static_assert(sizeof(OceanConfigurationConstant) % 16 == 0, "CB 16byte alignment");
 
-	constexpr InitialSpectrumWaveConstant InitialSpectrumWaveConstantInitializer =
+	constexpr OceanConfigurationConstant OceanConfigurationInitializer =
 	{
 		DEFAULT_G,
 		DEFAULT_DEPTH,

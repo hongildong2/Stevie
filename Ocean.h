@@ -11,7 +11,7 @@ public:
 	Ocean(const Ocean& other) = delete;
 	Ocean& operator=(const Ocean& other) = delete;
 
-	const AObject* GetThis() const override;
+	AObject* GetThis() override;
 
 	virtual void Initialize(ID3D11Device1* pDevice) override;
 	void InitializeData(ID3D11DeviceContext1* context);
@@ -45,6 +45,22 @@ public:
 		return m_combineWaveCB.Get();
 	}
 
+	inline const std::array<ocean::CombineParameter, ocean::CASCADE_COUNT>& GetCascadeCombineParameters() const
+	{
+		return m_combineParameters;
+	}
+
+	inline const std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& GetInitialSpectrumParameters() const
+	{
+		return m_LocalInitialSpectrumParameters;
+	}
+
+	inline const ocean::OceanConfigurationConstant& GetOceanConfiguration() const
+	{
+		return m_oceanConfigurationConstant;
+	}
+
+
 	float GetHeight(DirectX::SimpleMath::Vector2 XZ) const;
 
 private:
@@ -68,8 +84,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_initialSpectrumMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumMapSRV;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumWaveCB;
-	ocean::InitialSpectrumWaveConstant m_initialSpectrumWaveConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_oceanConfigurationCB;
+	ocean::OceanConfigurationConstant m_oceanConfigurationConstant;
 
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_LocalInitialSpectrumParameterSB;

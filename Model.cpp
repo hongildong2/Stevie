@@ -17,7 +17,7 @@ Model::Model(const char* name, const EModelType type, GraphicsPSO& pso)
 	AObject::SetComponentFlag(EComponentsFlag::GUI);
 }
 
-const AObject* Model::GetThis() const
+AObject* Model::GetThis()
 {
 	return this;
 }

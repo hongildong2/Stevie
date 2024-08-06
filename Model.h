@@ -20,7 +20,7 @@ public:
 	Model(const Model& other) = delete;
 	Model& operator=(const Model& other) = delete;
 
-	const AObject* GetThis() const override;
+	AObject* GetThis() override;
 
 	void AddMeshComponent(std::unique_ptr<MeshPart> pMesh);
 
@@ -54,6 +54,11 @@ public:
 	inline const std::string& GetName() const
 	{
 		return m_name;
+	}
+
+	inline const std::vector<std::unique_ptr<MeshPart>>& GetMeshes() const
+	{
+		return m_meshes;
 	}
 
 protected:
