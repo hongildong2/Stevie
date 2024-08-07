@@ -240,19 +240,22 @@ float FoamCoverage(float4 turbulence, float2 worldUV, FoamParameter param)
 }
 
 
-void ScreenSpaceContactFoam(in FoamOutput foamRendered, Texture2D <float>depthMap, SamplerState ss, float4 positionProjection, float viewDepth)
+void ScreenSpaceContactFoam(in FoamOutput foamRendered, Texture2D <float>depthMap, SamplerState ss, float4 positionProjection, matrix cameraInvProj)
 {
-	float2 positionScreenSpace = positionProjection.xy / positionProjection.w;
+	float2 positionScreenSpace = positionProjection.xy;
+	float2 texcoord = float2(positionScreenSpace.x, -positionScreenSpace.y);
+	texcoord += 1.0;
+	texcoord *= 0.5;
+	
 	float objDepth = depthMap.Sample(ss, positionScreenSpace);
 
+	float4 pointView = mul(float4(0, 0, positionProjection.z, 1), cameraInvProj);
+	pointView.z /= pointView.w;
+	float viewDepth = pointView.z;
+	
 	float depthDiff = objDepth - viewDepth;
 	
-	float contactTexture = 0.65423; // TODO :: Sample Contact texture
-	contactTexture = saturate(1 - contactTexture);
-	
-	depthDiff = abs(depthDiff) * contactTexture;
-	
-	const float CONTACT_FOAM_RANGE = 1;
+	const float CONTACT_FOAM_RANGE = 0.2;
 	float contactFoam = saturate(10 * (CONTACT_FOAM_RANGE - depthDiff));
 	
 	foamRendered.coverage = saturate(foamRendered.coverage + contactFoam);
@@ -277,9 +280,9 @@ FoamOutput GetFoamOutput(Texture2D<float> foamTexture, SamplerState ss, FoamInpu
 	// 가까이서보면 Foam Coverage를 극적으로 줄인다.
 	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
-	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
 	
 	res.albedo = foamTexture.Sample(ss, input.worldUV * 32.0).rrr;
+
 	
 	return res;
 }

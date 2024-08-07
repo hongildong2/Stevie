@@ -2,7 +2,7 @@
 
 RWTexture2D<float> HeightMap : register(u0);
 
-SamplerState linearWrap : register(s0);
+SamplerState linearWrapEE : register(s0);
 
 Texture2DArray<float4> DisplacementMap : register(t0);
 
@@ -21,7 +21,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float2 UV = float2(float(DTid.x) / float(SIZE), float(DTid.y) / float(SIZE));
 	OceanSamplingInput hi =
 	{
-		DisplacementMap, parameters, linearWrap, CASCADE_COUNT, UV, simulationScale
+		DisplacementMap, parameters, linearWrapEE, CASCADE_COUNT, UV, simulationScale
 	};
 	
 	float3 displacement = MultiSampleDisplacementModel(hi).xyz;

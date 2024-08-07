@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "pch.h"
 #include "GraphicsCommon.h"
 #include "Utility.h"
 #include <d3dcompiler.h>
@@ -330,14 +331,14 @@ namespace Graphics
 		desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 		desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-		desc.BorderColor[0] = 1.0f; // 큰 Z값
+		desc.BorderColor[0] = 300.0f; // 큰 Z값
 		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		DX::ThrowIfFailed(device->CreateSamplerState(&desc, shadowPointSS.GetAddressOf()));
 
 		desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 		desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-		desc.BorderColor[0] = 100.0f; // 큰 Z값
+		desc.BorderColor[0] = 300.0f; // 큰 Z값
 		desc.Filter =
 			D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 		desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;

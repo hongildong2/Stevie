@@ -404,7 +404,7 @@ void Game::CreateDeviceDependentResources()
 			ship->Initialize(device);
 
 			ship->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(0.005f) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XM_PIDIV2));
-			ship->UpdatePosByCoordinate({ 12.f, -0.6f, 0.f, 1.f });
+			ship->UpdatePosByCoordinate({ 12.f, -1.3f, 0.f, 1.f });
 			m_models.push_back(std::move(ship));
 		}
 
