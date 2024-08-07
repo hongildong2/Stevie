@@ -198,8 +198,8 @@ void IMGUIController::drawLight(LightDTO* pInOutLightDTO)
 		ImGui::ColorEdit3("color", &(pInOutLightDTO->color.x));
 
 		ImGui::SliderFloat("Radius", &(pInOutLightDTO->radius), 0.f, 0.2f);
-		ImGui::SliderFloat("Halo Radius", &(pInOutLightDTO->haloRadius), 0.f, 0.3f);
-		ImGui::SliderFloat("Halo Strength", &(pInOutLightDTO->haloStrength), 0.f, 5.f);
+		ImGui::SliderFloat("Halo Radius", &(pInOutLightDTO->haloRadius), 0.f, 5.f);
+		ImGui::SliderFloat("Halo Strength", &(pInOutLightDTO->haloStrength), 0.f, 20.f);
 
 		ImGui::TreePop();
 	}

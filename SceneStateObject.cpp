@@ -97,22 +97,17 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 {
 	// Global Constant
 	{
-		m_globalConstant.view = m_camera->GetViewRow();
-		m_globalConstant.proj = m_camera->GetProjRow();
-		m_globalConstant.viewProj = m_globalConstant.view * m_globalConstant.proj;
+		auto view = m_camera->GetViewRow();
+		auto proj = m_camera->GetProjRow();
+		auto viewProj = view * proj;
 
-		m_globalConstant.invView = m_globalConstant.view.Invert();
-		m_globalConstant.invProj = m_globalConstant.proj.Invert();
-		m_globalConstant.invViewProj = m_globalConstant.viewProj.Invert();
+		m_globalConstant.view = view.Transpose();
+		m_globalConstant.proj = proj.Transpose();
+		m_globalConstant.viewProj = viewProj.Transpose();
 
-		// Row -> Column wise
-		m_globalConstant.view = m_globalConstant.view.Transpose();
-		m_globalConstant.proj = m_globalConstant.proj.Transpose();
-		m_globalConstant.viewProj = m_globalConstant.viewProj.Transpose();
-
-		m_globalConstant.invView = m_globalConstant.invView.Transpose();
-		m_globalConstant.invProj = m_globalConstant.invProj.Transpose();
-		m_globalConstant.invViewProj = m_globalConstant.invViewProj.Transpose();
+		m_globalConstant.invView = view.Invert().Transpose();
+		m_globalConstant.invProj = proj.Invert().Transpose();
+		m_globalConstant.invViewProj = viewProj.Invert().Transpose();
 
 		m_globalConstant.eyeWorld = m_camera->GetEyePos();
 		m_globalConstant.eyeDir = m_camera->GetEyeDir();
@@ -120,7 +115,9 @@ void SceneStateObject::Update(ID3D11DeviceContext1* pContext)
 		// TODO : update time by timer
 
 		m_globalConstant.globalLightsCount = m_sceneLights->GetLightsCount();
-		Utility::DXResource::UpdateConstantBuffer(m_globalConstant, pContext, m_globalCB);
+
+		auto lol = m_globalConstant;
+		Utility::DXResource::UpdateConstantBuffer(lol, pContext, m_globalCB);
 	}
 	m_sceneLights->Update(pContext);
 }

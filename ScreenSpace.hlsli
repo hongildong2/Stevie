@@ -61,7 +61,7 @@ float4 TexcoordToView(float2 texcoord, Texture2D<float> depthOnlyTex, SamplerSta
     // [0, 1]x[0, 1] -> [-1, 1]x[-1, 1] from texcoord to NDC
 	posProj.xy = texcoord * 2.0 - 1.0;
 	posProj.y *= -1; // y ÁÂÇ¥ µÚÁý±â
-	posProj.z = depthOnlyTex.Sample(linearClamp, texcoord).r;
+	posProj.z = saturate(depthOnlyTex.Sample(linearClamp, texcoord).r);
 	posProj.w = 1.0;
 	// NDC now recovered
     
@@ -86,7 +86,7 @@ float2 ScreenToTexcoord(float2 positionScreen)
 float NDCToViewDepth(float NDCDepth, matrix invProj)
 {
 	float4 pointView = mul(float4(0, 0, NDCDepth, 1), invProj); // into view space
-	return pointView.z / pointView.w; // perspective divide
+	return pointView.z / pointView.w;
 
 }
 // to sample skymap from texture cube
