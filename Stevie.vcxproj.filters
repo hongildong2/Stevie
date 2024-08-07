@@ -50,7 +50,7 @@
     <ClInclude Include="OceanConstants.h">
       <Filter>Ocean</Filter>
     </ClInclude>
-    <ClInclude Include="PostProcess.h">
+    <ClInclude Include="MyPostProcess.h">
       <Filter>PostProcess</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
@@ -70,15 +70,6 @@
     <ClInclude Include="DepthOnlyResources.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="GUI\GUI.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\OceanController.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\ModelController.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\LightController.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\DTOs.h">
@@ -106,7 +97,8 @@
     <ClInclude Include="IComponent.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="GodService.h" />
+    <ClInclude Include="IMGUIController.h" />
+    <ClInclude Include="ModelLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -129,7 +121,7 @@
     <ClCompile Include="GraphicsPSO.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="PostProcess.cpp">
+    <ClCompile Include="MyPostProcess.cpp">
       <Filter>PostProcess</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
@@ -147,15 +139,6 @@
     <ClCompile Include="GUI\GUI.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\ModelController.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\OceanController.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\LightController.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="AObject.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -165,7 +148,9 @@
     <ClCompile Include="IComponentManager.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="GodService.cpp" />
+    <ClCompile Include="DTOs.cpp" />
+    <ClCompile Include="IMGUIController.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

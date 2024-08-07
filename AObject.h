@@ -20,12 +20,10 @@ enum class EObjectType
 	MODEL = 0,
 	LIGHT,
 	OCEAN,
+	POST_PROCESS,
 	LENGTH
 };
 
-class Model;
-class Light;
-class Ocean;
 
 class AObject
 {
@@ -50,6 +48,9 @@ public:
 protected:
 	AObject(const char* name, const EObjectType type);
 	virtual ~AObject() = default;
+
+	AObject(const AObject& other) = delete;
+	AObject& operator=(const AObject& other) = delete;
 
 	void Destroy();
 	void CompleteInitialization(); // Initialized On all Components

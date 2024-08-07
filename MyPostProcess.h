@@ -1,8 +1,11 @@
 #pragma once
-#include <vector>
+#include "pch.h"
+
 #include "DeviceResources.h"
-#include "RenderTexture.h"
 #include "MeshPart.h"
+#include "RenderTexture.h"
+#include "AObject.h"
+#include "IGUIComponent.h"
 
 struct PostProcessConstant
 {
@@ -21,21 +24,21 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 	0.f,
 	0.f,
 	0.f,
-	0.9f,
-	1.1f,
-	2.2f,
+	0.8f,
+	0.3f,
+	2.4f,
 	1.f,
 	0.f,
 };
 
-class PostProcess
+class MyPostProcess final : public AObject, public IGUIComponent
 {
 public:
-	PostProcess(const RECT size, DXGI_FORMAT pipelineFormat);
-	~PostProcess() = default;
+	MyPostProcess(const RECT size, DXGI_FORMAT pipelineFormat);
+	~MyPostProcess() = default;
 
-	PostProcess(const PostProcess& other) = delete;
-	PostProcess& operator=(const PostProcess& other) = delete;
+	MyPostProcess(const MyPostProcess& other) = delete;
+	MyPostProcess& operator=(const MyPostProcess& other) = delete;
 
 	void Initialize(ID3D11Device1* device);
 	void ProcessBloom(ID3D11DeviceContext1* context);
@@ -45,6 +48,8 @@ public:
 	void UpdateConstant(PostProcessConstant constant);
 
 	void FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pRenderedBuffer);
+
+	AObject* GetThis() override;
 
 	inline PostProcessConstant GetConstant() const
 	{

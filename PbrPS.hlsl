@@ -82,7 +82,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	
 	
-	float3 color = ambient + Lo; // IBL + Lights
+	float3 color = ambient * materialConstant.IBLStrength + Lo; // IBL + Lights
 	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1.0f);

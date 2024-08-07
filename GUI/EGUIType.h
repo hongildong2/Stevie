@@ -7,6 +7,7 @@ enum class EGUIType
 	MODEL = 0,
 	LIGHT,
 	OCEAN,
+	POST_PROCESS,
 	LENGTH
 };
 

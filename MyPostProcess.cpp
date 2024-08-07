@@ -1,22 +1,25 @@
 #include "pch.h"
 
-#include "PostProcess.h"
+#include "MyPostProcess.h"
 #include "Utility.h"
-#include "MeshPart.h"
 
-PostProcess::PostProcess(const RECT size, DXGI_FORMAT pipelineFormat)
-	:m_originalSize(size),
+MyPostProcess::MyPostProcess(const RECT size, DXGI_FORMAT pipelineFormat)
+	: AObject("PostProcess", EObjectType::POST_PROCESS),
+	IGUIComponent(EGUIType::POST_PROCESS),
+	m_originalSize(size),
 	m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM),
 	m_textureToProcess(std::make_unique<RenderTexture>(pipelineFormat)),
 	m_textureProcessed(std::make_unique<RenderTexture>(pipelineFormat))
 {
 	m_bloomTextures.reserve(static_cast<size_t>(LEVEL + 1));
-
+	AObject::SetComponentFlag(EComponentsFlag::GUI);
 }
-void PostProcess::Initialize(ID3D11Device1* device)
+
+
+void MyPostProcess::Initialize(ID3D11Device1* device)
 {
 	MeshData quad = GeometryGenerator::MakeSquare(1.f);
-	m_screenQuad = std::make_unique<MeshPart>(quad, EMeshType::SOLID, device, NO_MESH_TEXTURE);
+	m_screenQuad = std::make_unique<MeshPart>(quad, EMeshType::SOLID, device);
 
 
 	RECT textureSizeByLevel = m_originalSize;
@@ -42,7 +45,12 @@ void PostProcess::Initialize(ID3D11Device1* device)
 	Utility::DXResource::CreateConstantBuffer(m_postProcessConstant, device, m_postProcessCB);
 }
 
-void PostProcess::FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pRenderedBuffer)
+AObject* MyPostProcess::GetThis()
+{
+	return this;
+}
+
+void MyPostProcess::FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pRenderedBuffer)
 {
 	pContext->OMSetRenderTargets(0, NULL, NULL); // to release texture2D from RTV
 
@@ -50,7 +58,7 @@ void PostProcess::FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Tex
 	pContext->CopyResource(m_textureToProcess->GetRenderTarget(), pRenderedBuffer);
 }
 
-void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
+void MyPostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 {
 	unsigned int group_x = static_cast<unsigned int>(ceil(m_originalSize.right / 32.f));
 	unsigned int group_y = static_cast<unsigned int>(ceil(m_originalSize.bottom / 32.f));
@@ -90,7 +98,7 @@ void PostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 	m_textureProcessed.swap(m_bloomTextures[0]);
 }
 
-void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthMapSRV)
+void MyPostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourceView* depthMapSRV)
 {
 	auto* rtvToDraw = m_textureProcessed->GetRenderTargetView();
 	pContext->OMSetRenderTargets(1, &rtvToDraw, NULL);
@@ -108,7 +116,7 @@ void PostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResourc
 	m_textureToProcess.swap(m_textureProcessed); // 다음 후처리할 친구위해
 }
 
-void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rtvToDraw)
+void MyPostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rtvToDraw)
 {
 	Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, context, m_postProcessCB);
 	context->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
@@ -127,7 +135,7 @@ void PostProcess::Draw(ID3D11DeviceContext1* context, ID3D11RenderTargetView* rt
 	context->PSSetShaderResources(100, 6, release);
 }
 
-void PostProcess::UpdateConstant(PostProcessConstant constant)
+void MyPostProcess::UpdateConstant(PostProcessConstant constant)
 {
 	m_postProcessConstant = constant;
 }

@@ -15,6 +15,8 @@ MaterialDTO::MaterialDTO(const Material& rhs)
 
 	this->specular = rhs.specular;
 	this->t1 = rhs.t1;
+
+	this->IBLStrength = rhs.IBLStrength;
 }
 
 LightDTO::LightDTO(const LightData& rhs)
@@ -33,4 +35,5 @@ LightDTO::LightDTO(const LightData& rhs)
 	this->radius = rhs.radius;
 
 	this->spotPower = rhs.spotPower;
+
 }

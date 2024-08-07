@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "GUI.h"
-#include "AObject.h"
+#include "Light.h"
+#include "Ocean.h"
+#include "Model.h"
+#include "MeshPart.h"
+#include "MyPostProcess.h"
+
 
 GUI::GUI()
 	: m_GUIComponents()
@@ -55,6 +60,9 @@ void GUI::Update()
 			break;
 		case EGUIType::OCEAN:
 			m_IMGUIController->UpdateOcean(static_cast<Ocean*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
+			break;
+		case EGUIType::POST_PROCESS:
+			m_IMGUIController->UpdatePostProcess(static_cast<MyPostProcess*>(rmsidRkqclwlakfrhdiawjsgkrpgkfrjftlqkf));
 			break;
 		default:
 			assert(false);

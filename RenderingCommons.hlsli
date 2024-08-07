@@ -58,7 +58,7 @@ struct Material
 	float metallic;
 	float roughness;
 	float specular;
-	float dummy;
+	float IBLStrength;
 };
 
 

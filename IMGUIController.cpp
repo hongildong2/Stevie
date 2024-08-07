@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "Light.h"
 #include "Ocean.h"
+#include "MyPostProcess.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -148,6 +149,27 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 
 	return true;
 }
+
+bool IMGUIController::UpdatePostProcess(MyPostProcess* pPostProcess)
+{
+	PostProcessConstant current = pPostProcess->GetConstant();
+	PostProcessDTO dto =
+	{
+		current.strength,
+		current.exposure,
+		current.gamma
+	};
+
+	drawPostProcess(&dto);
+	current.strength = dto.bloomStrength;
+	current.exposure = dto.exposure;
+	current.gamma = dto.gamma;
+
+	pPostProcess->UpdateConstant(current);
+
+	return true;
+}
+
 
 void IMGUIController::drawPos(PosWorldDTO* pInOutPositionDTO)
 {
@@ -303,6 +325,7 @@ void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO)
 		ImGui::SliderFloat("metallic", &(pInOutMaterialDTO->metallic), 0.f, 1.f);
 		ImGui::SliderFloat("roughness", &(pInOutMaterialDTO->roughness), 0.f, 1.f);
 		ImGui::SliderFloat("specular", &(pInOutMaterialDTO->specular), 0.f, 1.f);
+		ImGui::SliderFloat("IBLStrength", &(pInOutMaterialDTO->IBLStrength), 0.f, 3.f);
 
 		ImGui::TreePop();
 	}

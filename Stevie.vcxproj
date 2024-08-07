@@ -208,7 +208,7 @@
     <ClInclude Include="EModelType.h" />
     <ClInclude Include="OceanConstants.h" />
     <ClInclude Include="Ocean.h" />
-    <ClInclude Include="PostProcess.h" />
+    <ClInclude Include="MyPostProcess.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="SceneStateObject.h" />
     <ClInclude Include="Utility.h" />
@@ -244,7 +244,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PostProcess.cpp" />
+    <ClCompile Include="MyPostProcess.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="SceneStateObject.cpp" />
     <ClCompile Include="Utility.cpp" />

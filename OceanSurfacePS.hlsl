@@ -161,7 +161,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
 	
-	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
+	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared) * materialConstant.IBLStrength;
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
 	

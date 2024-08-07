@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "SceneLights.h"
 #include "IWindowSizeDependent.h"
-#include "PostProcess.h"
+#include "MyPostProcess.h"
 #include "Camera.h"
 
 struct GlobalConstants
@@ -59,7 +59,7 @@ public:
 		return m_sceneLights;
 	}
 
-	inline const std::unique_ptr<PostProcess>& GetPostProcess()
+	inline const std::unique_ptr<MyPostProcess>& GetPostProcess()
 	{
 		return m_postProcess;
 	}
@@ -74,7 +74,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapIrradianceView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapSpecularView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemapBRDFView;
-	std::unique_ptr<PostProcess> m_postProcess; // Scene마다 후처리가 다를수있잖아? 하지만 상태로 보아야하는가?
+	std::unique_ptr<MyPostProcess> m_postProcess; // Scene마다 후처리가 다를수있잖아? 하지만 상태로 보아야하는가?
 
 
 	std::unique_ptr<SceneLights> m_sceneLights; // TODO : move to Scene class

@@ -5,6 +5,7 @@
 class Model;
 class Light;
 class Ocean;
+class MyPostProcess;
 
 class IMGUIController final
 {
@@ -23,6 +24,7 @@ public:
 	bool UpdateModel(Model* pModel);
 	bool UpdateLight(Light* pLight);
 	bool UpdateOcean(Ocean* pOcean);
+	bool UpdatePostProcess(MyPostProcess* pPostProcess);
 
 private:
 	void drawPos(PosWorldDTO* pInOutPositionDTO);

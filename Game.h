@@ -16,7 +16,7 @@
 #include "Ocean.h"
 #include "SceneLights.h"
 #include "SceneStateObject.h"
-#include "PostProcess.h"
+#include "MyPostProcess.h"
 
 
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;

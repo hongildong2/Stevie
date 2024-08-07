@@ -49,7 +49,7 @@ struct Material
 	float metallic;
 	float roughness;
 	float specular; // default 0.5, water 0.255
-	float dummy;
+	float IBLStrength;
 };
 
 constexpr Material DEFAULT_MATERIAL =
@@ -65,7 +65,7 @@ constexpr Material DEFAULT_MATERIAL =
 	0.8f,
 	0.2f,
 	0.5f,
-	0.f
+	1.f
 };
 
 static_assert(sizeof(Material) % 16 == 0, "Material Alignment");
