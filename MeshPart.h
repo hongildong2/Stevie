@@ -9,10 +9,15 @@
 *
 */
 
+class ModelLoader;
+
 class MeshPart final
 {
+	friend ModelLoader;
 public:
+	// TODO :: 생성자에서 pDevice없애고 Initialize에서 하기, MeshComponent <- MeshParts[] 클래스 추가하기
 	MeshPart(MeshData& mesh, const EMeshType meshType, ID3D11Device1* pDevice, const TextureFiles& tex);
+	MeshPart(MeshData& mesh, const EMeshType meshType, ID3D11Device1* pDevice);
 	~MeshPart() = default;
 
 	MeshPart(const MeshPart& other) = delete;
@@ -75,5 +80,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_metallicView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roughnessView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_emissiveView;
 };
 

@@ -10,10 +10,13 @@
 #include "IGUIComponent.h"
 #include "AObject.h"
 
+class ModelLoader;
 // TODO : 적어도 GUI컴포넌트는 Most Derived Class에서 상속받는게 맞는것 같다. 그게 덜 헷갈릴것 같다. -> Sphere, Plane 모델 만들고 GUI타입 따로 지정
 class Model : public AObject, public IGUIComponent
 {
+	friend ModelLoader;
 public:
+
 	Model(const char* name, const EModelType type, GraphicsPSO& pso);
 	virtual ~Model() = default;
 

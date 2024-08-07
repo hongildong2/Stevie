@@ -1,5 +1,5 @@
 #pragma once
-
+#include "pch.h"
 #include "SimpleMath.h"
 #include "SceneLights.h"
 
@@ -18,22 +18,13 @@ static_assert(sizeof(MeshConstants) % 16 == 0, "Constant Buffer Alignment");
 
 struct TextureFiles
 {
-	const wchar_t* albedoName;
-	const wchar_t* aoName;
-	const wchar_t* heightName;
-	const wchar_t* metallicName;
-	const wchar_t* normalName;
-	const wchar_t* roughnessName;
-};
-
-constexpr TextureFiles NO_MESH_TEXTURE =
-{
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
+	std::wstring albedoName;
+	std::wstring aoName;
+	std::wstring heightName;
+	std::wstring metallicName;
+	std::wstring normalName;
+	std::wstring roughnessName;
+	std::wstring emissiveName;
 };
 
 struct Material

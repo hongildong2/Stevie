@@ -78,7 +78,7 @@ void Model::UpdatePosByTransform(const DirectX::SimpleMath::Matrix& deltaTransfo
 
 void Model::UpdatePosByCoordinate(const DirectX::SimpleMath::Vector4 pos)
 {
-	DirectX::SimpleMath::Vector4 diff = m_worldPos - pos;
+	DirectX::SimpleMath::Vector4 diff = pos - m_worldPos;
 	UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation({ diff.x, diff.y, diff.z }));
 	m_worldPos = pos;
 }
