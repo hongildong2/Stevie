@@ -12,6 +12,7 @@
 #include "AObject.h"
 #include "AObjectManager.h"
 #include "IComponentManager.h"
+#include "ModelLoader.h"
 
 extern void ExitGame() noexcept;
 
@@ -385,22 +386,47 @@ void Game::CreateDeviceDependentResources()
 			m_models.push_back(std::move(smaple));
 
 
-			MeshData plane = GeometryGenerator::MakeSquare(5.f);
-			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
-			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
-			samplane->AddMeshComponent(std::move(plane2));
-			samplane->Initialize(device);
-			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
+			//MeshData plane = GeometryGenerator::MakeSquare(5.f);
+			//std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
+			//std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
+			//samplane->AddMeshComponent(std::move(plane2));
+			//samplane->Initialize(device);
+			//samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
 
-			m_models.push_back(std::move(samplane));
+			//m_models.push_back(std::move(samplane));
 		}
+
+		// ship
+		{
+			std::unique_ptr<Model> ship = std::make_unique<Model>("sheep", EModelType::DEFAULT, Graphics::basicPSO);
+			ModelLoader loading(ship.get(), device);
+			loading.Load("./Assets/Models/maersk-container-ship/source/", "Ship.fbx", false);
+			ship->Initialize(device);
+
+			ship->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(0.005f) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XM_PIDIV2));
+			ship->UpdatePosByCoordinate({ 12.f, -0.6f, 0.f, 1.f });
+			m_models.push_back(std::move(ship));
+		}
+
+		//// island
+		{
+			std::unique_ptr<Model> island = std::make_unique<Model>("Island", EModelType::DEFAULT, Graphics::basicPSO);
+			ModelLoader load(island.get(), device);
+
+			load.Load("./Assets/Models/tillamook_rock_lighthouse/", "scene.gltf", false);
+			island->Initialize(device);
+			island->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(5.f));
+			island->UpdatePosByCoordinate({ 0.f, -1.65f, 0.f, 1.f });
+			m_models.push_back(std::move(island));
+		}
+
 
 		// Ocean
 		{
 			m_ocean = std::make_unique<Ocean>();
 			MeshData quadPatches;
 			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
-			auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, device, NO_MESH_TEXTURE);
+			auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, device);
 
 			// material
 			Material mat = DEFAULT_MATERIAL;
@@ -425,7 +451,7 @@ void Game::CreateDeviceDependentResources()
 		// Cubemap
 		{
 			MeshData cube = GeometryGenerator::MakeBox(75.f);
-			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device, NO_MESH_TEXTURE);
+			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device);
 			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			m_skyBox->AddMeshComponent(std::move(cubeMesh));
 			m_skyBox->Initialize(device);

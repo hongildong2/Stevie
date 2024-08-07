@@ -72,13 +72,13 @@ bool IMGUIController::UpdateModel(Model* pModel)
 		drawPos(&posDTO);
 		pModel->UpdatePosByCoordinate(posDTO.pos);
 
-		auto& meshes = pModel->GetMeshes();
-		for (auto& mesh : meshes)
+		auto& m_meshes = pModel->GetMeshes();
+		for (size_t i = 0; i < m_meshes.size(); ++i)
 		{
-			MaterialDTO matDTO = mesh->GetMaterialConstant();
+			MaterialDTO matDTO = m_meshes[i]->GetMaterialConstant();
 
-			drawMaterial(&matDTO);
-			mesh->UpdateMaterialConstant(matDTO);
+			drawMaterial(&matDTO, i);
+			m_meshes[i]->UpdateMaterialConstant(matDTO);
 		}
 
 		ImGui::TreePop();
@@ -114,13 +114,13 @@ bool IMGUIController::UpdateOcean(Ocean* pOcean)
 {
 	if (ImGui::TreeNode(pOcean->GetName()))
 	{
-		auto& meshes = pOcean->GetMeshes();
-		for (auto& mesh : meshes)
+		auto& m_meshes = pOcean->GetMeshes();
+		for (size_t i = 0; i < m_meshes.size(); ++i)
 		{
-			MaterialDTO matDTO = mesh->GetMaterialConstant();
+			MaterialDTO matDTO = m_meshes[i]->GetMaterialConstant();
 
-			drawMaterial(&matDTO);
-			mesh->UpdateMaterialConstant(matDTO);
+			drawMaterial(&matDTO, i);
+			m_meshes[i]->UpdateMaterialConstant(matDTO);
 		}
 
 		OceanDTO oceanDTO;
@@ -288,9 +288,11 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 	}
 }
 
-void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO)
+void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO, const unsigned int meshPartIndex)
 {
-	if (ImGui::TreeNode("Material Constants"))
+	char buffer[100] = { NULL, };
+	snprintf(buffer, 100, "%s%d%s", "Material :: ", meshPartIndex, "Constant");
+	if (ImGui::TreeNode(buffer))
 	{
 		ImGui::ColorEdit3("albedo", &(pInOutMaterialDTO->albedo.x));
 		ImGui::SliderFloat("Metallic Factor", &(pInOutMaterialDTO->metallicFactor), 0.f, 1.f);

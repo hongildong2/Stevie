@@ -16,7 +16,7 @@ PostProcess::PostProcess(const RECT size, DXGI_FORMAT pipelineFormat)
 void PostProcess::Initialize(ID3D11Device1* device)
 {
 	MeshData quad = GeometryGenerator::MakeSquare(1.f);
-	m_screenQuad = std::make_unique<MeshPart>(quad, EMeshType::SOLID, device, NO_MESH_TEXTURE);
+	m_screenQuad = std::make_unique<MeshPart>(quad, EMeshType::SOLID, device);
 
 
 	RECT textureSizeByLevel = m_originalSize;
