@@ -204,6 +204,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	FoamOutput foamOut = GetFoamOutput(foamTexture, linearWrap, foamIn);
 	
+	ScreenSpaceContactFoam(foamOut, cameraDepthMap, shadowPointSampler, input.positionProjection, invProj);
+	
 	const float SUN_SHADOW_ATTENUATION = 0.8;
 	float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
 	color = lerp(color, foamOut.albedo, foamOut.coverage);

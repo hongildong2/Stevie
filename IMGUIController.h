@@ -31,7 +31,7 @@ private:
 	void drawRotation(RotationWorldDTO* pInOutRotationDTO);
 	void drawLight(LightDTO* pInOutLightDTO);
 	void drawOcean(OceanDTO* pInOutOceanDTO);
-	void drawMaterial(MaterialDTO* pInOutMaterialDTO);
+	void drawMaterial(MaterialDTO* pInOutMaterialDTO, const unsigned int meshPartIndex);
 	void drawPostProcess(PostProcessDTO* pInOutPostProcessDTO);
 	// backend instance
 };

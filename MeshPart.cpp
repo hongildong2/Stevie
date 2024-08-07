@@ -2,7 +2,8 @@
 #include "MeshPart.h"
 
 // 중간에 메쉬를 만드는 경우는 없으므로 그냥 생성자 이용
-MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice, const TextureFiles& tex)
+
+MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice)
 	: m_type(type),
 	m_meshConstants{ DirectX::SimpleMath::Matrix(), DirectX::SimpleMath::Matrix() , DirectX::SimpleMath::Matrix(), FALSE, 1.f, 0, 0.f },
 	m_materialConstants(DEFAULT_MATERIAL),
@@ -27,9 +28,7 @@ MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice,
 	InitData.pSysMem = mesh.verticies.data(); // real data!
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0; // 사이즈 보정용?
-
-	HRESULT hr = pDevice->CreateBuffer(&bufferDesc, &InitData, &m_vertexBuffer);
-	DX::ThrowIfFailed(hr);
+	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, &m_vertexBuffer));
 
 	// index buffer
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
@@ -43,25 +42,52 @@ MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice,
 	InitData.pSysMem = mesh.indicies.data();
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0; // 사이즈 보정용?
+	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, &m_indexBuffer));
 
-	hr = pDevice->CreateBuffer(&bufferDesc, &InitData, &m_indexBuffer);
-	DX::ThrowIfFailed(hr);
+}
 
-	if (tex.albedoName != nullptr)
+MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice, const TextureFiles& tex)
+	: MeshPart(mesh, type, pDevice)
+{
+	if (!tex.albedoName.empty())
 	{
 		// All Textures should be SRGB, linear space
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.albedoName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_albedoView.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.albedoName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_albedoView.GetAddressOf()));
+	}
+
+	if (!tex.aoName.empty())
+	{
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.aoName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_aoview.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.aoName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_aoview.GetAddressOf()));
+	}
+
+	if (!tex.heightName.empty())
+	{
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.heightName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_heightView.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.heightName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_heightView.GetAddressOf()));
+	}
+
+	if (!tex.metallicName.empty())
+	{
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.metallicName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_metallicView.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.metallicName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_metallicView.GetAddressOf()));
+	}
+
+	if (!tex.normalName.empty())
+	{
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.normalName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_normalView.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.normalName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_normalView.GetAddressOf()));
+	}
+	if (!tex.roughnessName.empty())
+	{
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(pDevice, tex.roughnessName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_roughnessView.GetAddressOf()));
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.roughnessName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_roughnessView.GetAddressOf()));
+	}
+	if (!tex.emissiveName.empty())
+	{
+		DX::ThrowIfFailed(
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.emissiveName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_emissiveView.GetAddressOf()));
 	}
 }
 
