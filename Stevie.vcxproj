@@ -180,6 +180,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AObjectManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputePSO.h" />
     <ClInclude Include="DepthOnlyResources.h" />
@@ -189,7 +190,17 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="GUI\DTOs.h" />
+    <ClInclude Include="GUI\GUI.h" />
+    <ClInclude Include="AObject.h" />
+    <ClInclude Include="GUI\EGUIType.h" />
+    <ClInclude Include="IComponent.h" />
+    <ClInclude Include="IComponentHandler.h" />
+    <ClInclude Include="IComponentManager.h" />
     <ClInclude Include="IDepthRenderable.h" />
+    <ClInclude Include="IGUIComponent.h" />
+    <ClInclude Include="IMGUIController.h" />
+    <ClInclude Include="IObjectHandler.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="SceneLights.h" />
     <ClInclude Include="IWindowSizeDependent.h" />
@@ -207,8 +218,14 @@
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AObject.cpp" />
+    <ClCompile Include="AObjectManager.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="DTOs.cpp" />
+    <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="IComponentManager.cpp" />
+    <ClCompile Include="IMGUIController.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="SceneLights.cpp" />
     <ClCompile Include="ModelCommon.cpp" />

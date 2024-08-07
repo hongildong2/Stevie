@@ -7,9 +7,11 @@
 #include "MeshPart.h"
 #include "ModelCommon.h"
 #include "EModelType.h"
+#include "IGUIComponent.h"
+#include "AObject.h"
 
-// 메쉬역할도 동시에 하는중
-class Model
+// TODO : 적어도 GUI컴포넌트는 Most Derived Class에서 상속받는게 맞는것 같다. 그게 덜 헷갈릴것 같다. -> Sphere, Plane 모델 만들고 GUI타입 따로 지정
+class Model : public AObject, public IGUIComponent
 {
 public:
 	Model(const char* name, const EModelType type, GraphicsPSO& pso);
@@ -17,6 +19,8 @@ public:
 
 	Model(const Model& other) = delete;
 	Model& operator=(const Model& other) = delete;
+
+	AObject* GetThis() override;
 
 	void AddMeshComponent(std::unique_ptr<MeshPart> pMesh);
 
@@ -47,13 +51,12 @@ public:
 		return m_worldPos;
 	}
 
-	inline const std::string& GetName() const
+	inline const std::vector<std::unique_ptr<MeshPart>>& GetMeshes() const
 	{
-		return m_name;
+		return m_meshes;
 	}
 
 protected:
-	const std::string m_name;
 	const EModelType m_type;
 	std::vector<std::unique_ptr<MeshPart>> m_meshes;
 

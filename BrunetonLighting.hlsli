@@ -108,9 +108,9 @@ float2 U(float2 zeta, float3 V, float3 N, float3 Tx, float3 Ty)
 }
 
 // V, N, Tx, Ty in wind space; -> world space
-float3 MeanSkyRadiance(TextureCube skyCube, SamplerState skyMapSampler, float3 V, float3 N, float3 Tx, float3 Ty, float2 sigmaSq)
+float3 MeanSkyRadiance(Texture2D<float3> skyMap, SamplerState skyMapSampler, float3 V, float3 N, float3 Tx, float3 Ty, float2 sigmaSq)
 {
-	float4 result;
+	float3 result;
 	const float eps = 0.001;
 	float2 u0 = U(float2(0, 0), V, N, Tx, Ty);
 	float2 dux = 2.0 * (U(float2(eps, 0.0), V, N, Tx, Ty) - u0) / eps * sqrt(sigmaSq.x);
@@ -120,37 +120,11 @@ float3 MeanSkyRadiance(TextureCube skyCube, SamplerState skyMapSampler, float3 V
 	float2 duxUV = dux * (0.5 / 1.1);
 	float2 duyUV = duy * (0.5 / 1.1);
 	
-	float3 texCubeNormal = GetSkyCubeNormal(uv);
-	float3 duxNormal = GetSkyCubeNormal(duxUV);
-	float3 duyNormal = GetSkyCubeNormal(duyUV);
 	
-	
-	result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
+	result = skyMap.SampleGrad(skyMapSampler, uv, duxUV, duyUV);
 	//result = skyCube.Sample(skyMapSampler, texCubeNormal);
 
 	return result.rgb;
 }
 
-float3 MeanSkyRadianceUVWorld(TextureCube skyCube, SamplerState skyMapSampler, float2 uvWorld, float2 sigmaSq)
-{
-	float4 result;
-	const float eps = 0.001;
-	float2 u0 = uvWorld;
-	float2 dux = eps;
-	float2 duy = eps;
-
-	float2 uv = u0 * (0.5 / 1.1) + 0.5;
-	float2 duxUV = dux * (0.5 / 1.1);
-	float2 duyUV = duy * (0.5 / 1.1);
-	
-	float3 texCubeNormal = GetSkyCubeNormal(uv);
-	float3 duxNormal = GetSkyCubeNormal(duxUV);
-	float3 duyNormal = GetSkyCubeNormal(duyUV);
-	
-	
-	// result = skyCube.SampleGrad(skyMapSampler, texCubeNormal, duxNormal, duyNormal);
-	result = skyCube.Sample(skyMapSampler, texCubeNormal);
-
-	return result.rgb;
-}
 #endif

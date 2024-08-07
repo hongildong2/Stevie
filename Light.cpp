@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "SceneStateObject.h"
 #include "Light.h"
+#include "AObject.h"
 
-Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
-	:m_type(type)
+Light::Light(const char* name, const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
+	: AObject(name, EObjectType::LIGHT)
+	, IGUIComponent(EGUIType::LIGHT)
+	, m_type(type)
 	, m_direction(direction)
 	, m_positionWorld(posWorld)
 	, m_radiance{ 2.f, 2.f, 2.f }
@@ -15,6 +18,7 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	, m_haloRadius(0.01f)
 	, m_haloStrength(1.f)
 {
+	AObject::SetComponentFlag(EComponentsFlag::GUI);
 	IDepthRenderable::m_proj = type == ELightType::DIRECTIONAL ?
 		DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, SceneStateObject::NEAR_Z, SceneStateObject::FAR_Z)
 		:
@@ -28,6 +32,12 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	vp.MaxDepth = 1.f;
 
 	m_depthTex = std::make_unique<DepthTexture>(vp);
+}
+
+
+AObject* Light::GetThis()
+{
+	return this;
 }
 
 void Light::GetLightData(LightData* outLightData) const
@@ -54,6 +64,24 @@ void Light::GetLightData(LightData* outLightData) const
 	outLightData->invProjColumn = invProj.Transpose();
 }
 
+void Light::UpdateLightData(LightData& data)
+{
+	m_radiance = data.radiance;
+	m_fallOffEnd = data.fallOffEnd;
+	m_fallOffStart = data.fallOffStart;
+
+	m_direction = data.direction;
+	m_spotPower = data.spotPower;
+
+	m_color = data.color;
+	m_radius = data.radius;
+	m_haloRadius = data.haloRadius;
+	m_haloStrength = data.haloStrength;
+}
+void Light::UpdatePosWorld(const DirectX::SimpleMath::Vector3& posWorld)
+{
+	m_positionWorld = posWorld;
+}
 DirectX::SimpleMath::Matrix Light::GetViewRow() const
 {
 	DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);

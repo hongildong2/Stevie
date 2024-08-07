@@ -11,12 +11,23 @@ public:
 	Ocean(const Ocean& other) = delete;
 	Ocean& operator=(const Ocean& other) = delete;
 
+	AObject* GetThis() override;
+
 	virtual void Initialize(ID3D11Device1* pDevice) override;
 	void InitializeData(ID3D11DeviceContext1* context);
+	void OnInitialParameterChanged();
 
 	virtual void Update(ID3D11DeviceContext1* context) override; // is timer necessary?
 	virtual void Render(ID3D11DeviceContext1* pContext) override;
 	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso) override;
+
+	void SetFoamTexture(ID3D11Device1* pDevice, const wchar_t* path);
+	void SetSkyTexture(ID3D11Device1* pDevice, const wchar_t* path);
+
+	void UpdateCombineParameter(const std::array<ocean::CombineParameter, ocean::CASCADE_COUNT>& updatedCombineParameters);
+	void UpdateInitialSpectrumParameter(const std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& updatedInitialSpectrumParameters);
+	void UpdateOceanConfiguration(const ocean::OceanConfigurationConstant& updatedOceanConfig);
+	void UpdateRenderingParameter(const ocean::RenderingParameter& renderingParam);
 
 	inline ID3D11ShaderResourceView* GetDisplacementMapsSRV() const
 	{
@@ -43,6 +54,27 @@ public:
 		return m_combineWaveCB.Get();
 	}
 
+	inline const std::array<ocean::CombineParameter, ocean::CASCADE_COUNT>& GetCascadeCombineParameters() const
+	{
+		return m_combineParameters;
+	}
+
+	inline const std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& GetInitialSpectrumParameters() const
+	{
+		return m_LocalInitialSpectrumParameters;
+	}
+
+	inline const ocean::OceanConfigurationConstant& GetOceanConfiguration() const
+	{
+		return m_oceanConfigurationConstant;
+	}
+
+	inline const ocean::RenderingParameter& GetRenderingParameter() const
+	{
+		return m_renderParameter;
+	}
+
+
 	float GetHeight(DirectX::SimpleMath::Vector2 XZ) const;
 
 private:
@@ -66,8 +98,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_initialSpectrumMap; // tilde h0k, float2
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_initialSpectrumMapUAV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_initialSpectrumMapSRV;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_initialSpectrumWaveCB;
-	ocean::InitialSpectrumWaveConstant m_initialSpectrumWaveConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_oceanConfigurationCB;
+	ocean::OceanConfigurationConstant m_oceanConfigurationConstant;
 
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_LocalInitialSpectrumParameterSB;
@@ -97,5 +130,11 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_FFTCB;
 	ocean::FFTConstant m_FFTConstant;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_renderParameterCB;
+	ocean::RenderingParameter m_renderParameter;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_skyTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_foamTexture;
 };
 

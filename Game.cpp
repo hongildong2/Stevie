@@ -9,6 +9,9 @@
 #include "GraphicsCommon.h"
 #include "Utility.h"
 #include "DepthOnlyResources.h"
+#include "AObject.h"
+#include "AObjectManager.h"
+#include "IComponentManager.h"
 
 extern void ExitGame() noexcept;
 
@@ -22,15 +25,34 @@ using DirectX::SimpleMath::Quaternion;
 Game::Game() noexcept(false) :
 	m_sceneState(std::make_unique<SceneStateObject>())
 {
-	// for post processing in compute shader
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
-	// TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
-	//   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
-	//   Add DX::DeviceResources::c_EnableHDR for HDR10 display
-
 	m_deviceResources->RegisterDeviceNotify(this);
+
+	/* TODO::Load Asset, Model, Environment Here Before Initialize Call.
+	* If AObject is constructed, AObjectManager will automatically Register Objects Here To Underlying Components
+	* Then Initialize Call will Initialize It All.
+	*
+	*/
+
+	auto* man = AObjectManager::GetInstance();
+	man->RegisterIObjectHandler(this);
+
+	auto* comp = IComponentManager::GetInstance();
+	m_GUI = std::make_unique<GUI>();
+	comp->RegisterComponentHandler(m_GUI.get());
 }
 
+// Resource Management
+void Game::Register(AObject* obj)
+{
+	assert(obj != nullptr);
+}
+
+// Resource Management
+void Game::UnRegister(AObject* obj)
+{
+	assert(obj != nullptr);
+}
 
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
@@ -43,25 +65,11 @@ void Game::Initialize(HWND window, int width, int height)
 	m_deviceResources->CreateWindowSizeDependentResources();
 	CreateWindowSizeDependentResources();
 
-
 	// GUI Init
 	{
 		auto* device = m_deviceResources->GetD3DDevice();
 		auto* context = m_deviceResources->GetD3DDeviceContext();
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
-		(void)io;
-		io.DisplaySize = ImVec2(float(width), float(height));
-		ImGui::StyleColorsLight();
-
-		// Setup Platform/Renderer backends
-		if (!ImGui_ImplDX11_Init(device, context))
-		{
-			ExitGame();
-		}
-
-		if (!ImGui_ImplWin32_Init(window))
+		if (m_GUI->Initialize(device, context, window, width, height) == false)
 		{
 			ExitGame();
 		}
@@ -94,55 +102,14 @@ void Game::Tick()
 	m_deviceResources->PIXEndEvent();
 
 
-	// TODO :: Turn This Logic into Physics Component Update
 	for (auto& modelPtr : m_models)
 	{
-		// auto pos = modelPtr->GetWorldPos();
-
-		// ¸ðµ¨µéÀÌ ½Ã°£ÀÌ ´À¸®´Ï±î, °ú°Å¸¦ »ùÇÃ¸µÇÏÀÚ!
-		//float height = m_ocean->GetHeight({ pos.x, pos.z });
-
-		// modelPtr->UpdatePosByCoordinate({ pos.x, height - 0.3f, pos.z, 1.f }); // ¤Ð¤Ð¤Ð ·»´õ¶û cpu ³ôÀÌ¸ÊÀÌ¶û ¿ÀÂ÷°¡ ³Ñ ½ÉÇØÁ³¾î.. ½¦ÀÌ´õ ¶±Ä¥ÇÏ¸é ÀÌ·¸°ÔµÇ´Â°¡?
-
 		modelPtr->Update(context);
 	}
 	m_sceneState->Update(context);
 
-	// update game by timer
 
 	Render();
-}
-
-void Game::UpdateGUI()
-{
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-	ImGui::Begin("Scene Control");
-
-	ImGui::Text("Average %.3f ms/frame (%.1f FPS)",
-		1000.0f / ImGui::GetIO().Framerate,
-		ImGui::GetIO().Framerate);
-
-	// Controller, Update DTOs
-	{
-		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-		if (ImGui::TreeNode("ImageFilter"))
-		{
-			PostProcessConstant constant = m_sceneState->GetPostProcess()->GetConstant();
-			ImGui::SliderFloat("strength", &constant.strength, 0.f, 1.f);
-			ImGui::SliderFloat("exposure", &constant.exposure, 0.f, 3.f);
-			ImGui::SliderFloat("gamma", &constant.gamma, 0.f, 3.f);
-
-			m_sceneState->GetPostProcess()->UpdateConstant(constant);
-			ImGui::TreePop();
-		}
-	}
-
-	ImGui::End();
-	ImGui::Render();
 }
 
 
@@ -151,7 +118,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 
-	UpdateGUI();
+	m_GUI->Update();
 
 	// Update Control, CleanUp later
 	{
@@ -293,7 +260,7 @@ void Game::Render()
 	m_deviceResources->PIXEndEvent();
 
 
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	m_GUI->Render();
 
 	// Show the new frame.
 	m_deviceResources->Present();
@@ -391,6 +358,7 @@ void Game::CreateDeviceDependentResources()
 
 	Graphics::InitCommonStates(device);
 	auto* dop = DepthOnlyResources::GetInstance();
+
 	dop->InitDepthOnlyResources(device);
 
 	// MAKE SCENE CLASS PLEASE
@@ -442,6 +410,9 @@ void Game::CreateDeviceDependentResources()
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
+
+			m_ocean->SetSkyTexture(device, L"./Assets/Textures/Ocean/overcast_sky.jpg");
+			m_ocean->SetFoamTexture(device, L"./Assets/Textures/Ocean/foam.jpg");
 
 			// size
 			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);

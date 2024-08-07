@@ -10,7 +10,7 @@ MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice,
 	m_vertexOffset(0),
 	m_indexFormat(DXGI_FORMAT_R32_UINT),
 	m_indexCount(static_cast<UINT>(mesh.indicies.size())),
-	m_modelPos()
+	m_posModel()
 {
 	// init vertex buffer
 	D3D11_BUFFER_DESC bufferDesc;
@@ -78,7 +78,7 @@ void MeshPart::Initialize(ID3D11Device1* pDevice)
 void MeshPart::Prepare(ID3D11DeviceContext1* pContext, DirectX::SimpleMath::Matrix& parentWorld)
 {
 	// my world, relative to parent
-	auto world = DirectX::SimpleMath::Matrix::CreateTranslation(m_modelPos) * parentWorld;
+	auto world = DirectX::SimpleMath::Matrix::CreateTranslation(m_posModel) * parentWorld;
 	auto worldInv = world.Invert();
 	auto worldIT = world.Invert().Transpose();
 

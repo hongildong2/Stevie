@@ -3,14 +3,22 @@
 #include "Model.h"
 #include "Utility.h"
 
+
 Model::Model(const char* name, const EModelType type, GraphicsPSO& pso)
-	:m_name(name),
+	: AObject(name, EObjectType::MODEL),
+	IGUIComponent(EGUIType::MODEL),
 	m_type(type),
 	m_PSO(pso),
 	m_world(),
 	m_worldPos()
 {
 	m_meshes.reserve(10);
+	AObject::SetComponentFlag(EComponentsFlag::GUI);
+}
+
+AObject* Model::GetThis()
+{
+	return this;
 }
 
 void Model::AddMeshComponent(std::unique_ptr<MeshPart> pMesh)

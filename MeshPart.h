@@ -3,7 +3,7 @@
 #include "Utility.h"
 #include "ModelCommon.h"
 #include "EMeshType.h"
-
+#include "IGUIComponent.h"
 /*
 * reference : https://github.com/microsoft/DirectXTK/wiki/ModelMeshPart
 *
@@ -30,6 +30,11 @@ public:
 	void UpdateMaterialConstant(Material& mat);
 	void UpdateMeshConstant(MeshConstants& mesh);
 
+	inline Material GetMaterialConstant() const
+	{
+		return m_materialConstants;
+	}
+
 	inline ID3D11Buffer* GetMeshCB() const
 	{
 		return m_meshCB.Get();
@@ -43,7 +48,7 @@ public:
 
 private:
 	// relative to Model
-	DirectX::SimpleMath::Vector3 m_modelPos;
+	DirectX::SimpleMath::Vector3 m_posModel;
 	// m_modelRot
 
 	const EMeshType m_type;

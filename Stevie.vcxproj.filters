@@ -14,11 +14,11 @@
     <Filter Include="PostProcess">
       <UniqueIdentifier>{24f3df86-4a95-46ad-bc9a-da649b89ca93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DepthMap">
-      <UniqueIdentifier>{1f3df9b2-d454-4771-bd0a-a89d216387ac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Model">
       <UniqueIdentifier>{d0a96982-dafb-4309-a1c3-1bbc6d9bdab2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{102b86ee-f9b0-4a19-9799-7326efc058dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +69,44 @@
     <ClInclude Include="IDepthRenderable.h" />
     <ClInclude Include="DepthOnlyResources.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="GUI\GUI.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\OceanController.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ModelController.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\LightController.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\DTOs.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AObject.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\EGUIType.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AObjectManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IObjectHandler.h" />
+    <ClInclude Include="IGUIComponent.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentHandler.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponent.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GodService.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -106,6 +144,28 @@
     <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="GUI\GUI.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ModelController.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\OceanController.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\LightController.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="AObject.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="AObjectManager.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="IComponentManager.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GodService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
