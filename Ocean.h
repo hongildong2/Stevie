@@ -21,6 +21,9 @@ public:
 	virtual void Render(ID3D11DeviceContext1* pContext) override;
 	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso) override;
 
+	void SetFoamTexture(ID3D11Device1* pDevice, const wchar_t* path);
+	void SetSkyTexture(ID3D11Device1* pDevice, const wchar_t* path);
+
 	void UpdateCombineParameter(const std::array<ocean::CombineParameter, ocean::CASCADE_COUNT>& updatedCombineParameters);
 	void UpdateInitialSpectrumParameter(const std::array<ocean::InitialSpectrumParameter, ocean::CASCADE_COUNT>& updatedInitialSpectrumParameters);
 	void UpdateOceanConfiguration(const ocean::OceanConfigurationConstant& updatedOceanConfig);
@@ -130,5 +133,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_renderParameterCB;
 	ocean::RenderingParameter m_renderParameter;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_skyTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_foamTexture;
 };
 

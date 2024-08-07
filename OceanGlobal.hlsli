@@ -267,7 +267,7 @@ float3 LitFoamColor(FoamOutput foamData, TextureCube irradianceMap, SamplerState
 }
 
 
-FoamOutput GetFoamOutput(FoamInput input)
+FoamOutput GetFoamOutput(Texture2D<float> foamTexture, SamplerState ss, FoamInput input)
 {
 	FoamOutput res;
 	float4 turbulence = SampleOceanTexture(input.oceanSampling);
@@ -279,9 +279,7 @@ FoamOutput GetFoamOutput(FoamInput input)
 	
 	// screen space contact foam, need to refer depth buffer at no ocean rendered, too hard right now
 	
-	
-	// TODO : sample foam texture into albedo
-	res.albedo = 1;
+	res.albedo = foamTexture.Sample(ss, input.worldUV * 32.0).rrr;
 	
 	return res;
 }

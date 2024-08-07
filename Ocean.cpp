@@ -177,6 +177,7 @@ void Ocean::OnInitialParameterChanged()
 {
 	mb_initialized = false;
 }
+
 void Ocean::Update(ID3D11DeviceContext1* pContext)
 {
 	// If wave constant changed, re-run InitData routine
@@ -349,13 +350,25 @@ void Ocean::Update(ID3D11DeviceContext1* pContext)
 	// Model::Update(pContext); ¾ÈÇØµµµÊ
 }
 
+void Ocean::SetFoamTexture(ID3D11Device1* pDevice, const wchar_t* path)
+{
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(pDevice, path, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_foamTexture.GetAddressOf()));
+}
+
+void Ocean::SetSkyTexture(ID3D11Device1* pDevice, const wchar_t* path)
+{
+	DX::ThrowIfFailed(
+		DirectX::CreateWICTextureFromFileEx(pDevice, path, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_skyTexture.GetAddressOf()));
+}
+
 void Ocean::Render(ID3D11DeviceContext1* pContext)
 {
 
 	ID3D11ShaderResourceView* SRVs[3] = { GetDisplacementMapsSRV(), GetDerivativeMapsSRV(), GetCombineParameterSRV() };
 	pContext->DSSetShaderResources(100, 3, SRVs);
-	ID3D11ShaderResourceView* foamSRVs[2] = { GetTurbulenceMapsSRV(), GetCombineParameterSRV() };
-	pContext->PSSetShaderResources(100, 2, foamSRVs);
+	ID3D11ShaderResourceView* foamSRVs[4] = { GetTurbulenceMapsSRV(), GetCombineParameterSRV(), m_skyTexture.Get(), m_foamTexture.Get() };
+	pContext->PSSetShaderResources(100, 4, foamSRVs);
 
 	ID3D11SamplerState* SSs[1] = { Graphics::linearWrapSS.Get() };
 	pContext->DSSetSamplers(0, 1, SSs);

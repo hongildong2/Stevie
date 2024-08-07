@@ -72,7 +72,7 @@ void Game::Initialize(HWND window, int width, int height)
 		if (m_GUI->Initialize(device, context, window, width, height) == false)
 		{
 			ExitGame();
-		}		
+		}
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
@@ -410,6 +410,9 @@ void Game::CreateDeviceDependentResources()
 
 			tessellatedQuads->UpdateMaterialConstant(mat);
 			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
+
+			m_ocean->SetSkyTexture(device, L"./Assets/Textures/Ocean/overcast_sky.jpg");
+			m_ocean->SetFoamTexture(device, L"./Assets/Textures/Ocean/foam.jpg");
 
 			// size
 			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);

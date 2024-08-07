@@ -56,6 +56,8 @@ cbuffer RenderParamBuffer : register(b5)
 
 Texture2DArray<float4> OceanTurbulenceMap : register(t100);
 StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t101);
+Texture2D<float3> SkyTexture : register(t102);
+Texture2D<float> foamTexture : register(t103);
 
 float2 SlopeVarianceSquared(float windSpeed, float viewDist, float alignement, float scale)
 {
@@ -159,7 +161,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
 	
-	float3 reflected = MeanSkyRadiance(cubeMap, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
+	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared);
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
 	
@@ -169,7 +171,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
+	for (uint lightIndex = 0; lightIndex < globalLightsCount - 1; ++lightIndex)
 	{
 		Lo += RadianceLByDirectLight(shadowMaps[lightIndex], globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
 	}
@@ -200,7 +202,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	foamIn.oceanSampling = oceanIn;
 	foamIn.foamParam = foamParamettter;
 	
-	FoamOutput foamOut = GetFoamOutput(foamIn);
+	FoamOutput foamOut = GetFoamOutput(foamTexture, linearWrap, foamIn);
 	
 	const float SUN_SHADOW_ATTENUATION = 0.8;
 	float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
