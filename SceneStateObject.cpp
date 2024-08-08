@@ -36,7 +36,7 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 
 		using DirectX::SimpleMath::Vector3;
 
-		auto sundir = Vector3(0.f, -1.f, -3.f);
+		auto sundir = Vector3(-0.595f, -0.115f, -0.795f);
 		sundir.Normalize();
 
 		auto spotDir = Vector3(0.f, -1.f, -3.f);
@@ -47,7 +47,7 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 
 		std::unique_ptr<Light> l1 = std::make_unique<Light>("SPOT LIGHT 1", ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 2.f));
 		std::unique_ptr<Light> l2 = std::make_unique<Light>("POINT LIGHT 1", ELightType::POINT, pointDir, Vector3(0.f, 7.f, -2.f));
-		std::unique_ptr<Light> l3 = std::make_unique<Light>("DIR LIGHT SUN", ELightType::DIRECTIONAL, sundir, Vector3(0.f, 40.f, 40.f));
+		std::unique_ptr<Light> l3 = std::make_unique<Light>("DIR LIGHT SUN", ELightType::DIRECTIONAL, sundir, Vector3(20.f, 50.f, -50.f));
 
 		m_sceneLights->AddLight(std::move(l1));
 		m_sceneLights->AddLight(std::move(l2));

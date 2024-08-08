@@ -240,7 +240,7 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 				ImGui::SliderFloat("JONSWAP alpha", &(initSpectrumParam.alpha), 0.005f, 0.1f);
 				ImGui::SliderFloat("JONSWAP peakOmega, peak wave freq", &(initSpectrumParam.peakOmega), 0.01f, 1.f);
 				ImGui::SliderFloat("JONSWAP Gamma, Peak Enhancemeent", &(initSpectrumParam.gamma), 3.f, 20.f);
-				ImGui::SliderFloat("JONSWAP Short waves Fade", &(initSpectrumParam.shortWavesFade), 0.01f, 1.f);
+				ImGui::SliderFloat("JONSWAP Short waves Fade", &(initSpectrumParam.shortWavesFade), 0.001f, 0.1f);
 
 				ImGui::TreePop();
 			}
@@ -264,21 +264,21 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 		ocean::RenderingParameter& renderParams = pInOutOceanDTO->renderingParams;
 		if (ImGui::TreeNode("Subscatter factor, Specular and Multipliers"))
 		{
-			ImGui::SliderFloat("Horizon Fog Param", &(renderParams.horizonFogParameter), 0.1f, 4.f);
+			ImGui::SliderFloat("Horizon Fog Param", &(renderParams.horizonFogParameter), 0.1f, 1.f);
 			ImGui::SliderFloat("SSS Normal Strength", &(renderParams.sssNormalStrength), 0.1f, 1.f);
-			ImGui::SliderFloat("SSS Ocean Wave Reference Height", &(renderParams.sssOceanWaveReferenceHeight), 1.f, 10.f);
-			ImGui::SliderFloat("SSS Wave Height Bias", &(renderParams.sssWaveHeightBias), 1.f, 3.f);
-			ImGui::SliderFloat("SSS Sun Strength", &(renderParams.sssSunStrength), 1.f, 10.f);
+			ImGui::SliderFloat("SSS Ocean Wave Reference Height", &(renderParams.sssOceanWaveReferenceHeight), 0.1f, 5.f);
+			ImGui::SliderFloat("SSS Wave Height Bias", &(renderParams.sssWaveHeightBias), 1.f, 2.f);
+			ImGui::SliderFloat("SSS Sun Strength", &(renderParams.sssSunStrength), 10.f, 20.f);
 			ImGui::SliderFloat("SSS Environment Strength", &(renderParams.sssEnvironmentStrength), 1.f, 10.f);
-			ImGui::SliderFloat("SSS Spread", &(renderParams.sssSpread), 0.01f, 1.f);
-			ImGui::SliderFloat("SSS Fade Distance", &(renderParams.sssFadeDistance), 0.1f, 30.f);
+			ImGui::SliderFloat("SSS Spread", &(renderParams.sssSpread), 0.01f, 0.03f);
+			ImGui::SliderFloat("SSS Fade Distance", &(renderParams.sssFadeDistance), 1.f, 7.f);
 
 
-			ImGui::SliderFloat("Direct Light Radiance Scaler", &(renderParams.directLightScaler), 5.f, 50.f);
-			ImGui::SliderFloat("Roughness Multiplier", &(renderParams.roughnessMultiplier), 1.f, 30.f);
-			ImGui::SliderFloat("Sun Specular Strength", &(renderParams.specularStrength), 1.f, 10.f);
+			ImGui::SliderFloat("Direct Light Radiance Scaler", &(renderParams.directLightScaler), 50.f, 100.f);
+			ImGui::SliderFloat("Roughness Multiplier", &(renderParams.roughnessMultiplier), 15.f, 30.f);
+			ImGui::SliderFloat("Sun Specular Strength", &(renderParams.specularStrength), 0.3f, 2.f);
 			ImGui::SliderFloat("Shadow Multiplier", &(renderParams.shadowMultiplier), 0.5f, 2.f);
-			ImGui::SliderFloat("Mean Fresnel Weight", &(renderParams.meanFresnelWeight), 0.01f, 0.5f);
+			ImGui::SliderFloat("Mean Fresnel Weight", &(renderParams.meanFresnelWeight), 0.01f, 0.1f);
 
 			ImGui::ColorEdit3("Depth Scatter Color", &(renderParams.depthScatterColor.x));
 			ImGui::ColorEdit3("SSS Color", &(renderParams.sssColor.x));
@@ -287,9 +287,9 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 
 		if (ImGui::TreeNode("Wave Normal Variance"))
 		{
-			ImGui::SliderFloat("Wind Speed", &(renderParams.windSpeed), 1.f, 50.f);
-			ImGui::SliderFloat("Wave Alignment", &(renderParams.waveAlignment), 0.1f, 20.f);
-			ImGui::SliderFloat("Scale", &(renderParams.scale), 1.f, 4096.f);
+			ImGui::SliderFloat("Wind Speed", &(renderParams.windSpeed), 1.f, 20.f);
+			ImGui::SliderFloat("Wave Alignment", &(renderParams.waveAlignment), 60.f, 80.f);
+			ImGui::SliderFloat("Scale", &(renderParams.scale), 2048.f, 4096.f);
 
 			ImGui::TreePop();
 		}
@@ -313,7 +313,7 @@ void IMGUIController::drawOcean(OceanDTO* pInOutOceanDTO)
 void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO, const unsigned int meshPartIndex)
 {
 	char buffer[100] = { NULL, };
-	snprintf(buffer, 100, "%s%d%s", "Material :: ", meshPartIndex, "Constant");
+	snprintf(buffer, 100, "%s%d%s", "Material :: ", meshPartIndex, " Constant");
 	if (ImGui::TreeNode(buffer))
 	{
 		ImGui::ColorEdit3("albedo", &(pInOutMaterialDTO->albedo.x));
@@ -322,13 +322,27 @@ void IMGUIController::drawMaterial(MaterialDTO* pInOutMaterialDTO, const unsigne
 		ImGui::SliderFloat("Roughness Factor", &(pInOutMaterialDTO->roughnessFactor), 0.f, 1.f);
 		ImGui::SliderFloat("t1", &(pInOutMaterialDTO->t1), 0.f, 5.f);
 
-		// ImGui::Checkbox("Use Textures", (bool*)(&(pInOutMaterialDTO->bUseTexture)));
 
 		ImGui::SliderFloat("metallic", &(pInOutMaterialDTO->metallic), 0.f, 1.f);
 		ImGui::SliderFloat("roughness", &(pInOutMaterialDTO->roughness), 0.f, 1.f);
 		ImGui::SliderFloat("specular", &(pInOutMaterialDTO->specular), 0.f, 1.f);
 		ImGui::SliderFloat("IBLStrength", &(pInOutMaterialDTO->IBLStrength), 0.f, 3.f);
 
+		ImGui::TreePop();
+	}
+
+
+	snprintf(buffer, 100, "%s%d%s", "Material :: ", meshPartIndex, " Texture On/Off");
+	if (ImGui::TreeNode(buffer))
+	{
+		ImGui::Checkbox("Use Albedo Texture", (bool*)(&(pInOutMaterialDTO->bUseAlbedoTexture)));
+		ImGui::Checkbox("Use AO Texture", (bool*)(&(pInOutMaterialDTO->bUseAOTexture)));
+		ImGui::Checkbox("Use Metallic Texture", (bool*)(&(pInOutMaterialDTO->bUseMetallicTexture)));
+		ImGui::Checkbox("Use Normal Texture", (bool*)(&(pInOutMaterialDTO->bUseNormalTexture)));
+
+		ImGui::Checkbox("Use Roughness Texture", (bool*)(&(pInOutMaterialDTO->bUseRoughnessTexture)));
+		ImGui::Checkbox("Use Emissive Texture", (bool*)(&(pInOutMaterialDTO->bUseEmissiveTexture)));
+		ImGui::Checkbox("Use Opacity Texture", (bool*)(&(pInOutMaterialDTO->bUseOpacityTexture)));
 		ImGui::TreePop();
 	}
 }

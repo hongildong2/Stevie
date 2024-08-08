@@ -386,14 +386,14 @@ void Game::CreateDeviceDependentResources()
 			m_models.push_back(std::move(smaple));
 
 
-			//MeshData plane = GeometryGenerator::MakeSquare(5.f);
-			//std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
-			//std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
-			//samplane->AddMeshComponent(std::move(plane2));
-			//samplane->Initialize(device);
-			//samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
+			MeshData plane = GeometryGenerator::MakeSquare(75.f);
+			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device);
+			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
+			samplane->AddMeshComponent(std::move(plane2));
+			samplane->Initialize(device);
+			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, -1.65f, 0.f));
 
-			//m_models.push_back(std::move(samplane));
+			m_models.push_back(std::move(samplane));
 		}
 
 		// ship

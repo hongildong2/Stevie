@@ -173,6 +173,11 @@ float GetShadowFactor(Texture2D shadowMap, Light light, float3 posWorld)
 	positionLightScreen = mul(positionLightScreen, light.proj);
 	positionLightScreen.xyz /= positionLightScreen.w; // manual perspective devide, clip space -> NDC
 	
+	if (positionLightScreen.z > 1.0)
+	{
+		return 0.0;
+	}
+	
 	float2 texcoordLightSpace = ScreenToTexcoord(positionLightScreen.xy);
 	
 	const float BIAS = 0.001;

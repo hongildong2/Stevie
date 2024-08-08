@@ -59,6 +59,16 @@ struct Material
 	float roughness;
 	float specular;
 	float IBLStrength;
+	
+	bool bUseAlbedoTexture;
+	bool bUseAOTexture;
+	bool bUseHeightTexture;
+	bool bUseMetallicTexture;
+	
+	bool bUseNormalTexture;
+	bool bUseRoughnessTexture;
+	bool bUseEmissiveTexture;
+	bool bUseOpacityTexture;
 };
 
 
@@ -143,6 +153,8 @@ Texture2D<float> heightTex : register(t32);
 Texture2D<float> metallicTex : register(t33);
 Texture2D<float3> normalTex : register(t34);
 Texture2D<float> roughnessTex : register(t35);
+Texture2D<float> emissiveTex : register(t36);
+Texture2D<float> opacityTex : register(t37);
 // StructuredBuffer<Light> meshLights : register(t36);
 
 static const float PI = 3.14159265359;
