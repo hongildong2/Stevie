@@ -81,5 +81,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roughnessView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_emissiveView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_opacityView;
 };
 

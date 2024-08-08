@@ -25,6 +25,7 @@ struct TextureFiles
 	std::wstring normalName;
 	std::wstring roughnessName;
 	std::wstring emissiveName;
+	std::wstring opacityName;
 };
 
 struct Material

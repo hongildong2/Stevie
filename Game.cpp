@@ -448,6 +448,15 @@ void Game::CreateDeviceDependentResources()
 			m_ocean->Initialize(device);
 		}
 
+		// station
+		{
+			std::unique_ptr<Model> station = std::make_unique<Model>("Space Station", EModelType::DEFAULT, Graphics::basicPSO);
+			ModelLoader load(station.get(), device);
+
+			load.Load("./Assets/Models/space_station/", "scene.gltf", false);
+			station->Initialize(device);
+			m_models.push_back(std::move(station));
+		}
 		// Cubemap
 		{
 			MeshData cube = GeometryGenerator::MakeBox(75.f);
