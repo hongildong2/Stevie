@@ -73,12 +73,25 @@ bool IMGUIController::UpdateModel(Model* pModel)
 		drawPos(&posDTO);
 		pModel->UpdatePosByCoordinate(posDTO.pos);
 
+
+
+
 		auto& m_meshes = pModel->GetMeshes();
 		for (size_t i = 0; i < m_meshes.size(); ++i)
 		{
 			MaterialDTO matDTO = m_meshes[i]->GetMaterialConstant();
+			auto meshConst = m_meshes[i]->GetMeshConstant();
+			MeshConstDTO meshDTO;
+			meshDTO.bUseHeightMap = meshConst.bUseHeightMap;
+			meshDTO.heightScale = meshConst.heightScale;
 
+			drawMeshConstant(&meshDTO);
 			drawMaterial(&matDTO, i);
+
+			meshConst.bUseHeightMap = meshDTO.bUseHeightMap;
+			meshConst.heightScale = meshDTO.heightScale;
+
+			m_meshes[i]->UpdateMeshConstant(meshConst);
 			m_meshes[i]->UpdateMaterialConstant(matDTO);
 		}
 
@@ -157,13 +170,15 @@ bool IMGUIController::UpdatePostProcess(MyPostProcess* pPostProcess)
 	{
 		current.strength,
 		current.exposure,
-		current.gamma
+		current.gamma,
+		current.fogStrength
 	};
 
 	drawPostProcess(&dto);
 	current.strength = dto.bloomStrength;
 	current.exposure = dto.exposure;
 	current.gamma = dto.gamma;
+	current.fogStrength = dto.fogStrength;
 
 	pPostProcess->UpdateConstant(current);
 
@@ -181,6 +196,12 @@ void IMGUIController::drawRotation(RotationWorldDTO* pInOutRotationDTO)
 	ImGui::SliderFloat("Pitch", &(pInOutRotationDTO->pitch), -180.f, 180.f);
 	ImGui::SliderFloat("Yaw", &(pInOutRotationDTO->yaw), -180.f, 180.f);
 
+}
+
+void IMGUIController::drawMeshConstant(MeshConstDTO* pInOutMeshDTO)
+{
+	ImGui::Checkbox("Use Height Texture", (bool*)&(pInOutMeshDTO->bUseHeightMap));
+	ImGui::SliderFloat("Height Scale", &(pInOutMeshDTO->heightScale), 0.5f, 3.f);
 }
 
 void IMGUIController::drawLight(LightDTO* pInOutLightDTO)
@@ -356,6 +377,8 @@ void IMGUIController::drawPostProcess(PostProcessDTO* pInOutPostProcessDTO)
 		ImGui::SliderFloat("Bloom Strength", &(pInOutPostProcessDTO->bloomStrength), 0.f, 1.f);
 		ImGui::SliderFloat("Exposure", &(pInOutPostProcessDTO->exposure), 0.f, 3.f);
 		ImGui::SliderFloat("Gamma", &(pInOutPostProcessDTO->gamma), 0.f, 3.f);
+		ImGui::SliderFloat("Fog Strength", &(pInOutPostProcessDTO->fogStrength), 0.5f, 2.f);
+
 		ImGui::TreePop();
 	}
 

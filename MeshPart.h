@@ -40,6 +40,11 @@ public:
 		return m_materialConstants;
 	}
 
+	inline MeshConstants GetMeshConstant() const
+	{
+		return m_meshConstants;
+	}
+
 	inline ID3D11Buffer* GetMeshCB() const
 	{
 		return m_meshCB.Get();

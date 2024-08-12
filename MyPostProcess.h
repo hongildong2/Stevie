@@ -16,7 +16,7 @@ struct PostProcessConstant
 	float exposure;
 	float gamma;
 	float blur;
-	float dummy;
+	float fogStrength;
 };
 
 constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
@@ -28,7 +28,7 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 	0.3f,
 	2.4f,
 	1.f,
-	0.f,
+	1.f,
 };
 
 class MyPostProcess final : public AObject, public IGUIComponent

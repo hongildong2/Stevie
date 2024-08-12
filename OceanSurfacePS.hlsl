@@ -115,8 +115,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	const float3 UP_VEC = float3(0, 1, 0);
 	
 	// 라이트 추가하면 수정바람..
-	Light globalSunLight = globalLights[2];
-	Texture2D sunShadowMap = shadowMaps[2];
+	Light globalSunLight = globalLights[SUN_LIGHT_INDEX];
+	Texture2D sunShadowMap = shadowMaps[SUN_LIGHT_INDEX];
 
 	
 	float3 tangentY = float3(0, input.normalWorld.z, -input.normalWorld.y);

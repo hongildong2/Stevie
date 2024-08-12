@@ -15,7 +15,7 @@ cbuffer ImageFilterConstData : register(b5)
 	float exposure; // option1 in c++
 	float gamma; // option2 in c++
 	float blur; // option3 in c++
-	float dummy;
+	float fogStrength;
 };
 
 float3 FilmicToneMapping(float3 color)

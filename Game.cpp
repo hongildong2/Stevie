@@ -370,12 +370,12 @@ void Game::CreateDeviceDependentResources()
 
 			TextureFiles texes =
 			{
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_diffuse.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_ao.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_height.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_glossiness.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_normal.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_roughness.jpg"
 			};
 			std::unique_ptr<MeshPart> sph = std::make_unique<MeshPart>(sphereMesh, EMeshType::SOLID, device, texes);
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);

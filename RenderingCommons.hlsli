@@ -1,6 +1,7 @@
 #ifndef __COMMON_HLSLI__
 #define __COMMON_HLSLI__
 
+#define SUN_LIGHT_INDEX (8)
 
 /* Definitions */
 struct VertexShaderInput
@@ -138,6 +139,7 @@ cbuffer DepthMapConstant : register(b3)
 
 
 
+
 TextureCube cubeMap : register(t0);
 TextureCube irradianceMap : register(t1);
 TextureCube SpecularMap : register(t2);
@@ -145,7 +147,7 @@ Texture2D BRDFMap : register(t3);
 StructuredBuffer<Light> globalLights : register(t4);
 
 Texture2D<float> cameraDepthMap : register(t10);
-Texture2D shadowMaps[3] : register(t11);
+Texture2D shadowMaps[SUN_LIGHT_INDEX + 1] : register(t11);
 
 Texture2D<float3> albedoTex : register(t30);
 Texture2D<float> aoTex : register(t31);

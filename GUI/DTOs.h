@@ -38,4 +38,11 @@ struct PostProcessDTO
 	float bloomStrength;
 	float exposure;
 	float gamma;
+	float fogStrength;
+};
+
+struct MeshConstDTO
+{
+	BOOL bUseHeightMap;
+	float heightScale;
 };
