@@ -126,8 +126,8 @@ namespace ocean
 
 
 
-	constexpr float CASCADE_1_L = 1023.f;
-	constexpr float CASCADE_2_L = 255.f;
+	constexpr float CASCADE_1_L = 2048.f;
+	constexpr float CASCADE_2_L = 256.f;
 	constexpr float CASCADE_3_L = 17.f;
 	constexpr float CASCADE_4_L = 3.f;
 
@@ -146,7 +146,7 @@ namespace ocean
 
 	constexpr std::array<CombineParameter, CASCADE_COUNT> CombineParameterInitializer =
 	{ {
-		{ CASCADE_1_L, 0.103f, 1.f, 0.f },
+		{ CASCADE_1_L, 0.082f, 1.f, 0.f },
 		{CASCADE_2_L, 0.073f, 1.f, 0.f},
 		{CASCADE_3_L, 0.05f, 1.f, 0.f},
 		{CASCADE_4_L, 0.04f, 1.f, 0.f},
@@ -195,29 +195,29 @@ namespace ocean
 	// Rendering Parameters
 	struct RenderingParameter
 	{
-		float horizonFogParameter; // currently 1.8
-		float sssNormalStrength; // 0.2, SubsurfacScattering
-		float sssOceanWaveReferenceHeight; // 5;
+		float horizonFogParameter; // 1
+		float sssNormalStrength; // 0.1, SubsurfacScattering
+		float sssOceanWaveReferenceHeight; // 3;
 		float sssWaveHeightBias; // 1.3
 
-		float sssSunStrength; // 3
-		float sssEnvironmentStrength; // 3
-		float directLightScaler; // 15
-		float roughnessMultiplier; // 10
+		float sssSunStrength; // 10 ~
+		float sssEnvironmentStrength; // 5.5
+		float directLightScaler; // 50 ~
+		float roughnessMultiplier; // 16 ~
 
 		DirectX::SimpleMath::Vector3 depthScatterColor; // oceanColor * 0.7;
-		float sssSpread; // 0.014
+		float sssSpread; // 0.022
 
 		DirectX::SimpleMath::Vector3 sssColor; // oceanColor * 0.9
-		float sssFadeDistance; // 2
+		float sssFadeDistance; // 5.3
 
 		// Wave Variance, affects fresnel and roughness
-		float windSpeed; // 5.0
-		float waveAlignment; // 1
-		float scale; // 2048
-		float meanFresnelWeight; // 0.02
+		float windSpeed; // 1.8
+		float waveAlignment; // 60 ~
+		float scale; // 2048 ~
+		float meanFresnelWeight; // 0.033
 
-		float specularStrength; // 2.5
+		float specularStrength; // ~ 1
 		float shadowMultiplier; // 1
 		float foamWaveSharpness; // 0.9 :: Foam Parameters
 		float foamPersistency; // 0.5
@@ -230,28 +230,28 @@ namespace ocean
 
 	constexpr RenderingParameter RenderingParamsInitialzer =
 	{
-		1.8f,
-		0.2f,
-		5.f,
+		1.f,
+		0.1f,
+		3.f,
 		1.3f,
 
-		3.f,
-		3.f,
-		15.f,
 		10.f,
+		5.5f,
+		50.f,
+		24.f,
 
 		{ 0.f, 0.18f, 0.3f },
-		0.014,
+		0.022f,
 
 		{ 0.f, 0.18f, 0.3f },
-		2.f,
+		5.3f,
 
-		5.0f,
-		1.0f,
-		2048.f,
-		0.02f,
+		1.f,
+		60.f,
+		4096.f,
+		0.033f,
 
-		2.5f,
+		1.f,
 		1.f,
 		0.9f,
 		0.5f,

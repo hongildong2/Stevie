@@ -274,5 +274,7 @@ void ModelLoader::ProcessMesh(const std::string& basePath, aiMesh* mesh, const a
 
 		pOutTextureFiles->aoName = aoRead;
 
+
+		pOutTextureFiles->opacityName = readFilename(basePath, material, aiTextureType_OPACITY);
 	}
 }

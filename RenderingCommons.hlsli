@@ -1,6 +1,7 @@
 #ifndef __COMMON_HLSLI__
 #define __COMMON_HLSLI__
 
+#define SUN_LIGHT_INDEX (8)
 
 /* Definitions */
 struct VertexShaderInput
@@ -59,6 +60,16 @@ struct Material
 	float roughness;
 	float specular;
 	float IBLStrength;
+	
+	bool bUseAlbedoTexture;
+	bool bUseAOTexture;
+	bool bUseHeightTexture;
+	bool bUseMetallicTexture;
+	
+	bool bUseNormalTexture;
+	bool bUseRoughnessTexture;
+	bool bUseEmissiveTexture;
+	bool bUseOpacityTexture;
 };
 
 
@@ -128,6 +139,7 @@ cbuffer DepthMapConstant : register(b3)
 
 
 
+
 TextureCube cubeMap : register(t0);
 TextureCube irradianceMap : register(t1);
 TextureCube SpecularMap : register(t2);
@@ -135,7 +147,7 @@ Texture2D BRDFMap : register(t3);
 StructuredBuffer<Light> globalLights : register(t4);
 
 Texture2D<float> cameraDepthMap : register(t10);
-Texture2D shadowMaps[3] : register(t11);
+Texture2D shadowMaps[SUN_LIGHT_INDEX + 1] : register(t11);
 
 Texture2D<float3> albedoTex : register(t30);
 Texture2D<float> aoTex : register(t31);
@@ -143,6 +155,8 @@ Texture2D<float> heightTex : register(t32);
 Texture2D<float> metallicTex : register(t33);
 Texture2D<float3> normalTex : register(t34);
 Texture2D<float> roughnessTex : register(t35);
+Texture2D<float> emissiveTex : register(t36);
+Texture2D<float> opacityTex : register(t37);
 // StructuredBuffer<Light> meshLights : register(t36);
 
 static const float PI = 3.14159265359;

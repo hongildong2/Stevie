@@ -89,6 +89,11 @@ MeshPart::MeshPart(MeshData& mesh, const EMeshType type, ID3D11Device1* pDevice,
 		DX::ThrowIfFailed(
 			DirectX::CreateWICTextureFromFileEx(pDevice, tex.emissiveName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_emissiveView.GetAddressOf()));
 	}
+	if (!tex.opacityName.empty())
+	{
+		DX::ThrowIfFailed(
+			DirectX::CreateWICTextureFromFileEx(pDevice, tex.opacityName.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_opacityView.GetAddressOf()));
+	}
 }
 
 void MeshPart::Initialize(ID3D11Device1* pDevice)
@@ -142,25 +147,28 @@ void MeshPart::Draw(ID3D11DeviceContext1* pContext) const
 
 	if (m_materialConstants.bUseTexture == TRUE && m_albedoView != nullptr)
 	{
-		ID3D11ShaderResourceView* SRVs[6] = {
+		ID3D11ShaderResourceView* SRVs[8] =
+		{
 		 m_albedoView.Get(),
 		 m_aoview.Get(),
 		 m_heightView.Get(),
 		 m_metallicView.Get(),
 		 m_normalView.Get(),
-		 m_roughnessView.Get()
+		 m_roughnessView.Get(),
+		 m_emissiveView.Get(),
+		 m_opacityView.Get(),
 		};
 
-		pContext->PSSetShaderResources(30, 6, SRVs);
-		pContext->VSSetShaderResources(30, 6, SRVs);
+		pContext->PSSetShaderResources(30, 8, SRVs);
+		pContext->VSSetShaderResources(30, 8, SRVs);
 	}
 
-	ID3D11ShaderResourceView* release[6] = { NULL, };
+	ID3D11ShaderResourceView* release[8] = { NULL, };
 
 	pContext->DrawIndexed(m_indexCount, 0, 0);
 
-	pContext->PSSetShaderResources(30, 6, release);
-	pContext->VSSetShaderResources(30, 6, release);
+	pContext->PSSetShaderResources(30, 8, release);
+	pContext->VSSetShaderResources(30, 8, release);
 }
 
 void MeshPart::UpdateMaterialConstant(Material& mat)

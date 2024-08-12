@@ -103,7 +103,9 @@ void MyPostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResou
 	auto* rtvToDraw = m_textureProcessed->GetRenderTargetView();
 	pContext->OMSetRenderTargets(1, &rtvToDraw, NULL);
 
-	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthMapSRV };
+	Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, pContext, m_postProcessCB);
+	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthMapSRV };
+
 	pContext->PSSetShaderResources(100, 2, SRVs);
 
 	Graphics::SetPipelineState(pContext, Graphics::fogPSO);

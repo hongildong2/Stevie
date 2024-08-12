@@ -281,7 +281,7 @@ FoamOutput GetFoamOutput(Texture2D<float> foamTexture, SamplerState ss, FoamInpu
 	res.coverage *= 1 - saturate((1.5 + input.viewDist * 0.5 - 2000.0) * 0.0005);
 	
 	
-	res.albedo = foamTexture.Sample(ss, input.worldUV * 32.0).rrr;
+	res.albedo = foamTexture.Sample(ss, input.worldUV * 48.0).rrr;
 
 	
 	return res;

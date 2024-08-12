@@ -4,6 +4,18 @@
 Texture2D<float3> RenderResult : register(t100);
 Texture2D<float> depthOnlyTex : register(t101);
 
+cbuffer ImageFilterConstData : register(b5)
+{
+	float dx;
+	float dy;
+	float threshold;
+	float strength;
+	float exposure; // option1 in c++
+	float gamma; // option2 in c++
+	float blur; // option3 in c++
+	float fogStrength;
+};
+
 float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
 	float4 positionViewSpace = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, invProj);
@@ -18,7 +30,6 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
 	
 	float distFog = saturate((dist - fogMin) / (fogMax - fogMin));
 	
-	float fogStrength = 1.1;
 	float fogFactor = exp(-distFog * fogStrength);
 
 	

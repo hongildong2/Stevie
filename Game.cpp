@@ -370,12 +370,12 @@ void Game::CreateDeviceDependentResources()
 
 			TextureFiles texes =
 			{
-				L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png",
-					L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png"
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_diffuse.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_ao.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_height.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_glossiness.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_normal.jpg",
+					L"./Assets/Textures/space_foil/space_station_foil_28_74_roughness.jpg"
 			};
 			std::unique_ptr<MeshPart> sph = std::make_unique<MeshPart>(sphereMesh, EMeshType::SOLID, device, texes);
 			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
@@ -386,14 +386,14 @@ void Game::CreateDeviceDependentResources()
 			m_models.push_back(std::move(smaple));
 
 
-			//MeshData plane = GeometryGenerator::MakeSquare(5.f);
-			//std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device, texes);
-			//std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
-			//samplane->AddMeshComponent(std::move(plane2));
-			//samplane->Initialize(device);
-			//samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 1.5f, 0.f));
+			MeshData plane = GeometryGenerator::MakeSquare(75.f);
+			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device);
+			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
+			samplane->AddMeshComponent(std::move(plane2));
+			samplane->Initialize(device);
+			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, -1.65f, 0.f));
 
-			//m_models.push_back(std::move(samplane));
+			m_models.push_back(std::move(samplane));
 		}
 
 		// ship
@@ -448,6 +448,15 @@ void Game::CreateDeviceDependentResources()
 			m_ocean->Initialize(device);
 		}
 
+		// station
+		{
+			std::unique_ptr<Model> station = std::make_unique<Model>("Space Station", EModelType::DEFAULT, Graphics::basicPSO);
+			ModelLoader load(station.get(), device);
+
+			load.Load("./Assets/Models/space_station/", "scene.gltf", false);
+			station->Initialize(device);
+			m_models.push_back(std::move(station));
+		}
 		// Cubemap
 		{
 			MeshData cube = GeometryGenerator::MakeBox(75.f);

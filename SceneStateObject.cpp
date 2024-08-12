@@ -10,7 +10,7 @@ using namespace DirectX::SimpleMath;
 float SceneStateObject::NEAR_Z = 0.1f;
 float SceneStateObject::FAR_Z = 120.f;
 float SceneStateObject::FOV = 90.f;
-float SceneStateObject::SHADOW_MAP_SIZE = 1024.f;
+float SceneStateObject::SHADOW_MAP_SIZE = 2048.f;
 
 SceneStateObject::SceneStateObject()
 	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
@@ -36,22 +36,40 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 
 		using DirectX::SimpleMath::Vector3;
 
-		auto sundir = Vector3(0.f, -1.f, -3.f);
+		auto sundir = Vector3(-0.595f, -0.115f, -0.795f);
 		sundir.Normalize();
 
-		auto spotDir = Vector3(0.f, -1.f, -3.f);
+		auto spotDir = Vector3(0.3f, -1.f, 0.f);
 		spotDir.Normalize();
 
 		auto pointDir = Vector3(0.f, -1.f, 3.f);
 		pointDir.Normalize();
 
-		std::unique_ptr<Light> l1 = std::make_unique<Light>("SPOT LIGHT 1", ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 2.f));
+		std::unique_ptr<Light> l1 = std::make_unique<Light>("SPOT LIGHT 1", ELightType::SPOT, spotDir, Vector3(2.f, 2.f, 0.f));
 		std::unique_ptr<Light> l2 = std::make_unique<Light>("POINT LIGHT 1", ELightType::POINT, pointDir, Vector3(0.f, 7.f, -2.f));
-		std::unique_ptr<Light> l3 = std::make_unique<Light>("DIR LIGHT SUN", ELightType::DIRECTIONAL, sundir, Vector3(0.f, 40.f, 40.f));
+
+		std::unique_ptr<Light> l3 = std::make_unique<Light>("SHIP SPOT LIGHT 1", ELightType::SPOT, spotDir, Vector3(0.f, 8.f, 0.f));
+		std::unique_ptr<Light> l4 = std::make_unique<Light>("SHIP SPOT LIGHT 2", ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 0.f));
+		spotDir.x = -spotDir.x;
+		std::unique_ptr<Light> l5 = std::make_unique<Light>("SHIP SPOT LIGHT 3", ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 0.f));
+		std::unique_ptr<Light> l6 = std::make_unique<Light>("SHIP SPOT LIGHT 4", ELightType::SPOT, spotDir, Vector3(0.f, 7.f, 0.f));
+
+		std::unique_ptr<Light> l7 = std::make_unique<Light>("ISLAND SPOT LIGHT 1", ELightType::SPOT, spotDir, Vector3(2.5f, 7.f, 0.f));
+		spotDir.x = -spotDir.x;
+		std::unique_ptr<Light> l8 = std::make_unique<Light>("ISLAND SPOT LIGHT 2", ELightType::SPOT, spotDir, Vector3(-1.6f, 7.f, 0.f));
+
+		std::unique_ptr<Light> l9 = std::make_unique<Light>("DIR LIGHT SUN", ELightType::DIRECTIONAL, sundir, Vector3(20.f, 50.f, -50.f));
+
 
 		m_sceneLights->AddLight(std::move(l1));
 		m_sceneLights->AddLight(std::move(l2));
 		m_sceneLights->AddLight(std::move(l3));
+		m_sceneLights->AddLight(std::move(l4));
+		m_sceneLights->AddLight(std::move(l5));
+		m_sceneLights->AddLight(std::move(l6));
+		m_sceneLights->AddLight(std::move(l7));
+		m_sceneLights->AddLight(std::move(l8));
+		m_sceneLights->AddLight(std::move(l9));
 		m_sceneLights->Initialize(pDevice);
 	}
 

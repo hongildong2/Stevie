@@ -26,31 +26,15 @@ float3 GetNormal(PixelShaderInput input)
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-
-	float3 albedo;
-	float ao;
-	float metallic;
-	float roughness;
-	
 	float viewDist = distance(eyeWorld, input.positionWorld);
 	
-	if (materialConstant.bUseTexture)
-	{
-		albedo = albedoTex.Sample(linearWrap, input.texcoordinate).rgb;
-		ao = aoTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.aoFactor;
-		metallic = metallicTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.metallicFactor;
-		roughness = roughnessTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.roughnessFactor;
-	}
-	else
-	{
-		albedo = materialConstant.albedo;
-		ao = 1.f;
-		metallic = materialConstant.metallic;
-		roughness = materialConstant.roughness;
-	}
+	float3 albedo = materialConstant.bUseAlbedoTexture ? albedoTex.Sample(linearWrap, input.texcoordinate).rgb : materialConstant.albedo;
+	float ao = materialConstant.bUseAOTexture ? aoTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.aoFactor : 1;
+	float metallic = materialConstant.bUseMetallicTexture ? metallicTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.metallicFactor : materialConstant.metallic;
+	float roughness = materialConstant.bUseRoughnessTexture ? roughnessTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.roughnessFactor : materialConstant.roughness;
+	float3 emission = materialConstant.bUseEmissiveTexture ? emissiveTex.Sample(linearWrap, input.texcoordinate) : 0.0;
 	
-	
-	float3 N = materialConstant.bUseTexture ? GetNormal(input) : input.normalWorld;
+	float3 N = materialConstant.bUseNormalTexture ? GetNormal(input) : input.normalWorld;
 	float3 V = normalize(eyeWorld - input.positionWorld);
 	
 	
@@ -59,7 +43,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
-	{	
+	{
 		Lo += RadianceLByDirectLight(shadowMaps[lightIndex], globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
 	}
 	
@@ -82,7 +66,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	
 	
-	float3 color = ambient * materialConstant.IBLStrength + Lo; // IBL + Lights
+	float3 color = ambient * materialConstant.IBLStrength + Lo + emission * 10.0; // IBL + Lights
 	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1.0f);

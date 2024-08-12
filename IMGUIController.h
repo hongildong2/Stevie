@@ -33,6 +33,7 @@ private:
 	void drawOcean(OceanDTO* pInOutOceanDTO);
 	void drawMaterial(MaterialDTO* pInOutMaterialDTO, const unsigned int meshPartIndex);
 	void drawPostProcess(PostProcessDTO* pInOutPostProcessDTO);
+	void drawMeshConstant(MeshConstDTO* pInOutMeshDTO);
 	// backend instance
 };
 

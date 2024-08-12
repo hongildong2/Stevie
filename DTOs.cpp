@@ -17,6 +17,15 @@ MaterialDTO::MaterialDTO(const Material& rhs)
 	this->t1 = rhs.t1;
 
 	this->IBLStrength = rhs.IBLStrength;
+
+	this->bUseAlbedoTexture = rhs.bUseAlbedoTexture;
+	this->bUseAOTexture = rhs.bUseAOTexture;
+	this->bUseMetallicTexture = rhs.bUseMetallicTexture;
+	this->bUseNormalTexture = rhs.bUseNormalTexture;
+
+	this->bUseRoughnessTexture = rhs.bUseRoughnessTexture;
+	this->bUseEmissiveTexture = rhs.bUseEmissiveTexture;
+	this->bUseOpacityTexture = rhs.bUseOpacityTexture;
 }
 
 LightDTO::LightDTO(const LightData& rhs)
