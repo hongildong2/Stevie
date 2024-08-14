@@ -1,9 +1,9 @@
 #pragma once
 #include "pch.h"
-#include "IComponentHandler.h"
 #include "IGUIComponent.h"
-#include "IMGUIController.h"
 
+#include "SubModules\IComponentHandler.h"
+#include "SubModules\GUI\IMGUI\IMGUIController.h"
 
 class GUI final : public IComponentHandler
 {

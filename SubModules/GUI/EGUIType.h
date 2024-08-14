@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "AObject.h"
 
 enum class EGUIType
 {

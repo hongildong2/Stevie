@@ -1,11 +1,12 @@
 #include "pch.h"
-#include "GUI.h"
-#include "Light.h"
-#include "Ocean.h"
-#include "Model.h"
-#include "MeshPart.h"
-#include "MyPostProcess.h"
 
+#include "GUI.h"
+#include "Core\Light.h"
+#include "Core\Ocean\Ocean.h"
+#include "Core\Model.h"
+
+#include "SubModules\Render\Core\MyPostProcess.h"
+#include "SubModules\Render\Core\Utility.h"
 
 GUI::GUI()
 	: m_GUIComponents()

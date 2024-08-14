@@ -1,7 +1,9 @@
 #pragma once
 #include "pch.h"
-#include "ModelCommon.h"
-#include "OceanConstants.h"
+
+#include "SubModules\Render\Mesh\MeshCommon.h"
+#include "Core\Ocean\OceanConstants.h"
+#include "Core\Light.h"
 
 struct PosWorldDTO
 {
