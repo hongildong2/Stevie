@@ -192,10 +192,10 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
-    <ClInclude Include="GUI\DTOs.h" />
-    <ClInclude Include="GUI\GUI.h" />
+    <ClInclude Include="SubModules\GUI\DTOs.h" />
+    <ClInclude Include="SubModules\GUI\GUI.h" />
     <ClInclude Include="AObject.h" />
-    <ClInclude Include="GUI\EGUIType.h" />
+    <ClInclude Include="SubModules\GUI\EGUIType.h" />
     <ClInclude Include="IComponent.h" />
     <ClInclude Include="IComponentHandler.h" />
     <ClInclude Include="IComponentManager.h" />
@@ -226,7 +226,7 @@
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="DTOs.cpp" />
-    <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="SubModules\GUI\GUI.cpp" />
     <ClCompile Include="IComponentManager.cpp" />
     <ClCompile Include="IMGUIController.cpp" />
     <ClCompile Include="Light.cpp" />

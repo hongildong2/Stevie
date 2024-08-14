@@ -9,7 +9,7 @@
 #include "GraphicsPSO.h"
 #include "ComputePSO.h"
 #include "AObject.h"
-#include "GUI/GUI.h"
+#include "SubModules/GUI/GUI.h"
 #include "IObjectHandler.h"
 
 

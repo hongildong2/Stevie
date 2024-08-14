@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "GUI/DTOs.h"
+#include "SubModules/GUI/DTOs.h"
 
 class Model;
 class Light;

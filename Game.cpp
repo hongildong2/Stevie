@@ -397,29 +397,16 @@ void Game::CreateDeviceDependentResources()
 		}
 
 		// ship
-		{
-			std::unique_ptr<Model> ship = std::make_unique<Model>("sheep", EModelType::DEFAULT, Graphics::basicPSO);
-			ModelLoader loading(ship.get(), device);
-			loading.Load("./Assets/Models/maersk-container-ship/source/", "Ship.fbx", false);
-			ship->Initialize(device);
+		//{
+		//	std::unique_ptr<Model> ship = std::make_unique<Model>("sheep", EModelType::DEFAULT, Graphics::basicPSO);
+		//	ModelLoader loading(ship.get(), device);
+		//	loading.Load("./Assets/Models/maersk-container-ship/source/", "Ship.fbx", false);
+		//	ship->Initialize(device);
 
-			ship->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(0.005f) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XM_PIDIV2));
-			ship->UpdatePosByCoordinate({ 12.f, -1.3f, 0.f, 1.f });
-			m_models.push_back(std::move(ship));
-		}
-
-		//// island
-		{
-			std::unique_ptr<Model> island = std::make_unique<Model>("Island", EModelType::DEFAULT, Graphics::basicPSO);
-			ModelLoader load(island.get(), device);
-
-			load.Load("./Assets/Models/tillamook_rock_lighthouse/", "scene.gltf", false);
-			island->Initialize(device);
-			island->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(5.f));
-			island->UpdatePosByCoordinate({ 0.f, -1.65f, 0.f, 1.f });
-			m_models.push_back(std::move(island));
-		}
-
+		//	ship->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(0.005f) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XM_PIDIV2));
+		//	ship->UpdatePosByCoordinate({ 12.f, -1.3f, 0.f, 1.f });
+		//	m_models.push_back(std::move(ship));
+		//}
 
 		// Ocean
 		{
@@ -448,15 +435,6 @@ void Game::CreateDeviceDependentResources()
 			m_ocean->Initialize(device);
 		}
 
-		// station
-		{
-			std::unique_ptr<Model> station = std::make_unique<Model>("Space Station", EModelType::DEFAULT, Graphics::basicPSO);
-			ModelLoader load(station.get(), device);
-
-			load.Load("./Assets/Models/space_station/", "scene.gltf", false);
-			station->Initialize(device);
-			m_models.push_back(std::move(station));
-		}
 		// Cubemap
 		{
 			MeshData cube = GeometryGenerator::MakeBox(75.f);
@@ -481,8 +459,8 @@ void Game::CreateWindowSizeDependentResources()
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Format = HDR_BUFFER_FORMAT; // for HDR Pipeline
-	desc.Width = screenVP.Width;
-	desc.Height = screenVP.Height;
+	desc.Width = static_cast<UINT>(screenVP.Width);
+	desc.Height = static_cast<UINT>(screenVP.Height);
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;

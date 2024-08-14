@@ -69,16 +69,16 @@
     <ClInclude Include="IDepthRenderable.h" />
     <ClInclude Include="DepthOnlyResources.h" />
     <ClInclude Include="Light.h" />
-    <ClInclude Include="GUI\GUI.h">
+    <ClInclude Include="SubModules\GUI\GUI.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\DTOs.h">
+    <ClInclude Include="SubModules\GUI\DTOs.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="AObject.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\EGUIType.h">
+    <ClInclude Include="SubModules\GUI\EGUIType.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="AObjectManager.h">
@@ -136,7 +136,7 @@
     <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="DepthOnlyResources.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="GUI\GUI.cpp">
+    <ClCompile Include="SubModules\GUI\GUI.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="AObject.cpp">

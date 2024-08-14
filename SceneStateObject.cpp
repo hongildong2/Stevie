@@ -13,7 +13,8 @@ float SceneStateObject::FOV = 90.f;
 float SceneStateObject::SHADOW_MAP_SIZE = 2048.f;
 
 SceneStateObject::SceneStateObject()
-	:m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
+	: m_camera(std::make_unique<Camera>(Vector3(0.f, 0.2f, -5.f), Vector3(0.f, 0.f, 1.f), Vector3::UnitY, NEAR_Z, FAR_Z, FOV))
+	, m_globalConstant()
 {
 }
 
@@ -156,8 +157,8 @@ void SceneStateObject::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT
 	RECT SS = { NULL, };
 	SS.left = 0;
 	SS.top = 0;
-	SS.right = vp.Width;
-	SS.bottom = vp.Height;
+	SS.right = static_cast<LONG>(vp.Width);
+	SS.bottom = static_cast<LONG>(vp.Height);
 
 	m_postProcess.reset();
 	m_postProcess = std::make_unique<MyPostProcess>(SS, bufferFormat);

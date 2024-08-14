@@ -1,7 +1,7 @@
 #pragma once
 #include "AObject.h"
 #include "IComponent.h"
-#include "GUI\EGUIType.h"
+#include "SubModules\GUI\EGUIType.h"
 
 class IGUIComponent : public IComponent
 {

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "GUI/DTOs.h"
+#include "SubModules/GUI/DTOs.h"
 
 MaterialDTO::MaterialDTO(const Material& rhs)
 {
