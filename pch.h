@@ -53,7 +53,7 @@
 #include <system_error>
 #include <tuple>
 #include <vector>
-#include<unordered_set>
+#include <unordered_set>
 
 
 #ifdef _DEBUG
@@ -79,3 +79,7 @@
 #include "WICTextureLoader.h"
 
 
+// Mine
+#include "SubModules\IComponent.h"
+#include "SubModules\IComponentHandler.h"
+#include "Core\AObject.h"
