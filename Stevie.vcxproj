@@ -182,7 +182,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Cloud.h" />
+    <ClInclude Include="Core\Cloud.h" />
     <ClInclude Include="Core\AObjectManager.h" />
     <ClInclude Include="SubModules\Render\Mesh\MeshCommon.h" />
     <ClInclude Include="SubModules\Render\Scene\Camera.h" />
@@ -223,7 +223,7 @@
     <ClInclude Include="SubModules\Render\Core\VolumetricTexture.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cloud.cpp" />
+    <ClCompile Include="Core\Cloud.cpp" />
     <ClCompile Include="Core\AObject.cpp" />
     <ClCompile Include="Core\AObjectManager.cpp" />
     <ClCompile Include="SubModules\Render\Core\DepthOnlyResources.cpp" />

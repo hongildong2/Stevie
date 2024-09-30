@@ -396,18 +396,6 @@ void Game::CreateDeviceDependentResources()
 			m_models.push_back(std::move(samplane));
 		}
 
-		// ship
-		//{
-		//	std::unique_ptr<Model> ship = std::make_unique<Model>("sheep", EModelType::DEFAULT, Graphics::basicPSO);
-		//	ModelLoader loading(ship.get(), device);
-		//	loading.Load("./Assets/Models/maersk-container-ship/source/", "Ship.fbx", false);
-		//	ship->Initialize(device);
-
-		//	ship->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(0.005f) * DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XM_PIDIV2));
-		//	ship->UpdatePosByCoordinate({ 12.f, -1.3f, 0.f, 1.f });
-		//	m_models.push_back(std::move(ship));
-		//}
-
 		// Ocean
 		{
 			m_ocean = std::make_unique<Ocean>();

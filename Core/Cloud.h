@@ -22,11 +22,14 @@ public:
 	~Cloud() = default;
 
 	virtual void Initialize(ID3D11Device1* pDevice) override;
+	void InitializeData(ID3D11DeviceContext1* context);
+
 
 	virtual void Update(ID3D11DeviceContext1* pContext) override;
 
 	virtual void Render(ID3D11DeviceContext1* pContext) override;
 	virtual void RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso) override;
+
 private:
 	bool mb_initialized;
 	VolumetricTexture m_densityTexture;
