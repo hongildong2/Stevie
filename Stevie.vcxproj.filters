@@ -222,6 +222,8 @@
     <FxCompile Include="SubModules\Render\Shaders\BrunetonLighting.hlsli">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="SubModules\Render\Shaders\VolumePS.hlsl" />
+    <FxCompile Include="SubModules\Render\Shaders\CloudCS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="SubModules\Render\Shaders\ShaderTypes.hlsli" />

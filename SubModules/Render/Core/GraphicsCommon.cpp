@@ -32,9 +32,12 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> fogPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> volumePS;
 
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudDensityCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudLightingCS;
 
 
 	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
@@ -52,9 +55,12 @@ namespace Graphics
 	GraphicsPSO depthOnlyPSO;
 	GraphicsPSO cubeMapDepthOnlyPSO;
 	GraphicsPSO fogPSO;
+	GraphicsPSO cloudPSO;
 
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
+	ComputePSO cloudDensityPSO;
+	ComputePSO cloudLightingPSO;
 
 	// 이게 맞는걸까??
 	namespace Ocean
@@ -163,6 +169,7 @@ namespace Graphics
 		D3D_SHADER_MACRO oceanShaderDefines[2] = { "OCEAN_SHADER", "1", NULL, NULL };
 		D3D_SHADER_MACRO skyBoxShaderDefines[2] = { "SKY_BOX", "1", NULL, NULL };
 		D3D_SHADER_MACRO shadowMapSD[2] = { "SHADOW_MAP", "1", NULL, NULL };
+		D3D_SHADER_MACRO cloudDensityDefines[2] = { "DENSITY", "1", NULL, NULL };
 
 		// Vertex Shaders
 		{
@@ -241,6 +248,10 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, fogPS.GetAddressOf());
 
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"VolumePS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, volumePS.GetAddressOf());
+
 		}
 
 		// Compute Shaders
@@ -276,6 +287,14 @@ namespace Graphics
 			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"FoamSimulationCS.hlsl");
 			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::foamSimulationCS.GetAddressOf());
+
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", cloudDensityDefines, shaderBlob.GetAddressOf()));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudDensityCS.GetAddressOf());
+
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudLightingCS.GetAddressOf());
 		}
 
 		// Hull, Domain Shaders
@@ -398,6 +417,12 @@ namespace Graphics
 		fogPSO.m_pixelShader = fogPS;
 		fogPSO.m_rasterizerState = basicRS;
 		fogPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+		cloudPSO = basicPSO;
+		cloudPSO.m_pixelShader = volumePS;
+
+		cloudDensityPSO.m_computeShader = cloudDensityCS;
+		cloudLightingPSO.m_computeShader = cloudLightingCS;
 
 		upBlurPSO.m_computeShader = upBlurCS;
 		downBlurPSO.m_computeShader = downBlurCS;

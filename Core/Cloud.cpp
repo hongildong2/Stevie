@@ -40,18 +40,6 @@ void Cloud::Update(ID3D11DeviceContext1* pContext)
 		return;
 	}
 
-	// update lighting texture view camera view
 
 
-
-}
-
-void Cloud::Render(ID3D11DeviceContext1* pContext)
-{
-	// Render Box Mesh
-}
-
-void Cloud::RenderOverride(ID3D11DeviceContext1* pContext, const GraphicsPSO& pso)
-{
-	// Nothing to do
 }
