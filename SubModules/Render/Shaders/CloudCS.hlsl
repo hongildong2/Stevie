@@ -47,7 +47,7 @@ float LightRay(Texture3D<float> densityTexture, SamplerState ss, float3 posModel
     // 근처만 탐색
 	int numSteps = 128 / 4;
 	float stepSize = 2.0 / float(numSteps);
-	float absorptionCoeff = 5.0;
+	float absorptionCoeff = 30.0;
 
 	float alpha = 1.0; // visibility 1.0으로 시작
 
@@ -98,7 +98,7 @@ void CloudLighting(uint3 DTid : SV_DispatchThreadID)
 
     // uvw는 [0, 1]x[0,1]x[0,1]
     // 모델 좌표계는 [-1,1]x[-1,1]x[-1,1]
-	lightingTex[DTid] = LightRay(densityTex, linearClamp, (uvw - 0.5) * 2.0, DTid);
+	lightingTex[DTid] = LightRay(densityTex, linearClamp, (uvw - 0.5) * 2.0, float3(0, 1, 0));
 }
 
 #endif

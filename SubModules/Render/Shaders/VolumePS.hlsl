@@ -39,13 +39,14 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float volumeSize = 2.0;
 	float stepSize = volumeSize / float(numSteps);
 	
-	float absorptionCoeff = 10.0; // sig_a
 	float3 volumeAlbedo = float3(1, 1, 1); // cloud
-	float3 L = float3(1, 1, 1) * 40.0;
+	float3 L = float3(1, 1, 1) * 100.0;
 	
 	// temp
 	float3 lightDir = float3(0, 1, 0); 
-	float anisoParam = 0.3;
+	float anisoParam = 0.7;
+	float absorptionCoeff = 30.0; // sig_a
+
 	
 	// init
 	float3 color = 0;
@@ -62,7 +63,20 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		float density = densityTex.SampleLevel(linearClamp, uvw, 0).r;
 		float lighting = lightingTex.SampleLevel(linearClamp, uvw, 0).r;
 		
-		// sdf
+		// sdf, shaping volume
+		float sdf1 = length(marchPointModel - -0.1) - 0.5;
+		float sdf2 = length(marchPointModel - 0.2) - 0.5;
+        
+		float sdf = min(sdf1, sdf2);
+        
+		if (sdf <= 0.0)
+		{
+            // inside object
+		}
+		else
+		{
+			density *= saturate(1.0 - sdf * 10.0); // outside of volume, smoothing
+		}
 		
 		if (density > 1e-3)
 		{

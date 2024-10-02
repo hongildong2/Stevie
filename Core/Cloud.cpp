@@ -26,6 +26,7 @@ void Cloud::Initialize(ID3D11Device1* pDevice)
 
 	auto a = GeometryGenerator::MakeBox(1.f);
 	UpdatePosByCoordinate({ 0.f, 2.f, 0.f, 1.f });
+	UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateScale(3.f));
 	DirectX::SimpleMath::Vector3 relPos(0.f, 0.f, 0.f);
 
 	auto pickRandom = [&]()
