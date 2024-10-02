@@ -73,5 +73,5 @@ void VolumetricTexture::Initialize()
 	DX::ThrowIfFailed(m_device->CreateShaderResourceView(m_volumetricTexture.Get(), &srvDesc, m_srv.GetAddressOf()));
 
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc(D3D11_UAV_DIMENSION_TEXTURE3D, m_format);
-	DX::ThrowIfFailed(m_device->CreateUnorderedAccessView(m_uav.Get(), NULL, m_uav.GetAddressOf()));
+	DX::ThrowIfFailed(m_device->CreateUnorderedAccessView(m_volumetricTexture.Get(), NULL, m_uav.GetAddressOf()));
 }

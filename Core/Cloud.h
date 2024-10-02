@@ -26,6 +26,7 @@ public:
 
 
 	virtual void Update(ID3D11DeviceContext1* pContext) override;
+	virtual void Render(ID3D11DeviceContext1* pContext) override;
 
 private:
 	bool mb_initialized;

@@ -289,11 +289,11 @@ namespace Graphics
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::foamSimulationCS.GetAddressOf());
 
 			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
-			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", cloudDensityDefines, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "CloudDensity", "cs_5_0", cloudDensityDefines, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudDensityCS.GetAddressOf());
 
 			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
-			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "CloudLighting", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudLightingCS.GetAddressOf());
 		}
 

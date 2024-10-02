@@ -1,5 +1,6 @@
 #include "GPURandom.hlsli"
-#include "RenderingCommons.hlsli"
+
+SamplerState linearClamp : register(s0);
 
 #ifdef DENSITY
 RWTexture3D<float> densityTex : register(u0);
@@ -72,19 +73,8 @@ float LightRay(Texture3D<float> densityTexture, SamplerState ss, float3 posModel
 	return alpha;
 }
 
-[numthreads(16, 16, 4)]
-void CloudLighting( uint3 DTid : SV_DispatchThreadID )
-{
-	uint width, height, depth;
-	lightingTex.GetDimensions(width, height, depth);
-    
-	float3 uvw = DTid / float3(width, height, depth);
 
-    // uvw´Â [0, 1]x[0,1]x[0,1]
-    // ¸ðµ¨ ÁÂÇ¥°è´Â [-1,1]x[-1,1]x[-1,1]
-	lightingTex[DTid] = LightRay(densityTex, linearClamp, (uvw - 0.5) * 2.0, DTid);
-}
-
+#ifdef DENSITY
 [numthreads(16, 16, 4)]
 void CloudDensity( uint3 DTid : SV_DispatchThreadID )
 {
@@ -97,3 +87,18 @@ void CloudDensity( uint3 DTid : SV_DispatchThreadID )
 
 	densityTex[DTid] = cloudDensity(uvw);
 }
+#else
+[numthreads(16, 16, 4)]
+void CloudLighting(uint3 DTid : SV_DispatchThreadID)
+{
+	uint width, height, depth;
+	lightingTex.GetDimensions(width, height, depth);
+    
+	float3 uvw = DTid / float3(width, height, depth);
+
+    // uvw´Â [0, 1]x[0,1]x[0,1]
+    // ¸ðµ¨ ÁÂÇ¥°è´Â [-1,1]x[-1,1]x[-1,1]
+	lightingTex[DTid] = LightRay(densityTex, linearClamp, (uvw - 0.5) * 2.0, DTid);
+}
+
+#endif

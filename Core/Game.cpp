@@ -13,6 +13,8 @@
 #include "Core\ModelLoader.h"
 #include "AObject.h"
 #include "AObjectManager.h"
+#include "Ocean/Ocean.h"
+#include "Cloud.h"
 
 extern void ExitGame() noexcept;
 
@@ -78,7 +80,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
-	m_timer.SetFixedTimeStep(true);
+	m_timer.SetFixedTimeStep(false);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 
 	m_keyboard = std::make_unique<Keyboard>();
@@ -96,18 +98,6 @@ void Game::Tick()
 			Update(m_timer);
 		});
 
-	// update envirioment
-	m_deviceResources->PIXBeginEvent(L"OceanUpdate");
-	auto* context = m_deviceResources->GetD3DDeviceContext();
-	m_ocean->Update(context);
-	m_deviceResources->PIXEndEvent();
-
-
-	for (auto& modelPtr : m_models)
-	{
-		modelPtr->Update(context);
-	}
-	m_sceneState->Update(context);
 
 
 	Render();
@@ -118,6 +108,8 @@ void Game::Tick()
 void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
+	auto* context = m_deviceResources->GetD3DDeviceContext();
+
 
 	m_GUI->Update();
 
@@ -184,6 +176,21 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 
+	// Update models
+	m_deviceResources->PIXBeginEvent(L"OceanUpdate");
+	m_ocean->Update(context);
+	m_deviceResources->PIXEndEvent();
+
+	m_cloud->Update(context);
+
+
+	for (auto& modelPtr : m_models)
+	{
+		modelPtr->Update(context);
+	}
+	m_sceneState->Update(context);
+
+
 	elapsedTime;
 }
 #pragma endregion
@@ -248,6 +255,14 @@ void Game::Render()
 			m_ocean->Render(context);
 			m_deviceResources->PIXEndEvent();
 		}
+
+		// Cloud
+		{
+			m_deviceResources->PIXBeginEvent(L"Cloud");
+			m_cloud->Render(context);
+			m_deviceResources->PIXEndEvent();
+		}
+
 		m_skyBox->Render(context);
 
 	}
@@ -399,35 +414,25 @@ void Game::CreateDeviceDependentResources()
 		// Ocean
 		{
 			m_ocean = std::make_unique<Ocean>();
-			MeshData quadPatches;
-			GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
-			auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, device);
-
-			// material
-			Material mat = DEFAULT_MATERIAL;
-			mat.bUseTexture = FALSE;
-			mat.specular = 0.255f; // unreal's water specular
-			mat.albedo = { 0.f, 41.f / 255.f, 73.f / 255.f };
-
-			tessellatedQuads->UpdateMaterialConstant(mat);
-			m_ocean->AddMeshComponent(std::move(tessellatedQuads));
 
 			m_ocean->SetSkyTexture(device, L"./Assets/Textures/Ocean/overcast_sky.jpg");
 			m_ocean->SetFoamTexture(device, L"./Assets/Textures/Ocean/foam.jpg");
 
-			// size
-			auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
-			manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
-			m_ocean->UpdatePosByTransform(manipulate);
-
 			m_ocean->Initialize(device);
+		}
+
+		// Cloud
+		{
+			m_cloud = std::make_unique<Cloud>(1);
+			m_cloud->Initialize(device);
+
 		}
 
 		// Cubemap
 		{
+			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			MeshData cube = GeometryGenerator::MakeBox(75.f);
 			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device);
-			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
 			m_skyBox->AddMeshComponent(std::move(cubeMesh));
 			m_skyBox->Initialize(device);
 		}

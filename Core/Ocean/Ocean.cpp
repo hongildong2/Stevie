@@ -4,6 +4,8 @@
 #include "SubModules\Render\Core\GraphicsCommon.h"
 #include "SubModules\Render\Core\Utility.h"
 
+using DirectX::SimpleMath::Matrix;
+
 Ocean::Ocean()
 	: Model("Ocean", EModelType::OCEAN, Graphics::Ocean::oceanPSO),
 	mb_initialized(false),
@@ -17,6 +19,8 @@ Ocean::Ocean()
 	m_renderParameter(ocean::RenderingParamsInitialzer)
 {
 	IGUIComponent::m_type = EGUIType::OCEAN;
+
+
 }
 AObject* Ocean::GetThis()
 {
@@ -25,6 +29,26 @@ AObject* Ocean::GetThis()
 
 void Ocean::Initialize(ID3D11Device1* pDevice)
 {
+
+	MeshData quadPatches;
+	GeometryGenerator::MakeCWQuadPatches(128, &quadPatches);
+	auto tessellatedQuads = std::make_unique<MeshPart>(quadPatches, EMeshType::TESSELLATED, pDevice);
+
+	// material
+	Material mat = DEFAULT_MATERIAL;
+	mat.bUseTexture = FALSE;
+	mat.specular = 0.255f; // unreal's water specular
+	mat.albedo = { 0.f, 41.f / 255.f, 73.f / 255.f };
+
+	tessellatedQuads->UpdateMaterialConstant(mat);
+	AddMeshComponent(std::move(tessellatedQuads));
+
+
+	// size
+	auto manipulate = Matrix::CreateScale(ocean::WORLD_SCALER);
+	manipulate *= Matrix::CreateRotationX(DirectX::XM_PIDIV2);
+	UpdatePosByTransform(manipulate);
+
 	// Textures
 	{
 		D3D11_TEXTURE2D_DESC desc;
