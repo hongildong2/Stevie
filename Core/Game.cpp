@@ -424,7 +424,7 @@ void Game::CreateDeviceDependentResources()
 
 		// Cloud
 		{
-			m_cloud = std::make_unique<Cloud>(1);
+			m_cloud = std::make_unique<Cloud>(100);
 			m_cloud->Initialize(device);
 
 		}

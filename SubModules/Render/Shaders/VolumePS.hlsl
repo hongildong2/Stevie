@@ -88,7 +88,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	
 	color = saturate(color);
-	transmission = saturate(transmission * 10.0 / 9.0);
+	// transmission = saturate(transmission * 10.0 / 9.0);
 
 	return float4(color, 1.0 - transmission);
 }

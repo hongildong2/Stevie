@@ -6,6 +6,7 @@ constexpr unsigned int CLOUD_TEX_SIZE = 512;
 
 Cloud::Cloud(const unsigned int cloudCounts)
 	: Model("CLOUD", EModelType::DEFAULT, Graphics::cloudPSO)
+	, m_cloudCount(cloudCounts)
 	, m_densityTexture(DXGI_FORMAT_R16_FLOAT, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE)
 	, m_lightingTexture(DXGI_FORMAT_R16_FLOAT, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE)
 	, mb_initialized(false)
@@ -21,9 +22,27 @@ void Cloud::Initialize(ID3D11Device1* pDevice)
 	m_densityTexture.Initialize();
 	m_lightingTexture.Initialize();
 
+
+
 	auto a = GeometryGenerator::MakeBox(1.f);
-	std::unique_ptr<MeshPart> sph = std::make_unique<MeshPart>(a, EMeshType::SOLID, pDevice);
-	AddMeshComponent(std::move(sph));
+	UpdatePosByCoordinate({ 0.f, 2.f, 0.f, 1.f });
+	DirectX::SimpleMath::Vector3 relPos(0.f, 0.f, 0.f);
+
+	auto pickRandom = [&]()
+		{
+			relPos.x = rand() % 100 - 50;
+			relPos.z = rand() % 100 - 50;
+		};
+
+	for (unsigned int i = 0; i < m_cloudCount; ++i)
+	{
+		std::unique_ptr<MeshPart> box = std::make_unique<MeshPart>(a, EMeshType::SOLID, pDevice);
+		box->UpdateRelativePos(relPos);
+
+		AddMeshComponent(std::move(box));
+
+		pickRandom();
+	}
 
 	Model::Initialize(pDevice);
 }

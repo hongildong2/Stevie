@@ -18,7 +18,7 @@
 class Cloud final : public Model
 {
 public:
-	Cloud(const unsigned int cloudCounts);
+	Cloud(const unsigned int cloudCount);
 	~Cloud() = default;
 
 	virtual void Initialize(ID3D11Device1* pDevice) override;
@@ -32,5 +32,6 @@ private:
 	bool mb_initialized;
 	VolumetricTexture m_densityTexture;
 	VolumetricTexture m_lightingTexture;
+	const unsigned int m_cloudCount;
 };
 
