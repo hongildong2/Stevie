@@ -1,10 +1,23 @@
 #include "ShaderTypes.hlsli"
 #include "RenderingCommons.hlsli"
+#include "GPURandom.hlsli"
 
 
 Texture3D<float> densityTex : register(t60);
 Texture3D<float> lightingTex : register(t61);
 
+float QueryVolumetricSDF(float3 posModel, float3 uvw)
+{
+	float fbm = worleyFbm(uvw, 4.f);
+
+		// sdf, shaping volume
+	float sdf1 = length(posModel - -0.1) - 0.5;
+	float sdf2 = length(posModel - 0.2) - 0.5;
+        
+	float sdf = min(sdf1, sdf2) + (fbm * 2.f - 1.f) * 0.3f;
+	
+	return sdf;
+}
 
 float3 ModelToUVW(float3 posModel)
 {
@@ -40,12 +53,12 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float stepSize = volumeSize / float(numSteps);
 	
 	float3 volumeAlbedo = float3(1, 1, 1); // cloud
-	float3 L = float3(1, 1, 1) * 100.0;
+	float3 L = float3(1, 1, 1) * 40.0;
 	
 	// temp
 	float3 lightDir = float3(0, 1, 0); 
-	float anisoParam = 0.7;
-	float absorptionCoeff = 30.0; // sig_a
+	float anisoParam = 0.2;
+	float absorptionCoeff = 50.0; // sig_a
 
 	
 	// init
@@ -63,11 +76,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		float density = densityTex.SampleLevel(linearClamp, uvw, 0).r;
 		float lighting = lightingTex.SampleLevel(linearClamp, uvw, 0).r;
 		
-		// sdf, shaping volume
-		float sdf1 = length(marchPointModel - -0.1) - 0.5;
-		float sdf2 = length(marchPointModel - 0.2) - 0.5;
-        
-		float sdf = min(sdf1, sdf2);
+		
+		float sdf = QueryVolumetricSDF(marchPointModel, uvw);
         
 		if (sdf <= 0.0)
 		{

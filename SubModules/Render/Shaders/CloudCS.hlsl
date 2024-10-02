@@ -22,7 +22,7 @@ float cloudDensity(float3 uvw)
 	float a = worleyFbm(uvw, freq * 4.0f);
 
 	float perlinWorley = r;
-	float wfbm = g * .625f + b * .125f + a * .25f;
+	float wfbm = g * .525f + b * .125f + a * .35f;
 
     // cloud shape modeled after the GPU Pro 7 chapter
 	float cloud = remap(perlinWorley, wfbm - 1., 1., 0., 1.);
@@ -47,7 +47,7 @@ float LightRay(Texture3D<float> densityTexture, SamplerState ss, float3 posModel
     // 근처만 탐색
 	int numSteps = 128 / 4;
 	float stepSize = 2.0 / float(numSteps);
-	float absorptionCoeff = 30.0;
+	float absorptionCoeff = 50.0;
 
 	float alpha = 1.0; // visibility 1.0으로 시작
 
