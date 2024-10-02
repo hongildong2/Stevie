@@ -12,12 +12,12 @@
 #include "SubModules\Render\Scene\SceneStateObject.h"
 #include "SubModules\Render\Core\MyPostProcess.h"
 
-#include "Core\Ocean\Ocean.h"
 #include "StepTimer.h"
 #include "AObject.h"
 #include "SubModules/GUI/GUI.h"
 #include "IObjectHandler.h"
-
+#include "Ocean/Ocean.h"
+#include "Cloud.h"
 
 
 
@@ -96,6 +96,7 @@ private:
 	std::vector<std::unique_ptr<Model>> m_models;
 	std::unique_ptr<Model> m_skyBox;
 	std::unique_ptr<Ocean> m_ocean;
+	std::unique_ptr<Cloud> m_cloud;
 	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
 
 	// Renderer Component, Different Thread

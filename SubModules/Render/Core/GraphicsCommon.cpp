@@ -32,9 +32,12 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> fogPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> volumePS;
 
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudDensityCS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudLightingCS;
 
 
 	Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
@@ -44,6 +47,8 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
 
+	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBS;
+
 	GraphicsPSO basicPSO;
 	GraphicsPSO pbrPSO;
 	GraphicsPSO cubemapPSO;
@@ -52,9 +57,12 @@ namespace Graphics
 	GraphicsPSO depthOnlyPSO;
 	GraphicsPSO cubeMapDepthOnlyPSO;
 	GraphicsPSO fogPSO;
+	GraphicsPSO cloudPSO;
 
 	ComputePSO downBlurPSO;
 	ComputePSO upBlurPSO;
+	ComputePSO cloudDensityPSO;
+	ComputePSO cloudLightingPSO;
 
 	// 이게 맞는걸까??
 	namespace Ocean
@@ -163,6 +171,7 @@ namespace Graphics
 		D3D_SHADER_MACRO oceanShaderDefines[2] = { "OCEAN_SHADER", "1", NULL, NULL };
 		D3D_SHADER_MACRO skyBoxShaderDefines[2] = { "SKY_BOX", "1", NULL, NULL };
 		D3D_SHADER_MACRO shadowMapSD[2] = { "SHADOW_MAP", "1", NULL, NULL };
+		D3D_SHADER_MACRO cloudDensityDefines[2] = { "DENSITY", "1", NULL, NULL };
 
 		// Vertex Shaders
 		{
@@ -241,6 +250,10 @@ namespace Graphics
 			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, fogPS.GetAddressOf());
 
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"VolumePS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, volumePS.GetAddressOf());
+
 		}
 
 		// Compute Shaders
@@ -276,6 +289,14 @@ namespace Graphics
 			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"FoamSimulationCS.hlsl");
 			DX::ThrowIfFailed(CompileShader(pathBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, Ocean::foamSimulationCS.GetAddressOf());
+
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "CloudDensity", "cs_5_0", cloudDensityDefines, shaderBlob.GetAddressOf()));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudDensityCS.GetAddressOf());
+
+			swprintf(pathBuffer, BUFFER_COUNT, L"%s%s", BASE_PATH, L"CloudCS.hlsl");
+			DX::ThrowIfFailed(CompileShader(pathBuffer, "CloudLighting", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
+			device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, cloudLightingCS.GetAddressOf());
 		}
 
 		// Hull, Domain Shaders
@@ -365,6 +386,25 @@ namespace Graphics
 		desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 		DX::ThrowIfFailed(device->CreateSamplerState(&desc, shadowCompareSS.GetAddressOf()));
 	}
+
+	void InitBlendStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
+	{
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		blendDesc.AlphaToCoverageEnable = false; // <- 주의: FALSE
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask =
+			D3D11_COLOR_WRITE_ENABLE_ALL;
+		DX::ThrowIfFailed(device->CreateBlendState(&blendDesc, alphaBS.GetAddressOf()));
+	}
 	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	{
 		basicPSO.m_vertexShader = basicVS;
@@ -399,6 +439,13 @@ namespace Graphics
 		fogPSO.m_rasterizerState = basicRS;
 		fogPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+		cloudPSO = basicPSO;
+		cloudPSO.m_pixelShader = volumePS;
+		cloudPSO.m_blendState = alphaBS;
+
+		cloudDensityPSO.m_computeShader = cloudDensityCS;
+		cloudLightingPSO.m_computeShader = cloudLightingCS;
+
 		upBlurPSO.m_computeShader = upBlurCS;
 		downBlurPSO.m_computeShader = downBlurCS;
 
@@ -422,6 +469,7 @@ namespace Graphics
 		Ocean::oceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::oceanPSO.m_hullShader = tessellatedQuadHS;
 		Ocean::oceanPSO.m_domainShader = tessellatedQuadDS;
+		Ocean::oceanPSO.m_blendState = alphaBS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)
@@ -431,6 +479,8 @@ namespace Graphics
 		InitShaders(device);
 
 		InitRasterizerStates(device);
+
+		InitBlendStates(device);
 
 		InitPipelineStates(device);
 	}

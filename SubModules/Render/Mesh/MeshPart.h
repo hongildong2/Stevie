@@ -37,6 +37,8 @@ public:
 	void UpdateMaterialConstant(Material& mat);
 	void UpdateMeshConstant(MeshConstants& mesh);
 
+	void UpdateRelativePos(const DirectX::SimpleMath::Vector3 relativePos);
+
 	inline Material GetMaterialConstant() const
 	{
 		return m_materialConstants;

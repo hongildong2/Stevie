@@ -1,6 +1,7 @@
 #pragma once
+#include "pch.h"
 
-class RenderTexture
+class RenderTexture final
 {
 public:
 	RenderTexture(DXGI_FORMAT format);

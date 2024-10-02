@@ -97,6 +97,8 @@
     <ClInclude Include="SubModules\GUI\IMGUI\IMGUIController.h" />
     <ClInclude Include="Core\ModelLoader.h" />
     <ClInclude Include="SubModules\Render\Mesh\MeshCommon.h" />
+    <ClInclude Include="Core\Cloud.h" />
+    <ClInclude Include="SubModules\Render\Core\VolumetricTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -146,6 +148,8 @@
     <ClCompile Include="SubModules\GUI\DTOs.cpp" />
     <ClCompile Include="SubModules\GUI\IMGUI\IMGUIController.cpp" />
     <ClCompile Include="Core\ModelLoader.cpp" />
+    <ClCompile Include="Core\Cloud.cpp" />
+    <ClCompile Include="SubModules\Render\Core\VolumetricTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -218,6 +222,8 @@
     <FxCompile Include="SubModules\Render\Shaders\BrunetonLighting.hlsli">
       <Filter>Ocean</Filter>
     </FxCompile>
+    <FxCompile Include="SubModules\Render\Shaders\VolumePS.hlsl" />
+    <FxCompile Include="SubModules\Render\Shaders\CloudCS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="SubModules\Render\Shaders\ShaderTypes.hlsli" />

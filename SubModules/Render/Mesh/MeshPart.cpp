@@ -179,3 +179,8 @@ void MeshPart::UpdateMeshConstant(MeshConstants& mesh)
 {
 	m_meshConstants = mesh;
 }
+
+void MeshPart::UpdateRelativePos(const DirectX::SimpleMath::Vector3 relativePos)
+{
+	m_posModel = relativePos;
+}

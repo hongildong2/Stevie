@@ -36,9 +36,14 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> cubemapPS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> filterCombinePS;
 	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> fogPS;
+	extern Microsoft::WRL::ComPtr<ID3D11PixelShader> volumePS;
+
 
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> downBlurCS;
 	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> upBlurCS;
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudDensityCS;
+	extern Microsoft::WRL::ComPtr<ID3D11ComputeShader> cloudLightingCS;
+
 
 	extern Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadHS;
 	extern Microsoft::WRL::ComPtr<ID3D11HullShader> tessellatedQuadDepthOnlyHS;
@@ -47,6 +52,8 @@ namespace Graphics
 	// Input Layouts
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
+
+	extern Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBS;
 
 
 	// Pipeline State Object
@@ -57,9 +64,13 @@ namespace Graphics
 	extern GraphicsPSO depthOnlyPSO;
 	extern GraphicsPSO cubeMapDepthOnlyPSO;
 	extern GraphicsPSO fogPSO;
+	extern GraphicsPSO cloudPSO;
+
 
 	extern ComputePSO downBlurPSO;
 	extern ComputePSO upBlurPSO;
+	extern ComputePSO cloudDensityPSO;
+	extern ComputePSO cloudLightingPSO;
 
 	namespace Ocean
 	{
