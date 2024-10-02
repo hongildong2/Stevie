@@ -53,6 +53,8 @@ namespace Graphics
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	extern Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
 
+	extern Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBS;
+
 
 	// Pipeline State Object
 	extern GraphicsPSO basicPSO;

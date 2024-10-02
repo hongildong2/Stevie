@@ -239,6 +239,8 @@ void Game::Render()
 
 		// 글로벌 상태, 공용 리소스 설정
 		m_sceneState->PrepareRender(context);
+		m_skyBox->Render(context);
+
 		// Models
 		{
 			m_deviceResources->PIXBeginEvent(L"Models");
@@ -263,7 +265,6 @@ void Game::Render()
 			m_deviceResources->PIXEndEvent();
 		}
 
-		m_skyBox->Render(context);
 
 	}
 	m_deviceResources->PIXEndEvent();

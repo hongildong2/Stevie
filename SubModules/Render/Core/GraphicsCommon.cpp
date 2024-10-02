@@ -47,6 +47,8 @@ namespace Graphics
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicIL;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> samplingIL;
 
+	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBS;
+
 	GraphicsPSO basicPSO;
 	GraphicsPSO pbrPSO;
 	GraphicsPSO cubemapPSO;
@@ -384,6 +386,25 @@ namespace Graphics
 		desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 		DX::ThrowIfFailed(device->CreateSamplerState(&desc, shadowCompareSS.GetAddressOf()));
 	}
+
+	void InitBlendStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
+	{
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		blendDesc.AlphaToCoverageEnable = false; // <- ÁÖÀÇ: FALSE
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask =
+			D3D11_COLOR_WRITE_ENABLE_ALL;
+		DX::ThrowIfFailed(device->CreateBlendState(&blendDesc, alphaBS.GetAddressOf()));
+	}
 	void InitPipelineStates(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	{
 		basicPSO.m_vertexShader = basicVS;
@@ -420,6 +441,7 @@ namespace Graphics
 
 		cloudPSO = basicPSO;
 		cloudPSO.m_pixelShader = volumePS;
+		cloudPSO.m_blendState = alphaBS;
 
 		cloudDensityPSO.m_computeShader = cloudDensityCS;
 		cloudLightingPSO.m_computeShader = cloudLightingCS;
@@ -447,6 +469,7 @@ namespace Graphics
 		Ocean::oceanPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		Ocean::oceanPSO.m_hullShader = tessellatedQuadHS;
 		Ocean::oceanPSO.m_domainShader = tessellatedQuadDS;
+		Ocean::oceanPSO.m_blendState = alphaBS;
 	}
 
 	void InitCommonStates(ID3D11Device1* device)
@@ -456,6 +479,8 @@ namespace Graphics
 		InitShaders(device);
 
 		InitRasterizerStates(device);
+
+		InitBlendStates(device);
 
 		InitPipelineStates(device);
 	}
