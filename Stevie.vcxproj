@@ -184,7 +184,12 @@
   <ItemGroup>
     <ClInclude Include="Core\Cloud.h" />
     <ClInclude Include="Core\AObjectManager.h" />
+    <ClInclude Include="SubModules\Render\Core\D3D11Renderer.h" />
+    <ClInclude Include="SubModules\Render\Core\Material.h" />
+    <ClInclude Include="SubModules\Render\Core\MeshGeometry.h" />
+    <ClInclude Include="SubModules\Render\ARenderer.h" />
     <ClInclude Include="SubModules\Render\Mesh\MeshCommon.h" />
+    <ClInclude Include="SubModules\Render\RenderDefs.h" />
     <ClInclude Include="SubModules\Render\Scene\Camera.h" />
     <ClInclude Include="SubModules\Render\Core\ComputePSO.h" />
     <ClInclude Include="SubModules\Render\Core\DepthOnlyResources.h" />
@@ -226,6 +231,9 @@
     <ClCompile Include="Core\Cloud.cpp" />
     <ClCompile Include="Core\AObject.cpp" />
     <ClCompile Include="Core\AObjectManager.cpp" />
+    <ClCompile Include="SubModules\Render\Core\D3D11Renderer.cpp" />
+    <ClCompile Include="SubModules\Render\Core\Material.cpp" />
+    <ClCompile Include="SubModules\Render\Core\MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\Core\DepthOnlyResources.cpp" />
     <ClCompile Include="SubModules\Render\Core\DepthTexture.cpp" />
     <ClCompile Include="SubModules\GUI\DTOs.cpp" />

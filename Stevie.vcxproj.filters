@@ -99,6 +99,11 @@
     <ClInclude Include="SubModules\Render\Mesh\MeshCommon.h" />
     <ClInclude Include="Core\Cloud.h" />
     <ClInclude Include="SubModules\Render\Core\VolumetricTexture.h" />
+    <ClInclude Include="SubModules\Render\ARenderer.h" />
+    <ClInclude Include="SubModules\Render\Core\MeshGeometry.h" />
+    <ClInclude Include="SubModules\Render\Core\Material.h" />
+    <ClInclude Include="SubModules\Render\RenderDefs.h" />
+    <ClInclude Include="SubModules\Render\Core\D3D11Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -150,6 +155,9 @@
     <ClCompile Include="Core\ModelLoader.cpp" />
     <ClCompile Include="Core\Cloud.cpp" />
     <ClCompile Include="SubModules\Render\Core\VolumetricTexture.cpp" />
+    <ClCompile Include="SubModules\Render\Core\MeshGeometry.cpp" />
+    <ClCompile Include="SubModules\Render\Core\Material.cpp" />
+    <ClCompile Include="SubModules\Render\Core\D3D11Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
