@@ -80,6 +80,7 @@
 
 
 // Mine
+#include "SubModules\Render\IRenderer.h"
 #include "SubModules\IComponent.h"
 #include "SubModules\IComponentHandler.h"
 #include "Core\AObject.h"
