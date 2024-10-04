@@ -193,7 +193,7 @@
     <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
     <ClInclude Include="SubModules\Render\RTextureVolume.h" />
     <ClInclude Include="SubModules\Render\RTexture2D.h" />
-    <ClInclude Include="SubModules\Render\Core\D3D11Renderer.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
     <ClInclude Include="Core\Components\Material.h" />
     <ClInclude Include="SubModules\Render\Core\MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\IRenderer.h" />
@@ -249,7 +249,7 @@
     <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\RTextureVolume.cpp" />
     <ClCompile Include="SubModules\Render\RTexture2D.cpp" />
-    <ClCompile Include="SubModules\Render\Core\D3D11Renderer.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="Core\Components\Material.cpp" />
     <ClCompile Include="SubModules\Render\Core\MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\Core\DepthOnlyResources.cpp" />
