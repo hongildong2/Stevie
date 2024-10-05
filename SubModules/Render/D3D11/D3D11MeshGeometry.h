@@ -12,7 +12,7 @@ public:
 	~D3D11MeshGeometry() = default;
 
 	void Initialize(const D3D11Renderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
-	void Draw(const XMMATRIX* pWorld);
+	virtual void Draw(const XMMATRIX* pWorld) override;
 
 private:
 	const D3D11Renderer* m_pRenderer;

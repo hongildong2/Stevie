@@ -12,6 +12,10 @@ public:
 		return m_topologyType;
 	}
 
+	virtual void Draw(const XMMATRIX* pWorld) = 0;
+	// DrawTessellated(DS, HS, constantBuffers, textureResources);
+	// DrawGeometry(GS, constant buffers, resources)
+
 protected:
 	const EPrimitiveTopologyType m_topologyType;
 

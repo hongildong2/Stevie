@@ -118,12 +118,13 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent)
 	// RSstate, basic
 	// Depth/Stencil, basic
 
+
 	// set BlendState from material
 	// set Pixel Shader from material
 	// Get Textures from Material, Set as Resource
 	// Set SamplerState of material
-
-	// Draw Mesh Geometry
+	// 
+	// mesh->Draw
 }
 
 
