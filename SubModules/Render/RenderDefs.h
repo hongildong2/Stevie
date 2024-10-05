@@ -30,17 +30,17 @@ enum class EShaderType
 
 struct Vertex
 {
-	DirectX::SimpleMath::Vector3 positionModel;
-	DirectX::SimpleMath::Vector2 texcoordinate;
-	DirectX::SimpleMath::Vector3 normalModel;
-	DirectX::SimpleMath::Vector3 tangentModel;
+	DirectX::XMFLOAT3 positionModel;
+	DirectX::XMFLOAT2 texcoordinate;
+	DirectX::XMFLOAT3 normalModel;
+	DirectX::XMFLOAT3 tangentModel;
 };
 
 
 struct MeshData
 {
 	std::vector<Vertex> verticies;
-	std::vector<uint32_t> indicies;
+	std::vector<UINT> indicies;
 };
 
 struct TextureFiles

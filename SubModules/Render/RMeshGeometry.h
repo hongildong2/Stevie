@@ -1,13 +1,23 @@
 #pragma once
 #include "IRenderer.h"
 
-class PShader;
-
 class RMeshGeometry : public IRenderResource
 {
 public:
-private:
+	RMeshGeometry(const EPrimitiveTopologyType type);
+	~RMeshGeometry() = default;
+
+	inline EPrimitiveTopologyType GetTopologyType() const
+	{
+		return m_topologyType;
+	}
+
+protected:
 	const EPrimitiveTopologyType m_topologyType;
-	XMMATRIX m_transform;
+
+	UINT m_vertexStride;
+	UINT m_vertexOffset;
+	UINT m_indexCount;
+	DXGI_FORMAT m_indexFormat;
 };
 

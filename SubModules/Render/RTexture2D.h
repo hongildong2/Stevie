@@ -3,7 +3,7 @@
 class RTexture2D : public IRenderResource
 {
 public:
-	RTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
+	RTexture2D() = default;
 	~RTexture2D() = default;
 
 	inline UINT GetWidth() const

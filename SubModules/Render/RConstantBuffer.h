@@ -3,10 +3,10 @@
 class RConstantBuffer : public IRenderResource
 {
 public:
-	RConstantBuffer(const UINT size);
-	~RConstantBuffer();
+	RConstantBuffer() = default;
+	~RConstantBuffer() = default;
 
-	BOOL UpdateBuffer(const void* pInData, const UINT size);
+	virtual BOOL UpdateBuffer(const void* pInData, const UINT size) = 0;
 private:
 	const UINT m_bufferSize;
 };

@@ -2,7 +2,10 @@
 #include "IRenderer.h"
 
 
-// Renderer finds "{name}_{type}.hlsl" in shader base path, then shader is managed in shader manager
+/*
+Renderer finds "{name}_{type}.hlsl" in shader base path, then shader is managed in shader manager
+All in upper case
+*/
 class RShader : public IRenderResource
 {
 public:

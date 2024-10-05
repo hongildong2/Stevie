@@ -11,6 +11,13 @@
 #endif
 #include <sdkddkver.h>
 
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+
+
 // Use the C++ standard templated min/max
 #define NOMINMAX
 
@@ -81,6 +88,7 @@
 
 // Mine
 #include "SubModules\Render\IRenderer.h"
+#include "SubModules\Render\DXUtils.h"
 #include "SubModules\IComponent.h"
 #include "SubModules\IComponentHandler.h"
 #include "Core\AObject.h"
