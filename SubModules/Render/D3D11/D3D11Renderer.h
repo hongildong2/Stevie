@@ -43,6 +43,11 @@ public:
 		return m_deviceResources.get();
 	}
 
+	inline const WCHAR* GetShaderPath() const
+	{
+		return m_shaderPath.c_str();
+	}
+
 private:
 	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
 	std::wstring m_shaderPath;

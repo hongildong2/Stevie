@@ -1,5 +1,5 @@
 #pragma once
-#include "IRenderer.h"
+#include "RenderDefs.h"
 class RTexture2D : public IRenderResource
 {
 public:

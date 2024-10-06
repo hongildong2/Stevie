@@ -1,7 +1,6 @@
 #pragma once
 #include "IRenderResource.h"
-
-class RSamplerState :
+class RDepthStencilState :
 	public IRenderResource
 {
 };

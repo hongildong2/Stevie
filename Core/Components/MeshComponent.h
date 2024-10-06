@@ -10,13 +10,13 @@ public:
 		return m_pMeshGeometry;
 	}
 
-	inline const Material* GetMaterial() const
+	inline const RMaterial* GetMaterial() const
 	{
 		return m_pMaterial;
 	}
 
 private:
 	RMeshGeometry* m_pMeshGeometry;
-	Material* m_pMaterial;
+	RMaterial* m_pMaterial;
 };
 

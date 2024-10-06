@@ -4,7 +4,7 @@
 
 #pragma once
 #include "pch.h"
-#include "../DXUtils.h"
+#include "D3DUtil.h"
 
 	// Controls all the DirectX device resources.
 class D3D11DeviceResources

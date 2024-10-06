@@ -5,12 +5,13 @@
 #include "Core/Components/MeshComponent.h"
 
 using Microsoft::WRL::ComPtr;
+using namespace DirectX;
+
 
 D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>();
-
 }
 
 BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
@@ -42,6 +43,7 @@ void D3D11Renderer::BeginRender()
 	// context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
 	context->ClearRenderTargetView(backBufferRTV, Colors::Black);
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 
 	ID3D11RenderTargetView* rtvs[1] =
 	{
@@ -111,20 +113,21 @@ RTexture2D* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent)
 {
 	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
-	const Material* mat = pInMeshComponent->GetMaterial();
+	const RMaterial* mat = pInMeshComponent->GetMaterial();
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
 	// single pass rendering
-
-	// RSstate, basic
-	// Depth/Stencil, basic
-
-
-	// set BlendState from material
-	// set Pixel Shader from material
-	// Get Textures from Material, Set as Resource
-	// Set SamplerState of material
 	// 
-	// mesh->Draw
+		// RSstate, basic
+		// Depth/Stencil, basic
+
+
+		// set BlendState from material
+		// set Pixel Shader from material
+		// Get Textures from Material, Set as Resource
+		// Set SamplerState of material
+		// 
+		// mesh->Draw
 }
 
 

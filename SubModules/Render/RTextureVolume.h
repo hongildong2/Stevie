@@ -1,5 +1,5 @@
 #pragma once
-#include "IRenderer.h"
+#include "RenderDefs.h"
 class RTextureVolume final : public IRenderResource
 {
 public:

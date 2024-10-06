@@ -1,5 +1,5 @@
 #pragma once
-#include "IRenderer.h"
+#include "RenderDefs.h"
 
 class RMeshGeometry : public IRenderResource
 {
@@ -13,11 +13,13 @@ public:
 	}
 
 	virtual void Draw(const XMMATRIX* pWorld) = 0;
-	// DrawTessellated(DS, HS, constantBuffers, textureResources);
-	// DrawGeometry(GS, constant buffers, resources)
+
 
 protected:
 	const EPrimitiveTopologyType m_topologyType;
+
+	// bIsTessellated; -> Set DS, HS, and its resource,
+	// bIsGeometric;
 
 	UINT m_vertexStride;
 	UINT m_vertexOffset;

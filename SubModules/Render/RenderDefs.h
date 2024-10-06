@@ -1,5 +1,7 @@
 #pragma once
 #include "pch.h"
+#include "IRenderer.h"
+#include "IRenderResource.h"
 
 enum class EBasicGeometry
 {
@@ -26,6 +28,29 @@ enum class EShaderType
 	HULL_SHADER,
 	GEOMETRY_SHADER
 };
+
+const WCHAR* ToString(const EShaderType type)
+{
+	switch (type)
+	{
+	case EShaderType::VERTEX_SHADER:
+		return L"VS";
+	case EShaderType::PIXEL_SHADER:
+		return L"PS";
+	case EShaderType::COMPUTE_SHADER:
+		return L"CS";
+	case EShaderType::DOMAIN_SHADER:
+		return L"DS";
+	case EShaderType::HULL_SHADER:
+		return L"HS";
+	case EShaderType::GEOMETRY_SHADER:
+		return L"GS";
+	default:
+		// TODO :: assert
+		return L"";
+		break;
+	}
+}
 
 
 struct Vertex

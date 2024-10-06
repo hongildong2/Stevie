@@ -1,19 +1,8 @@
 #pragma once
 #include "pch.h"
-#include "RenderDefs.h"
 
 
 using namespace DirectX;
-using namespace DX;
-
-class IRenderResource
-{
-public:
-	IRenderResource() = default;
-	virtual ~IRenderResource() = default;
-	IRenderResource(const IRenderResource& other) = delete;
-	IRenderResource& operator=(const IRenderResource& other) = delete;
-};
 
 
 class RTexture2D;
@@ -23,11 +12,14 @@ class RMaterial;
 class RShader;
 class RConstantBuffer;
 
+enum class EBasicGeometry;
+enum class EShaderType;
+
 class MeshComponent;
 class OceanMeshComponent;
 class CloudMeshComponent;
 
-class IRenderer
+interface IRenderer
 {
 public:
 	IRenderer() = default;
@@ -48,7 +40,7 @@ public:
 	virtual BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight) = 0;
 
 	// Renders
-	virtual void Render(const MeshComponent* pInMeshComponent) = 0;  // opaquea면 바로 depth only pass rendering, add to main render list. tranparent면 목록에 추가. 
+	virtual void Render(const MeshComponent* pInMeshComponent) = 0;
 	virtual void RenderOcean(const OceanMeshComponent* pInOcean) = 0;
 	virtual void RenderCloud(const CloudMeshComponent* pInRender) = 0;
 

@@ -1,5 +1,6 @@
 #pragma once
-#include "IRenderer.h"
+#include "RenderDefs.h"
+
 class RConstantBuffer : public IRenderResource
 {
 public:
