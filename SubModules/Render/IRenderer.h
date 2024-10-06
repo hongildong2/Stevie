@@ -57,8 +57,4 @@ public:
 	virtual RMeshGeometry* CreateBasicMeshGeometry(const EBasicGeometry type) = 0;
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) = 0;
 	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) = 0;
-
-protected:
-	virtual RShader* CreateShader(const EShaderType type, const WCHAR* name) = 0;
-	virtual RConstantBuffer* CreateConstantBuffer(const UINT bufferSize) = 0;
 };

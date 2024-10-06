@@ -13,7 +13,10 @@ public:
 	RShader(const EShaderType type, const WCHAR* name);
 	~RShader() = default;
 
-	virtual void* GetShaderPtr() const = 0;
+	inline const WCHAR* GetName() const
+	{
+		return m_name.c_str();
+	}
 
 protected:
 	const EShaderType m_type;
@@ -24,41 +27,41 @@ class RVertexShader : public RShader
 {
 public:
 	RVertexShader(const WCHAR* name);
-	~RVertexShader() = default
+	~RVertexShader() = default;
 };
 
 class RPixelShader : public RShader
 {
 public:
 	RPixelShader(const WCHAR* name);
-	~RPixelShader() = default
+	~RPixelShader() = default;
 };
 
 class RComputeShader : public RShader
 {
 public:
 	RComputeShader(const WCHAR* name);
-	~RComputeShader() = default
+	~RComputeShader() = default;
 };
 
 class RDomainShader : public RShader
 {
 public:
 	RDomainShader(const WCHAR* name);
-	~RDomainShader() = default
+	~RDomainShader() = default;
 };
 
 class RHullShader : public RShader
 {
 public:
 	RHullShader(const WCHAR* name);
-	~RHullShader() = default
+	~RHullShader() = default;
 };
 
 class RGeometryShader : public RShader
 {
 public:
 	RGeometryShader(const WCHAR* name);
-	~RGeometryShader() = default
+	~RGeometryShader() = default;
 };
 

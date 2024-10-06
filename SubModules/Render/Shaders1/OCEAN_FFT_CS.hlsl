@@ -88,20 +88,3 @@ void main( uint3 DTid : SV_DispatchThreadID ) // this input index is not bit rev
     }
 
 }
-
-
-float4 DoPostProcess(float4 input, uint2 id)
-{
-	if (scale)
-		input /= size * size;
-	if (permute)
-		input *= 1.0 - 2.0 * ((id.x + id.y) % 2);
-	return input;
-}
-
-// wave post process
-[numthreads(16, 16, CASCADE_COUNT)]
-void PostProcess(uint3 id : SV_DispatchThreadID)
-{
-    FTResultTex[id] = DoPostProcess(FTResultTex[id], id.xy);   
-}

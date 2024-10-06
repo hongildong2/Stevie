@@ -1,95 +1,93 @@
 #pragma once
 #include "pch.h"
 
+class RInputLayout;
+class RSamplerState;
+class RRasterizerState;
+
+class RVertexShader;
+class RPixelShader;
+class RComputeShader;
+class RDomainShader;
+class RHullShader;
+class RGeometryShader;
+
+class RBlendState;
+class RDepthStencilState;
+
+class D3D11Renderer;
+
 namespace Graphics
 {
-	class RInputLayout;
-	class RSamplerState;
-	class RRasterizerState;
-
-	class RVertexShader;
-	class RPixelShader;
-	class RComputeShader;
-	class RDomainShader;
-	class RHullShader;
-	class RGeometryShader;
-
-	class RBlendState;
-
-	// Samplers
-	extern RSamplerState* linearWrapSS;
-	extern RSamplerState* linearClampSS;
-	extern RSamplerState* linearMirrorSS;
-	extern RSamplerState* shadowPointSS;
-	extern RSamplerState* shadowCompareSS;
-
-	extern RRasterizerState* basicRS;
-	extern RRasterizerState* solidCcwRS;
-	extern RRasterizerState* wireframeCcwRS;
-	extern RRasterizerState* wireframeCwRS;
-
-	// Depth Stencil States
-	// extern ComPtr<ID3D11DepthStencilState> basicDSS; // 일반적으로 그리기
-
 
 	// Shaders
-	extern RVertexShader* basicVS;
-	extern RVertexShader* cubemapVS; // namespace cubemap
-	extern RVertexShader* screenQuadVS;
-	extern RVertexShader* depthOnlyVS;
+	extern RVertexShader* BASIC_VS;
+	extern RVertexShader* CUBEMAP_VS;
+	extern RVertexShader* QUAD_VS;
+	extern RVertexShader* DEPTH_ONLY_VS;
+	extern RVertexShader* SAMPLING_VS;
 
 
-	extern RPixelShader* basicPS;
-	extern RPixelShader* cubemapPS;
-	extern RPixelShader* filterCombinePS;
-	extern RPixelShader* fogPS;
-	extern RPixelShader* volumePS;
+	extern RPixelShader* BASIC_PS;
+	extern RPixelShader* CUBEMAP_PS;
+	extern RPixelShader* FILTER_COMBINE_PS;
+	extern RPixelShader* FOG_PS;
+	extern RPixelShader* VOLUME_PS;
+	extern RPixelShader* OCEAN_SURFACE_PS;
 
 
-	extern RComputeShader* downBlurCS;
-	extern RComputeShader* upBlurCS;
-	extern RComputeShader* cloudDensityCS;
-	extern RComputeShader* cloudLightingCS;
+
+	extern RComputeShader* DOWN_BLUR_CS;
+	extern RComputeShader* UP_BLUR_CS;
+	extern RComputeShader* CLOUD_DENSITY_CS;
+	extern RComputeShader* CLOUD_LIGHTING_CS;
+	extern RComputeShader* OCEAN_INITIAL_SPECTRUM_CS;
+	extern RComputeShader* OCEAN_TIME_DEPENDENT_SPECTRUM_CS;
+	extern RComputeShader* OCEAN_FFT_CS;
+	extern RComputeShader* OCEAN_FFT_POST_PROCESS_CS;
+	extern RComputeShader* OCEAN_COMBINE_WAVE_CS;
+	extern RComputeShader* OCEAN_FOAM_SIMULATION_CS;
 
 
-	extern RHullShader* tessellatedQuadHS;
-	extern RHullShader* tessellatedQuadDepthOnlyHS;
-	extern RDomainShader* tessellatedQuadDS;
+	extern RHullShader* TESSELLATED_QUAD_HS;
+	extern RDomainShader* TESSELATED_QUAD_DS;
+
+
+	// Samplers
+	extern RSamplerState* LINEAR_WRAP_SS;
+	extern RSamplerState* LINEAR_CLAMP_SS;
+	extern RSamplerState* LINEAR_MIRROR_SS;
+	extern RSamplerState* SHADOW_POINT_SS;
+	extern RSamplerState* SHADOW_COMPARE_SS;
+
+	extern RRasterizerState* SOLID_CW_RS;
+	extern RRasterizerState* SOLID_CCW_RS;
+	extern RRasterizerState* WIRE_FRAME_CW_RS;
+	extern RRasterizerState* WIRE_FRAME_CCW_RS;
 
 	// Input Layouts
-	extern RInputLayout* basicIL;
-	extern RInputLayout* samplingIL;
+	extern RInputLayout* BASIC_IL;
+	extern RInputLayout* SAMPLING_IL;
 
-	extern RBlendState* alphaBS;
-
-
-	namespace Ocean
-	{
-		extern RComputeShader* initialSpectrumCS;
-		extern RComputeShader* timedependentSpectrumCS;
-		extern RComputeShader* FFTCS;
-		extern RComputeShader* FFTPostProcessCS;
-		extern RComputeShader* combineWaveCS;
-		extern RComputeShader* foamSimulationCS;
-
-		extern RPixelShader* oceanPS;
-	}
+	extern RBlendState* ALPHA_BS;
 
 
 	namespace D3D11
 	{
-		void InitCommonResources(ID3D11Device1* pDevice);
-		void InitShaders(ID3D11Device* pDevice);
-		void InitSamplerStates(ID3D11Device* pDevice);
-		void InitBlendStates(ID3D11Device* pDevice);
-		void InitSamplerStates(ID3D11Device* pDevice);
-		void InitRasterizerStates(ID3D11Device* pDevice);
+		void InitCommonResources(const D3D11Renderer* pRenderer);
+		void InitShaders(const D3D11Renderer* pRenderer);
+		void InitSamplerStates(const D3D11Renderer* pRenderer);
+		void InitBlendStates(const D3D11Renderer* pRenderer);
+		void InitSamplerStates(const D3D11Renderer* pRenderer);
+		void InitRasterizerStates(const D3D11Renderer* pRenderer);
+		void InitDepthStencilStates(const D3D11Renderer* pRenderer);
+		void CheckValidity();
+		void ClearCommonResources(); // Delete All
 	}
 
 	// namespace D3D12
 
 
 
-	void ClearCommonResources(); // Delete All
 }
 

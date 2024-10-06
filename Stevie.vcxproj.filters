@@ -106,7 +106,6 @@
     <ClInclude Include="SubModules\Render\RTexture2D.h" />
     <ClInclude Include="SubModules\Render\RTextureVolume.h" />
     <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
-    <ClInclude Include="SubModules\Render\RConstantBuffer.h" />
     <ClInclude Include="SubModules\Render\RShader.h" />
     <ClInclude Include="Core\Components\MeshComponent.h" />
     <ClInclude Include="Core\Components\Cloud\CloudMeshComponent.h" />
@@ -117,7 +116,7 @@
     <ClInclude Include="SubModules\Render\D3D11\D3D11Texture2D.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11ConstantBuffer.h" />
     <ClInclude Include="SubModules\Render\IRenderResource.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11Shader.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
     <ClInclude Include="SubModules\Render\RBlendState.h" />
@@ -181,7 +180,6 @@
     <ClCompile Include="SubModules\Render\RTexture2D.cpp" />
     <ClCompile Include="SubModules\Render\RTextureVolume.cpp" />
     <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
-    <ClCompile Include="SubModules\Render\RConstantBuffer.cpp" />
     <ClCompile Include="SubModules\Render\RShader.cpp" />
     <ClCompile Include="Core\Components\MeshComponent.cpp" />
     <ClCompile Include="Core\Components\Cloud\CloudMeshComponent.cpp" />
@@ -192,13 +190,14 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11ConstantBuffer.cpp" />
     <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11Shader.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="SubModules\Render\RSamplerState.cpp" />
     <ClCompile Include="SubModules\Render\RBlendState.cpp" />
     <ClCompile Include="SubModules\Render\RRasterizerState.cpp" />
     <ClCompile Include="SubModules\Render\RInputLayout.cpp" />
     <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -281,7 +280,7 @@
     <FxCompile Include="SubModules\Render\Shaders\VolumePS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders\CloudCS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\VOLUME_PS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders1\CLOUD_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\Shaders1\CLOUD_DENSITY_CS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\OCEAN_COMBINE_WAVE_CS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\CUBEMAP_VS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\DOWN_BLUR_CS.hlsl" />
@@ -300,6 +299,8 @@
     <FxCompile Include="SubModules\Render\Shaders1\QUAD_TESSELLATED_HS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\OCEAN_TIMEDPENDENT_SPECTRUM_CS.hlsl" />
     <FxCompile Include="SubModules\Render\Shaders1\UP_BLUR_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\Shaders1\OCEAN_FFT_POST_PROCESS_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\Shaders1\CLOUD_LIGHTING_CS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="SubModules\Render\Shaders\ShaderTypes.hlsli" />

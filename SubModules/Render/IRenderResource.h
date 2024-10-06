@@ -14,6 +14,7 @@ public:
 
 /*
 * TODO :: Manage Ref counts from manager
+* TODO :: Use QueryInterface of COM to cast?
 Inherit IUnknwon
 
 STDMETHODIMP			QueryInterface(REFIID, void** ppv);
