@@ -21,12 +21,12 @@ public:
 	virtual void RenderOcean(const OceanMeshComponent* pInOcean) override;
 	virtual void RenderCloud(const CloudMeshComponent* pInRender) override;
 
-	virtual void Compute(const RTexture2DDynamic** pResults, const UINT resultsCount, const RTexture2D** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
+	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 
 	// IRenderDevice
 	virtual RTexture2D* CreateTextureFromFile(const WCHAR* wchFileName) override;
-	virtual RTextureVolume* CreateTextureVolume(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
+	virtual RTexture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
 	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
 
 	virtual RMeshGeometry* CreateBasicMeshGeometry(const EBasicGeometry type) override;

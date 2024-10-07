@@ -140,12 +140,12 @@ void D3D11Renderer::RenderCloud(const CloudMeshComponent* pInRender)
 {
 }
 
-void D3D11Renderer::Compute(const RTexture2DDynamic** pResults, const UINT resultsCount, const RTexture2D** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const UINT batchX, const UINT batchY, const UINT batchZ)
+void D3D11Renderer::Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 }
 
 
-RTextureVolume* D3D11Renderer::CreateTextureVolume(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
+RTexture3D* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {
 	return nullptr;
 }
