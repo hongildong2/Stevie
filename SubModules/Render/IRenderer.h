@@ -4,13 +4,15 @@
 
 using namespace DirectX;
 
-
+class RTexture;
 class RTexture2D;
-class RTextureVolume;
+class RTexture3D;
 class RMeshGeometry;
 class RMaterial;
 class RShader;
 class RConstantBuffer;
+class RSamplerState;
+
 
 enum class EBasicGeometry;
 enum class EShaderType;
@@ -44,14 +46,14 @@ public:
 	virtual void RenderOcean(const OceanMeshComponent* pInOcean) = 0;
 	virtual void RenderCloud(const CloudMeshComponent* pInRender) = 0;
 
-	// Computes
-	virtual BOOL ComputeOcean(const OceanMeshComponent* pInOcean) = 0;
-	virtual BOOL ComputeCloud(const CloudMeshComponent* pInCloud) = 0;
+
+	// TODO :: Buffer? We need RBuffer to control parameters in game layer
+	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) = 0;
 
 
 	// IRenderDevice
 	virtual RTexture2D* CreateTextureFromFile(const WCHAR* wchFileName) = 0;
-	virtual RTextureVolume* CreateTextureVolume(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
+	virtual RTexture3D* CreateTextureVolume(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) = 0;
 
 	virtual RMeshGeometry* CreateBasicMeshGeometry(const EBasicGeometry type) = 0;

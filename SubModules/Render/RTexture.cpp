@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "RTexture2D.h"
+#include "RTexture.h"
 
 RTexture2D::RTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format)
 	: IRenderResource()

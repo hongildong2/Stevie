@@ -21,9 +21,7 @@ public:
 	virtual void RenderOcean(const OceanMeshComponent* pInOcean) override;
 	virtual void RenderCloud(const CloudMeshComponent* pInRender) override;
 
-	// Computes
-	virtual BOOL ComputeOcean(const OceanMeshComponent* pInOcean) override;
-	virtual BOOL ComputeCloud(const CloudMeshComponent* pInCloud) override;
+	virtual void Compute(const RTexture2DDynamic** pResults, const UINT resultsCount, const RTexture2D** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 
 	// IRenderDevice
@@ -35,7 +33,6 @@ public:
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) override;
 	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) override;
 
-	virtual RShader* CreateShader(const EShaderType type, const WCHAR* name) override;
 
 
 	inline const D3D11DeviceResources* GetDeviceResources() const

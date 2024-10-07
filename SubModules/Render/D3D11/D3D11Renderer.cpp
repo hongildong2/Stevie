@@ -140,15 +140,10 @@ void D3D11Renderer::RenderCloud(const CloudMeshComponent* pInRender)
 {
 }
 
-BOOL D3D11Renderer::ComputeOcean(const OceanMeshComponent* pInOcean)
+void D3D11Renderer::Compute(const RTexture2DDynamic** pResults, const UINT resultsCount, const RTexture2D** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
-	return 0;
 }
 
-BOOL D3D11Renderer::ComputeCloud(const CloudMeshComponent* pInCloud)
-{
-	return 0;
-}
 
 RTextureVolume* D3D11Renderer::CreateTextureVolume(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {

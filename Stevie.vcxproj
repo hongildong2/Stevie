@@ -194,7 +194,7 @@
     <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
     <ClInclude Include="SubModules\Render\IRenderResource.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11ConstantBuffer.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11Texture2D.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11DeviceResources.h" />
@@ -203,8 +203,7 @@
     <ClInclude Include="Core\Components\MeshComponent.h" />
     <ClInclude Include="SubModules\Render\RShader.h" />
     <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
-    <ClInclude Include="SubModules\Render\RTextureVolume.h" />
-    <ClInclude Include="SubModules\Render\RTexture2D.h" />
+    <ClInclude Include="SubModules\Render\RTexture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
     <ClInclude Include="SubModules\Render\RMaterial.h" />
     <ClInclude Include="SubModules\Render\IRenderer.h" />
@@ -262,7 +261,7 @@
     <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
     <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11ConstantBuffer.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11Texture2D.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
     <ClCompile Include="Core\Components\Cloud\CloudMeshComponent.cpp" />
@@ -270,8 +269,7 @@
     <ClCompile Include="Core\Components\MeshComponent.cpp" />
     <ClCompile Include="SubModules\Render\RShader.cpp" />
     <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
-    <ClCompile Include="SubModules\Render\RTextureVolume.cpp" />
-    <ClCompile Include="SubModules\Render\RTexture2D.cpp" />
+    <ClCompile Include="SubModules\Render\RTexture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="SubModules\Render\RMaterial.cpp" />
     <ClCompile Include="SubModules\Render\Core\DepthOnlyResources.cpp" />
