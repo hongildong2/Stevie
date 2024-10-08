@@ -4,16 +4,23 @@
 
 class RTexture : public IRenderResource
 {
-public:
-	virtual BOOL IsDynamicTexture() = 0;
 protected:
-	const DXGI_FORMAT m_format;
+	RTexture() = default;
+	virtual ~RTexture() = default;
+	inline BOOL IsDynamicTexture() const
+	{
+		return m_bIsDynamic;
+	}
+
+protected:
+	DXGI_FORMAT m_format;
+	BOOL m_bIsDynamic;
 };
 
 
 class RTexture2D : public RTexture
 {
-public:
+protected:
 	RTexture2D() = default;
 	~RTexture2D() = default;
 
@@ -28,19 +35,19 @@ public:
 	}
 
 protected:
-	const UINT m_width;
-	const UINT m_height;
+	UINT m_width;
+	UINT m_height;
 };
 
 
-class RTexture3D final : public RTexture
+class RTexture3D : public RTexture
 {
-public:
-	RTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
+protected:
+	RTexture3D() = default;
 	~RTexture3D() = default;
 
-private:
-	const UINT m_width;
-	const UINT m_height;
-	const UINT m_depth;
+protected:
+	UINT m_width;
+	UINT m_height;
+	UINT m_depth;
 };

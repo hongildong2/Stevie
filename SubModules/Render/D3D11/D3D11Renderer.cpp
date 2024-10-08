@@ -1,7 +1,10 @@
 #include "pch.h"
+#include "../RTexture.h"
+#include "D3D11Texture.h"
 #include "D3D11Renderer.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
+#include "D3D11ResourceManager.h"
 #include "Core/Components/MeshComponent.h"
 
 using Microsoft::WRL::ComPtr;
@@ -107,12 +110,13 @@ RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, cons
 
 RTexture2D* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
 {
-	return nullptr;
+	return m_resourceManager->CreateTextureFromFile(wchFileName);
 }
 
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent)
 {
 	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
+
 	const RMaterial* mat = pInMeshComponent->GetMaterial();
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 

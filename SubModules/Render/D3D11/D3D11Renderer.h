@@ -47,6 +47,7 @@ public:
 
 private:
 	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
+	std::unique_ptr <D3D11ResourceManager> m_resourceManager;
 	std::wstring m_shaderPath;
 
 	// TODO :: maintain several render lists of mesh component according to its type, for multiple pass
