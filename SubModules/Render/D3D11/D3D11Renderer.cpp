@@ -93,32 +93,24 @@ BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBuffer
 }
 
 
-RShader* D3D11Renderer::CreateShader(const EShaderType type, const WCHAR* name)
-{
-	return nullptr;
-}
-
-RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(const EBasicGeometry type)
-{
-	return nullptr;
-}
-
 RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
-	return nullptr;
+	return static_cast<RMeshGeometry*>(m_resourceManager->CreateMeshGeometry(pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount));
 }
 
 RTexture2D* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
 {
-	return m_resourceManager->CreateTextureFromFile(wchFileName);
+	return static_cast<RTexture2D*>(m_resourceManager->CreateTextureFromFile(wchFileName));
 }
 
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent)
 {
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
+	D3D11MeshGeometry* mesh = static_cast<D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
 
 	const RMaterial* mat = pInMeshComponent->GetMaterial();
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+	// mesh->Draw();
 
 	// single pass rendering
 	// 

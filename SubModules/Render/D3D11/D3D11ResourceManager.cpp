@@ -2,6 +2,7 @@
 #include "D3D11ResourceManager.h"
 #include "D3D11Renderer.h"
 #include "D3D11Texture.h"
+#include "D3D11MeshGeometry.h"
 
 #include "../GraphicsCommon1.h"
 
@@ -56,8 +57,15 @@ void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const vo
 	ZeroMemory(&InitData, sizeof(InitData));
 	InitData.pSysMem = pInIndexList;
 	InitData.SysMemPitch = 0;
-	InitData.SysMemSlicePitch = 0; // 사이즈 보정용?
+	InitData.SysMemSlicePitch = 0;
 	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
+}
+
+D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
+{
+	D3D11MeshGeometry* res = new D3D11MeshGeometry(EPrimitiveTopologyType::TRIANGLE);
+	res->Initialize(m_pRenderer, pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount);
+	return res;
 }
 
 D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format)

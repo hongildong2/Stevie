@@ -5,12 +5,12 @@ class MeshComponent
 	// RMeshGeometry :: vertices, vs, gs, ...
 	// Material :: textures, ps ...
 public:
-	inline const RMeshGeometry* GetMeshGeometry() const
+	inline RMeshGeometry* GetMeshGeometry() const
 	{
 		return m_pMeshGeometry;
 	}
 
-	inline const RMaterial* GetMaterial() const
+	inline RMaterial* GetMaterial() const
 	{
 		return m_pMaterial;
 	}
@@ -18,5 +18,6 @@ public:
 private:
 	RMeshGeometry* m_pMeshGeometry;
 	RMaterial* m_pMaterial;
+	XMMATRIX m_model;
 };
 

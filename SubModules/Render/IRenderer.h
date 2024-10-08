@@ -56,7 +56,6 @@ public:
 	virtual RTexture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) = 0;
 
-	virtual RMeshGeometry* CreateBasicMeshGeometry(const EBasicGeometry type) = 0;
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) = 0;
 	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) = 0;
 };
