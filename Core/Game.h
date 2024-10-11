@@ -15,7 +15,7 @@
 #include "StepTimer.h"
 #include "AObject.h"
 #include "SubModules/GUI/GUI.h"
-#include "IObjectHandler.h"
+#include "AObjectHandler.h"
 #include "Ocean/Ocean.h"
 #include "Cloud.h"
 
@@ -25,7 +25,7 @@ constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
-class Game final : public DX::IDeviceNotify, public IObjectHandler
+class Game final : public DX::IDeviceNotify, public AObjectHandler
 {
 	friend class SceneStateObject;
 public:

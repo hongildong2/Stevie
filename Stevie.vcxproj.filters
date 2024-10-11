@@ -81,7 +81,7 @@
     <ClInclude Include="Core\AObjectManager.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Core\IObjectHandler.h" />
+    <ClInclude Include="Core\AObjectHandler.h" />
     <ClInclude Include="SubModules\GUI\IGUIComponent.h">
       <Filter>GUI</Filter>
     </ClInclude>

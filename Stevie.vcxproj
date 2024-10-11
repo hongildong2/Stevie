@@ -228,7 +228,7 @@
     <ClInclude Include="SubModules\Render\Core\IDepthRenderable.h" />
     <ClInclude Include="SubModules\GUI\IGUIComponent.h" />
     <ClInclude Include="SubModules\GUI\IMGUI\IMGUIController.h" />
-    <ClInclude Include="Core\IObjectHandler.h" />
+    <ClInclude Include="Core\AObjectHandler.h" />
     <ClInclude Include="Core\Light.h" />
     <ClInclude Include="Core\ModelLoader.h" />
     <ClInclude Include="SubModules\Render\Scene\SceneLights.h" />

@@ -22,7 +22,7 @@ public:
 	/// </summary>
 	void CollectGarbage();
 
-	inline void RegisterIObjectHandler(IObjectHandler* handler)
+	inline void RegisterIObjectHandler(AObjectHandler* handler)
 	{
 		m_hanlder = handler;
 	}
@@ -48,7 +48,7 @@ private:
 	~AObjectManager() = default;
 
 	static AObjectManager* mInstance;
-	IObjectHandler* m_hanlder;
+	AObjectHandler* m_hanlder;
 	std::unordered_set<AObject*> m_objects;
 
 	std::vector<AObject*> m_toInitialize;

@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "AObject.h"
 
-class IObjectHandler
+class AObjectHandler
 {
 public:
 	virtual void Register(AObject* obj) = 0;
