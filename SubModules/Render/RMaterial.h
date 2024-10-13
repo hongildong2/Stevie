@@ -9,26 +9,66 @@ class RBlendState;
 class RPixelShader;
 
 constexpr UINT MATERIAL_MAX_TEXTURE_SLOT = 10;
-class RMaterial // PBR Material, Ocean Material, ...
+class RMaterial
 {
 public:
 	inline const RPixelShader* GetShader() const
 	{
 		return m_pixelShader;
 	}
+	virtual const RSamplerState* GetSamplerStates() const
+	{
+		return m_samplerState;
+	}
+	virtual const RBlendState* GetBlendState() const
+	{
+		return m_blendState;
+	}
 
-	// StructuredBuffer?
-	const UINT GetShaderResourceCount();
-	const UINT GetConstantBufferCount();
-	const UINT GetSamplerStateCount();
-	const RTexture2D* GetTextureResources();
-	const RSamplerState* GetSamplerStates();
-	const RBlendState* GetBlendState();
+	virtual void Initialize() = 0; // Set Resources Here
+	virtual const UINT GetShaderResourceCount() = 0;
+	virtual const UINT GetConstantBufferCount() = 0;
+	virtual const UINT GetSamplerStateCount() = 0;
+	virtual RTexture2D* const* GetTextureResources() = 0;
+
 
 protected:
+	// Owning Resources
 	RTexture2D* m_textures[MATERIAL_MAX_TEXTURE_SLOT];
-	// OM stage settings, blend state, depth ..., stencil ..
-	// Sampler state???
+
+	// State, from Common Resource
 	RPixelShader* m_pixelShader;
+	RSamplerState* m_samplerState;
+	RBlendState* m_blendState;
 };
 
+
+
+class RDemoMaterial : public RMaterial
+{
+public:
+	RDemoMaterial() = default;
+	~RDemoMaterial() = default;
+
+	void Initialize() override;
+	const UINT GetShaderResourceCount() override
+	{
+		return 0;
+	}
+	const UINT GetConstantBufferCount() override
+	{
+		return 0;
+	}
+	const UINT GetSamplerStateCount() override
+	{
+		return 0;
+	}
+
+	RTexture2D* const* GetTextureResources() override
+	{
+		return nullptr;
+	}
+
+
+
+};

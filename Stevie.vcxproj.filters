@@ -48,6 +48,9 @@
     <ClInclude Include="SubModules\Render\GraphicsCommon1.h" />
     <ClInclude Include="SubModules\Render\RInputLayout.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
+    <ClInclude Include="Core\GeometryGenerator.h" />
+    <ClInclude Include="Core\SObject.h" />
+    <ClInclude Include="Core\SGameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -72,6 +75,9 @@
     <ClCompile Include="SubModules\Render\RInputLayout.cpp" />
     <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
+    <ClCompile Include="Core\GeometryGenerator.cpp" />
+    <ClCompile Include="Core\SObject.cpp" />
+    <ClCompile Include="Core\SGameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -119,6 +125,7 @@
     <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_POST_PROCESS_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEMO_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="SubModules\Render\D3D11\Shaders\ShaderTypes.hlsli" />

@@ -5,7 +5,10 @@
 #include "pch.h"
 #include "Game.h"
 
+#include "GeometryGenerator.h"
+#include "SubModules/Render/GraphicsCommon1.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
+#include "Components/MeshComponent.h"
 
 extern void ExitGame() noexcept;
 
@@ -26,6 +29,17 @@ void Game::Initialize(HWND window, int width, int height)
 {
 	m_renderer->SetWindow(window, width, height);
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
+
+	m_obj = std::make_unique<SGameObject>();
+
+	MeshData sphere = MakeSphere(2.f, 50, 50);
+	RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
+	MeshComponent* demoC = new MeshComponent();
+	demoC->Initialize(sphereMesh, Graphics::DEMO_MATERIAL);
+
+	m_obj->Initialize(m_renderer.get(), demoC);
+
+
 
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
@@ -136,6 +150,7 @@ void Game::Render()
 
 	m_renderer->BeginRender();
 
+	m_obj->Render();
 
 	m_renderer->EndRender();
 

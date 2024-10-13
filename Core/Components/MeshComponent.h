@@ -1,10 +1,16 @@
 #pragma once
 #include "pch.h"
-class MeshComponent
+class MeshComponent final
 {
 	// RMeshGeometry :: vertices, vs, gs, ...
 	// Material :: textures, ps ...
 public:
+	MeshComponent() = default;
+	virtual ~MeshComponent();
+
+	void Initialize(RMeshGeometry* pMeshGeometry, RMaterial* pMaterial);
+	void SetRelativePos(XMFLOAT4 deltaPos);
+
 	inline RMeshGeometry* GetMeshGeometry() const
 	{
 		return m_pMeshGeometry;
@@ -18,6 +24,6 @@ public:
 private:
 	RMeshGeometry* m_pMeshGeometry;
 	RMaterial* m_pMaterial;
-	XMMATRIX m_model;
+	XMFLOAT4 m_modelPos;
 };
 

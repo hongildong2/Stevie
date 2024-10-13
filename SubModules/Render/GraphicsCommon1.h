@@ -34,6 +34,7 @@ namespace Graphics
 	extern RPixelShader* FOG_PS;
 	extern RPixelShader* VOLUME_PS;
 	extern RPixelShader* OCEAN_SURFACE_PS;
+	extern RPixelShader* DEMO_PS;
 
 
 
@@ -71,6 +72,9 @@ namespace Graphics
 
 	extern RBlendState* ALPHA_BS;
 
+	// Materials
+	extern RMaterial* DEMO_MATERIAL;
+
 
 	namespace D3D11
 	{
@@ -81,6 +85,7 @@ namespace Graphics
 		void InitSamplerStates(const D3D11Renderer* pRenderer);
 		void InitRasterizerStates(const D3D11Renderer* pRenderer);
 		void InitDepthStencilStates(const D3D11Renderer* pRenderer);
+		void InitMaterials(const D3D11Renderer* pRenderer);
 		void CheckValidity();
 		void ClearCommonResources(); // Delete All
 	}

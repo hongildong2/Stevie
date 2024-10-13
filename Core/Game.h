@@ -9,7 +9,7 @@
 
 #include "SubModules/Render/RenderDefs.h"
 #include "SubModules/Render/D3D11/D3DUtil.h"
-
+#include "SGameObject.h"
 
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
@@ -72,5 +72,9 @@ private:
 	// Use this with  Mouse::ButtonStateTracker::PRESSED for debugging. Tracking pressed button!
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
+
+
+	// Demo
+	std::unique_ptr<SGameObject> m_obj;
 
 };

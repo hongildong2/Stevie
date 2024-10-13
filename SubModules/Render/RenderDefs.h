@@ -55,10 +55,10 @@ inline const WCHAR* ToString(const EShaderType type)
 
 struct Vertex
 {
-	DirectX::XMFLOAT3 positionModel;
-	DirectX::XMFLOAT2 texcoordinate;
-	DirectX::XMFLOAT3 normalModel;
-	DirectX::XMFLOAT3 tangentModel;
+	DirectX::SimpleMath::Vector3 positionModel;
+	DirectX::SimpleMath::Vector2 texcoordinate;
+	DirectX::SimpleMath::Vector3 normalModel;
+	DirectX::SimpleMath::Vector3 tangentModel;
 };
 
 
@@ -68,17 +68,6 @@ struct MeshData
 	std::vector<UINT> indicies;
 };
 
-struct TextureFiles
-{
-	std::wstring albedoName;
-	std::wstring aoName;
-	std::wstring heightName;
-	std::wstring metallicName;
-	std::wstring normalName;
-	std::wstring roughnessName;
-	std::wstring emissiveName;
-	std::wstring opacityName;
-};
 
 struct Material
 {

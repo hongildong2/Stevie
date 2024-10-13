@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "../GraphicsCommon1.h"
 #include "../RenderDefs.h"
+#include "../RMaterial.h"
 #include "D3D11Renderer.h"
 #include "D3D11Resources.h"
 #include "D3D11DeviceResources.h"
@@ -21,6 +22,7 @@ namespace Graphics
 	RPixelShader* FOG_PS;
 	RPixelShader* VOLUME_PS;
 	RPixelShader* OCEAN_SURFACE_PS;
+	RPixelShader* DEMO_PS;
 
 
 	RComputeShader* DOWN_BLUR_CS;
@@ -52,6 +54,8 @@ namespace Graphics
 	RRasterizerState* WIRE_FRAME_CW_RS;
 	RRasterizerState* WIRE_FRAME_CCW_RS;
 
+	RMaterial* DEMO_MATERIAL;
+
 
 	// Input Layouts
 	RInputLayout* BASIC_IL;
@@ -72,6 +76,7 @@ namespace Graphics
 			InitBlendStates(pRenderer);
 			InitRasterizerStates(pRenderer);
 			InitDepthStencilStates(pRenderer);
+			InitMaterials(pRenderer);
 		}
 		void InitShaders(const D3D11Renderer* pRenderer)
 		{
@@ -156,6 +161,7 @@ namespace Graphics
 					new D3D11PixelShader(L"FILTER_COMBINE"),
 					new D3D11PixelShader(L"FOG"),
 					new D3D11PixelShader(L"VOLUME"),
+					new D3D11PixelShader(L"DEMO")
 				};
 
 				RPixelShader** dst[] =
@@ -164,7 +170,8 @@ namespace Graphics
 					&CUBEMAP_PS,
 					&FILTER_COMBINE_PS,
 					&FOG_PS,
-					&VOLUME_PS
+					&VOLUME_PS,
+					&DEMO_PS
 				};
 				static_assert(sizeof(src) == sizeof(dst));
 
@@ -353,6 +360,12 @@ namespace Graphics
 
 		}
 
+		void InitMaterials(const D3D11Renderer* pRenderer)
+		{
+			DEMO_MATERIAL = new RDemoMaterial();
+			DEMO_MATERIAL->Initialize();
+		}
+
 		void ClearCommonResources() // Delete All
 		{
 			delete BASIC_VS;
@@ -403,6 +416,8 @@ namespace Graphics
 			delete SAMPLING_IL;
 
 			delete ALPHA_BS;
+
+			delete DEMO_MATERIAL;
 
 		}
 	}
