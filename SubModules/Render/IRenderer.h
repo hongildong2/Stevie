@@ -25,6 +25,7 @@ interface IRenderer
 {
 public:
 	IRenderer() = default;
+	virtual ~IRenderer() = default;
 
 	IRenderer(const IRenderer& other) = delete;
 	IRenderer operator=(const IRenderer& other) = delete;

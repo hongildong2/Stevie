@@ -6,7 +6,6 @@ class RTexture2D;
 class RShader;
 class RSamplerState;
 class RBlendState;
-class IRenderResource;
 class RPixelShader;
 
 constexpr UINT MATERIAL_MAX_TEXTURE_SLOT = 10;

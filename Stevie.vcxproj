@@ -182,7 +182,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Core\AObjectManager.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="SubModules\Render\RInputLayout.h" />
     <ClInclude Include="SubModules\Render\GraphicsCommon1.h" />
@@ -196,8 +195,6 @@
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11DeviceResources.h" />
-    <ClInclude Include="Core\Components\Cloud\CloudMeshComponent.h" />
-    <ClInclude Include="Core\Components\Ocean\OceanMeshComponent.h" />
     <ClInclude Include="Core\Components\MeshComponent.h" />
     <ClInclude Include="SubModules\Render\RShader.h" />
     <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
@@ -207,17 +204,10 @@
     <ClInclude Include="SubModules\Render\IRenderer.h" />
     <ClInclude Include="SubModules\Render\RenderDefs.h" />
     <ClInclude Include="Core\Game.h" />
-    <ClInclude Include="Core\AObject.h" />
-    <ClInclude Include="SubModules\IComponent.h" />
-    <ClInclude Include="SubModules\IComponentHandler.h" />
-    <ClInclude Include="SubModules\IComponentManager.h" />
-    <ClInclude Include="Core\AObjectHandler.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Core\StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\AObject.cpp" />
-    <ClCompile Include="Core\AObjectManager.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
     <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
     <ClCompile Include="SubModules\Render\RInputLayout.cpp" />
@@ -231,15 +221,12 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
-    <ClCompile Include="Core\Components\Cloud\CloudMeshComponent.cpp" />
-    <ClCompile Include="Core\Components\Ocean\OceanMeshComponent.cpp" />
     <ClCompile Include="Core\Components\MeshComponent.cpp" />
     <ClCompile Include="SubModules\Render\RShader.cpp" />
     <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\RTexture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="SubModules\Render\RMaterial.cpp" />
-    <ClCompile Include="SubModules\IComponentManager.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">

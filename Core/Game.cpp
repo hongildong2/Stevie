@@ -5,9 +5,6 @@
 #include "pch.h"
 #include "Game.h"
 
-#include "AObject.h"
-#include "AObjectManager.h"
-
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
 
 extern void ExitGame() noexcept;
@@ -22,18 +19,6 @@ using DirectX::SimpleMath::Quaternion;
 Game::Game() noexcept(false)
 {
 	m_renderer = std::make_unique<D3D11Renderer>();
-}
-
-// Resource Management
-void Game::Register(AObject* obj)
-{
-	assert(obj != nullptr);
-}
-
-// Resource Management
-void Game::UnRegister(AObject* obj)
-{
-	assert(obj != nullptr);
 }
 
 // Initialize the Direct3D resources required to run.
@@ -199,6 +184,7 @@ void Game::OnDisplayChange()
 void Game::OnWindowSizeChanged(int width, int height)
 {
 	// TODO: Game window is being resized.
+	m_renderer->UpdateWindowSize(width, height);
 }
 
 // Properties

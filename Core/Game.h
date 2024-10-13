@@ -6,8 +6,6 @@
 
 
 #include "StepTimer.h"
-#include "AObject.h"
-#include "AObjectHandler.h"
 
 #include "SubModules/Render/RenderDefs.h"
 #include "SubModules/Render/D3D11/D3DUtil.h"
@@ -17,9 +15,8 @@ constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
-class Game final : public DX::IDeviceNotify, public AObjectHandler
+class Game final : public DX::IDeviceNotify
 {
-	friend class SceneStateObject;
 public:
 
 	Game() noexcept(false);
@@ -52,10 +49,6 @@ public:
 
 	// Properties
 	void GetDefaultSize(int& width, int& height) const noexcept;
-
-	// Object Management
-	void Register(AObject* obj) override;
-	void UnRegister(AObject* obj) override;
 
 
 private:
