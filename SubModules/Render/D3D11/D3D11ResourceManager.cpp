@@ -18,6 +18,8 @@ void D3D11ResourceManager::Initialize(D3D11Renderer* pRenderer)
 	m_pRenderer = pRenderer;
 	m_namedResourcesMap.reserve(500);
 	m_unnamedResourcesMap.reserve(500);
+
+	InitializeCommonResource();
 }
 
 void D3D11ResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount)

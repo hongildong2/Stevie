@@ -141,12 +141,13 @@
     <FxCompile Include="SubModules\Render\D3D11\Shaders\SAMPLING_VS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_VS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_PS.hlsl" />
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_TESSELLATED_DS.hlsl" />
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_TESSELLATED_HS.hlsl" />
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_TIMEDPENDENT_SPECTRUM_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_DS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_HS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_TIME_DEPENDENT_SPECTRUM_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\UP_BLUR_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_POST_PROCESS_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="SubModules\Render\D3D11\Shaders\ShaderTypes.hlsli" />

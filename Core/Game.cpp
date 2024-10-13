@@ -40,7 +40,7 @@ void Game::UnRegister(AObject* obj)
 void Game::Initialize(HWND window, int width, int height)
 {
 	m_renderer->SetWindow(window, width, height);
-	m_renderer->Initialize(TRUE, TRUE, L"/SubModules/Render/D3D11/Shaders");
+	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
 
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.

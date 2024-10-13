@@ -32,7 +32,6 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_deviceResources->CreateWindowSizeDependentResources();
 	m_resourceManager->Initialize(this);
 
-	// Init Shader, States, Managers..
 
 	return TRUE;
 }

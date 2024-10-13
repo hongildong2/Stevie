@@ -10,8 +10,7 @@ SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 	float4 pos = mul(float4(input.positionModel, 1.f), world);
 	
 
-	float4 viewPos = mul(float4(input.positionModel, 0), view);
-	output.positionProj = mul(float4(viewPos.xyz, 1), proj);
-
+	float4 viewPos = mul(pos, depthView);
+	output.positionProj = mul(viewPos, depthProj);
 	return output;
 }

@@ -99,7 +99,7 @@ namespace Graphics
 
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lBasicVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_6_0", NULL, shaderBlob.GetAddressOf()));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lBasicVS->GetAddressOf()));
 				BASIC_VS = lBasicVS;
 
@@ -113,25 +113,27 @@ namespace Graphics
 				DX::ThrowIfFailed(pDevice->CreateInputLayout(BASIC_INPUT_LAYOUT, (sizeof(BASIC_INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), lBasicIL->GetAddressOf()));
 				BASIC_IL = lBasicIL;
 
-				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lCubemapVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_6_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lCubemapVS->GetAddressOf()));
-				CUBEMAP_VS = lCubemapVS;
+
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lQuadVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_6_0", NULL, shaderBlob.GetAddressOf()));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lQuadVS->GetAddressOf()));
 				QUAD_VS = lQuadVS;
 
+
+				// SAMPLING INPUTS
+				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lCubemapVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lCubemapVS->GetAddressOf()));
+				CUBEMAP_VS = lCubemapVS;
+
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lDepthOnlyVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_6_0", NULL, shaderBlob.GetAddressOf()));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lDepthOnlyVS->GetAddressOf()));
 				DEPTH_ONLY_VS = lDepthOnlyVS;
 
-
-
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lSamplingVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_6_0", NULL, shaderBlob.GetAddressOf()));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lSamplingVS->GetAddressOf()));
 				SAMPLING_VS = lSamplingVS;
 
@@ -166,10 +168,10 @@ namespace Graphics
 				};
 				static_assert(sizeof(src) == sizeof(dst));
 
-				for (UINT i = 0; i < sizeof(dst); ++i)
+				for (UINT i = 0; i < sizeof(dst) / sizeof(void*); ++i)
 				{
 					swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, src[i]->GetName(), ToString(EShaderType::PIXEL_SHADER));
-					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ps_6_0", NULL, shaderBlob.GetAddressOf()));
+					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
 					DX::ThrowIfFailed(pDevice->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->GetAddressOf()));
 
 					*dst[i] = src[i];
@@ -208,10 +210,10 @@ namespace Graphics
 				};
 				static_assert(sizeof(src) == sizeof(dst));
 
-				for (UINT i = 0; i < sizeof(dst); ++i)
+				for (UINT i = 0; i < sizeof(dst) / sizeof(void*); ++i)
 				{
 					swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, src[i]->GetName(), ToString(EShaderType::COMPUTE_SHADER));
-					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "cs_6_0", NULL, shaderBlob.GetAddressOf()));
+					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
 					DX::ThrowIfFailed(pDevice->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->GetAddressOf()));
 
 					*dst[i] = src[i];
@@ -222,8 +224,8 @@ namespace Graphics
 			{
 				D3D11HullShader* lTessellatedQuadHS = new D3D11HullShader(L"TESSELLATED_QUAD");
 
-				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadHS->GetName(), ToString(EShaderType::COMPUTE_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "hs_6_0", NULL, shaderBlob.GetAddressOf()));
+				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadHS->GetName(), ToString(EShaderType::HULL_SHADER));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadHS->GetAddressOf()));
 
 			}
@@ -232,8 +234,8 @@ namespace Graphics
 			{
 				D3D11DomainShader* lTessellatedQuadDS = new D3D11DomainShader(L"TESSELLATED_QUAD");
 
-				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadDS->GetName(), ToString(EShaderType::COMPUTE_SHADER));
-				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "hs_6_0", NULL, shaderBlob.GetAddressOf()));
+				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadDS->GetName(), ToString(EShaderType::DOMAIN_SHADER));
+				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadDS->GetAddressOf()));
 			}
 
