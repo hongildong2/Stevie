@@ -2,6 +2,7 @@
 #include "D3D11Renderer.h"
 #include "D3D11Texture.h"
 #include "D3DUtil.h"
+#include "D3D11DeviceResources.h"
 
 void D3D11Texture2D::Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height, const DXGI_FORMAT format, const BOOL bIsDynamic)
 {

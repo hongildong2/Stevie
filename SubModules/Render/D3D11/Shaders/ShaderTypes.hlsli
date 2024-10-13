@@ -18,7 +18,7 @@ struct VertexShaderOutput
 	float3 normalWorld : NORMAL0;
 	float2 texcoordinate : TEXCOORD0;
 	float3 tangentWorld : TANGENT0;
-	float3 positionModel : POSITION1; // Volume casting 시작점
+	float3 positionModel : POSITION1; // Volume casting 시작점2
 };
 
 struct PixelShaderInput

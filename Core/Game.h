@@ -4,21 +4,13 @@
 #pragma once
 #include "pch.h"
 
-#include "SubModules\Render\Core\DeviceResources.h"
-#include "SubModules\Render\Scene\Camera.h"
-#include "SubModules\Render\Core\GraphicsPSO.h"
-#include "SubModules\Render\Core\ComputePSO.h"
-#include "SubModules\Render\Scene\SceneLights.h"
-#include "SubModules\Render\Scene\SceneStateObject.h"
-#include "SubModules\Render\Core\MyPostProcess.h"
 
 #include "StepTimer.h"
 #include "AObject.h"
-#include "SubModules/GUI/GUI.h"
 #include "AObjectHandler.h"
-#include "Ocean/Ocean.h"
-#include "Cloud.h"
 
+#include "SubModules/Render/RenderDefs.h"
+#include "SubModules/Render/D3D11/D3DUtil.h"
 
 
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -71,19 +63,15 @@ private:
 
 	void Render();
 
-	void Clear();
-
 	void CreateDeviceDependentResources();
 	void CreateWindowSizeDependentResources();
 
 	// Device resources.
-	std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+	std::unique_ptr<IRenderer> m_renderer;
 
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;
 
-	// GUI Component
-	std::unique_ptr<GUI> m_GUI;
 
 	// Input Component
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
@@ -92,15 +80,4 @@ private:
 	DirectX::Keyboard::KeyboardStateTracker m_keys;
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
 
-	// Gameplay, Render Components
-	std::vector<std::unique_ptr<Model>> m_models;
-	std::unique_ptr<Model> m_skyBox;
-	std::unique_ptr<Ocean> m_ocean;
-	std::unique_ptr<Cloud> m_cloud;
-	const std::unique_ptr<SceneStateObject> m_sceneState; // does not share with other scene
-
-	// Renderer Component, Different Thread
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_floatBuffer;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_floatRTV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_floatSRV;
 };

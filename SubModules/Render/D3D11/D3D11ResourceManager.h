@@ -5,6 +5,7 @@
 
 class D3D11Texture2D;
 class D3D11TextureVolume;
+class D3D11MeshGeometry;
 class D3D11Renderer;
 
 class D3D11ResourceManager final

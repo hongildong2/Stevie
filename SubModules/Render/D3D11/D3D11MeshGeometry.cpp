@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "D3D11MeshGeometry.h"
 #include "D3D11Renderer.h"
+#include "D3DUtil.h"
+#include "D3D11DeviceResources.h"
 
 D3D11MeshGeometry::D3D11MeshGeometry(const EPrimitiveTopologyType type)
 	: RMeshGeometry(type)

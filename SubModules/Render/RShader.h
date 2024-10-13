@@ -1,5 +1,6 @@
 #pragma once
-#include "RenderDefs.h"
+#include "pch.h"
+#include "IRenderResource.h"
 
 
 /*

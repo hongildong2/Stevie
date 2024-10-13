@@ -29,7 +29,7 @@ enum class EShaderType
 	GEOMETRY_SHADER
 };
 
-const WCHAR* ToString(const EShaderType type)
+inline const WCHAR* ToString(const EShaderType type)
 {
 	switch (type)
 	{

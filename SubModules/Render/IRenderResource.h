@@ -5,7 +5,7 @@ interface IRenderResource
 {
 public:
 	IRenderResource() = default;
-	virtual ~IRenderResource();
+	virtual ~IRenderResource() = default;
 	IRenderResource(const IRenderResource& other) = delete;
 	IRenderResource& operator=(const IRenderResource& other) = delete;
 };

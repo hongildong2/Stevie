@@ -1,10 +1,12 @@
 #include "pch.h"
-#include "D3D11ResourceManager.h"
 #include "D3D11Renderer.h"
 #include "D3D11Texture.h"
 #include "D3D11MeshGeometry.h"
+#include "D3D11DeviceResources.h"
 
+#include "D3D11ResourceManager.h"
 #include "../GraphicsCommon1.h"
+#include "../RenderDefs.h"
 
 D3D11ResourceManager::~D3D11ResourceManager()
 {

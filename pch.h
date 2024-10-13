@@ -87,8 +87,9 @@
 
 
 // Mine
+#include "SubModules\Render\RenderDefs.h"
 #include "SubModules\Render\IRenderer.h"
-#include "SubModules\Render\DXUtils.h"
+#include "SubModules\Render\IRenderResource.h"
 #include "SubModules\IComponent.h"
 #include "SubModules\IComponentHandler.h"
 #include "Core\AObject.h"

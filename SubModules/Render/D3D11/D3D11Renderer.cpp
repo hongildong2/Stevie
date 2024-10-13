@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "../RTexture.h"
+
 #include "D3D11Texture.h"
 #include "D3D11Renderer.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
-#include "D3D11ResourceManager.h"
+#include "../RTexture.h"
 #include "Core/Components/MeshComponent.h"
 
 using Microsoft::WRL::ComPtr;
@@ -13,8 +13,10 @@ using namespace DirectX;
 
 D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
+	, m_resourceManager()
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>();
+	m_resourceManager = std::make_unique<D3D11ResourceManager>();
 }
 
 BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
@@ -28,6 +30,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_deviceResources->CreateDeviceResources();
 	m_deviceResources->CreateWindowSizeDependentResources();
+	m_resourceManager->Initialize(this);
 
 	// Init Shader, States, Managers..
 
@@ -44,7 +47,7 @@ void D3D11Renderer::BeginRender()
 	// TODO :: Create Float RTV
 
 	// context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
-	context->ClearRenderTargetView(backBufferRTV, Colors::Black);
+	context->ClearRenderTargetView(backBufferRTV, Colors::Cyan);
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 

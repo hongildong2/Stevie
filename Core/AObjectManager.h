@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "AObject.h"
-#include "IObjectHandler.h"
+#include "AObjectHandler.h"
 
 class AObjectManager final
 {

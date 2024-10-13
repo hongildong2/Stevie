@@ -4,10 +4,6 @@
 
 #include "pch.h"
 #include "Core/Game.h"
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
-
 
 using namespace DirectX;
 
@@ -27,10 +23,6 @@ LPCWSTR g_szAppName = L"Stevie";
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
-	UINT msg,
-	WPARAM wParam,
-	LPARAM lParam);
 
 
 void ExitGame() noexcept;
@@ -131,10 +123,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static bool s_minimized = false;
 	static bool s_fullscreen = false;
 	// TODO: Set s_fullscreen to true if defaulting to fullscreen.
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-	{
-		return true;
-	}
 
 	auto game = reinterpret_cast<Game*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 

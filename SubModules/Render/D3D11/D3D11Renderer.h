@@ -1,8 +1,8 @@
 #pragma once
 #include "../IRenderer.h"
+#include "D3D11ResourceManager.h"
+#include "D3D11DeviceResources.h"
 
-class D3D11DeviceResources;
-class D3D11ResourceManager;
 
 class D3D11Renderer : public IRenderer
 {

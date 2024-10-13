@@ -2,6 +2,11 @@
 #include "RMeshGeometry.h"
 
 RMeshGeometry::RMeshGeometry(const EPrimitiveTopologyType type)
-	: m_topologyType(type)
+	: IRenderResource()
+	, m_topologyType(type)
+	, m_indexCount()
+	, m_indexFormat()
+	, m_vertexOffset()
+	, m_vertexStride()
 {
 }
