@@ -4,16 +4,26 @@
 #include "D3D11Renderer.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
-#include "../RTexture.h"
+#include "Core/SGameObject.h"
 #include "Core/Components/MeshComponent.h"
+#include "SubModules/Render/Scene/Camera.h"
+#include "../RTexture.h"
+#include "../RMaterial.h"
+#include "../GraphicsCommon1.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
+
+using DirectX::SimpleMath::Matrix;
+using DirectX::SimpleMath::Vector2;
+using DirectX::SimpleMath::Vector3;
+using DirectX::SimpleMath::Vector4;
 
 
 D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 	, m_resourceManager()
+	, m_camera(nullptr)
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>();
 	m_resourceManager = std::make_unique<D3D11ResourceManager>();
@@ -31,6 +41,11 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_deviceResources->CreateDeviceResources();
 	m_deviceResources->CreateWindowSizeDependentResources();
 	m_resourceManager->Initialize(this);
+
+	m_resourceManager->CreateConstantBuffer(sizeof(GlobalConstant), nullptr, m_globalCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(MeshConstant), nullptr, m_meshCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(MaterialConstant), nullptr, m_materialCB.GetAddressOf());
+
 
 
 	return TRUE;
@@ -59,6 +74,8 @@ void D3D11Renderer::BeginRender()
 	// Set the viewport.
 	auto const viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
+
+	SetGlobalConstant();
 
 	m_deviceResources->PIXEndEvent();
 }
@@ -105,37 +122,32 @@ RTexture2D* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
 	return static_cast<RTexture2D*>(m_resourceManager->CreateTextureFromFile(wchFileName));
 }
 
-void D3D11Renderer::Render(const MeshComponent* pInMeshComponent)
+void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRow)
 {
-	D3D11MeshGeometry* mesh = static_cast<D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
+	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
 
 	const RMaterial* mat = pInMeshComponent->GetMaterial();
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-	// mesh->Draw();
+	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
+	pContext->IASetInputLayout(basicIL->Get());
 
-	// single pass rendering
-	// 
-		// RSstate, basic
-		// Depth/Stencil, basic
+	SetMeshConstant(pInMeshComponent, worldRow);
+	SetMaterialConstant(mat);
+
+	ID3D11Buffer* cbs[3] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get() };
+
+	D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
+	pContext->VSSetShader(basicVS->Get(), nullptr, 0);
+	pContext->VSSetConstantBuffers(0, 3, cbs);
+
+	// No further resource for demoPS
+	const D3D11PixelShader* demoPS = static_cast<const D3D11PixelShader*>(mat->GetShader());
+	pContext->PSSetShader(demoPS->Get(), nullptr, 0);
+
+	mesh->Draw();
 
 
-		// set BlendState from material
-		// set Pixel Shader from material
-		// Get Textures from Material, Set as Resource
-		// Set SamplerState of material
-		// 
-		// mesh->Draw
-}
-
-
-// TODO :: 
-void D3D11Renderer::RenderOcean(const OceanMeshComponent* pInOcean)
-{
-}
-
-void D3D11Renderer::RenderCloud(const CloudMeshComponent* pInRender)
-{
 }
 
 void D3D11Renderer::Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ)
@@ -159,3 +171,58 @@ RMeshGeometry* D3D11Renderer::CreateQuadPatches(const UINT patchCount)
 	return nullptr;
 }
 
+void D3D11Renderer::SetCamera(const Camera* pCamera)
+{
+	// camera not null
+	m_camera = pCamera;
+}
+
+void D3D11Renderer::SetGlobalConstant()
+{
+	GlobalConstant globalConstant;
+	ZeroMemory(&globalConstant, sizeof(GlobalConstant));
+
+
+	Matrix viewRow = m_camera->GetViewRowMat();
+	Matrix projRow = m_camera->GetProjRowMat();
+	Matrix viewProjRow = viewRow * projRow;
+
+	globalConstant.view = viewRow.Transpose();
+	globalConstant.proj = projRow.Transpose();
+	globalConstant.viewProj = viewProjRow.Transpose();
+
+	globalConstant.invView = globalConstant.view.Invert();
+	globalConstant.invProj = globalConstant.proj.Invert();
+	globalConstant.invViewProj = globalConstant.viewProj.Invert();
+
+	globalConstant.eyeWorld = m_camera->GetEyePos();
+	globalConstant.globalTime = 0.f;
+
+	globalConstant.eyeDir = m_camera->GetEyeDir();
+	globalConstant.globalLightsCount = 0;
+
+	globalConstant.nearZ = m_camera->GetNearZ();
+	globalConstant.farZ = m_camera->GetFarZ();
+
+	m_resourceManager->UpdateConstantBuffer(sizeof(GlobalConstant), &globalConstant, m_globalCB.Get());
+}
+
+void D3D11Renderer::SetMeshConstant(const MeshComponent* pMeshComponent, Matrix worldRow)
+{
+	MeshConstant meshCB;
+	ZeroMemory(&meshCB, sizeof(MeshConstant));
+	Matrix world = worldRow;
+	Matrix worldInverse = world.Invert();
+	Matrix worldIT = worldInverse.Transpose();
+	meshCB.world = world.Transpose();
+	meshCB.worldInv = worldInverse.Transpose();
+	meshCB.worldIT = worldIT.Transpose();
+	m_resourceManager->UpdateConstantBuffer(sizeof(MeshConstant), &meshCB, m_meshCB.Get());
+}
+
+void D3D11Renderer::SetMaterialConstant(const RMaterial* pMaterial)
+{
+	MaterialConstant materialConstant;
+	ZeroMemory(&materialConstant, sizeof(MaterialConstant));
+	// TODO :: Set by Material
+}

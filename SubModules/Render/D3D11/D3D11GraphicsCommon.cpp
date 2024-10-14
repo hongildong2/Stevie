@@ -105,7 +105,7 @@ namespace Graphics
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lBasicVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lBasicVS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lBasicVS->ReleaseAndGetAddressOf()));
 				BASIC_VS = lBasicVS;
 
 				const D3D11_INPUT_ELEMENT_DESC BASIC_INPUT_LAYOUT[] =
@@ -115,31 +115,31 @@ namespace Graphics
 					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				};
-				DX::ThrowIfFailed(pDevice->CreateInputLayout(BASIC_INPUT_LAYOUT, (sizeof(BASIC_INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), lBasicIL->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateInputLayout(BASIC_INPUT_LAYOUT, (sizeof(BASIC_INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), lBasicIL->ReleaseAndGetAddressOf()));
 				BASIC_IL = lBasicIL;
 
 
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lQuadVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lQuadVS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lQuadVS->ReleaseAndGetAddressOf()));
 				QUAD_VS = lQuadVS;
 
 
 				// SAMPLING INPUTS
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lCubemapVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lCubemapVS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lCubemapVS->ReleaseAndGetAddressOf()));
 				CUBEMAP_VS = lCubemapVS;
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lDepthOnlyVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lDepthOnlyVS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lDepthOnlyVS->ReleaseAndGetAddressOf()));
 				DEPTH_ONLY_VS = lDepthOnlyVS;
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lSamplingVS->GetName(), ToString(EShaderType::VERTEX_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "vs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lSamplingVS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lSamplingVS->ReleaseAndGetAddressOf()));
 				SAMPLING_VS = lSamplingVS;
 
 
@@ -148,7 +148,7 @@ namespace Graphics
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				};
-				DX::ThrowIfFailed(pDevice->CreateInputLayout(SAMPLING_INPUT_LAYOUT, (sizeof(SAMPLING_INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), lSamplingIL->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateInputLayout(SAMPLING_INPUT_LAYOUT, (sizeof(SAMPLING_INPUT_LAYOUT) / sizeof(D3D11_INPUT_ELEMENT_DESC)), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), lSamplingIL->ReleaseAndGetAddressOf()));
 				SAMPLING_IL = lSamplingIL;
 			}
 
@@ -179,7 +179,7 @@ namespace Graphics
 				{
 					swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, src[i]->GetName(), ToString(EShaderType::PIXEL_SHADER));
 					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ps_5_0", NULL, shaderBlob.GetAddressOf()));
-					DX::ThrowIfFailed(pDevice->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->GetAddressOf()));
+					DX::ThrowIfFailed(pDevice->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->ReleaseAndGetAddressOf()));
 
 					*dst[i] = src[i];
 				}
@@ -221,7 +221,7 @@ namespace Graphics
 				{
 					swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, src[i]->GetName(), ToString(EShaderType::COMPUTE_SHADER));
 					DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "cs_5_0", NULL, shaderBlob.GetAddressOf()));
-					DX::ThrowIfFailed(pDevice->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->GetAddressOf()));
+					DX::ThrowIfFailed(pDevice->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, src[i]->ReleaseAndGetAddressOf()));
 
 					*dst[i] = src[i];
 				}
@@ -233,7 +233,7 @@ namespace Graphics
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadHS->GetName(), ToString(EShaderType::HULL_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadHS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadHS->ReleaseAndGetAddressOf()));
 
 			}
 
@@ -243,7 +243,7 @@ namespace Graphics
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadDS->GetName(), ToString(EShaderType::DOMAIN_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));
-				DX::ThrowIfFailed(pDevice->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadDS->GetAddressOf()));
+				DX::ThrowIfFailed(pDevice->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadDS->ReleaseAndGetAddressOf()));
 			}
 
 		}
@@ -266,17 +266,17 @@ namespace Graphics
 			auto* lShadowPointSS = new D3D11SamplerState();
 			auto* lShadowCompareSS = new D3D11SamplerState();
 
-			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearWrapSS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearWrapSS->ReleaseAndGetAddressOf()));
 
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearClampSS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearClampSS->ReleaseAndGetAddressOf()));
 
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearClampSS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearClampSS->ReleaseAndGetAddressOf()));
 
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -284,10 +284,10 @@ namespace Graphics
 			desc.BorderColor[0] = 300.0f;
 			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 
-			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lShadowPointSS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lShadowPointSS->ReleaseAndGetAddressOf()));
 
 			desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lShadowCompareSS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateSamplerState(&desc, lShadowCompareSS->ReleaseAndGetAddressOf()));
 
 			LINEAR_WRAP_SS = lLinearWrapSS;
 			LINEAR_CLAMP_SS = lLinearClampSS;
@@ -317,7 +317,7 @@ namespace Graphics
 			blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 
-			DX::ThrowIfFailed(pDevice->CreateBlendState(&blendDesc, lAlphaBS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateBlendState(&blendDesc, lAlphaBS->ReleaseAndGetAddressOf()));
 			ALPHA_BS = lAlphaBS;
 		}
 
@@ -337,16 +337,16 @@ namespace Graphics
 			rastDesc.FrontCounterClockwise = false;
 			rastDesc.DepthClipEnable = true;
 
-			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lSolidCwRS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lSolidCwRS->ReleaseAndGetAddressOf()));
 
 			rastDesc.FrontCounterClockwise = true;
-			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lSolidCcwRS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lSolidCcwRS->ReleaseAndGetAddressOf()));
 
 			rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
-			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lWireFrameCcwRS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lWireFrameCcwRS->ReleaseAndGetAddressOf()));
 
 			rastDesc.FrontCounterClockwise = false;
-			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lWireFrameCwRS->GetAddressOf()));
+			DX::ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, lWireFrameCwRS->ReleaseAndGetAddressOf()));
 
 
 			SOLID_CW_RS = lSolidCwRS;

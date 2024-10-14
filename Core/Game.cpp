@@ -9,15 +9,13 @@
 #include "SubModules/Render/GraphicsCommon1.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
 #include "Components/MeshComponent.h"
+#include "SubModules/Render/Scene/Camera.h"
 
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
-
+using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
-using DirectX::SimpleMath::Vector3;
-using DirectX::SimpleMath::Matrix;
-using DirectX::SimpleMath::Quaternion;
 
 Game::Game() noexcept(false)
 {
@@ -27,25 +25,30 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, 0.1f, 10.f, 90.f);
+
 	m_renderer->SetWindow(window, width, height);
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
+	m_renderer->SetCamera(m_camera.get());
 
-	m_obj = std::make_unique<SGameObject>();
+	// DEMO
+	{
+		m_obj = std::make_unique<SGameObject>();
+		MeshData sphere = MakeSphere(2.f, 50, 50);
+		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
+		MeshComponent* demoC = new MeshComponent();
+		demoC->Initialize(sphereMesh, Graphics::DEMO_MATERIAL);
 
-	MeshData sphere = MakeSphere(2.f, 50, 50);
-	RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
-	MeshComponent* demoC = new MeshComponent();
-	demoC->Initialize(sphereMesh, Graphics::DEMO_MATERIAL);
-
-	m_obj->Initialize(m_renderer.get(), demoC);
-
+		m_obj->Initialize(m_renderer.get());
+		m_obj->SetMeshComponent(demoC);
+	}
 
 
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
 	m_timer.SetFixedTimeStep(false);
-	m_timer.SetTargetElapsedSeconds(1.0 / 60);
+	m_timer.SetTargetElapsedSeconds(1.0f / 60.0f);
 
 	m_keyboard = std::make_unique<Keyboard>();
 	m_mouse = std::make_unique<Mouse>();
@@ -80,8 +83,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
-			// Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f) * Camera::ROTATION_GAIN;
-			// m_sceneState->GetCamera()->UpdatePitchYaw(deltaRotationRadian);
+			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f) * Camera::ROTATION_GAIN;
+			m_camera->UpdatePitchYaw(deltaRotationRadian);
 		}
 
 		m_mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
@@ -95,7 +98,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (kb.Home)
 		{
-			// m_sceneState->GetCamera()->Reset();
+			m_camera->Reset();
 		}
 
 		Vector3 move = Vector3::Zero;
@@ -120,11 +123,11 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 		// Get Camera PitchYaw Quarternion
-		// Quaternion q = m_sceneState->GetCamera()->GetPitchYawInQuarternion();
-		// move = Vector3::Transform(move, q); // represented in camera space
+		Quaternion q = m_camera->GetPitchYawInQuarternion();
+		move = Vector3::Transform(move, q); // represented in camera space
 
-		// Vector3 deltaMove = move * Camera::MOVEMENT_GAIN;
-		// m_sceneState->GetCamera()->UpdatePos(deltaMove);
+		Vector3 deltaMove = move * Camera::MOVEMENT_GAIN;
+		m_camera->UpdatePos(deltaMove);
 
 		// no bound currently
 		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))

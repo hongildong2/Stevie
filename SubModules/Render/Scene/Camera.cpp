@@ -1,17 +1,14 @@
 #include "pch.h"
 #include "Camera.h"
 
-
-
 const DirectX::XMVECTORF32 Camera::START_POSITION = { 0.f, -1.5f, 0.f, 0.f };
 const float Camera::ROTATION_GAIN = 0.004f;
 const float Camera::MOVEMENT_GAIN = 0.07f;
 
+using namespace DirectX::SimpleMath;
 
-
-Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Vector3 viewDirWorld, DirectX::SimpleMath::Vector3 upVector, float nearZ, float farZ, float fov)
-	: IDepthRenderable()
-	, m_eyePosWorld(eyePosWorld)
+Camera::Camera(Vector3 eyePosWorld, Vector3 viewDirWorld, Vector3 upVector, float nearZ, float farZ, float fov)
+	: m_eyePosWorld(eyePosWorld)
 	, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
 	, m_upVector(upVector)
 	, m_pitch(0.f)
@@ -22,24 +19,30 @@ Camera::Camera(DirectX::SimpleMath::Vector3 eyePosWorld, DirectX::SimpleMath::Ve
 {
 }
 
-void Camera::UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian)
+void Camera::UpdatePitchYaw(Vector3& deltaRadian)
 {
 	m_pitch -= deltaRadian.y;
 	m_yaw -= deltaRadian.x;
 }
-DirectX::SimpleMath::Matrix Camera::GetViewRow() const
+
+Matrix Camera::GetViewRowMat() const
 {
-	return DirectX::SimpleMath::Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
+	return Matrix::CreateLookAt(m_eyePosWorld, m_lookAtTargetPosWorld, m_upVector);
 }
 
-DirectX::SimpleMath::Vector3 Camera::GetEyePos() const
+Matrix Camera::GetProjRowMat() const
+{
+	return Matrix::CreatePerspectiveFieldOfView(m_fov, 16.f / 9.f, m_nearZ, m_farZ);
+}
+
+Vector3 Camera::GetEyePos() const
 {
 	return m_eyePosWorld;
 }
 
-DirectX::SimpleMath::Vector3 Camera::GetEyeDir() const
+Vector3 Camera::GetEyeDir() const
 {
-	DirectX::SimpleMath::Vector3 viewDir = m_lookAtTargetPosWorld - m_eyePosWorld;
+	Vector3 viewDir = m_lookAtTargetPosWorld - m_eyePosWorld;
 	viewDir.Normalize();
 	return viewDir;
 }
@@ -52,17 +55,14 @@ void Camera::UpdateLookAt(DirectX::SimpleMath::Vector3& viewDirModel)
 	m_lookAtTargetPosWorld = m_eyePosWorld + viewDirModel;
 }
 
-DirectX::SimpleMath::Quaternion Camera::GetPitchYawInQuarternion() const
+Quaternion Camera::GetPitchYawInQuarternion() const
 {
-	return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
+	return Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 }
 
-void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
+void Camera::UpdatePos(Vector3& deltaPos)
 {
 	m_eyePosWorld += deltaPos;
-
-	using namespace DirectX;
-	using namespace DirectX::SimpleMath;
 
 	constexpr float limit = XM_PIDIV2 - 0.01f;
 	m_pitch = std::max(-limit, m_pitch);
@@ -90,14 +90,6 @@ void Camera::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)
 	float x = r * sinf(m_yaw);
 	auto camearaViewDirModel = Vector3(x, y, z);
 	UpdateLookAt(camearaViewDirModel);
-}
-
-void Camera::OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat)
-{
-	IDepthRenderable::m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(m_fov), float(vp.Width) / float(vp.Height), m_nearZ, m_farZ);
-	m_depthTex.reset();
-	m_depthTex = std::make_unique<DepthTexture>(vp);
-	m_depthTex->Initialize(pDevice);
 }
 
 void Camera::Reset()

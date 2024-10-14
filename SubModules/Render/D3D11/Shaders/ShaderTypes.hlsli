@@ -3,6 +3,10 @@
 
 #define SUN_LIGHT_INDEX (8)
 
+#define DIRECTIONAL_LIGHT (0)
+#define POINT_LIGHT (1)
+#define SPOT_LIGHT (2)
+
 struct VertexShaderInput
 {
 	float3 positionModel : POSITION; //¸ðµ¨ ÁÂÇ¥°èÀÇ À§Ä¡ position
@@ -34,7 +38,7 @@ struct PixelShaderInput
 
 struct Light
 {
-	float3 radiance; // == strength
+	float3 radiance;
 	float fallOffStart;
 	
 	float3 direction;
@@ -70,6 +74,10 @@ struct Material
 	float roughness;
 	float specular;
 	float IBLStrength;
+		
+	bool bUseHeightMap;
+	float heightScale;
+	float2 mcDummy;
 	
 	bool bUseAlbedoTexture;
 	bool bUseAOTexture;

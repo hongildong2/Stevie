@@ -9,6 +9,7 @@
 
 #include "SubModules/Render/RenderDefs.h"
 #include "SubModules/Render/D3D11/D3DUtil.h"
+#include "SubModules/Render/Scene/Camera.h"
 #include "SGameObject.h"
 
 constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -76,5 +77,7 @@ private:
 
 	// Demo
 	std::unique_ptr<SGameObject> m_obj;
+
+	std::unique_ptr<Camera> m_camera;
 
 };

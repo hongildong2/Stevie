@@ -10,20 +10,17 @@ public:
 	SGameObject();
 	~SGameObject();
 
-	virtual void Initialize(IRenderer* pRenderer, MeshComponent* pMeshComponent);
+	virtual void Initialize(IRenderer* pRenderer);
+	virtual void SetMeshComponent(MeshComponent* pMeshComponent);
 	virtual void Render();
 	virtual void Update();
 
+	DirectX::SimpleMath::Matrix GetWorldRowMat() const;
+
 
 private:
-	DirectX::SimpleMath::Matrix GetModelTransform() const
-	{
-		DirectX::XMMatrixRotationRollPitchYaw(m_pitchEuler, m_yawEuler, m_rollEuler)* DirectX::XMMatrixTranslation(m_worldPos.x, m_worldPos.y, m_worldPos.z);
-	}
-
-private:
-	MeshComponent* m_pMeshComponent;
 	IRenderer* m_pRenderer;
+	MeshComponent* m_pMeshComponent;
 
 	DirectX::SimpleMath::Vector4 m_worldPos;
 	float m_rollEuler;

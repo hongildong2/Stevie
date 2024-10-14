@@ -41,11 +41,6 @@ cbuffer MeshConstants : register(b1)
 	matrix world;
 	matrix worldIT;
 	matrix worldInv;
-	
-	bool bUseHeightMap;
-	float heightScale;
-	uint meshLightsCount;
-	float mcDummy;
 }
 
 cbuffer MaterialConstants : register(b2)

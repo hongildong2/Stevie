@@ -12,14 +12,12 @@ class RMaterial;
 class RShader;
 class RConstantBuffer;
 class RSamplerState;
-
+class Camera;
 
 enum class EBasicGeometry;
 enum class EShaderType;
 
 class MeshComponent;
-class OceanMeshComponent;
-class CloudMeshComponent;
 
 interface IRenderer
 {
@@ -43,9 +41,7 @@ public:
 	virtual BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight) = 0;
 
 	// Renders
-	virtual void Render(const MeshComponent* pInMeshComponent) = 0;
-	virtual void RenderOcean(const OceanMeshComponent* pInOcean) = 0;
-	virtual void RenderCloud(const CloudMeshComponent* pInRender) = 0;
+	virtual void Render(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) = 0;
 
 
 	// TODO :: Buffer? We need RBuffer to control parameters in game layer
@@ -59,4 +55,7 @@ public:
 
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) = 0;
 	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) = 0;
+
+	// Scene
+	virtual void SetCamera(const Camera* pCamera) = 0;
 };

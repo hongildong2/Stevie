@@ -11,8 +11,3 @@ void MeshComponent::Initialize(RMeshGeometry* pMeshGeometry, RMaterial* pMateria
 	m_pMeshGeometry = pMeshGeometry;
 	m_pMaterial = pMaterial;
 }
-
-void MeshComponent::SetRelativePos(XMFLOAT4 deltaPos)
-{
-	m_modelPos = deltaPos;
-}

@@ -20,10 +20,10 @@ public:
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
 	D3D11Texture2D* CreateTextureFromFile(const WCHAR* fileName);
 
-	void InitializeCommonResource() const;
+	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
+	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);
 
-	// CreateConstantBuffer(const UINT bufferSize);
-	//void UpdateConstantBuffer(D3D11ConstantBuffer* pInBuffer);
+	void InitializeCommonResource() const;
 
 private:
 	void CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount);

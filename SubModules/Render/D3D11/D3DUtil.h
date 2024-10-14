@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-
+#include "../RenderDefs.h"
 
 namespace DX
 {
@@ -42,5 +42,27 @@ namespace DX
 
 	HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob);
 
+	namespace D3D11
+	{
+		inline D3D11_PRIMITIVE_TOPOLOGY GetD3D11TopologyType(EPrimitiveTopologyType type)
+		{
+
+			switch (type)
+			{
+			case EPrimitiveTopologyType::TRIANGLE:
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			case EPrimitiveTopologyType::QUAD_PATCH:
+				return D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+			case EPrimitiveTopologyType::POINT:
+				return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+			case EPrimitiveTopologyType::LINE:
+				return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			default:
+				return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+			}
+		}
+
+
+	}
 
 }

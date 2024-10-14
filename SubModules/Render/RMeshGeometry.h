@@ -13,14 +13,11 @@ public:
 		return m_topologyType;
 	}
 
-	virtual void Draw(const XMMATRIX* pWorld) = 0;
+	virtual void Draw() const = 0;
 
 
 protected:
 	const EPrimitiveTopologyType m_topologyType;
-
-	// bIsTessellated; -> Set DS, HS, and its resource,
-	// bIsGeometric;
 
 	UINT m_vertexStride;
 	UINT m_vertexOffset;

@@ -11,14 +11,19 @@ template<typename T>
 class D3D11Resource
 {
 public:
-	inline T* Get()
+	inline T* Get() const
 	{
 		return m_resource.Get();
 	}
 
-	inline T** GetAddressOf()
+	inline T* const* GetAddressOf() const
 	{
 		return m_resource.GetAddressOf();
+	}
+
+	inline T** ReleaseAndGetAddressOf()
+	{
+		return m_resource.ReleaseAndGetAddressOf();
 	}
 
 protected:

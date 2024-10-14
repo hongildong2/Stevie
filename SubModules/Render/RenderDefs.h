@@ -69,7 +69,30 @@ struct MeshData
 };
 
 
-struct Material
+struct GlobalConstant
+{
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix proj;
+	DirectX::SimpleMath::Matrix viewProj;
+
+	DirectX::SimpleMath::Matrix invView;
+	DirectX::SimpleMath::Matrix invProj;
+	DirectX::SimpleMath::Matrix invViewProj;
+
+	DirectX::SimpleMath::Vector3 eyeWorld;
+	float globalTime;
+
+	DirectX::SimpleMath::Vector3 eyeDir;
+	UINT globalLightsCount;
+
+	float nearZ;
+	float farZ;
+	DirectX::SimpleMath::Vector2 gcDummy;
+};
+
+static_assert(sizeof(GlobalConstant) % 16 == 0, "Constant Buffer Alignment");
+
+struct MaterialConstant
 {
 	float metallicFactor;
 	float aoFactor;
@@ -84,6 +107,11 @@ struct Material
 	float specular; // default 0.5, water 0.255
 	float IBLStrength;
 
+
+	BOOL bUseHeightMap;
+	float heightScale;
+	DirectX::SimpleMath::Vector2 mcDummy;
+
 	BOOL bUseAlbedoTexture;
 	BOOL bUseAOTexture;
 	BOOL bUseHeightTexture;
@@ -94,16 +122,12 @@ struct Material
 	BOOL bUseEmissiveTexture;
 	BOOL bUseOpacityTexture;
 };
+static_assert(sizeof(MaterialConstant) % 16 == 0, "Constant Buffer Alignment");
 
-struct MeshConstants
+struct MeshConstant
 {
 	DirectX::SimpleMath::Matrix world;
 	DirectX::SimpleMath::Matrix worldIT;
 	DirectX::SimpleMath::Matrix worldInv;
-
-	BOOL bUseHeightMap;
-	float heightScale;
-	UINT meshLightsCount;
-	float mcDummy;
 };
-static_assert(sizeof(MeshConstants) % 16 == 0, "Constant Buffer Alignment");
+static_assert(sizeof(MeshConstant) % 16 == 0, "Constant Buffer Alignment");

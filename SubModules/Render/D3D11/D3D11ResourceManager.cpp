@@ -87,6 +87,50 @@ D3D11Texture2D* D3D11ResourceManager::CreateTextureFromFile(const WCHAR* fileNam
 	return res;
 }
 
+void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
+{
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ByteWidth = bufferSize;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	if (pInitData == nullptr)
+	{
+		DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, ppOutBuffer));
+
+	}
+	else
+	{
+		D3D11_SUBRESOURCE_DATA initDataDesc;
+		ZeroMemory(&initDataDesc, sizeof(initDataDesc));
+		initDataDesc.pSysMem = pInitData;
+		initDataDesc.SysMemPitch = 0;
+		initDataDesc.SysMemSlicePitch = 0;
+
+		DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, &initDataDesc, ppOutBuffer));
+	}
+
+}
+void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer)
+{
+	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	DX::ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+	memcpy(mappedResource.pData, pData, bufferSize);
+
+	pContext->Unmap(pBuffer, 0);
+}
+
 void D3D11ResourceManager::InitializeCommonResource() const
 {
 	Graphics::D3D11::InitCommonResources(m_pRenderer);

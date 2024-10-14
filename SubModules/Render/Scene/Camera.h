@@ -1,23 +1,29 @@
 #pragma once
 #include "pch.h"
-#include "SubModules\Render\Core\IDepthRenderable.h"
-#include "SubModules\Render\Core\IWindowSizeDependent.h"
 
-class Camera final : public IDepthRenderable, IWindowSizeDependent
+class Camera final
 {
 public:
 	Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector, float nearZ, float farZ, float fov);
-	DirectX::SimpleMath::Matrix GetViewRow() const override;
 	DirectX::SimpleMath::Vector3 GetEyePos() const;
 	DirectX::SimpleMath::Vector3 GetEyeDir() const;
+	DirectX::SimpleMath::Matrix GetViewRowMat() const;
+	DirectX::SimpleMath::Matrix GetProjRowMat() const;
+	inline float GetNearZ() const
+	{
+		return m_nearZ;
+	}
+	inline float GetFarZ() const
+	{
+		return m_farZ;
+	}
+
 
 	void UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian);
 	void UpdateLookAt(DirectX::SimpleMath::Vector3& viewDir);
 	void UpdatePos(DirectX::SimpleMath::Vector3& deltaPos);
 	void Reset();
 	DirectX::SimpleMath::Quaternion GetPitchYawInQuarternion() const;
-
-	void OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat) override;
 
 
 private:

@@ -4,15 +4,19 @@
 #include "D3DUtil.h"
 #include "D3D11DeviceResources.h"
 
+using namespace DirectX::SimpleMath;
+
 D3D11MeshGeometry::D3D11MeshGeometry(const EPrimitiveTopologyType type)
 	: RMeshGeometry(type)
+	, m_pRenderer(nullptr)
 {
 }
 
 void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
-	if (!pRenderer)
+	if (pRenderer == nullptr)
 	{
+		return;
 		// assert;
 	}
 
@@ -58,23 +62,15 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 
 }
 
-void D3D11MeshGeometry::Draw(const XMMATRIX* pWorld)
+void D3D11MeshGeometry::Draw() const
 {
 	// assert
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	ID3D11Buffer* meshCBs[1] = { m_meshCB.Get() };
 	ID3D11Buffer* vBuffers[1] = { m_vertexBuffer.Get() };
 
+	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(m_topologyType));
 	pContext->IASetVertexBuffers(0, 1, vBuffers, &m_vertexStride, &m_vertexOffset);
 	pContext->IASetIndexBuffer(m_indexBuffer.Get(), m_indexFormat, 0);
-
-
-	// TODO :: update constant buffer
-	pContext->VSSetConstantBuffers(1, 2, meshCBs);
-	pContext->PSSetConstantBuffers(1, 2, meshCBs);
-
-
-	ID3D11ShaderResourceView* release[8] = { NULL, };
 
 	pContext->DrawIndexed(m_indexCount, 0, 0);
 }
