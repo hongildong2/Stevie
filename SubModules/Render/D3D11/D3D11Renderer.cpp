@@ -145,6 +145,9 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 	const D3D11PixelShader* demoPS = static_cast<const D3D11PixelShader*>(mat->GetShader());
 	pContext->PSSetShader(demoPS->Get(), nullptr, 0);
 
+	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
+	pContext->RSSetState(basicRS->Get());
+
 	mesh->Draw();
 
 
@@ -214,6 +217,7 @@ void D3D11Renderer::SetMeshConstant(const MeshComponent* pMeshComponent, Matrix 
 	Matrix world = worldRow;
 	Matrix worldInverse = world.Invert();
 	Matrix worldIT = worldInverse.Transpose();
+
 	meshCB.world = world.Transpose();
 	meshCB.worldInv = worldInverse.Transpose();
 	meshCB.worldIT = worldIT.Transpose();

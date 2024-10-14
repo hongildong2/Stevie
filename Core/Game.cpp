@@ -25,7 +25,7 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, 0.1f, 10.f, 90.f);
+	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, 0.1f, 20.f, XM_PIDIV2);
 
 	m_renderer->SetWindow(window, width, height);
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
@@ -34,7 +34,7 @@ void Game::Initialize(HWND window, int width, int height)
 	// DEMO
 	{
 		m_obj = std::make_unique<SGameObject>();
-		MeshData sphere = MakeSphere(2.f, 50, 50);
+		MeshData sphere = MakeBox(1.f);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
 		MeshComponent* demoC = new MeshComponent();
 		demoC->Initialize(sphereMesh, Graphics::DEMO_MATERIAL);

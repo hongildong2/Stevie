@@ -26,7 +26,8 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 	m_vertexStride = vertexSize;
 	m_vertexOffset = 0;
 	m_indexCount = indexCount;
-	m_indexFormat = indexSize == 32 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
+	// 4 byte -> 32, or 16
+	m_indexFormat = indexSize == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 	// assert indexsize 32 or 16
 
 	// init vertex buffer
