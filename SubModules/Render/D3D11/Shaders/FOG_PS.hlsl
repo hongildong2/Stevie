@@ -18,7 +18,7 @@ cbuffer ImageFilterConstData : register(b5)
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
-	float4 positionViewSpace = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, invProj);
+	float4 positionViewSpace = TexcoordToView(input.texcoord, depthOnlyTex, linearClamp, globalConstants.invProj);
 	float dist = length(positionViewSpace.xyz);
 	float3 color = RenderResult.Sample(linearClamp, input.texcoord).rgb;
 	

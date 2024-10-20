@@ -3,6 +3,7 @@
 #include "D3D11ResourceManager.h"
 #include "D3D11DeviceResources.h"
 
+class RMaterial;
 
 class D3D11Renderer : public IRenderer
 {
@@ -20,12 +21,11 @@ public:
 
 	// Renders
 	virtual void Render(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
-
 	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
-
 
 	// IRenderDevice
 	virtual RTexture2D* CreateTextureFromFile(const WCHAR* wchFileName) override;
+	virtual RTextureCube* CreateTextureCubeFromFile(const WCHAR* wchFileName) override;
 	virtual RTexture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
 	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
 
@@ -34,7 +34,7 @@ public:
 
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;
-
+	virtual void SetSkybox(const Skybox* pSkybox) override;
 
 
 
@@ -60,7 +60,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
 
-	const Camera* m_camera;
-
 	std::wstring m_shaderPath;
+	// Scene
+	const Camera* m_camera;
+	const Skybox* m_skybox;
+
 };

@@ -17,35 +17,17 @@ SamplerComparisonState shadowCompareSampler : register(s3);
 
 cbuffer GlobalConstants : register(b0)
 {
-	matrix view;
-	matrix proj;
-	matrix viewProj;
-	
-	matrix invView;
-	matrix invProj;
-	matrix invViewProj; // Projection Space to World
-	
-	float3 eyeWorld;
-	float globalTime;
-	
-	float3 eyeDir;
-	uint globalLightsCount;
-	
-	float nearZ;
-	float farZ;
-	float2 gcDummy;
+	GlobalConstant globalConstants;
 };
 
 cbuffer MeshConstants : register(b1)
 {
-	matrix world;
-	matrix worldIT;
-	matrix worldInv;
+	MeshConstant meshConstants;
 }
 
 cbuffer MaterialConstants : register(b2)
 {
-	Material materialConstant;
+	MaterialConstant materialConstant;
 };
 
 cbuffer DepthMapConstant : register(b3)

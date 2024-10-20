@@ -60,7 +60,7 @@ struct Light
 	matrix invProj;
 };
 
-struct Material
+struct MaterialConstant
 {
 	float metallicFactor;
 	float aoFactor;
@@ -90,6 +90,33 @@ struct Material
 	bool bUseOpacityTexture;
 };
 
+struct GlobalConstant
+{
+	matrix view;
+	matrix proj;
+	matrix viewProj;
+	
+	matrix invView;
+	matrix invProj;
+	matrix invViewProj; // Projection Space to World
+	
+	float3 eyeWorld;
+	float globalTime;
+	
+	float3 eyeDir;
+	uint globalLightsCount;
+	
+	float nearZ;
+	float farZ;
+	float2 gcDummy;
+};
+
+struct MeshConstant
+{
+	matrix world;
+	matrix worldIT;
+	matrix worldInv;
+};
 static const float PI = 3.14159265359;
 
 

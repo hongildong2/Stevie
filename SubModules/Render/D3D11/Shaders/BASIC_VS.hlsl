@@ -2,35 +2,17 @@
 
 cbuffer GlobalConstants : register(b0)
 {
-	matrix view;
-	matrix proj;
-	matrix viewProj;
-	
-	matrix invView;
-	matrix invProj;
-	matrix invViewProj; // Projection Space to World
-	
-	float3 eyeWorld;
-	float globalTime;
-	
-	float3 eyeDir;
-	uint globalLightsCount;
-	
-	float nearZ;
-	float farZ;
-	float2 gcDummy;
-};
+	GlobalConstant globalConstant;
+}
 
 cbuffer MeshConstant : register(b1)
 {
-	matrix world;
-	matrix worldIT;
-	matrix worldInv;
+	MeshConstant meshConstant;
 }
 
 cbuffer MaterialConstant : register(b2)
 {
-	Material materialConstant;
+	MaterialConstant materialConstant;
 }
 
 SamplerState linearWrap : register(s0);
@@ -42,9 +24,9 @@ VertexShaderOutput main(VertexShaderInput input)
 {
 	VertexShaderOutput output;
 	
-	output.normalWorld = mul(float4(input.normalModel.xyz, 0.f), worldIT).xyz;
+	output.normalWorld = mul(float4(input.normalModel.xyz, 0.f), meshConstant.worldIT).xyz;
 	output.normalWorld = normalize(output.normalWorld);
-	output.positionWorld = mul(float4(input.positionModel.xyz, 1.f), world).xyz;
+	output.positionWorld = mul(float4(input.positionModel.xyz, 1.f), meshConstant.world).xyz;
 	
 
 	if (materialConstant.bUseHeightMap)
@@ -55,11 +37,11 @@ VertexShaderOutput main(VertexShaderInput input)
 	}
 	
 	 
-	output.positionProjection = mul(float4(output.positionWorld, 1.0), view);
-	output.positionProjection = mul(output.positionProjection, proj);
+	output.positionProjection = mul(float4(output.positionWorld, 1.0), globalConstant.view);
+	output.positionProjection = mul(output.positionProjection, globalConstant.proj);
 	
 	output.texcoordinate = input.texcoordinate;
-	output.tangentWorld = mul(float4(input.tangentModel.xyz, 0.f), worldIT).xyz;
+	output.tangentWorld = mul(float4(input.tangentModel.xyz, 0.f), meshConstant.worldIT).xyz;
 	output.positionModel = input.positionModel;
 		
 	return output;

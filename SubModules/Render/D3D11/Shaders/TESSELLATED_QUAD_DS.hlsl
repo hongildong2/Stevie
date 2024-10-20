@@ -53,7 +53,7 @@ PixelShaderInput main(
 	float height = MultiSampleDisplacementModel(heightSamplingInput).y;
 	
 	Output.
-		positionWorld = mul(float4(Output.positionModel.xyz, 1.f), world).xyz;
+		positionWorld = mul(float4(Output.positionModel.xyz, 1.f), meshConstants.world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	
 	OceanSamplingInput normalSamplingInput =
@@ -61,11 +61,11 @@ PixelShaderInput main(
 		DerivativeMap, parameters, linearWrap, CASCADE_COUNT, uvModel, simulationScale
 	};
 	float3 normalModel = SampleNormalModel(normalSamplingInput);
-	Output.normalWorld = mul(float4(normalModel, 0.f), worldIT).xyz;
+	Output.normalWorld = mul(float4(normalModel, 0.f), meshConstants.worldIT).xyz;
 	Output.normalWorld = normalize(Output.normalWorld);
 	
-	Output.positionProjection = mul(float4(Output.positionWorld, 1.f), view);
-	Output.positionProjection = mul(Output.positionProjection, proj);
+	Output.positionProjection = mul(float4(Output.positionWorld, 1.f), globalConstants.view);
+	Output.positionProjection = mul(Output.positionProjection, globalConstants.proj);
 	
 	Output.tangentWorld = normalize(float3(0, Output.normalWorld.z, -Output.normalWorld.y));
 	

@@ -51,3 +51,10 @@ protected:
 	UINT m_height;
 	UINT m_depth;
 };
+
+class RTextureCube : public RTexture
+{
+protected:
+	RTextureCube() = default;
+	~RTextureCube() = default;
+};

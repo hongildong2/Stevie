@@ -4,11 +4,11 @@
 
 class MeshComponent;
 
-class SGameObject final : public SObject
+class SSceneObject : public SObject
 {
 public:
-	SGameObject();
-	~SGameObject();
+	SSceneObject();
+	~SSceneObject();
 
 	virtual void Initialize();
 	virtual void SetMeshComponent(MeshComponent* pMeshComponent);
@@ -21,7 +21,7 @@ public:
 private:
 	DirectX::SimpleMath::Matrix GetWorldRowMat() const;
 
-private:
+protected:
 	MeshComponent* m_pMeshComponent;
 
 	DirectX::SimpleMath::Vector3 m_posWorld;

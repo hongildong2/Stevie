@@ -4,7 +4,6 @@
 #include "D3D11Renderer.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
-#include "Core/SGameObject.h"
 #include "Core/Components/MeshComponent.h"
 #include "SubModules/Render/Scene/Camera.h"
 #include "../RTexture.h"
@@ -24,6 +23,7 @@ D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 	, m_resourceManager()
 	, m_camera(nullptr)
+	, m_skybox(nullptr)
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>();
 	m_resourceManager = std::make_unique<D3D11ResourceManager>();
@@ -53,31 +53,40 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 void D3D11Renderer::BeginRender()
 {
-	m_deviceResources->PIXBeginEvent(L"Clear");
-
-	auto* context = m_deviceResources->GetD3DDeviceContext();
-	auto* depthStencil = m_deviceResources->GetDepthStencilView();
-	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
-	// TODO :: Create Float RTV
-
-	// context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
-	context->ClearRenderTargetView(backBufferRTV, Colors::Cyan);
-	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
-	ID3D11RenderTargetView* rtvs[1] =
+	// Clear
 	{
-		backBufferRTV,
-	};
-	context->OMSetRenderTargets(1, rtvs, depthStencil);
+		m_deviceResources->PIXBeginEvent(L"Clear");
+		auto* context = m_deviceResources->GetD3DDeviceContext();
+		auto* depthStencil = m_deviceResources->GetDepthStencilView();
+		auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
+		// TODO :: Create Float RTV
 
-	// Set the viewport.
-	auto const viewport = m_deviceResources->GetScreenViewport();
-	context->RSSetViewports(1, &viewport);
+		// context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
+		context->ClearRenderTargetView(backBufferRTV, Colors::Cyan);
+		context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+
+		ID3D11RenderTargetView* rtvs[1] =
+		{
+			backBufferRTV,
+		};
+		context->OMSetRenderTargets(1, rtvs, depthStencil);
+
+		// Set the viewport.
+		auto const viewport = m_deviceResources->GetScreenViewport();
+		context->RSSetViewports(1, &viewport);
+		m_deviceResources->PIXEndEvent();
+	}
 
 	SetGlobalConstant();
 
-	m_deviceResources->PIXEndEvent();
+	// Render Skybox
+	{
+		m_deviceResources->PIXBeginEvent(L"Sky Box");
+
+		m_deviceResources->PIXEndEvent();
+	}
+
 }
 
 void D3D11Renderer::EndRender()
@@ -120,6 +129,11 @@ RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, cons
 RTexture2D* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
 {
 	return static_cast<RTexture2D*>(m_resourceManager->CreateTextureFromFile(wchFileName));
+}
+
+RTextureCube* D3D11Renderer::CreateTextureCubeFromFile(const WCHAR* wchFileName)
+{
+	return static_cast<RTextureCube*>(m_resourceManager->CreateTextureCubeFromFile(wchFileName));
 }
 
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRow)
@@ -178,6 +192,11 @@ void D3D11Renderer::SetCamera(const Camera* pCamera)
 {
 	// camera not null
 	m_camera = pCamera;
+}
+
+void D3D11Renderer::SetSkybox(const Skybox* pSkybox)
+{
+	m_skybox = pSkybox;
 }
 
 void D3D11Renderer::SetGlobalConstant()

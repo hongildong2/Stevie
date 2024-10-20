@@ -27,7 +27,7 @@ float3 GetNormal(PixelShaderInput input)
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	float viewDist = distance(eyeWorld, input.positionWorld);
+	float viewDist = distance(globalConstants.eyeWorld, input.positionWorld);
 	
 	float3 albedo = materialConstant.bUseAlbedoTexture ? albedoTex.Sample(linearWrap, input.texcoordinate).rgb : materialConstant.albedo;
 	float ao = materialConstant.bUseAOTexture ? aoTex.Sample(linearWrap, input.texcoordinate).r * materialConstant.aoFactor : 1;
@@ -36,18 +36,18 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 emission = materialConstant.bUseEmissiveTexture ? emissiveTex.Sample(linearWrap, input.texcoordinate) : 0.0;
 	
 	float3 N = materialConstant.bUseNormalTexture ? GetNormal(input) : input.normalWorld;
-	float3 V = normalize(eyeWorld - input.positionWorld);
+	float3 V = normalize(globalConstants.eyeWorld - input.positionWorld);
 	
 	
 	float3 F0 = float3(0.08, 0.08, 0.08) * materialConstant.specular; // specular 1 == 8%
 	F0 = lerp(F0, albedo, metallic);
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
-	for (uint lightIndex = 0; lightIndex < globalLightsCount; ++lightIndex)
+	for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount; ++lightIndex)
 	{
 		ShadowInput directShadowIn =
 		{
-			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, nearZ
+			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
 		};
 		Lo += RadianceLByDirectLight(directShadowIn, globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
 	}

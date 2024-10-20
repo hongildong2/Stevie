@@ -1,74 +1,79 @@
 #pragma once
 #include "pch.h"
-
-
-class RTexture2D;
+class IRenderer;
+class RTexture;
+class RTextureCube;
 class RShader;
 class RSamplerState;
 class RBlendState;
 class RPixelShader;
 
+
 constexpr UINT MATERIAL_MAX_TEXTURE_SLOT = 10;
+constexpr UINT MATERIAL_MAX_SAMPLER_STATE_SLOT = 10;
 class RMaterial
 {
 public:
+	RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState, const RSamplerState* const* ppSamplerStates, const UINT samplerStatesCount);
+	virtual ~RMaterial() = default;
+
+	bool AddTexture(const RTexture* pTexture);
+
+	virtual void Initialize();
+	virtual void Update();
+
 	inline const RPixelShader* GetShader() const
 	{
 		return m_pixelShader;
 	}
-	virtual const RSamplerState* GetSamplerStates() const
-	{
-		return m_samplerState;
-	}
-	virtual const RBlendState* GetBlendState() const
+	inline const RBlendState* GetBlendState() const
 	{
 		return m_blendState;
 	}
-
-	virtual void Initialize() = 0; // Set Resources Here
-	virtual const UINT GetShaderResourceCount() = 0;
-	virtual const UINT GetConstantBufferCount() = 0;
-	virtual const UINT GetSamplerStateCount() = 0;
-	virtual RTexture2D* const* GetTextureResources() = 0;
-
+	inline const RSamplerState* const* GetSamplerStates() const
+	{
+		return m_samplerStates;
+	}
+	inline const UINT GetSamplerStatesCount() const
+	{
+		return m_samplerStatesCount;
+	}
+	inline const UINT GetTexturesCount() const
+	{
+		return m_textureCount;
+	}
+	inline const RTexture* const* GetTextures() const
+	{
+		return m_textures;
+	}
 
 protected:
-	// Owning Resources
-	RTexture2D* m_textures[MATERIAL_MAX_TEXTURE_SLOT];
+	const IRenderer* m_pRenderer;
+	const RPixelShader* m_pixelShader;
+	const RBlendState* m_blendState;
 
-	// State, from Common Resource
-	RPixelShader* m_pixelShader;
-	RSamplerState* m_samplerState;
-	RBlendState* m_blendState;
+	const RSamplerState* m_samplerStates[MATERIAL_MAX_SAMPLER_STATE_SLOT];
+	const UINT m_samplerStatesCount;
+
+	const RTexture* m_textures[MATERIAL_MAX_TEXTURE_SLOT];
+	UINT m_textureCount;
+
+	bool m_bInitialized;
+};
+
+class RDemoMaterial final : public RMaterial
+{
+public:
+	RDemoMaterial(const IRenderer* pRenderer);
+	~RDemoMaterial() = default;
 };
 
 
-
-class RDemoMaterial : public RMaterial
+class RSkyboxMaterial final : public RMaterial
 {
 public:
-	RDemoMaterial() = default;
-	~RDemoMaterial() = default;
+	RSkyboxMaterial(const IRenderer* pRenderer);
+	~RSkyboxMaterial() = default;
 
-	void Initialize() override;
-	const UINT GetShaderResourceCount() override
-	{
-		return 0;
-	}
-	const UINT GetConstantBufferCount() override
-	{
-		return 0;
-	}
-	const UINT GetSamplerStateCount() override
-	{
-		return 0;
-	}
-
-	RTexture2D* const* GetTextureResources() override
-	{
-		return nullptr;
-	}
-
-
-
+	virtual void Initialize() override;
 };

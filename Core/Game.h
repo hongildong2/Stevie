@@ -9,7 +9,7 @@
 
 #include "SubModules/Render/RenderDefs.h"
 #include "SubModules/Render/Scene/Camera.h"
-#include "SGameObject.h"
+#include "SSceneObject.h"
 
 
 // A basic game implementation that creates a D3D11 device and
@@ -68,7 +68,7 @@ private:
 
 	// Demo
 
-	std::vector<std::unique_ptr<SGameObject>> m_objects;
+	std::vector<std::unique_ptr<SSceneObject>> m_objects;
 
 	std::unique_ptr<Camera> m_camera;
 

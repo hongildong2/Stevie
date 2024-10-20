@@ -8,8 +8,10 @@
 #include "GeometryGenerator.h"
 #include "SubModules/Render/GraphicsCommon1.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
-#include "Components/MeshComponent.h"
 #include "SubModules/Render/Scene/Camera.h"
+#include "SubModules/Render/RMaterial.h"
+#include "Components/MeshComponent.h"
+#include "SSceneObject.h"
 
 extern void ExitGame() noexcept;
 
@@ -36,12 +38,14 @@ void Game::Initialize(HWND window, int width, int height)
 	// DEMO
 	for (int i = -100; i < 100; ++i)
 	{
-		auto demoObj = std::make_unique<SGameObject>();
+		auto demoObj = std::make_unique<SSceneObject>();
 		MeshData sphere = MakeSphere(1.f, 20, 20);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
+		RMaterial* mat = new RDemoMaterial(m_renderer.get());
 
 		MeshComponent* demoC = new MeshComponent();
-		demoC->Initialize(m_renderer.get(), sphereMesh, Graphics::DEMO_MATERIAL);
+
+		demoC->Initialize(m_renderer.get(), sphereMesh, mat);
 
 		demoObj->Initialize();
 		demoObj->SetMeshComponent(demoC);

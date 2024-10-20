@@ -87,6 +87,13 @@ D3D11Texture2D* D3D11ResourceManager::CreateTextureFromFile(const WCHAR* fileNam
 	return res;
 }
 
+D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromFile(const WCHAR* fileName)
+{
+	D3D11TextureCube* res = new D3D11TextureCube();
+	res->Initialize(m_pRenderer, fileName);
+	return res;
+}
+
 void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();

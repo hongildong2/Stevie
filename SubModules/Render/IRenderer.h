@@ -7,15 +7,13 @@ using namespace DirectX;
 class RTexture;
 class RTexture2D;
 class RTexture3D;
+class RTextureCube;
 class RMeshGeometry;
-class RMaterial;
 class RShader;
 class RConstantBuffer;
 class RSamplerState;
 class Camera;
-
-enum class EBasicGeometry;
-enum class EShaderType;
+class Skybox;
 
 class MeshComponent;
 
@@ -50,6 +48,7 @@ public:
 
 	// IRenderDevice
 	virtual RTexture2D* CreateTextureFromFile(const WCHAR* wchFileName) = 0;
+	virtual RTextureCube* CreateTextureCubeFromFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) = 0;
 
@@ -58,4 +57,5 @@ public:
 
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) = 0;
+	virtual void SetSkybox(const Skybox* pSkybox) = 0;
 };

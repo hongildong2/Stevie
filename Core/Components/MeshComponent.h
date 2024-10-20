@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
 
+class RMaterial;
+
 class MeshComponent final
 {
 public:

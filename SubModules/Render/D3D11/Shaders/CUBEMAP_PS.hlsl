@@ -1,5 +1,7 @@
-#include "RenderingCommons.hlsli"
 #include "ScreenSpace.hlsli"
+
+TextureCube cubeMap : register(t0);
+SamplerState linearClamp : register(s0);
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET0
 {

@@ -52,14 +52,14 @@ struct SamplingVertexShaderInput
 struct SamplingVertexShaderOutput
 {
 	float3 positionModel : POSITION0;
-	float4 positionProj : SV_POSITION; // 여기에 뭔 값이라도 넣어줘야 파이프라인에서 래스터를 하지!! screen quad는 그냥 우연으로 됐던것 뿐
+	float4 positionProj : SV_POSITION;
 	float2 texcoord : TEXCOORD;
 };
 
 struct SamplingPixelShaderInput
 {
 	float3 positionModel : POSITION0;
-	float4 positionProj : SV_POSITION; // 여기에 뭔 값이라도 넣어줘야 파이프라인에서 래스터를 하지!! screen quad는 그냥 우연으로 됐던것 뿐
+	float4 positionProj : SV_POSITION;
 	float2 texcoord : TEXCOORD;
 };
 

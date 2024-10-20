@@ -183,8 +183,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\GeometryGenerator.h" />
-    <ClInclude Include="Core\SGameObject.h" />
+    <ClInclude Include="Core\SSceneObject.h" />
     <ClInclude Include="Core\SObject.h" />
+    <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="SubModules\Render\RInputLayout.h" />
     <ClInclude Include="SubModules\Render\GraphicsCommon1.h" />
@@ -213,8 +214,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\GeometryGenerator.cpp" />
-    <ClCompile Include="Core\SGameObject.cpp" />
+    <ClCompile Include="Core\SSceneObject.cpp" />
     <ClCompile Include="Core\SObject.cpp" />
+    <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
     <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
     <ClCompile Include="SubModules\Render\RInputLayout.cpp" />

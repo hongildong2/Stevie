@@ -99,3 +99,9 @@ void D3D11Texture3D::Initialize(const D3D11Renderer* pRenderer, const UINT width
 		DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(m_resource.Get(), NULL, m_UAV.ReleaseAndGetAddressOf()));
 	}
 }
+
+void D3D11TextureCube::Initialize(const D3D11Renderer* pRenderer, const WCHAR* path)
+{
+	auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, path, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_SRV.GetAddressOf(), nullptr));
+}

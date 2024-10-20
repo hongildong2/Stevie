@@ -125,7 +125,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 tangentX = normalize(cross(tangentY, input.normalWorld));
 
 	
-	float3 V = normalize(eyeWorld - input.positionWorld);
+	float3 V = normalize(globalConstants.eyeWorld - input.positionWorld);
 	// float3 V = normalize(-eyeDir);
 	float3 L = normalize(globalSunLight.positionWorld - input.positionWorld);
 	// float3 L = normalize(-globalSunLight.direction);
@@ -139,7 +139,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	BrInput.tangentXWorld = tangentX;
 	BrInput.tangentYWorld = tangentY;
 	
-	float viewDist = distance(input.positionWorld, eyeWorld);
+	float viewDist = distance(input.positionWorld, globalConstants.eyeWorld);
 	float windSpeed = renderParam.windSpeed;
 	float waveAlignment = renderParam.waveAlignment;
 	float scale = renderParam.scale;
@@ -158,7 +158,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	ShadowInput shadowIn =
 	{
-		sunShadowMap, globalSunLight, input.positionWorld, shadowPointSampler, shadowCompareSampler, nearZ
+		sunShadowMap, globalSunLight, input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
 
 	};
 	float shadowFactorBySunlight = renderParam.shadowMultiplier * GetShadowFactor(shadowIn);
@@ -170,7 +170,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared) * materialConstant.IBLStrength;
 	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
-	float4 horizon = HorizonBlend(V, viewDist, eyeWorld);
+	float4 horizon = HorizonBlend(V, viewDist, globalConstants.eyeWorld);
 	
 	float3 color = specular + lerp(refracted, reflected, effectiveFresnel);
 	color *= shadowFactorBySunlight;
@@ -178,11 +178,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	for (uint lightIndex = 0; lightIndex < globalLightsCount - 1; ++lightIndex)
+	for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount - 1; ++lightIndex)
 	{
 		ShadowInput directLightShadowInput =
 		{
-			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, nearZ
+			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
 		};
 		Lo += RadianceLByDirectLight(directLightShadowInput, globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
 	}
@@ -215,7 +215,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	FoamOutput foamOut = GetFoamOutput(foamTexture, linearWrap, foamIn);
 	
-	ScreenSpaceContactFoam(foamOut, cameraDepthMap, shadowPointSampler, input.positionProjection, invProj);
+	ScreenSpaceContactFoam(foamOut, cameraDepthMap, shadowPointSampler, input.positionProjection, globalConstants.invProj);
 	
 	const float SUN_SHADOW_ATTENUATION = 0.8;
 	float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);

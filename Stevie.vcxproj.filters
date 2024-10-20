@@ -50,8 +50,9 @@
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="Core\GeometryGenerator.h" />
     <ClInclude Include="Core\SObject.h" />
-    <ClInclude Include="Core\SGameObject.h" />
+    <ClInclude Include="Core\SSceneObject.h" />
     <ClInclude Include="SubModules\Render\Scene\Camera.h" />
+    <ClInclude Include="Core\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -78,8 +79,9 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
     <ClCompile Include="Core\GeometryGenerator.cpp" />
     <ClCompile Include="Core\SObject.cpp" />
-    <ClCompile Include="Core\SGameObject.cpp" />
+    <ClCompile Include="Core\SSceneObject.cpp" />
     <ClCompile Include="SubModules\Render\Scene\Camera.cpp" />
+    <ClCompile Include="Core\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

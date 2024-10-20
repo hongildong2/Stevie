@@ -34,7 +34,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CO
 	patchCenterWorldPos /= float(NUM_CONTROL_POINTS);
 
 	
-	float dist = distance(patchCenterWorldPos, eyeWorld);
+	float dist = distance(patchCenterWorldPos, globalConstants.eyeWorld);
 	
 	dist = dist > 36 ? dist : 1;
 	

@@ -45,7 +45,7 @@ float HenyeyGreensteinPhase(in float3 L, in float3 V, in float aniso)
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	float3 eyeModel = mul(float4(eyeWorld, 1), worldInv).xyz; // world eye to model coordinate system
+	float3 eyeModel = mul(float4(globalConstants.eyeWorld, 1), meshConstants.worldInv).xyz; // world eye to model coordinate system
 	float3 VModel = normalize(input.positionModel - eyeModel); // view direction, omega in volumetric rendering
 	
 	int numSteps = 128;

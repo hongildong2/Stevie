@@ -7,7 +7,7 @@ SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 
 	output.positionModel = input.positionModel;
 	output.texcoord = input.texcoord;
-	float4 pos = mul(float4(input.positionModel, 1.f), world);
+	float4 pos = mul(float4(input.positionModel, 1.f), meshConstants.world);
 	
 
 	#ifdef DEPTH_ONLY
@@ -17,8 +17,8 @@ SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 	float4 viewPos = mul(float4(input.positionModel, 0), view);
 	output.positionProj = mul(float4(viewPos.xyz, 1), proj);
 	#else
-	float4 viewPos = mul(pos, view);
-	output.positionProj = mul(viewPos, proj);
+	float4 viewPos = mul(pos, globalConstants.view);
+	output.positionProj = mul(viewPos, globalConstants.proj);
 	#endif
 	return output;
 }

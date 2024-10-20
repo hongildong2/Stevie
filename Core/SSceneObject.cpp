@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "SGameObject.h"
+#include "SSceneObject.h"
 #include "Core/Components/MeshComponent.h"
 
 using namespace DirectX::SimpleMath;
 
-SGameObject::SGameObject()
+SSceneObject::SSceneObject()
 	: m_pMeshComponent()
 	, m_pitchEuler()
 	, m_yawEuler()
@@ -13,35 +13,35 @@ SGameObject::SGameObject()
 {
 }
 
-SGameObject::~SGameObject()
+SSceneObject::~SSceneObject()
 {
 	delete m_pMeshComponent;
 }
 
-void SGameObject::Initialize()
+void SSceneObject::Initialize()
 {
 }
 
-void SGameObject::SetMeshComponent(MeshComponent* pMeshComponent)
+void SSceneObject::SetMeshComponent(MeshComponent* pMeshComponent)
 {
 	m_pMeshComponent = pMeshComponent;
 }
 
-void SGameObject::Render()
+void SSceneObject::Render()
 {
 	m_pMeshComponent->Render(GetWorldRowMat());
 }
 
-void SGameObject::Update()
+void SSceneObject::Update()
 {
 }
 
-Matrix SGameObject::GetWorldRowMat() const
+Matrix SSceneObject::GetWorldRowMat() const
 {
 	return Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation(m_posWorld);
 }
 
-void SGameObject::UpdatePos(DirectX::SimpleMath::Vector3 deltaPos)
+void SSceneObject::UpdatePos(DirectX::SimpleMath::Vector3 deltaPos)
 {
 	m_posWorld += deltaPos;
 }

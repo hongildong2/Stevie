@@ -54,8 +54,6 @@ namespace Graphics
 	RRasterizerState* WIRE_FRAME_CW_RS;
 	RRasterizerState* WIRE_FRAME_CCW_RS;
 
-	RMaterial* DEMO_MATERIAL;
-
 
 	// Input Layouts
 	RInputLayout* BASIC_IL;
@@ -76,7 +74,6 @@ namespace Graphics
 			InitBlendStates(pRenderer);
 			InitRasterizerStates(pRenderer);
 			InitDepthStencilStates(pRenderer);
-			InitMaterials(pRenderer);
 		}
 		void InitShaders(const D3D11Renderer* pRenderer)
 		{
@@ -360,12 +357,6 @@ namespace Graphics
 
 		}
 
-		void InitMaterials(const D3D11Renderer* pRenderer)
-		{
-			DEMO_MATERIAL = new RDemoMaterial();
-			DEMO_MATERIAL->Initialize();
-		}
-
 		void ClearCommonResources() // Delete All
 		{
 			delete BASIC_VS;
@@ -416,8 +407,6 @@ namespace Graphics
 			delete SAMPLING_IL;
 
 			delete ALPHA_BS;
-
-			delete DEMO_MATERIAL;
 
 		}
 	}
