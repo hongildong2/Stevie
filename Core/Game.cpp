@@ -25,6 +25,7 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+	m_objects.reserve(1000);
 	float aspectRatio = (float)width / (float)height;
 	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
 
@@ -33,15 +34,20 @@ void Game::Initialize(HWND window, int width, int height)
 	m_renderer->SetCamera(m_camera.get());
 
 	// DEMO
+	for (int i = -100; i < 100; ++i)
 	{
-		m_obj = std::make_unique<SGameObject>();
-		MeshData sphere = MakeBox(1.f);
+		auto demoObj = std::make_unique<SGameObject>();
+		MeshData sphere = MakeSphere(1.f, 20, 20);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
+
 		MeshComponent* demoC = new MeshComponent();
 		demoC->Initialize(m_renderer.get(), sphereMesh, Graphics::DEMO_MATERIAL);
 
-		m_obj->Initialize();
-		m_obj->SetMeshComponent(demoC);
+		demoObj->Initialize();
+		demoObj->SetMeshComponent(demoC);
+
+		demoObj->UpdatePos({ i / 2.f, i / 2.f, i / 2.f });
+		m_objects.push_back(std::move(demoObj));
 	}
 
 
@@ -154,7 +160,10 @@ void Game::Render()
 
 	m_renderer->BeginRender();
 
-	m_obj->Render();
+	for (auto& obj : m_objects)
+	{
+		obj->Render();
+	}
 
 	m_renderer->EndRender();
 
@@ -213,32 +222,5 @@ void Game::GetDefaultSize(int& width, int& height) const noexcept
 	// TODO: Change to desired default window size (note minimum size is 320x200).
 	width = 1920;
 	height = 1080;
-}
-#pragma endregion
-
-#pragma region Direct3D Resources
-// These are the resources that depend on the device.
-void Game::CreateDeviceDependentResources()
-{
-}
-
-// Allocate all memory resources that change on a window SizeChanged event.
-void Game::CreateWindowSizeDependentResources()
-{
-
-}
-
-void Game::OnDeviceLost()
-{
-	// TODO: Add Direct3D resource cleanup here.
-}
-
-void Game::OnDeviceRestored()
-{
-	// TODO : reset all the resources
-
-	CreateDeviceDependentResources();
-
-	CreateWindowSizeDependentResources();
 }
 #pragma endregion

@@ -15,13 +15,16 @@ public:
 	virtual void Render();
 	virtual void Update();
 
-	DirectX::SimpleMath::Matrix GetWorldRowMat() const;
+	void UpdatePos(DirectX::SimpleMath::Vector3 deltaPos);
 
+
+private:
+	DirectX::SimpleMath::Matrix GetWorldRowMat() const;
 
 private:
 	MeshComponent* m_pMeshComponent;
 
-	DirectX::SimpleMath::Vector4 m_worldPos;
+	DirectX::SimpleMath::Vector3 m_posWorld;
 	float m_rollEuler;
 	float m_pitchEuler;
 	float m_yawEuler;

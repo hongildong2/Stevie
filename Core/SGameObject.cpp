@@ -9,7 +9,7 @@ SGameObject::SGameObject()
 	, m_pitchEuler()
 	, m_yawEuler()
 	, m_rollEuler()
-	, m_worldPos()
+	, m_posWorld()
 {
 }
 
@@ -38,7 +38,12 @@ void SGameObject::Update()
 
 Matrix SGameObject::GetWorldRowMat() const
 {
-	return Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation({ m_worldPos.x, m_worldPos.y, m_worldPos.z });
+	return Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation(m_posWorld);
+}
+
+void SGameObject::UpdatePos(DirectX::SimpleMath::Vector3 deltaPos)
+{
+	m_posWorld += deltaPos;
 }
 
 

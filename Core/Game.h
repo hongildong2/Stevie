@@ -8,15 +8,13 @@
 #include "StepTimer.h"
 
 #include "SubModules/Render/RenderDefs.h"
-#include "SubModules/Render/D3D11/D3DUtil.h"
 #include "SubModules/Render/Scene/Camera.h"
 #include "SGameObject.h"
 
-constexpr DXGI_FORMAT HDR_BUFFER_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
-class Game final : public DX::IDeviceNotify
+class Game final
 {
 public:
 
@@ -34,10 +32,6 @@ public:
 
 	// Basic game loop
 	void Tick();
-
-	// IDeviceNotify
-	void OnDeviceLost() override;
-	void OnDeviceRestored() override;
 
 	// Messages
 	void OnActivated();
@@ -57,9 +51,6 @@ private:
 
 	void Render();
 
-	void CreateDeviceDependentResources();
-	void CreateWindowSizeDependentResources();
-
 	// Device resources.
 	std::unique_ptr<IRenderer> m_renderer;
 
@@ -76,7 +67,8 @@ private:
 
 
 	// Demo
-	std::unique_ptr<SGameObject> m_obj;
+
+	std::vector<std::unique_ptr<SGameObject>> m_objects;
 
 	std::unique_ptr<Camera> m_camera;
 
