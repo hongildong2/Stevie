@@ -75,7 +75,7 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVerte
 D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format)
 {
 	D3D11Texture2D* res = new D3D11Texture2D();
-	res->Initialize(m_pRenderer, width, height, format, TRUE);
+	res->Initialize(m_pRenderer, width, height, format, FALSE);
 
 	return res;
 }

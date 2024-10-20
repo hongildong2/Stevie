@@ -29,7 +29,10 @@ void SSceneObject::SetMeshComponent(MeshComponent* pMeshComponent)
 
 void SSceneObject::Render()
 {
-	m_pMeshComponent->Render(GetWorldRowMat());
+	if (m_pMeshComponent != nullptr)
+	{
+		m_pMeshComponent->Render(GetWorldRowMat());
+	}
 }
 
 void SSceneObject::Update()

@@ -9,18 +9,21 @@ class RBlendState;
 class RPixelShader;
 
 
-constexpr UINT MATERIAL_MAX_TEXTURE_SLOT = 10;
-constexpr UINT MATERIAL_MAX_SAMPLER_STATE_SLOT = 10;
+
 class RMaterial
 {
 public:
-	RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState, const RSamplerState* const* ppSamplerStates, const UINT samplerStatesCount);
+	RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState);
 	virtual ~RMaterial() = default;
 
 	bool AddTexture(const RTexture* pTexture);
 
+
 	virtual void Initialize();
 	virtual void Update();
+
+	void GetSamplerStates(void** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
+	void GetTextures(void** ppOutTextures, UINT* pOutTextureCount) const;
 
 	inline const RPixelShader* GetShader() const
 	{
@@ -30,10 +33,7 @@ public:
 	{
 		return m_blendState;
 	}
-	inline const RSamplerState* const* GetSamplerStates() const
-	{
-		return m_samplerStates;
-	}
+
 	inline const UINT GetSamplerStatesCount() const
 	{
 		return m_samplerStatesCount;
@@ -42,24 +42,36 @@ public:
 	{
 		return m_textureCount;
 	}
-	inline const RTexture* const* GetTextures() const
-	{
-		return m_textures;
-	}
+
+protected:
+	bool AddSamplerState(const RSamplerState* pSamplerState);
+public:
+	static constexpr UINT MATERIAL_TEXTURE_MAX_COUNT = 10;
+	static constexpr UINT MATERIAL_SAMPLE_STATE_MAX_COUNT = 10;
+	static constexpr UINT MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE = 512;
+
 
 protected:
 	const IRenderer* m_pRenderer;
 	const RPixelShader* m_pixelShader;
 	const RBlendState* m_blendState;
 
-	const RSamplerState* m_samplerStates[MATERIAL_MAX_SAMPLER_STATE_SLOT];
-	const UINT m_samplerStatesCount;
+	const RSamplerState* m_samplerStates[MATERIAL_SAMPLE_STATE_MAX_COUNT];
+	UINT m_samplerStatesCount;
 
-	const RTexture* m_textures[MATERIAL_MAX_TEXTURE_SLOT];
+	const RTexture* m_textures[MATERIAL_TEXTURE_MAX_COUNT];
 	UINT m_textureCount;
 
 	bool m_bInitialized;
 };
+
+struct RMaterialConstant
+{
+	UINT Data[128];
+};
+
+static_assert(sizeof(RMaterialConstant) <= RMaterial::MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE);
+
 
 class RDemoMaterial final : public RMaterial
 {

@@ -5,30 +5,37 @@
 #include "RSamplerState.h"
 #include "GraphicsCommon1.h"
 
-RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState, const RSamplerState* const* ppSamplerStates, const UINT samplerStatesCount)
+RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
 	, m_blendState(pBlendState)
-	, m_samplerStatesCount(samplerStatesCount)
+	, m_samplerStatesCount(0)
+	, m_samplerStates{}
 	, m_textureCount(0)
 	, m_textures{}
 	, m_bInitialized(false)
 {
-	// TODO :: assert(samplerStatesCount < MAX);
-	for (UINT i = 0; i < m_samplerStatesCount; ++i)
-	{
-		m_samplerStates[i] = ppSamplerStates[i];
-	}
 }
 
 bool RMaterial::AddTexture(const RTexture* pTexture)
 {
-	if (m_textureCount >= MATERIAL_MAX_TEXTURE_SLOT || m_bInitialized == true)
+	if (m_textureCount >= MATERIAL_TEXTURE_MAX_COUNT || m_bInitialized == true)
 	{
 		return false;
 	}
 
 	m_textures[m_textureCount++] = pTexture;
+	return true;
+}
+
+bool RMaterial::AddSamplerState(const RSamplerState* pSamplerState)
+{
+	if (m_samplerStatesCount >= MATERIAL_SAMPLE_STATE_MAX_COUNT || m_bInitialized == true)
+	{
+		return false;
+	}
+
+	m_samplerStates[m_samplerStatesCount++] = pSamplerState;
 	return true;
 }
 
@@ -39,21 +46,42 @@ void RMaterial::Initialize()
 
 void RMaterial::Update()
 {
-	// assert initialized
+	assert(m_bInitialized);
 }
 
+void RMaterial::GetSamplerStates(void** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const
+
+{
+	for (UINT i = 0; i < m_samplerStatesCount; ++i)
+	{
+		ppOutSamplerStates[i] = (void*)m_samplerStates[i];
+	}
+	*pOutSamplerStatesCount = m_samplerStatesCount;
+}
+
+void RMaterial::GetTextures(void** ppOutTextures, UINT* pOutTextureCount) const
+{
+	for (UINT i = 0; i < m_textureCount; ++i)
+	{
+		ppOutTextures[i] = (void*)m_textures[i];
+	}
+	*pOutTextureCount = m_textureCount;
+}
+
+
+
 RDemoMaterial::RDemoMaterial(const IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::DEMO_PS, nullptr, nullptr, 0)
+	: RMaterial(pRenderer, Graphics::DEMO_PS, nullptr)
 {
 	// assert pRenderer not null
 	Initialize();
 }
 
 
-const static RSamplerState* SKYBOX_SS_INITIALIZER[1] = { Graphics::LINEAR_CLAMP_SS };
 RSkyboxMaterial::RSkyboxMaterial(const IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr, SKYBOX_SS_INITIALIZER, 1)
+	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr)
 {
+	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
 }
 
 void RSkyboxMaterial::Initialize()

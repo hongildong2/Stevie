@@ -10,8 +10,10 @@
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
 #include "SubModules/Render/Scene/Camera.h"
 #include "SubModules/Render/RMaterial.h"
+#include "SubModules/Render/RTexture.h"
 #include "Components/MeshComponent.h"
 #include "SSceneObject.h"
+#include "Skybox.h"
 
 extern void ExitGame() noexcept;
 
@@ -29,11 +31,10 @@ void Game::Initialize(HWND window, int width, int height)
 {
 	m_objects.reserve(1000);
 	float aspectRatio = (float)width / (float)height;
-	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
 
 	m_renderer->SetWindow(window, width, height);
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
-	m_renderer->SetCamera(m_camera.get());
+
 
 	// DEMO
 	for (int i = -100; i < 100; ++i)
@@ -54,7 +55,26 @@ void Game::Initialize(HWND window, int width, int height)
 		m_objects.push_back(std::move(demoObj));
 	}
 
+	// Scene
+	{
+		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
+		m_renderer->SetCamera(m_camera.get());
 
+		MeshData box = MakeBox(10.f);
+		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
+		RMaterial* sMat = new RSkyboxMaterial(m_renderer.get());
+
+		const RTexture* iblTex = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/brightEnvHDR.dds");
+		sMat->AddTexture(iblTex);
+		sMat->Initialize();
+
+
+		MeshComponent* mcop = new MeshComponent();
+		mcop->Initialize(m_renderer.get(), cubeMesh, sMat);
+		m_skybox = std::make_unique<Skybox>(mcop);
+
+		m_renderer->SetSkybox(m_skybox.get());
+	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:

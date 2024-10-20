@@ -24,17 +24,17 @@ public:
 	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 	// IRenderDevice
-	virtual RTexture2D* CreateTextureFromFile(const WCHAR* wchFileName) override;
-	virtual RTextureCube* CreateTextureCubeFromFile(const WCHAR* wchFileName) override;
-	virtual RTexture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
-	virtual RTexture2D* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateTextureFromFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTextureCubeFromFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
 
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) override;
 	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) override;
 
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;
-	virtual void SetSkybox(const Skybox* pSkybox) override;
+	virtual void SetSkybox(Skybox* pSkybox) override;
 
 
 
@@ -51,7 +51,7 @@ public:
 private:
 	void SetGlobalConstant();
 	void SetMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
-	void SetMaterialConstant(const RMaterial* pMaterial);
+	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
 private:
 	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
 	std::unique_ptr <D3D11ResourceManager> m_resourceManager;
@@ -63,6 +63,6 @@ private:
 	std::wstring m_shaderPath;
 	// Scene
 	const Camera* m_camera;
-	const Skybox* m_skybox;
+	Skybox* m_skybox;
 
 };

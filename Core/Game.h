@@ -9,6 +9,7 @@
 
 #include "SubModules/Render/RenderDefs.h"
 #include "SubModules/Render/Scene/Camera.h"
+#include "Skybox.h"
 #include "SSceneObject.h"
 
 
@@ -66,10 +67,10 @@ private:
 	DirectX::Mouse::ButtonStateTracker m_mouseButtons;
 
 
-	// Demo
-
 	std::vector<std::unique_ptr<SSceneObject>> m_objects;
 
+	// Scene[]
 	std::unique_ptr<Camera> m_camera;
+	std::unique_ptr<Skybox> m_skybox;
 
 };

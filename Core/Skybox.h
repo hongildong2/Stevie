@@ -1,12 +1,14 @@
 #pragma once
 #include "SSceneObject.h"
-class Skybox : public SSceneObject
+class Skybox final : public SSceneObject
 {
 public:
-	Skybox() = default;
+	Skybox(MeshComponent* pMeshComponent);
 	~Skybox() = default;
 
-	void Initialize() {};
-
+	inline MeshComponent* GetMeshComponent()
+	{
+		return m_pMeshComponent;
+	}
 };
 
