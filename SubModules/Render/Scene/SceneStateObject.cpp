@@ -30,10 +30,10 @@ void SceneStateObject::Initialize(ID3D11Device1* pDevice)
 	Utility::DXResource::CreateConstantBuffer(m_globalConstant, pDevice, m_globalCB);
 
 	using namespace DirectX;
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/NIGHT_SKY/skyEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/NIGHT_SKY/skyBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/NIGHT_SKY/skyDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/NIGHT_SKY/skySpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapEnvView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/PURE_SKY/SKYBrdf.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_cubemapBRDFView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/PURE_SKY/SKYDiffuseHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapIrradianceView.GetAddressOf(), nullptr));
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds", 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_DEFAULT, nullptr, m_cubemapSpecularView.GetAddressOf(), nullptr));
 
 	// Light
 	{

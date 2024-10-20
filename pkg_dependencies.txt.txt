@@ -1,0 +1,8 @@
+vcpkg install imgui:x64-windows
+vcpkg install imgui[dx11-binding]:x64-windows 
+vcpkg install imgui[win32-binding]:x64-windows
+vcpkg install assimp:x64-windows
+vcpkg install openexr:x64-windows
+
+
+and nuget packages in VS project
