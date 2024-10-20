@@ -3,7 +3,7 @@
 - No base code or library is included for renderer
 - Please refer to this page to see working version https://steveyoo.notion.site/766d6dcf88f7414b80f4c20527e84b0b?pvs=74
 
-## Struture
+## Renderer Structure
 - Core, SSceneObject
 	- Has MeshComponent to render
 - IRenderer
@@ -25,8 +25,11 @@
 	- If pipeline state is set, call `RMeshGeometry->Draw()`.
 	- Multiple Render pass, Deferred Rendering planned when refactoring is done.
 
+## Warning
+Note that current branch is __WIP__, thus contain a lot of unused classes which is waited to be ported to the new version.
 
 ## Build
 requires VS2022, nuget packages referenced in VS Project
-requires vcpkg with imgui:dx11, assimp
+
+requires vcpkg with _imgui:dx11_, _assimp_
 may require asset files to boot
