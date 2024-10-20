@@ -7,12 +7,13 @@ const float Camera::MOVEMENT_GAIN = 0.07f;
 
 using namespace DirectX::SimpleMath;
 
-Camera::Camera(Vector3 eyePosWorld, Vector3 viewDirWorld, Vector3 upVector, float nearZ, float farZ, float fov)
+Camera::Camera(Vector3 eyePosWorld, Vector3 viewDirWorld, Vector3 upVector, float aspectRatio, float nearZ, float farZ, float fov)
 	: m_eyePosWorld(eyePosWorld)
 	, m_lookAtTargetPosWorld(eyePosWorld + viewDirWorld)
 	, m_upVector(upVector)
 	, m_pitch(0.f)
 	, m_yaw(0.f)
+	, m_aspectRatio(aspectRatio)
 	, m_nearZ(nearZ)
 	, m_farZ(farZ)
 	, m_fov(fov)
@@ -32,7 +33,7 @@ Matrix Camera::GetViewRowMat() const
 
 Matrix Camera::GetProjRowMat() const
 {
-	return Matrix::CreatePerspectiveFieldOfView(m_fov, 16.f / 9.f, m_nearZ, m_farZ);
+	return Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearZ, m_farZ);
 }
 
 Vector3 Camera::GetEyePos() const
@@ -90,6 +91,11 @@ void Camera::UpdatePos(Vector3& deltaPos)
 	float x = r * sinf(m_yaw);
 	auto camearaViewDirModel = Vector3(x, y, z);
 	UpdateLookAt(camearaViewDirModel);
+}
+
+void Camera::UpdateAspectRatio(float aspectRatio)
+{
+	m_aspectRatio = aspectRatio;
 }
 
 void Camera::Reset()

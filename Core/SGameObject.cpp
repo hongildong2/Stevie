@@ -6,7 +6,6 @@ using namespace DirectX::SimpleMath;
 
 SGameObject::SGameObject()
 	: m_pMeshComponent()
-	, m_pRenderer()
 	, m_pitchEuler()
 	, m_yawEuler()
 	, m_rollEuler()
@@ -19,9 +18,8 @@ SGameObject::~SGameObject()
 	delete m_pMeshComponent;
 }
 
-void SGameObject::Initialize(IRenderer* pRenderer)
+void SGameObject::Initialize()
 {
-	m_pRenderer = pRenderer;
 }
 
 void SGameObject::SetMeshComponent(MeshComponent* pMeshComponent)
@@ -31,10 +29,7 @@ void SGameObject::SetMeshComponent(MeshComponent* pMeshComponent)
 
 void SGameObject::Render()
 {
-	if (m_pMeshComponent != nullptr)
-	{
-		m_pRenderer->Render(m_pMeshComponent, GetWorldRowMat());
-	}
+	m_pMeshComponent->Render(GetWorldRowMat());
 }
 
 void SGameObject::Update()

@@ -1,15 +1,15 @@
 #pragma once
 #include "pch.h"
 
-class SGameObject;
-
 class MeshComponent final
 {
 public:
 	MeshComponent() = default;
 	virtual ~MeshComponent();
 
-	void Initialize(RMeshGeometry* pMeshGeometry, RMaterial* pMaterial);
+	void Initialize(IRenderer* pRenderer, RMeshGeometry* pMeshGeometry, RMaterial* pMaterial);
+
+	void Render(DirectX::SimpleMath::Matrix parentTransform);
 
 	inline const RMeshGeometry* GetMeshGeometry() const
 	{
@@ -24,6 +24,7 @@ public:
 
 
 private:
+	IRenderer* m_pRenderer;
 	const RMeshGeometry* m_pMeshGeometry;
 	const RMaterial* m_pMaterial;
 };

@@ -25,7 +25,8 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, 0.1f, 20.f, XM_PIDIV2);
+	float aspectRatio = (float)width / (float)height;
+	m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
 
 	m_renderer->SetWindow(window, width, height);
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
@@ -37,9 +38,9 @@ void Game::Initialize(HWND window, int width, int height)
 		MeshData sphere = MakeBox(1.f);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
 		MeshComponent* demoC = new MeshComponent();
-		demoC->Initialize(sphereMesh, Graphics::DEMO_MATERIAL);
+		demoC->Initialize(m_renderer.get(), sphereMesh, Graphics::DEMO_MATERIAL);
 
-		m_obj->Initialize(m_renderer.get());
+		m_obj->Initialize();
 		m_obj->SetMeshComponent(demoC);
 	}
 
@@ -190,9 +191,6 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-
-
-	// m_renderer->UpdateWindowSize();
 }
 
 void Game::OnDisplayChange()
@@ -203,6 +201,10 @@ void Game::OnWindowSizeChanged(int width, int height)
 {
 	// TODO: Game window is being resized.
 	m_renderer->UpdateWindowSize(width, height);
+	if (m_camera)
+	{
+		m_camera->UpdateAspectRatio((float)width / (float)height);
+	}
 }
 
 // Properties

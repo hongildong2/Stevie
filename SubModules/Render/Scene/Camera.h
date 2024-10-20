@@ -4,7 +4,7 @@
 class Camera final
 {
 public:
-	Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector, float nearZ, float farZ, float fov);
+	Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector, float aspectRatio, float nearZ, float farZ, float fov);
 	DirectX::SimpleMath::Vector3 GetEyePos() const;
 	DirectX::SimpleMath::Vector3 GetEyeDir() const;
 	DirectX::SimpleMath::Matrix GetViewRowMat() const;
@@ -22,6 +22,7 @@ public:
 	void UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian);
 	void UpdateLookAt(DirectX::SimpleMath::Vector3& viewDir);
 	void UpdatePos(DirectX::SimpleMath::Vector3& deltaPos);
+	void UpdateAspectRatio(float aspectRatio);
 	void Reset();
 	DirectX::SimpleMath::Quaternion GetPitchYawInQuarternion() const;
 
@@ -34,6 +35,7 @@ private:
 	float m_pitch;
 	float m_yaw;
 
+	float m_aspectRatio;
 	float m_nearZ;
 	float m_farZ;
 	float m_fov;

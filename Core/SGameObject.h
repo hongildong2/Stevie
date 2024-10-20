@@ -10,7 +10,7 @@ public:
 	SGameObject();
 	~SGameObject();
 
-	virtual void Initialize(IRenderer* pRenderer);
+	virtual void Initialize();
 	virtual void SetMeshComponent(MeshComponent* pMeshComponent);
 	virtual void Render();
 	virtual void Update();
@@ -19,7 +19,6 @@ public:
 
 
 private:
-	IRenderer* m_pRenderer;
 	MeshComponent* m_pMeshComponent;
 
 	DirectX::SimpleMath::Vector4 m_worldPos;
