@@ -10,9 +10,9 @@ RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShade
 	, m_pixelShader(pPixelShader)
 	, m_blendState(pBlendState)
 	, m_samplerStatesCount(0)
-	, m_samplerStates{}
+	, m_samplerStates{ nullptr, }
 	, m_textureCount(0)
-	, m_textures{}
+	, m_textures{ nullptr, }
 	, m_bInitialized(false)
 {
 }
@@ -88,4 +88,18 @@ void RSkyboxMaterial::Initialize()
 {
 	assert(m_textureCount == 1 && m_textures[0] != nullptr);
 	RMaterial::Initialize();
+}
+
+RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
+	: RMaterial(pRenderer, Graphics::BASIC_PS, nullptr)
+{
+	m_textureCount = BASIC_TEXTURE_SLOT::COUNT;
+	AddSamplerState(Graphics::LINEAR_WRAP_SS);
+	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
+}
+
+void RBasicMaterial::Initialize()
+{
+	// assert IBL Textures
+	// Check PBR Textures and set material constant
 }

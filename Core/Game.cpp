@@ -64,7 +64,7 @@ void Game::Initialize(HWND window, int width, int height)
 		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
 		RMaterial* sMat = new RSkyboxMaterial(m_renderer.get());
 
-		const RTexture* iblTex = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/brightEnvHDR.dds");
+		const RTexture* iblTex = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
 		sMat->AddTexture(iblTex);
 		sMat->Initialize();
 

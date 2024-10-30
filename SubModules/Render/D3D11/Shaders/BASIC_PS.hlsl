@@ -1,7 +1,43 @@
-#include "RenderingCommons.hlsli"
+#include "ShaderTypes.hlsli"
 #include "ScreenSpace.hlsli"
 #include "PBRCommons.hlsli"
 
+SamplerState linearWrap : register(s0);
+SamplerState linearClamp : register(s1);
+
+TextureCube cubeMap : register(t0);
+TextureCube irradianceMap : register(t1);
+TextureCube SpecularMap : register(t2);
+Texture2D BRDFMap : register(t3);
+
+Texture2D<float3> albedoTex : register(t4);
+Texture2D<float> aoTex : register(t5);
+Texture2D<float> heightTex : register(t6);
+Texture2D<float> metallicTex : register(t7);
+Texture2D<float3> normalTex : register(t8);
+Texture2D<float> roughnessTex : register(t9);
+Texture2D<float> emissiveTex : register(t10);
+Texture2D<float> opacityTex : register(t11);
+
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstants;
+};
+
+cbuffer MeshConstants : register(b1)
+{
+	MeshConstant meshConstants;
+}
+
+cbuffer MaterialConstants : register(b2)
+{
+	MaterialConstant materialConstant;
+};
+
+cbuffer SunLight : register(b3)
+{
+	Light lightConstant;
+};
 
 float3 GetNormal(PixelShaderInput input)
 {
@@ -43,14 +79,14 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	F0 = lerp(F0, albedo, metallic);
 	
 	float3 Lo = float3(0.0, 0.0, 0.0);
-	for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount; ++lightIndex)
-	{
-		ShadowInput directShadowIn =
-		{
-			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
-		};
-		Lo += RadianceLByDirectLight(directShadowIn, globalLights[lightIndex], F0, N, V, input.positionWorld, albedo, roughness, metallic); // TODO : light type differentiation
-	}
+	float shadowFactor = 1.0;
+	Lo += RadianceByLight(lightConstant, F0, N, V, input.positionWorld, albedo, roughness, metallic) * shadowFactor;
+
+	//ShadowInput directShadowIn =
+	//{
+	//	shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
+	//};
+		
 	
 	
 	// IBL	

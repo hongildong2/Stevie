@@ -46,7 +46,7 @@ public:
 protected:
 	bool AddSamplerState(const RSamplerState* pSamplerState);
 public:
-	static constexpr UINT MATERIAL_TEXTURE_MAX_COUNT = 10;
+	static constexpr UINT MATERIAL_TEXTURE_MAX_COUNT = 20;
 	static constexpr UINT MATERIAL_SAMPLE_STATE_MAX_COUNT = 10;
 	static constexpr UINT MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE = 512;
 
@@ -88,4 +88,42 @@ public:
 	~RSkyboxMaterial() = default;
 
 	virtual void Initialize() override;
+};
+
+class RBasicMaterial final : public RMaterial
+{
+public:
+	RBasicMaterial(const IRenderer* pRenderer);
+	~RBasicMaterial() = default;
+
+	void SetIBLTextures(const RTexture* pCubeMapTexture, const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture);
+	void SetAlbedoTexture(const RTexture* pAlbedoTexture);
+	void SetAOTexture(const RTexture* pAOTexture);
+	void SetHeightTexture(const RTexture* pHeightTexture);
+	void SetMetallicTexture(const RTexture* pMetallicTexture);
+	void SetNormalTexture(const RTexture* pNormalTexture);
+	void SetRoughnessTexture(const RTexture* pRoughnessTexture);
+	void SetEmissiveTexture(const RTexture* pEmissiveTexture);
+	void SetOpacityTexture(const RTexture* pOpacityTexture);
+
+	virtual void Initialize() override;
+
+private:
+	enum BASIC_TEXTURE_SLOT
+	{
+		CUBEMAP_SLOT = 0,
+		IRRADIANCE_SLOT = 1,
+		SPECULAR_SLOT = 2,
+		BRDF_SLOT = 3,
+		ALBEDO_SLOT = 4,
+		AO_SLOT = 5,
+		HEIGHT_SLOT = 6,
+		METALLIC_SLOT = 7,
+		NORMAL_SLOT = 8,
+		ROUGHNESS_SLOT = 9,
+		EMISSIVE_SLOT = 10,
+		OPACITY_SLOT = 11,
+		COUNT = 12
+	};
+
 };
