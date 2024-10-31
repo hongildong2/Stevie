@@ -11,11 +11,19 @@
 #endif
 #include <sdkddkver.h>
 
+#define _MY_ASSERT(x) if ((x) == false) { __debugbreak(); }
+
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+
+#define MY_ASSERT(x) _MY_ASSERT(x)
+#else
+#deinfe MY_ASSERT(x) _MY_ASSERT(true)
 #endif
+
+
 
 
 // Use the C++ standard templated min/max
