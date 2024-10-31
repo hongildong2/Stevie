@@ -34,6 +34,8 @@ public:
 
 	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height, const DXGI_FORMAT format, const BOOL bIsReadOnly);
 	void InitializeFromFile(const D3D11Renderer* pRenderer, const WCHAR* path);
+	void InitializeFromDDSFile(const D3D11Renderer* pRenderer, const WCHAR* path);
+
 };
 
 

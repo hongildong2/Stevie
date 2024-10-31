@@ -20,7 +20,7 @@
 
 #define MY_ASSERT(x) _MY_ASSERT(x)
 #else
-#deinfe MY_ASSERT(x) _MY_ASSERT(true)
+#define MY_ASSERT(x)
 #endif
 
 
@@ -98,3 +98,10 @@
 #include "SubModules\Render\RenderDefs.h"
 #include "SubModules\Render\IRenderer.h"
 #include "SubModules\Render\IRenderResource.h"
+#include "SubModules\Render\RMaterial.h"
+#include "SubModules\Render\RShader.h"
+#include "SubModules\Render\RBlendState.h"
+#include "SubModules\Render\RTexture.h"
+#include "SubModules\Render\RMaterial.h"
+#include "SubModules\Render\RMeshGeometry.h"
+#include "SubModules\Render\GraphicsCommon1.h"

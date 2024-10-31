@@ -180,11 +180,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount - 1; ++lightIndex)
 	{
-		ShadowInput directLightShadowInput =
-		{
-			shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
-		};
-		Lo += RadianceLByDirectLight(directLightShadowInput, globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
+		Lo += RadianceByLight(globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
 	}
 	
 	color += Lo * renderParam.directLightScaler;

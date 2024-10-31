@@ -1,9 +1,7 @@
 #pragma once
-#include "pch.h"
-#include "Core\AObject.h"
 
-#include "SubModules\Render\Core\IDepthRenderable.h"
-#include "SubModules\GUI\IGUIComponent.h"
+#include "pch.h"
+#include "Core/SSceneObject.h"
 
 enum class ELightType
 {
@@ -15,41 +13,47 @@ enum class ELightType
 struct LightData
 {
 	DirectX::SimpleMath::Vector3 radiance;
-	float fallOffStart;
+	FLOAT fallOffStart;
 
 	DirectX::SimpleMath::Vector3 direction;
-	float fallOffEnd;
+	FLOAT fallOffEnd;
 
 	DirectX::SimpleMath::Vector3 positionWorld;
-	float spotPower;
+	FLOAT spotPower;
 
 	DirectX::SimpleMath::Vector3 color;
-	float dummy;
+	BOOL bIsShadowing;
 
 	ELightType type;
-	float radius;
-	float haloRadius;
-	float haloStrength;
+	FLOAT radius;
+	FLOAT haloRadius;
+	FLOAT haloStrength;
 
 	DirectX::SimpleMath::Matrix viewColumn;
 	DirectX::SimpleMath::Matrix projColumn;
 	DirectX::SimpleMath::Matrix invProjColumn;
 };
+static_assert(sizeof(LightData) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");
 
 
 
-class Light final : public AObject, public IGUIComponent, public IDepthRenderable
+class Light final : public SSceneObject
 {
 public:
-	Light(const char* name, const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
+	Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
 	~Light() = default;
 
-	AObject* GetThis() override;
 
 	void GetLightData(LightData* outLightData) const;
 	void UpdateLightData(LightData& data);
 	void UpdatePosWorld(const DirectX::SimpleMath::Vector3& posWorld);
-	DirectX::SimpleMath::Matrix GetViewRow() const override;
+
+	DirectX::SimpleMath::Matrix GetViewRow() const;
+	DirectX::SimpleMath::Matrix GetProjRow() const
+	{
+		return m_proj;
+	}
+
 
 private:
 	DirectX::SimpleMath::Vector3 m_radiance;
@@ -65,5 +69,9 @@ private:
 	float m_radius;
 	float m_haloRadius;
 	float m_haloStrength;
+
+	BOOL m_bIsShadowingLight;
+
+	DirectX::SimpleMath::Matrix m_proj;
 };
 

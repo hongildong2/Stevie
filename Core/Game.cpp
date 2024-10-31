@@ -6,14 +6,12 @@
 #include "Game.h"
 
 #include "GeometryGenerator.h"
-#include "SubModules/Render/GraphicsCommon1.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
-#include "SubModules/Render/Scene/Camera.h"
-#include "SubModules/Render/RMaterial.h"
-#include "SubModules/Render/RTexture.h"
 #include "Components/MeshComponent.h"
+#include "Core/Camera.h"
 #include "SSceneObject.h"
 #include "Skybox.h"
+#include "Core/Light.h"
 
 extern void ExitGame() noexcept;
 
@@ -36,44 +34,77 @@ void Game::Initialize(HWND window, int width, int height)
 	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
 
 
-	// DEMO
-	for (int i = -100; i < 100; ++i)
+	// DEMO OBJECT
 	{
-		auto demoObj = std::make_unique<SSceneObject>();
 		MeshData sphere = MakeSphere(1.f, 20, 20);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
-		RMaterial* mat = new RDemoMaterial(m_renderer.get());
+
+		const RTexture* albedoTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
+		const RTexture* metallicTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
+		const RTexture* heightTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
+		const RTexture* aoTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
+		const RTexture* normalTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
+		const RTexture* roughnessTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
+
+		RBasicMaterial* mat = new RBasicMaterial(m_renderer.get());
+		mat->SetAlbedoTexture(albedoTex);
+		mat->SetMetallicTexture(metallicTex);
+		// mat->SetHeightTexture(heightTex);
+		mat->SetAOTexture(aoTex);
+		mat->SetNormalTexture(normalTex);
+		mat->SetRoughnessTexture(roughnessTex);
+
+		mat->Initialize();
 
 		MeshComponent* demoC = new MeshComponent();
 
 		demoC->Initialize(m_renderer.get(), sphereMesh, mat);
+		for (int i = -100; i < 100; ++i)
+		{
+			auto demoObj = std::make_unique<SSceneObject>();
 
-		demoObj->Initialize();
-		demoObj->SetMeshComponent(demoC);
 
-		demoObj->UpdatePos({ i / 2.f, i / 2.f, i / 2.f });
-		m_objects.push_back(std::move(demoObj));
+			demoObj->Initialize();
+			demoObj->SetMeshComponent(demoC);
+
+			demoObj->UpdatePos({ i / 2.f, i / 2.f, i / 2.f });
+			m_objects.push_back(std::move(demoObj));
+		}
 	}
 
 	// Scene
 	{
+		//IBL 
+
+		// Camera
 		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
 		m_renderer->SetCamera(m_camera.get());
 
+		// Skybox
 		MeshData box = MakeBox(10.f);
 		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
-		RMaterial* sMat = new RSkyboxMaterial(m_renderer.get());
+		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_renderer.get());
 
-		const RTexture* iblTex = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
-		sMat->AddTexture(iblTex);
-		sMat->Initialize();
+		const RTexture* IrradianceMapTexture = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
+		const RTexture* SpecularMapTexture = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
+		const RTexture* BRDFMapTexture = m_renderer->CreateTextureFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
+
+		m_renderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
+
+		skyboxMaterial->AddTexture(IrradianceMapTexture);
+		skyboxMaterial->Initialize();
 
 
 		MeshComponent* mcop = new MeshComponent();
-		mcop->Initialize(m_renderer.get(), cubeMesh, sMat);
+		mcop->Initialize(m_renderer.get(), cubeMesh, skyboxMaterial);
 		m_skybox = std::make_unique<Skybox>(mcop);
 
 		m_renderer->SetSkybox(m_skybox.get());
+
+		// Lights
+
+		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {});
+		m_renderer->AddLight(light);
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.

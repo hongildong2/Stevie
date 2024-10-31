@@ -8,7 +8,7 @@
 #include "StepTimer.h"
 
 #include "SubModules/Render/RenderDefs.h"
-#include "SubModules/Render/Scene/Camera.h"
+#include "Camera.h"
 #include "Skybox.h"
 #include "SSceneObject.h"
 

@@ -58,7 +58,15 @@ void D3D11Texture2D::InitializeFromFile(const D3D11Renderer* pRenderer, const WC
 	auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 	m_bIsReadOnly = TRUE;
 
-	DX::ThrowIfFailed(DirectX::CreateWICTextureFromFileEx(pDevice, pPath, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_SRV.GetAddressOf()));
+	DX::ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, pPath, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, nullptr, m_SRV.GetAddressOf()));
+}
+
+void D3D11Texture2D::InitializeFromDDSFile(const D3D11Renderer* pRenderer, const WCHAR* path)
+{
+	auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
+	m_bIsReadOnly = TRUE;
+
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, path, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, nullptr, m_SRV.GetAddressOf(), nullptr));
 }
 
 D3D11Texture3D::D3D11Texture3D()

@@ -20,6 +20,7 @@ public:
 	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
 	D3D11Texture2D* CreateTextureFromFile(const WCHAR* fileName);
+	D3D11Texture2D* CreateTextureFromDDSFile(const WCHAR* fileName);
 	D3D11TextureCube* CreateTextureCubeFromFile(const WCHAR* fileName);
 
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);

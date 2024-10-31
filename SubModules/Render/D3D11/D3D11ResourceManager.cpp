@@ -87,6 +87,13 @@ D3D11Texture2D* D3D11ResourceManager::CreateTextureFromFile(const WCHAR* fileNam
 	return res;
 }
 
+D3D11Texture2D* D3D11ResourceManager::CreateTextureFromDDSFile(const WCHAR* fileName)
+{
+	D3D11Texture2D* res = new D3D11Texture2D();
+	res->InitializeFromDDSFile(m_pRenderer, fileName);
+	return res;
+}
+
 D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromFile(const WCHAR* fileName)
 {
 	D3D11TextureCube* res = new D3D11TextureCube();
@@ -110,7 +117,6 @@ void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const voi
 	if (pInitData == nullptr)
 	{
 		DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, ppOutBuffer));
-
 	}
 	else
 	{

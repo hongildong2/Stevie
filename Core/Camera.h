@@ -9,6 +9,7 @@ public:
 	DirectX::SimpleMath::Vector3 GetEyeDir() const;
 	DirectX::SimpleMath::Matrix GetViewRowMat() const;
 	DirectX::SimpleMath::Matrix GetProjRowMat() const;
+
 	inline float GetNearZ() const
 	{
 		return m_nearZ;

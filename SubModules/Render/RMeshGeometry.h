@@ -4,7 +4,7 @@
 
 class RMeshGeometry : public IRenderResource
 {
-protected:
+public:
 	RMeshGeometry(const EPrimitiveTopologyType type);
 	~RMeshGeometry() = default;
 

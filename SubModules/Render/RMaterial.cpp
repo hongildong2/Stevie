@@ -1,9 +1,4 @@
 #include "pch.h"
-#include "RMaterial.h"
-#include "RTexture.h"
-#include "RShader.h"
-#include "RSamplerState.h"
-#include "GraphicsCommon1.h"
 
 RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
 	: m_pRenderer(pRenderer)
@@ -77,6 +72,11 @@ RDemoMaterial::RDemoMaterial(const IRenderer* pRenderer)
 	Initialize();
 }
 
+void RDemoMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+{
+	pOutMaterialConstant->size = 0;
+}
+
 
 RSkyboxMaterial::RSkyboxMaterial(const IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr)
@@ -86,20 +86,84 @@ RSkyboxMaterial::RSkyboxMaterial(const IRenderer* pRenderer)
 
 void RSkyboxMaterial::Initialize()
 {
-	assert(m_textureCount == 1 && m_textures[0] != nullptr);
+	MY_ASSERT(m_textureCount == 1 && m_textures[0] != nullptr);
 	RMaterial::Initialize();
+}
+
+void RSkyboxMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+{
+	pOutMaterialConstant->size = 0;
 }
 
 RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS, nullptr)
+	, m_constant(DEFAULT_MATERIAL)
 {
-	m_textureCount = BASIC_TEXTURE_SLOT::COUNT;
+	m_textureCount = BASIC_TEXTURE_INDEX::COUNT;
 	AddSamplerState(Graphics::LINEAR_WRAP_SS);
 	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
 }
 
+void RBasicMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+{
+	std::memcpy(pOutMaterialConstant->data, &m_constant, sizeof(RBasicMaterialConstant));
+	pOutMaterialConstant->size = sizeof(RBasicMaterialConstant);
+}
+
+void RBasicMaterial::SetAlbedoTexture(const RTexture* pAlbedoTexture)
+{
+	MY_ASSERT(pAlbedoTexture != nullptr);
+
+	m_textures[ALBEDO] = pAlbedoTexture;
+}
+
+void RBasicMaterial::SetAOTexture(const RTexture* pAOTexture)
+{
+	MY_ASSERT(pAOTexture != nullptr);
+	m_textures[AO] = pAOTexture;
+}
+void RBasicMaterial::SetHeightTexture(const RTexture* pHeightTexture)
+{
+	MY_ASSERT(pHeightTexture != nullptr);
+	m_textures[HEIGHT] = pHeightTexture;
+}
+void RBasicMaterial::SetMetallicTexture(const RTexture* pMetallicTexture)
+{
+	MY_ASSERT(pMetallicTexture != nullptr);
+	m_textures[METALLIC] = pMetallicTexture;
+}
+void RBasicMaterial::SetNormalTexture(const RTexture* pNormalTexture)
+{
+	MY_ASSERT(pNormalTexture != nullptr);
+	m_textures[NORMAL] = pNormalTexture;
+}
+void RBasicMaterial::SetRoughnessTexture(const RTexture* pRoughnessTexture)
+{
+	MY_ASSERT(pRoughnessTexture != nullptr);
+	m_textures[ROUGHNESS] = pRoughnessTexture;
+}
+void RBasicMaterial::SetEmissiveTexture(const RTexture* pEmissiveTexture)
+{
+	MY_ASSERT(pEmissiveTexture != nullptr);
+	m_textures[EMISSIVE] = pEmissiveTexture;
+}
+void RBasicMaterial::SetOpacityTexture(const RTexture* pOpacityTexture)
+{
+	MY_ASSERT(pOpacityTexture != nullptr);
+	m_textures[OPACITY] = pOpacityTexture;
+}
+
 void RBasicMaterial::Initialize()
 {
-	// assert IBL Textures
-	// Check PBR Textures and set material constant
+	m_constant.bUseAlbedoTexture = m_textures[ALBEDO] != nullptr;
+	m_constant.bUseAOTexture = m_textures[AO] != nullptr;
+	m_constant.bUseHeightTexture = m_textures[HEIGHT] != nullptr;
+	m_constant.bUseMetallicTexture = m_textures[METALLIC] != nullptr;
+
+	m_constant.bUseNormalTexture = m_textures[NORMAL] != nullptr;
+	m_constant.bUseRoughnessTexture = m_textures[ROUGHNESS] != nullptr;
+	m_constant.bUseEmissiveTexture = m_textures[EMISSIVE] != nullptr;
+	m_constant.bUseOpacityTexture = m_textures[OPACITY] != nullptr;
+
+	m_bInitialized = TRUE;
 }

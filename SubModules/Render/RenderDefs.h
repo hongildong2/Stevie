@@ -46,8 +46,7 @@ inline const WCHAR* ToString(const EShaderType type)
 	case EShaderType::GEOMETRY_SHADER:
 		return L"GS";
 	default:
-		// TODO :: assert
-		return L"";
+		MY_ASSERT(FALSE);
 		break;
 	}
 }
@@ -91,38 +90,6 @@ struct GlobalConstant
 };
 
 static_assert(sizeof(GlobalConstant) % 16 == 0, "Constant Buffer Alignment");
-
-struct MaterialConstant
-{
-	float metallicFactor;
-	float aoFactor;
-	float roughnessFactor;
-	float t1;
-
-	BOOL bUseTexture;
-	DirectX::SimpleMath::Vector3 albedo;
-
-	float metallic;
-	float roughness;
-	float specular; // default 0.5, water 0.255
-	float IBLStrength;
-
-
-	BOOL bUseHeightMap;
-	float heightScale;
-	DirectX::SimpleMath::Vector2 mcDummy;
-
-	BOOL bUseAlbedoTexture;
-	BOOL bUseAOTexture;
-	BOOL bUseHeightTexture;
-	BOOL bUseMetallicTexture;
-
-	BOOL bUseNormalTexture;
-	BOOL bUseRoughnessTexture;
-	BOOL bUseEmissiveTexture;
-	BOOL bUseOpacityTexture;
-};
-static_assert(sizeof(MaterialConstant) % 16 == 0, "Constant Buffer Alignment");
 
 struct MeshConstant
 {

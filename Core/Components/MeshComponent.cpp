@@ -3,7 +3,7 @@
 
 MeshComponent::~MeshComponent()
 {
-	delete m_pMeshGeometry;
+	// delete m_pMeshGeometry;
 }
 
 

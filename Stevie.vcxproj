@@ -183,6 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\GeometryGenerator.h" />
+    <ClInclude Include="Core\Light.h" />
     <ClInclude Include="Core\SSceneObject.h" />
     <ClInclude Include="Core\SObject.h" />
     <ClInclude Include="Core\Skybox.h" />
@@ -210,10 +211,11 @@
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Core\StepTimer.h" />
-    <ClInclude Include="SubModules\Render\Scene\Camera.h" />
+    <ClInclude Include="Core\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\GeometryGenerator.cpp" />
+    <ClCompile Include="Core\Light.cpp" />
     <ClCompile Include="Core\SSceneObject.cpp" />
     <ClCompile Include="Core\SObject.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
@@ -244,7 +246,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SubModules\Render\Scene\Camera.cpp" />
+    <ClCompile Include="Core\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

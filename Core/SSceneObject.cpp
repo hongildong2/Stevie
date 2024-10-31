@@ -15,7 +15,7 @@ SSceneObject::SSceneObject()
 
 SSceneObject::~SSceneObject()
 {
-	delete m_pMeshComponent;
+	// delete m_pMeshComponent;
 }
 
 void SSceneObject::Initialize()

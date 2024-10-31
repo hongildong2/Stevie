@@ -29,7 +29,7 @@ struct GlobalConstants
 class MyPostProcess;
 class Camera;
 
-class SceneStateObject final : public IWindowSizeDependent // TOOD : GameStateObject와 RenderStateObject로 분리
+class SceneStateObject final
 {
 public:
 	SceneStateObject();
@@ -47,8 +47,6 @@ public:
 
 	// 이건좀 아닌듯.. 렌더패스 관리할 아이디어가 필요하다, Move To Scene class
 	void RenderProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pBufferToProcess, ID3D11RenderTargetView* pRTVToPresent);
-
-	void OnWindowSizeChange(ID3D11Device1* pDevice, D3D11_VIEWPORT vp, DXGI_FORMAT bufferFormat) override;
 
 	// UI, Control 때문에.. 임시로
 	inline const std::unique_ptr<Camera>& GetCamera() const

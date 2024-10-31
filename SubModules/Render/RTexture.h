@@ -12,9 +12,7 @@ enum class ETextureType
 class RTexture
 	: public IRenderResource
 {
-protected:
-	RTexture(ETextureType type);
-	virtual ~RTexture() = default;
+public:
 
 	inline BOOL IsReadOnly() const
 	{
@@ -35,6 +33,16 @@ protected:
 	{
 		return m_depth;
 	}
+
+	inline ETextureType GetTextureType() const
+	{
+		return m_textureType;
+	}
+
+
+protected:
+	RTexture(ETextureType type);
+	virtual ~RTexture() = default;
 
 protected:
 	UINT m_width;

@@ -11,6 +11,7 @@ class RConstantBuffer;
 class RSamplerState;
 class Camera;
 class Skybox;
+class Light;
 
 class MeshComponent;
 
@@ -45,6 +46,7 @@ public:
 
 	// IRenderDevice
 	virtual RTexture* CreateTextureFromFile(const WCHAR* wchFileName) = 0;
+	virtual RTexture* CreateTextureFromDDSFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture* CreateTextureCubeFromFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) = 0;
@@ -55,4 +57,6 @@ public:
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) = 0;
 	virtual void SetSkybox(Skybox* pSkybox) = 0;
+	virtual void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture) = 0;
+	virtual void AddLight(const Light* pLight) = 0;
 };

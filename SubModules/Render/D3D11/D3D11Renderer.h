@@ -25,6 +25,7 @@ public:
 
 	// IRenderDevice
 	virtual RTexture* CreateTextureFromFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTextureFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTextureCubeFromFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
@@ -35,6 +36,8 @@ public:
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;
 	virtual void SetSkybox(Skybox* pSkybox) override;
+	virtual void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture) override;
+	virtual void AddLight(const Light* pLight) override;
 
 
 
@@ -60,9 +63,19 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
 
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightCB; // TEMP sun light
+
 	std::wstring m_shaderPath;
+
 	// Scene
 	const Camera* m_camera;
 	Skybox* m_skybox;
+
+	const D3D11TextureCube* m_irradianceMapTexture;
+	const D3D11TextureCube* m_specularMapTexture;
+	const D3D11Texture2D* m_BRDFMapTexture;
+	std::vector<const Light*> m_lights;
+
+
 
 };

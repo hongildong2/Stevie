@@ -51,8 +51,9 @@
     <ClInclude Include="Core\GeometryGenerator.h" />
     <ClInclude Include="Core\SObject.h" />
     <ClInclude Include="Core\SSceneObject.h" />
-    <ClInclude Include="SubModules\Render\Scene\Camera.h" />
+    <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Skybox.h" />
+    <ClInclude Include="Core\Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -80,8 +81,9 @@
     <ClCompile Include="Core\GeometryGenerator.cpp" />
     <ClCompile Include="Core\SObject.cpp" />
     <ClCompile Include="Core\SSceneObject.cpp" />
-    <ClCompile Include="SubModules\Render\Scene\Camera.cpp" />
+    <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
+    <ClCompile Include="Core\Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
