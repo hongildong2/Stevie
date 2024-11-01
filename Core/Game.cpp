@@ -78,7 +78,7 @@ void Game::Initialize(HWND window, int width, int height)
 		//IBL 
 
 		// Camera
-		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
+		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f });
 		m_renderer->SetCamera(m_camera.get());
 
 		// Skybox
@@ -265,11 +265,9 @@ void Game::OnDisplayChange()
 void Game::OnWindowSizeChanged(int width, int height)
 {
 	// TODO: Game window is being resized.
+	renderConfig::SCREEN_WIDTH = width;
+	renderConfig::SCREEN_HEIGHT = height;
 	m_renderer->UpdateWindowSize(width, height);
-	if (m_camera)
-	{
-		m_camera->UpdateAspectRatio((float)width / (float)height);
-	}
 }
 
 // Properties

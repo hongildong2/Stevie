@@ -266,7 +266,7 @@ void D3D11Renderer::SetGlobalConstant()
 
 
 	Matrix viewRow = m_camera->GetViewRowMat();
-	Matrix projRow = m_camera->GetProjRowMat();
+	Matrix projRow = renderConfig::GetCameraProjRowMat();
 	Matrix viewProjRow = viewRow * projRow;
 
 	globalConstant.view = viewRow.Transpose();
@@ -283,8 +283,8 @@ void D3D11Renderer::SetGlobalConstant()
 	globalConstant.eyeDir = m_camera->GetDirWorld();
 	globalConstant.globalLightsCount = 0;
 
-	globalConstant.nearZ = m_camera->GetNearZ();
-	globalConstant.farZ = m_camera->GetFarZ();
+	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
+	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
 
 	m_resourceManager->UpdateConstantBuffer(sizeof(GlobalConstant), &globalConstant, m_globalCB.Get());
 

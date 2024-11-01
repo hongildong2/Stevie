@@ -7,30 +7,15 @@ const float Camera::MOVEMENT_GAIN = 0.07f;
 
 using namespace DirectX::SimpleMath;
 
-Camera::Camera(Vector3 eyePosWorld, float aspectRatio, float nearZ, float farZ, float fov)
+Camera::Camera(Vector3 eyePosWorld)
 	: SSceneObject()
-	, m_aspectRatio(aspectRatio)
-	, m_nearZ(nearZ)
-	, m_farZ(farZ)
-	, m_fov(fov)
 {
 	m_posWorld = eyePosWorld;
-}
-
-
-Matrix Camera::GetProjRowMat() const
-{
-	return Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearZ, m_farZ);
 }
 
 Quaternion Camera::GetPitchYawInQuarternion() const
 {
 	return Quaternion::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler);
-}
-
-void Camera::UpdateAspectRatio(float aspectRatio)
-{
-	m_aspectRatio = aspectRatio;
 }
 
 void Camera::Reset()

@@ -54,6 +54,7 @@
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Light.h" />
+    <ClInclude Include="SubModules\Render\RenderConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
