@@ -105,7 +105,7 @@ void Game::Initialize(HWND window, int width, int height)
 		// Lights
 
 		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {});
-		m_renderer->AddLight(light);
+		m_renderer->SetSunLight(light);
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.

@@ -57,6 +57,7 @@ public:
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) = 0;
 	virtual void SetSkybox(Skybox* pSkybox) = 0;
+	virtual void SetSunLight(const Light* pLight) = 0;
 	virtual void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture) = 0;
 	virtual void AddLight(const Light* pLight) = 0;
 };

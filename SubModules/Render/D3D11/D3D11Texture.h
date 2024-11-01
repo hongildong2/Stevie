@@ -25,6 +25,24 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UAV;
 };
 
+class D3D11TextureDepth final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
+{
+public:
+	D3D11TextureDepth();
+	~D3D11TextureDepth() = default;
+
+	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height);
+
+	inline ID3D11DepthStencilView* GetDSV() const
+	{
+		return m_DSV.Get();
+	}
+
+private:
+
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DSV;
+};
+
 class D3D11Texture2D : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
 public:

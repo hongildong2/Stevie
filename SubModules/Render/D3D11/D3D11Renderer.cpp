@@ -23,6 +23,8 @@ D3D11Renderer::D3D11Renderer()
 	, m_resourceManager()
 	, m_camera(nullptr)
 	, m_skybox(nullptr)
+	, m_sunLight(nullptr)
+	, m_sunShadowMap(nullptr)
 	, m_irradianceMapTexture(nullptr)
 	, m_specularMapTexture(nullptr)
 	, m_BRDFMapTexture(nullptr)
@@ -47,9 +49,11 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_resourceManager->CreateConstantBuffer(sizeof(GlobalConstant), nullptr, m_globalCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(MeshConstant), nullptr, m_meshCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(RMaterialConstant), nullptr, m_materialCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(LightData), nullptr, m_lightCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(LightData), nullptr, m_sunLightCB.GetAddressOf());
 
+	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
+	m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr, m_lightsSB.GetAddressOf());
 
 	return TRUE;
 }
@@ -62,9 +66,9 @@ void D3D11Renderer::BeginRender()
 		auto* context = m_deviceResources->GetD3DDeviceContext();
 		auto* depthStencil = m_deviceResources->GetDepthStencilView();
 		auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
-		// TODO :: Create Float RTV
+		auto HDRRTV = m_deviceResources->GetHDRRTV();
 
-		// context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
+		context->ClearRenderTargetView(HDRRTV, Colors::Black);
 		context->ClearRenderTargetView(backBufferRTV, Colors::Cyan);
 		context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -81,7 +85,11 @@ void D3D11Renderer::BeginRender()
 		m_deviceResources->PIXEndEvent();
 	}
 
-	SetGlobalConstant();
+	// Update Scene Resources
+	{
+		SetGlobalConstant();
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData) * m_lights.size(), 0, m_lights.size(), m_lights.data(), m_lightsSB.Get(), m_lightsSRV.ReleaseAndGetAddressOf());
+	}
 
 	// Render Skybox
 	{
@@ -119,6 +127,8 @@ void D3D11Renderer::BeginRender()
 			m_deviceResources->PIXEndEvent();
 		}
 	}
+
+
 }
 
 
@@ -231,6 +241,7 @@ RMeshGeometry* D3D11Renderer::CreateQuadPatches(const UINT patchCount)
 void D3D11Renderer::SetCamera(const Camera* pCamera)
 {
 	MY_ASSERT(pCamera != nullptr);
+
 	m_camera = pCamera;
 }
 
@@ -238,6 +249,12 @@ void D3D11Renderer::SetSkybox(Skybox* pSkybox)
 {
 	MY_ASSERT(pSkybox != nullptr);
 	m_skybox = pSkybox;
+}
+
+void D3D11Renderer::SetSunLight(const Light* pLight)
+{
+	MY_ASSERT(pLight != nullptr);
+	m_sunLight = pLight;
 }
 
 void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture)
@@ -256,6 +273,11 @@ void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const 
 void D3D11Renderer::AddLight(const Light* pLight)
 {
 	// TODO :: Distinguish shadowing and non-shadowing light
+	if (m_lights.size() >= MAX_SCENE_LIGHTS_COUNT)
+	{
+		return;
+	}
+
 	m_lights.push_back(pLight);
 }
 
@@ -281,20 +303,20 @@ void D3D11Renderer::SetGlobalConstant()
 	globalConstant.globalTime = 0.f;
 
 	globalConstant.eyeDir = m_camera->GetDirWorld();
-	globalConstant.globalLightsCount = 0;
+	globalConstant.globalLightsCount = m_lights.size();
 
 	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
 	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
 
 	m_resourceManager->UpdateConstantBuffer(sizeof(GlobalConstant), &globalConstant, m_globalCB.Get());
 
-	// Light
+	// Sun Light
 	LightData lightData;
 	ZeroMemory(&lightData, sizeof(LightData));
-	MY_ASSERT(m_lights.size() == 1);
-	m_lights[0]->GetLightData(&lightData);
+	MY_ASSERT(m_sunLight != nullptr);
+	m_sunLight->GetLightData(&lightData);
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(LightData), &lightData, m_lightCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(LightData), &lightData, m_sunLightCB.Get());
 }
 
 void D3D11Renderer::SetMeshConstant(const MeshComponent* pMeshComponent, Matrix worldRow)
@@ -350,7 +372,7 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 
 	// Constant Buffers
 	{
-		ID3D11Buffer* cbs[4] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get(), m_lightCB.Get() };
+		ID3D11Buffer* cbs[4] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get(), m_sunLightCB.Get() };
 		pContext->PSSetConstantBuffers(0, 4, cbs);
 	}
 

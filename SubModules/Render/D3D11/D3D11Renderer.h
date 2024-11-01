@@ -36,6 +36,7 @@ public:
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;
 	virtual void SetSkybox(Skybox* pSkybox) override;
+	virtual void SetSunLight(const Light* pLight) override;
 	virtual void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture) override;
 	virtual void AddLight(const Light* pLight) override;
 
@@ -62,8 +63,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
-
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightCB; // TEMP sun light
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
 
 	std::wstring m_shaderPath;
 
@@ -74,8 +74,15 @@ private:
 	const D3D11TextureCube* m_irradianceMapTexture;
 	const D3D11TextureCube* m_specularMapTexture;
 	const D3D11Texture2D* m_BRDFMapTexture;
-	std::vector<const Light*> m_lights;
 
+	const Light* m_sunLight;
+	const D3D11TextureDepth* m_sunShadowMap; // TODO :: Manage Depth textures by manager, pooling
+
+	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 500;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB; // structured buffer
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
+	std::vector<const Light*> m_lights;
+	// std::vector<const D3D11RenderTexture2D*> m_shadowMaps;
 
 
 };
