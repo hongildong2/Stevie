@@ -1,13 +1,13 @@
 #pragma once
 #include "pch.h"
+#include "Core/SSceneObject.h"
 
-class Camera final
+class Camera final : public SSceneObject
 {
 public:
-	Camera(DirectX::SimpleMath::Vector3 eyePos, DirectX::SimpleMath::Vector3 viewDir, DirectX::SimpleMath::Vector3 upVector, float aspectRatio, float nearZ, float farZ, float fov);
-	DirectX::SimpleMath::Vector3 GetEyePos() const;
-	DirectX::SimpleMath::Vector3 GetEyeDir() const;
-	DirectX::SimpleMath::Matrix GetViewRowMat() const;
+	Camera(DirectX::SimpleMath::Vector3 eyePos, float aspectRatio, float nearZ, float farZ, float fov);
+	~Camera() = default;
+
 	DirectX::SimpleMath::Matrix GetProjRowMat() const;
 
 	inline float GetNearZ() const
@@ -19,23 +19,12 @@ public:
 		return m_farZ;
 	}
 
-
-	void UpdatePitchYaw(DirectX::SimpleMath::Vector3& deltaRadian);
-	void UpdateLookAt(DirectX::SimpleMath::Vector3& viewDir);
-	void UpdatePos(DirectX::SimpleMath::Vector3& deltaPos);
 	void UpdateAspectRatio(float aspectRatio);
 	void Reset();
 	DirectX::SimpleMath::Quaternion GetPitchYawInQuarternion() const;
 
 
 private:
-	DirectX::SimpleMath::Vector3 m_eyePosWorld;
-	DirectX::SimpleMath::Vector3 m_lookAtTargetPosWorld;
-	DirectX::SimpleMath::Vector3 m_upVector;
-
-	float m_pitch;
-	float m_yaw;
-
 	float m_aspectRatio;
 	float m_nearZ;
 	float m_farZ;

@@ -277,10 +277,10 @@ void D3D11Renderer::SetGlobalConstant()
 	globalConstant.invProj = globalConstant.proj.Invert();
 	globalConstant.invViewProj = globalConstant.viewProj.Invert();
 
-	globalConstant.eyeWorld = m_camera->GetEyePos();
+	globalConstant.eyeWorld = m_camera->GetPosWorld();
 	globalConstant.globalTime = 0.f;
 
-	globalConstant.eyeDir = m_camera->GetEyeDir();
+	globalConstant.eyeDir = m_camera->GetDirWorld();
 	globalConstant.globalLightsCount = 0;
 
 	globalConstant.nearZ = m_camera->GetNearZ();

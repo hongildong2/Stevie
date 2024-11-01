@@ -67,7 +67,8 @@ void Game::Initialize(HWND window, int width, int height)
 			demoObj->Initialize();
 			demoObj->SetMeshComponent(demoC);
 
-			demoObj->UpdatePos({ i / 2.f, i / 2.f, i / 2.f });
+			auto a = Vector3(i / 2.f, i / 2.f, i / 2.f);
+			demoObj->UpdatePos(a);
 			m_objects.push_back(std::move(demoObj));
 		}
 	}
@@ -77,7 +78,7 @@ void Game::Initialize(HWND window, int width, int height)
 		//IBL 
 
 		// Camera
-		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, Vector3{ 0.f, 0.f, 1.f }, Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
+		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f }, aspectRatio, 0.1f, 20.f, XM_PIDIV2);
 		m_renderer->SetCamera(m_camera.get());
 
 		// Skybox
@@ -146,7 +147,7 @@ void Game::Update(DX::StepTimer const& timer)
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
 			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f) * Camera::ROTATION_GAIN;
-			m_camera->UpdatePitchYaw(deltaRotationRadian);
+			m_camera->UpdateYawPitchRoll(deltaRotationRadian);
 		}
 
 		m_mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);

@@ -28,10 +28,6 @@ struct LightData
 	FLOAT radius;
 	FLOAT haloRadius;
 	FLOAT haloStrength;
-
-	DirectX::SimpleMath::Matrix viewColumn;
-	DirectX::SimpleMath::Matrix projColumn;
-	DirectX::SimpleMath::Matrix invProjColumn;
 };
 static_assert(sizeof(LightData) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");
 
@@ -43,35 +39,22 @@ public:
 	Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
 	~Light() = default;
 
-
 	void GetLightData(LightData* outLightData) const;
 	void UpdateLightData(LightData& data);
-	void UpdatePosWorld(const DirectX::SimpleMath::Vector3& posWorld);
-
-	DirectX::SimpleMath::Matrix GetViewRow() const;
-	DirectX::SimpleMath::Matrix GetProjRow() const
-	{
-		return m_proj;
-	}
-
 
 private:
+	ELightType m_type;
 	DirectX::SimpleMath::Vector3 m_radiance;
-	DirectX::SimpleMath::Vector3 m_direction;
-	DirectX::SimpleMath::Vector3 m_positionWorld;
 	DirectX::SimpleMath::Vector3 m_color;
 
 	float m_fallOffStart;
 	float m_fallOffEnd;
 	float m_spotPower;
 
-	ELightType m_type;
 	float m_radius;
 	float m_haloRadius;
 	float m_haloStrength;
 
 	BOOL m_bIsShadowingLight;
-
-	DirectX::SimpleMath::Matrix m_proj;
 };
 
