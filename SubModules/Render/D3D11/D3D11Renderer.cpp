@@ -53,7 +53,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
-	m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr, m_lightsSB.GetAddressOf());
+	m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr, m_lightsSB.ReleaseAndGetAddressOf(), m_lightsSRV.ReleaseAndGetAddressOf());
 
 	return TRUE;
 }
@@ -88,7 +88,8 @@ void D3D11Renderer::BeginRender()
 	// Update Scene Resources
 	{
 		SetGlobalConstant();
-		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData) * m_lights.size(), 0, m_lights.size(), m_lights.data(), m_lightsSB.Get(), m_lightsSRV.ReleaseAndGetAddressOf());
+		// Light
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
 	}
 
 	// Render Skybox

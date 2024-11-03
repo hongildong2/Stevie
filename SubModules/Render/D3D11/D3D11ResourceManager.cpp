@@ -149,9 +149,10 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 	pContext->Unmap(pBuffer, 0);
 }
 
-void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const UINT byteStride, const void* pInitData, ID3D11Buffer** ppOutBuffer)
+void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const UINT byteStride, const void* pInitData, ID3D11Buffer** ppOutBuffer, ID3D11ShaderResourceView** ppSRVOut)
 {
 	MY_ASSERT(ppOutBuffer != nullptr);
+	*ppOutBuffer = nullptr;
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
 	D3D11_BUFFER_DESC sbDesc;
@@ -177,9 +178,42 @@ void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const U
 
 		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, ppOutBuffer));
 	}
+
+
+	D3D11_BUFFER_DESC descBuf = {};
+	(*ppOutBuffer)->GetDesc(&descBuf);
+	const UINT BUFFER_TOTAL_SIZE = descBuf.ByteWidth;
+	const UINT BUFFER_ELEMENT_SIZE = descBuf.StructureByteStride;
+	const UINT BUFFER_LENGTH = BUFFER_TOTAL_SIZE / BUFFER_ELEMENT_SIZE;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+	desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+	desc.BufferEx.FirstElement = 0;
+	if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+	{
+		// This is a Raw Buffer
+
+		desc.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+		desc.BufferEx.NumElements = descBuf.ByteWidth / 4;
+	}
+	else
+	{
+		if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+		{
+			// This is a Structured Buffer
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.BufferEx.NumElements = BUFFER_LENGTH - 0;
+		}
+		else
+		{
+			DX::ThrowIfFailed(E_INVALIDARG);
+		}
+	}
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(*ppOutBuffer, &desc, ppSRVOut));
 }
 
-void D3D11ResourceManager::UpdateStructuredBuffer(const UINT dataSize, const UINT firstElement, const UINT numElements, const void* pData, ID3D11Buffer* pInBuffer, ID3D11ShaderResourceView** ppOutSRV)
+void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pData, ID3D11Buffer* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
@@ -188,21 +222,16 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT dataSize, const UIN
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
 	DX::ThrowIfFailed(pContext->Map(pInBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	for (UINT i = 0; i < uCount; ++i)
+	{
+		const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
+		void* pMapped = static_cast<char*>(mappedResource.pData) + (i * uElementSize);
 
-	memcpy(mappedResource.pData, pData, dataSize);
+		std::memcpy(pMapped, pDataToWrite, uElementSize);
+	}
 
 	pContext->Unmap(pInBuffer, 0);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.FirstElement = firstElement;
-	srvDesc.Buffer.NumElements = numElements;
-	srvDesc.Buffer.
-		// TODO :: Utiity.h Buffer함수 참고
-
-		DX::ThrowIfFailed(pDevice->CreateShaderResourceView(pInBuffer, &srvDesc, ppOutSRV));
 }
 
 void D3D11ResourceManager::InitializeCommonResource() const

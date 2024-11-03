@@ -28,8 +28,8 @@ public:
 
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
 	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);
-	void CreateStructuredBuffer(const UINT bufferSize, const UINT byteStride, const void* pInitData, ID3D11Buffer** ppOutBuffer);
-	void UpdateStructuredBuffer(const UINT dataSize, const UINT firstElement, const UINT numElements, const void* pData, ID3D11Buffer* pInBuffer, ID3D11ShaderResourceView** ppOutSRV);
+	void CreateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pInitData, ID3D11Buffer** ppOutBuffer, ID3D11ShaderResourceView** ppSRVOut);
+	void UpdateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pData, ID3D11Buffer* pInBuffer);
 
 	void InitializeCommonResource() const;
 
