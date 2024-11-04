@@ -1,8 +1,16 @@
 #include "ScreenSpace.hlsli"
-#include "RenderingCommons.hlsli"
+#include "ShaderTypes.hlsli"
 
-Texture2D<float3> RenderResult : register(t100);
-Texture2D<float> depthOnlyTex : register(t101);
+Texture2D<float3> RenderResult : register(t0);
+Texture2D<float> depthOnlyTex : register(t1);
+
+SamplerState linearClamp : register(s0);
+
+
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstants;
+};
 
 cbuffer ImageFilterConstData : register(b5)
 {

@@ -1,10 +1,8 @@
 #include "ScreenSpace.hlsli"
-Texture2D g_texture0 : register(t100);
-Texture2D g_texture1 : register(t101);
+Texture2D originalTex : register(t0);
+Texture2D blurTex : register(t1);
 
-// Texture2D g_prevFrame : register(t102); Motion Blur
-
-SamplerState g_sampler : register(s0);
+SamplerState linearClamp : register(s0);
 
 cbuffer ImageFilterConstData : register(b5)
 {
@@ -64,8 +62,8 @@ float3 lumaBasedReinhardToneMapping(float3 color)
 
 float4 main(SamplingPixelShaderInput input) : SV_TARGET
 {
-	float3 originalColor = g_texture0.Sample(g_sampler, input.texcoord).rgb;
-	float3 blurColor = g_texture1.Sample(g_sampler, input.texcoord).rgb;
+	float3 originalColor = originalTex.Sample(linearClamp, input.texcoord).rgb;
+	float3 blurColor = blurTex.Sample(linearClamp, input.texcoord).rgb;
 
 	float3 combined = (1.0 - strength) * originalColor + strength * blurColor;
 

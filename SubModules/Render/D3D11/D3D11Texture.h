@@ -43,6 +43,23 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DSV;
 };
 
+class D3D11TextureRender final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
+{
+public:
+	D3D11TextureRender(const DXGI_FORMAT format);
+	~D3D11TextureRender() = default;
+
+	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height);
+
+	inline ID3D11RenderTargetView* GetRTV() const
+	{
+		return m_RTV.Get();
+	}
+
+private:
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
+};
+
 class D3D11Texture2D : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
 public:

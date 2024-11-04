@@ -50,6 +50,7 @@ AObject* MyPostProcess::GetThis()
 	return this;
 }
 
+// Useless
 void MyPostProcess::FillTextureToProcess(ID3D11DeviceContext1* pContext, ID3D11Texture2D* pRenderedBuffer)
 {
 	pContext->OMSetRenderTargets(0, NULL, NULL); // to release texture2D from RTV
@@ -68,7 +69,10 @@ void MyPostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 
 	// first bloom texture size should be same with render size
 	// Bloom은 원본도 있어야한다..
-	context->CopyResource(m_bloomTextures[0]->GetRenderTarget(), m_textureToProcess->GetRenderTarget());
+	// context->CopyResource(m_bloomTextures[0]->GetRenderTarget(), m_textureToProcess->GetRenderTarget());
+
+
+	// swap m_bloomTextures[0] with SourceTexture
 
 	for (size_t i = 0; i < LEVEL; ++i)
 	{
@@ -81,6 +85,8 @@ void MyPostProcess::ProcessBloom(ID3D11DeviceContext1* context)
 
 		Utility::ComputeShaderBarrier(context);
 	}
+
+	// swap m_bloomTextures[0] with SourceTexture again, Then after Upsample, SourceTexture has original texture, m_bloomTextures[0] has processed texture
 
 	// Upsample Blur
 	Graphics::SetPipelineState(context, Graphics::upBlurPSO);
@@ -104,7 +110,8 @@ void MyPostProcess::ProcessFog(ID3D11DeviceContext1* pContext, ID3D11ShaderResou
 	pContext->OMSetRenderTargets(1, &rtvToDraw, NULL);
 
 	Utility::DXResource::UpdateConstantBuffer(m_postProcessConstant, pContext, m_postProcessCB);
-	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthMapSRV };
+	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
+	ID3D11ShaderResourceView* SRVs[2] = { m_textureToProcess->GetShaderResourceView(), depthMapSRV };
 
 	pContext->PSSetShaderResources(100, 2, SRVs);
 

@@ -2,8 +2,10 @@
 #include "../IRenderer.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11DeviceResources.h"
+#include "D3D11PostProcess.h"
 
 class RMaterial;
+class SSceneObject;
 
 class D3D11Renderer : public IRenderer
 {
@@ -47,27 +49,51 @@ public:
 		return m_deviceResources.get();
 	}
 
+	inline D3D11ResourceManager* GetResourceManager() const
+	{
+		return m_resourceManager.get();
+	}
+
 	inline const WCHAR* GetShaderPath() const
 	{
 		return m_shaderPath.c_str();
+	}
+
+	inline const UINT GetBackBufferWidth() const
+	{
+		return m_dwBackBufferWidth;
+	}
+
+	inline const UINT GetBackBufferHeight() const
+	{
+		return m_dwBackBufferHeight;
 	}
 
 private:
 	void SetGlobalConstant();
 	void SetMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
+
 private:
+	DWORD m_dwBackBufferWidth;
+	DWORD m_dwBackBufferHeight;
+
 	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
 	std::unique_ptr <D3D11ResourceManager> m_resourceManager;
+	std::unique_ptr <D3D11PostProcess> m_postProcess;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
+
+	std::unique_ptr <D3D11TextureRender> m_HDRRenderTarget;
 
 	std::wstring m_shaderPath;
 
 	// Scene
+	// std::vector<SSceneObject*> m_opaques;
 	const Camera* m_camera;
 	Skybox* m_skybox;
 
@@ -82,7 +108,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB; // structured buffer
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
 	std::vector<const Light*> m_lights;
-	// std::vector<const D3D11RenderTexture2D*> m_shadowMaps;
+	// std::vector<const D3D11TextureDepth*> m_shadowMaps;
 
 
 };

@@ -13,11 +13,10 @@ struct RMaterialConstant
 {
 	UINT data[127];
 	UINT size;
-
 };
 static_assert(sizeof(RMaterialConstant) % 16 == 0, "CONSTATN BUFFER ALIGNMENT");
 
-class RMaterial
+class RMaterial : public IRenderResource
 {
 public:
 	RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState);
@@ -72,7 +71,7 @@ protected:
 	bool m_bInitialized;
 };
 
-static_assert(sizeof(RMaterialConstant) - 4 <= RMaterial::MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE);
+static_assert(sizeof(RMaterialConstant) <= (RMaterial::MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE + sizeof(UINT)));
 
 
 class RDemoMaterial final : public RMaterial

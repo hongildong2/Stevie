@@ -46,14 +46,11 @@ public:
 	auto                    GetDXGIFactory() const noexcept { return m_dxgiFactory.Get(); }
 	HWND                    GetWindow() const noexcept { return m_window; }
 	D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const noexcept { return m_d3dFeatureLevel; }
-	ID3D11Texture2D* GetHDRRenderTarget() const noexcept { return m_HDRRenderTarget.Get(); }
 	ID3D11Texture2D* GetRenderTarget() const noexcept { return m_renderTarget.Get(); }
 	ID3D11Texture2D* GetDepthStencil() const noexcept { return m_depthStencil.Get(); }
-	ID3D11RenderTargetView* GetHDRRTV() const noexcept { return m_HDRRenderTargetView.Get(); }
-	ID3D11ShaderResourceView* GetHDRSRV() const noexcept { return m_HDRSRV.Get(); }
-	ID3D11UnorderedAccessView* GetHDRUAV() const noexcept { return m_HDRUAV.Get(); }
 	ID3D11RenderTargetView* GetRenderTargetView() const noexcept { return m_d3dRenderTargetView.Get(); }
 	ID3D11DepthStencilView* GetDepthStencilView() const noexcept { return m_d3dDepthStencilView.Get(); }
+	ID3D11ShaderResourceView* GetDepthSRV() const noexcept { return m_d3dDepthSRV.Get(); }
 	DXGI_FORMAT             GetBackBufferFormat() const noexcept { return m_backBufferFormat; }
 	DXGI_FORMAT             GetDepthBufferFormat() const noexcept { return m_depthBufferFormat; }
 	D3D11_VIEWPORT          GetScreenViewport() const noexcept { return m_screenViewport; }
@@ -88,22 +85,16 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain1>             m_swapChain;
 	Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
-	// HDR Pipeline
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_HDRRenderTarget;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_HDRRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_HDRSRV;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView>	m_HDRUAV;
-
 	// Direct3D rendering objects. Required for 3D.
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_renderTarget;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_depthStencil;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_d3dRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_d3dDepthSRV;
 	D3D11_VIEWPORT                                  m_screenViewport;
 
 	// Direct3D properties.
 	DXGI_FORMAT                                     m_backBufferFormat;
-	DXGI_FORMAT										m_HDRBufferFormat;
 	DXGI_FORMAT                                     m_depthBufferFormat;
 	UINT                                            m_backBufferCount;
 	D3D_FEATURE_LEVEL                               m_d3dMinFeatureLevel;

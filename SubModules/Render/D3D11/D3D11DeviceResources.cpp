@@ -69,7 +69,6 @@ D3D11DeviceResources::D3D11DeviceResources(
 	unsigned int flags) noexcept :
 	m_screenViewport{},
 	m_backBufferFormat(backBufferFormat),
-	m_HDRBufferFormat(DXGI_FORMAT_R16G16B16A16_FLOAT),
 	m_depthBufferFormat(depthBufferFormat),
 	m_backBufferCount(backBufferCount),
 	m_d3dMinFeatureLevel(minFeatureLevel),
@@ -267,12 +266,9 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 	// Clear the previous window size specific context.
 	m_d3dContext->OMSetRenderTargets(0, nullptr, nullptr);
 	m_d3dRenderTargetView.Reset();
-	m_HDRRenderTargetView.Reset();
-	m_HDRSRV.Reset();
-	m_HDRUAV.Reset();
 	m_d3dDepthStencilView.Reset();
+	m_d3dDepthSRV.Reset();
 	m_renderTarget.Reset();
-	m_HDRRenderTarget.Reset();
 	m_depthStencil.Reset();
 	m_d3dContext->Flush();
 
@@ -350,48 +346,12 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 	// Create a render target view of the swap chain back buffer.
 	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
 
-	// HDR RenderTarget
-	{
-		CD3D11_TEXTURE2D_DESC hdrRTDesc(m_HDRBufferFormat, backBufferWidth, backBufferHeight);
-		hdrRTDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
-
-		ThrowIfFailed(m_d3dDevice->CreateTexture2D(
-			&hdrRTDesc, nullptr, m_HDRRenderTarget.ReleaseAndGetAddressOf()
-		));
-	}
-
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
 	ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
 		m_renderTarget.Get(),
 		&renderTargetViewDesc,
 		m_d3dRenderTargetView.ReleaseAndGetAddressOf()
 	));
-
-	// HDR Resource Views
-	{
-		CD3D11_RENDER_TARGET_VIEW_DESC HDRRTVDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_HDRBufferFormat);
-
-		ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
-			m_HDRRenderTarget.Get(),
-			&HDRRTVDesc,
-			m_HDRRenderTargetView.ReleaseAndGetAddressOf()
-		));
-
-		CD3D11_SHADER_RESOURCE_VIEW_DESC HDRSRVDesc(D3D11_SRV_DIMENSION_TEXTURE2D, m_HDRBufferFormat);
-		ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(
-			m_HDRRenderTarget.Get(),
-			&HDRSRVDesc,
-			m_HDRSRV.ReleaseAndGetAddressOf()
-		));
-
-		CD3D11_UNORDERED_ACCESS_VIEW_DESC HDRUAVDesc(D3D11_UAV_DIMENSION_TEXTURE2D, m_HDRBufferFormat, 0, 0);
-		ThrowIfFailed(m_d3dDevice->CreateUnorderedAccessView(
-			m_HDRRenderTarget.Get(),
-			&HDRUAVDesc,
-			m_HDRUAV.ReleaseAndGetAddressOf()
-		));
-	}
-
 
 	if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
 	{
@@ -402,7 +362,7 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 			backBufferHeight,
 			1, // This depth stencil view has only one texture.
 			1, // Use a single mipmap level.
-			D3D11_BIND_DEPTH_STENCIL
+			D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
 		);
 
 
@@ -412,10 +372,18 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 			m_depthStencil.ReleaseAndGetAddressOf()
 		));
 
+		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D32_FLOAT);
 		ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
 			m_depthStencil.Get(),
-			nullptr,
+			&dsvDesc,
 			m_d3dDepthStencilView.ReleaseAndGetAddressOf()
+		));
+
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_FLOAT);
+		ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(
+			m_depthStencil.Get(),
+			&srvDesc,
+			m_d3dDepthSRV.ReleaseAndGetAddressOf()
 		));
 	}
 
@@ -466,11 +434,7 @@ void D3D11DeviceResources::HandleDeviceLost()
 
 	m_d3dDepthStencilView.Reset();
 	m_d3dRenderTargetView.Reset();
-	m_HDRRenderTargetView.Reset();
-	m_HDRSRV.Reset();
-	m_HDRUAV.Reset();
 	m_renderTarget.Reset();
-	m_HDRRenderTarget.Reset();
 	m_depthStencil.Reset();
 	m_swapChain.Reset();
 	m_d3dContext.Reset();
@@ -572,8 +536,8 @@ void D3D11DeviceResources::CreateFactory()
 			filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
 			filter.DenyList.pIDList = hide;
 			dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
+		}
 	}
-}
 
 	if (!debugDXGI)
 #endif

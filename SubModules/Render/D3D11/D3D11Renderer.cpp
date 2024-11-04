@@ -21,6 +21,10 @@ using DirectX::SimpleMath::Vector4;
 D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 	, m_resourceManager()
+	, m_postProcess()
+	, m_HDRRenderTarget()
+	, m_dwBackBufferWidth(0)
+	, m_dwBackBufferHeight(0)
 	, m_camera(nullptr)
 	, m_skybox(nullptr)
 	, m_sunLight(nullptr)
@@ -29,8 +33,10 @@ D3D11Renderer::D3D11Renderer()
 	, m_specularMapTexture(nullptr)
 	, m_BRDFMapTexture(nullptr)
 {
-	m_deviceResources = std::make_unique<D3D11DeviceResources>();
+	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
 	m_resourceManager = std::make_unique<D3D11ResourceManager>();
+	m_postProcess = std::make_unique<D3D11PostProcess>();
+
 }
 
 BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
@@ -45,6 +51,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_deviceResources->CreateDeviceResources();
 	m_deviceResources->CreateWindowSizeDependentResources();
 	m_resourceManager->Initialize(this);
+	m_postProcess->Initialize(this);
 
 	m_resourceManager->CreateConstantBuffer(sizeof(GlobalConstant), nullptr, m_globalCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(MeshConstant), nullptr, m_meshCB.GetAddressOf());
@@ -55,6 +62,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr, m_lightsSB.ReleaseAndGetAddressOf(), m_lightsSRV.ReleaseAndGetAddressOf());
 
+	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
 	return TRUE;
 }
 
@@ -66,16 +74,16 @@ void D3D11Renderer::BeginRender()
 		auto* context = m_deviceResources->GetD3DDeviceContext();
 		auto* depthStencil = m_deviceResources->GetDepthStencilView();
 		auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
-		auto HDRRTV = m_deviceResources->GetHDRRTV();
+		auto* hdrRTV = m_HDRRenderTarget->GetRTV();
 
-		context->ClearRenderTargetView(HDRRTV, Colors::Black);
+		context->ClearRenderTargetView(hdrRTV, Colors::Cyan);
 		context->ClearRenderTargetView(backBufferRTV, Colors::Cyan);
 		context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
 		ID3D11RenderTargetView* rtvs[1] =
 		{
-			backBufferRTV,
+			hdrRTV,
 		};
 		context->OMSetRenderTargets(1, rtvs, depthStencil);
 
@@ -136,6 +144,12 @@ void D3D11Renderer::BeginRender()
 
 void D3D11Renderer::EndRender()
 {
+	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
+
+	// Post Process
+	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
+	m_postProcess->Process();
+	m_postProcess->EndPostProcess(backBufferRTV);
 }
 
 void D3D11Renderer::Present()
@@ -151,18 +165,29 @@ BOOL D3D11Renderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBu
 	}
 
 	m_deviceResources->SetWindow(hWnd, dwBackBufferWidth, dwBackBufferHeight);
+	m_dwBackBufferWidth = dwBackBufferWidth;
+	m_dwBackBufferHeight = dwBackBufferHeight;
 
 	return TRUE;
 }
 
 BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
 {
-	if (!m_deviceResources)
+	if (!m_deviceResources || (m_dwBackBufferWidth == dwBackBufferHeight && m_dwBackBufferHeight == dwBackBufferHeight))
 	{
 		return FALSE;
 	}
 
-	return m_deviceResources->WindowSizeChanged(dwBackBufferWidth, dwBackBufferHeight);
+	m_dwBackBufferWidth = dwBackBufferWidth;
+	m_dwBackBufferHeight = dwBackBufferHeight;
+
+	// Re init window dependent resources
+	{
+		// m_HDRRenderTarget->Initialize(this, m_dwBackBufferWidth, m_dwBackBufferHeight);
+		// m_postProcess->Initialize(this);
+	}
+
+	return m_deviceResources->WindowSizeChanged(m_dwBackBufferWidth, m_dwBackBufferHeight);
 }
 
 
@@ -402,7 +427,7 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 
 		if (texturesCount != 0 && IBL_TEXTURES_COUNT != 0)
 		{
-			pContext->PSSetShaderResources(0, texturesCount + IBL_TEXTURES_COUNT, srvs);
+			pContext->PSSetShaderResources(0, texturesCount + IBL_TEXTURES_COUNT, srvs); // Deferred Shading does not need this!
 		}
 	}
 

@@ -85,6 +85,13 @@ D3D11TextureDepth* D3D11ResourceManager::CreateTextureDepth(const UINT width, co
 	return res;
 }
 
+D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
+{
+	D3D11TextureRender* res = new D3D11TextureRender(format);
+	res->Initialize(m_pRenderer, width, height);
+	return res;
+}
+
 D3D11Texture2D* D3D11ResourceManager::CreateTextureFromFile(const WCHAR* fileName)
 {
 	D3D11Texture2D* res = new D3D11Texture2D();

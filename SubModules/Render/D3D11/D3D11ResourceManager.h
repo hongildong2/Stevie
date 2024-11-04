@@ -5,6 +5,7 @@
 
 class D3D11Texture2D;
 class D3D11TextureDepth;
+class D3D11TextureRender;
 class D3D11TextureCube;
 class D3D11TextureVolume;
 class D3D11MeshGeometry;
@@ -21,6 +22,7 @@ public:
 	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
 	D3D11TextureDepth* CreateTextureDepth(const UINT width, const UINT height);
+	D3D11TextureRender* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);
 
 	D3D11Texture2D* CreateTextureFromFile(const WCHAR* fileName);
 	D3D11Texture2D* CreateTextureFromDDSFile(const WCHAR* fileName);

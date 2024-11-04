@@ -1,4 +1,4 @@
-Texture2D<float4> input : register(t100);
+Texture2D<float4> input : register(t0);
 RWTexture2D<float4> output : register(u0);
 
 // https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom

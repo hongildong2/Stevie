@@ -4,6 +4,7 @@
 namespace renderConfig
 {
 	// Screen
+	static DXGI_FORMAT HDR_PIPELINE_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	static UINT SCREEN_WIDTH = 1920;
 	static UINT SCREEN_HEIGHT = 1080;
 	static inline FLOAT GetScreenAspectRatio()

@@ -55,6 +55,7 @@
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Light.h" />
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -85,6 +86,7 @@
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Core\Light.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

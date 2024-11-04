@@ -180,3 +180,83 @@ void D3D11TextureDepth::Initialize(const D3D11Renderer* pRenderer, const UINT wi
 	));
 
 }
+
+D3D11TextureRender::D3D11TextureRender(const DXGI_FORMAT format)
+	: D3D11Texture(ETextureType::TEXTURE_2D)
+{
+	m_format = format;
+}
+
+void D3D11TextureRender::Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height)
+{
+	MY_ASSERT(pRenderer != nullptr);
+	auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
+
+	{
+		UINT formatSupport = 0;
+		if (FAILED(pDevice->CheckFormatSupport(m_format, &formatSupport)))
+		{
+			throw std::runtime_error("CheckFormatSupport");
+		}
+
+		UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+		if ((formatSupport & required) != required)
+		{
+			throw std::runtime_error("RenderTexture");
+		}
+	}
+
+	m_width = width;
+	m_height = height;
+
+	if (m_width > UINT32_MAX || m_height > UINT32_MAX)
+	{
+		throw std::out_of_range("Invalid width/height");
+	}
+
+	m_resource.Reset();
+	m_RTV.Reset();
+	m_SRV.Reset();
+	m_UAV.Reset();
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = m_format;
+	desc.Width = m_width;
+	desc.Height = m_height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
+
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(
+		&desc,
+		nullptr,
+		m_resource.GetAddressOf()
+	));
+
+	// Create RTV.
+	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_format);
+
+	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(
+		m_resource.Get(),
+		&renderTargetViewDesc,
+		m_RTV.ReleaseAndGetAddressOf()
+	));
+
+	// Create SRV.
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, m_format);
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+		m_resource.Get(),
+		&shaderResourceViewDesc,
+		m_SRV.ReleaseAndGetAddressOf()
+	));
+
+	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, m_format);
+	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(m_resource.Get(), NULL, m_UAV.ReleaseAndGetAddressOf()));
+}
