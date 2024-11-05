@@ -8,6 +8,8 @@
 #include "../GraphicsCommon1.h"
 #include "../RenderDefs.h"
 
+using Microsoft::WRL::ComPtr;
+
 D3D11ResourceManager::~D3D11ResourceManager()
 {
 	Graphics::D3D11::ClearCommonResources();
@@ -72,44 +74,238 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVerte
 
 D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format)
 {
-	D3D11Texture2D* res = new D3D11Texture2D();
-	res->Initialize(m_pRenderer, width, height, format, FALSE);
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
+	D3D11Texture2D* res = new D3D11Texture2D();
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
+
+
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+		res->m_resource.Get(),
+		&shaderResourceViewDesc,
+		res->m_SRV.ReleaseAndGetAddressOf()
+	));
+
+
+	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, format);
+	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
+
+
+	return res;
+}
+
+D3D11Texture3D* D3D11ResourceManager::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
+{
+	D3D11Texture3D* res = new D3D11Texture3D();
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+
+	D3D11_TEXTURE3D_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Depth = depth;
+	desc.MipLevels = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
+
+
+	DX::ThrowIfFailed(pDevice->CreateTexture3D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE3D, format);
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+		res->m_resource.Get(),
+		&shaderResourceViewDesc,
+		res->m_SRV.ReleaseAndGetAddressOf()
+	));
+
+
+	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE3D, format);
+	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), &unorderedAccessViewDesc, res->m_UAV.ReleaseAndGetAddressOf()));
+
+	res->Initialize(width, height, depth, format, FALSE);
 	return res;
 }
 
 D3D11TextureDepth* D3D11ResourceManager::CreateTextureDepth(const UINT width, const UINT height)
 {
 	D3D11TextureDepth* res = new D3D11TextureDepth();
-	res->Initialize(m_pRenderer, width, height);
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = DXGI_FORMAT_R32_TYPELESS;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
+
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.GetAddressOf()));
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_FLOAT);
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+		res->m_resource.Get(),
+		&shaderResourceViewDesc,
+		res->m_SRV.ReleaseAndGetAddressOf()
+	));
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D32_FLOAT);
+	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(
+		res->m_resource.Get()
+		, &dsvDesc
+		, res->m_DSV.ReleaseAndGetAddressOf()
+	));
+
+	res->Initialize(width, height, 0, DXGI_FORMAT_R32_TYPELESS, TRUE);
 	return res;
 }
 
 D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
 {
 	D3D11TextureRender* res = new D3D11TextureRender(format);
-	res->Initialize(m_pRenderer, width, height);
+
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+	{
+		UINT formatSupport = 0;
+		if (FAILED(pDevice->CheckFormatSupport(format, &formatSupport)))
+		{
+			throw std::runtime_error("CheckFormatSupport");
+		}
+
+		UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+		if ((formatSupport & required) != required)
+		{
+			throw std::runtime_error("RenderTexture");
+		}
+	}
+
+	if (width > UINT32_MAX || height > UINT32_MAX)
+	{
+		throw std::out_of_range("Invalid width/height");
+	}
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
+
+	DX::ThrowIfFailed(pDevice->CreateTexture2D(
+		&desc,
+		nullptr,
+		res->m_resource.ReleaseAndGetAddressOf()
+	));
+
+	// Create RTV.
+	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, format);
+
+	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(
+		res->m_resource.Get(),
+		&renderTargetViewDesc,
+		res->m_RTV.ReleaseAndGetAddressOf()
+	));
+
+	// Create SRV.
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+		res->m_resource.Get(),
+		&shaderResourceViewDesc,
+		res->m_SRV.ReleaseAndGetAddressOf()
+	));
+
+	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, format);
+	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
+	res->Initialize(width, height, 0, format, FALSE);
 	return res;
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTextureFromFile(const WCHAR* fileName)
+D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
 {
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+
 	D3D11Texture2D* res = new D3D11Texture2D();
-	res->InitializeFromFile(m_pRenderer, fileName);
+	ComPtr<ID3D11Resource> resource;
+	DX::ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf()));
+
+	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
+	{
+		D3D11_TEXTURE2D_DESC desc{};
+		res->m_resource->GetDesc(&desc);
+		res->Initialize(desc.Width, desc.Height, 0, desc.Format, TRUE);
+	}
+	else
+	{
+		MY_ASSERT(FALSE); // Not 2D Tex?
+	}
+
 	return res;
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTextureFromDDSFile(const WCHAR* fileName)
+D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName)
 {
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	D3D11Texture2D* res = new D3D11Texture2D();
-	res->InitializeFromDDSFile(m_pRenderer, fileName);
+	ComPtr<ID3D11Resource> resource;
+
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf(), nullptr));
+
+	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
+	{
+		D3D11_TEXTURE2D_DESC desc{};
+		res->m_resource->GetDesc(&desc);
+		res->Initialize(desc.Width, desc.Height, 0, desc.Format, TRUE);
+	}
+	else
+	{
+		MY_ASSERT(FALSE); // Not 2D Tex?
+	}
 	return res;
 }
 
-D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromFile(const WCHAR* fileName)
+D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileName)
 {
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	D3D11TextureCube* res = new D3D11TextureCube();
-	res->Initialize(m_pRenderer, fileName);
+	ComPtr<ID3D11Resource> resource;
+
+	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.GetAddressOf(), nullptr));
+	res->Initialize(0, 0, 0, DXGI_FORMAT_UNKNOWN, TRUE);
 	return res;
 }
 

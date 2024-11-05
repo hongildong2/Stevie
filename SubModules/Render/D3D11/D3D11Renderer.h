@@ -26,9 +26,9 @@ public:
 	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 	// IRenderDevice
-	virtual RTexture* CreateTextureFromFile(const WCHAR* wchFileName) override;
-	virtual RTexture* CreateTextureFromDDSFile(const WCHAR* wchFileName) override;
-	virtual RTexture* CreateTextureCubeFromFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) override;
+	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
 

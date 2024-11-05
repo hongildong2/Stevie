@@ -13,7 +13,6 @@ class RTexture
 	: public IRenderResource
 {
 public:
-
 	inline BOOL IsReadOnly() const
 	{
 		return m_bIsReadOnly;
@@ -31,6 +30,7 @@ public:
 
 	inline UINT GetDepth() const
 	{
+		MY_ASSERT(m_textureType == ETextureType::TEXTURE_3D);
 		return m_depth;
 	}
 
@@ -53,6 +53,7 @@ protected:
 
 protected:
 	DXGI_FORMAT m_format;
-	BOOL m_bIsReadOnly;
 	ETextureType m_textureType;
+	BOOL m_bIsReadOnly;
+	BOOL m_bInitialized;
 };

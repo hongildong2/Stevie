@@ -45,9 +45,9 @@ public:
 
 
 	// IRenderDevice
-	virtual RTexture* CreateTextureFromFile(const WCHAR* wchFileName) = 0;
-	virtual RTexture* CreateTextureFromDDSFile(const WCHAR* wchFileName) = 0;
-	virtual RTexture* CreateTextureCubeFromFile(const WCHAR* wchFileName) = 0;
+	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) = 0;
+	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) = 0;
+	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) = 0;
 

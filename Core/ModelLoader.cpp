@@ -178,13 +178,13 @@ void ModelLoader::ProcessNode(const std::string& basePath, aiNode* node, const a
 	}
 }
 
-const std::wstring ModelLoader::readFilename(const std::string& basePath, aiMaterial* material, aiTextureType type)
+const std::wstring ModelLoader::readFilename(const std::string& basePath, aiMaterial* pMaterial, aiTextureType type)
 {
 	std::string path;
-	if (material->GetTextureCount(type) > 0)
+	if (pMaterial->GetTextureCount(type) > 0)
 	{
 		aiString filepath;
-		material->GetTexture(type, 0, &filepath);
+		pMaterial->GetTexture(type, 0, &filepath);
 
 		path = basePath + std::string(std::filesystem::path(filepath.C_Str()).filename().string());
 	}
@@ -252,32 +252,32 @@ void ModelLoader::ProcessMesh(const std::string& basePath, aiMesh* mesh, const a
 	// http://assimp.sourceforge.net/lib_html/materials.html
 	if (mesh->mMaterialIndex >= 0)
 	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		aiMaterial* pMaterial = scene->mMaterials[mesh->mMaterialIndex];
 
-		auto albedoRead = readFilename(basePath, material, aiTextureType_BASE_COLOR);
+		auto albedoRead = readFilename(basePath, pMaterial, aiTextureType_BASE_COLOR);
 		if (albedoRead.empty())
 		{
-			albedoRead = readFilename(basePath, material, aiTextureType_DIFFUSE);
+			albedoRead = readFilename(basePath, pMaterial, aiTextureType_DIFFUSE);
 		}
 		pOutTextureFiles->albedoName = albedoRead;
 
 
-		pOutTextureFiles->emissiveName = readFilename(basePath, material, aiTextureType_EMISSIVE);
-		pOutTextureFiles->heightName = readFilename(basePath, material, aiTextureType_HEIGHT);
-		pOutTextureFiles->normalName = readFilename(basePath, material, aiTextureType_NORMALS);
-		pOutTextureFiles->metallicName = readFilename(basePath, material, aiTextureType_METALNESS);
-		pOutTextureFiles->roughnessName = readFilename(basePath, material, aiTextureType_DIFFUSE_ROUGHNESS);
+		pOutTextureFiles->emissiveName = readFilename(basePath, pMaterial, aiTextureType_EMISSIVE);
+		pOutTextureFiles->heightName = readFilename(basePath, pMaterial, aiTextureType_HEIGHT);
+		pOutTextureFiles->normalName = readFilename(basePath, pMaterial, aiTextureType_NORMALS);
+		pOutTextureFiles->metallicName = readFilename(basePath, pMaterial, aiTextureType_METALNESS);
+		pOutTextureFiles->roughnessName = readFilename(basePath, pMaterial, aiTextureType_DIFFUSE_ROUGHNESS);
 
 
-		auto aoRead = readFilename(basePath, material, aiTextureType_AMBIENT_OCCLUSION);
+		auto aoRead = readFilename(basePath, pMaterial, aiTextureType_AMBIENT_OCCLUSION);
 		if (aoRead.empty())
 		{
-			aoRead = readFilename(basePath, material, aiTextureType_LIGHTMAP);
+			aoRead = readFilename(basePath, pMaterial, aiTextureType_LIGHTMAP);
 		}
 
 		pOutTextureFiles->aoName = aoRead;
 
 
-		pOutTextureFiles->opacityName = readFilename(basePath, material, aiTextureType_OPACITY);
+		pOutTextureFiles->opacityName = readFilename(basePath, pMaterial, aiTextureType_OPACITY);
 	}
 }

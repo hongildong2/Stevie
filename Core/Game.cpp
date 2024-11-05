@@ -39,12 +39,12 @@ void Game::Initialize(HWND window, int width, int height)
 		MeshData sphere = MakeSphere(1.f, 20, 20);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
 
-		const RTexture* albedoTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
-		const RTexture* metallicTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
-		const RTexture* heightTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
-		const RTexture* aoTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
-		const RTexture* normalTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
-		const RTexture* roughnessTex = m_renderer->CreateTextureFromFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
+		const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
+		const RTexture* metallicTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
+		const RTexture* heightTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
+		const RTexture* aoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
+		const RTexture* normalTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
+		const RTexture* roughnessTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
 
 		RBasicMaterial* mat = new RBasicMaterial(m_renderer.get());
 		mat->SetAlbedoTexture(albedoTex);
@@ -86,9 +86,9 @@ void Game::Initialize(HWND window, int width, int height)
 		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_renderer.get());
 
-		const RTexture* IrradianceMapTexture = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
-		const RTexture* SpecularMapTexture = m_renderer->CreateTextureCubeFromFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
-		const RTexture* BRDFMapTexture = m_renderer->CreateTextureFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
+		const RTexture* IrradianceMapTexture = m_renderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
+		const RTexture* SpecularMapTexture = m_renderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
+		const RTexture* BRDFMapTexture = m_renderer->CreateTexture2DFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
 
 		m_renderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
 

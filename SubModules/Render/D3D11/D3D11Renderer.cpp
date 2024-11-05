@@ -160,22 +160,22 @@ RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, cons
 	return static_cast<RMeshGeometry*>(m_resourceManager->CreateMeshGeometry(pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount));
 }
 
-RTexture* D3D11Renderer::CreateTextureFromFile(const WCHAR* wchFileName)
+RTexture* D3D11Renderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTextureFromFile(wchFileName));
+	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromWICFile(wchFileName));
 }
 
-RTexture* D3D11Renderer::CreateTextureFromDDSFile(const WCHAR* wchFileName)
+RTexture* D3D11Renderer::CreateTexture2DFromDDSFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTextureFromDDSFile(wchFileName));
+	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromDDSFile(wchFileName));
 }
 
-RTexture* D3D11Renderer::CreateTextureCubeFromFile(const WCHAR* wchFileName)
+RTexture* D3D11Renderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTextureCubeFromFile(wchFileName));
+	return static_cast<RTexture*>(m_resourceManager->CreateTextureCubeFromDDSFile(wchFileName));
 }
 
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRow)

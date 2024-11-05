@@ -4,6 +4,7 @@
 
 
 class D3D11Texture2D;
+class D3D11Texture3D;
 class D3D11TextureDepth;
 class D3D11TextureRender;
 class D3D11TextureCube;
@@ -21,12 +22,13 @@ public:
 
 	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
+	D3D11Texture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
 	D3D11TextureDepth* CreateTextureDepth(const UINT width, const UINT height);
 	D3D11TextureRender* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);
 
-	D3D11Texture2D* CreateTextureFromFile(const WCHAR* fileName);
-	D3D11Texture2D* CreateTextureFromDDSFile(const WCHAR* fileName);
-	D3D11TextureCube* CreateTextureCubeFromFile(const WCHAR* fileName);
+	D3D11Texture2D* CreateTexture2DFromWICFile(const WCHAR* wchFileName);
+	D3D11Texture2D* CreateTexture2DFromDDSFile(const WCHAR* fileName);
+	D3D11TextureCube* CreateTextureCubeFromDDSFile(const WCHAR* fileName);
 
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
 	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);

@@ -56,6 +56,7 @@
     <ClInclude Include="Core\Light.h" />
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
+    <ClInclude Include="SubModules\Render\RenderItem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

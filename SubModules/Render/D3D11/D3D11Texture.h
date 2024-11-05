@@ -3,20 +3,31 @@
 #include "../RTexture.h"
 #include "D3D11Resources.h"
 
+// CONSIDER :: Consider One big class and give Interface to access textures
+/*
+* class D3D11Texture : public RTexture, public IDepthTexture, public IRenderTexture, public IDynamicTexture, public IReadonlyTexture
+*
+*/
+
 class D3D11Renderer;
 class D3D11Texture : public RTexture
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11Texture(ETextureType type);
 	~D3D11Texture() = default;
+
+	void Initialize(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format, const BOOL bReadOnly);
+
 
 	inline ID3D11ShaderResourceView* GetSRVOrNull() const
 	{
 		return m_SRV.Get();
 	}
 
-	inline ID3D11UnorderedAccessView* GetUAVOrNull() const
+	inline ID3D11UnorderedAccessView* GetUAVOrNull() const // Non-Dynamic texture has no UAV
 	{
+		MY_ASSERT(m_bIsReadOnly == FALSE);
 		return m_UAV.Get();
 	}
 
@@ -27,11 +38,10 @@ protected:
 
 class D3D11TextureDepth final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11TextureDepth();
 	~D3D11TextureDepth() = default;
-
-	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height);
 
 	inline ID3D11DepthStencilView* GetDSV() const
 	{
@@ -45,11 +55,10 @@ private:
 
 class D3D11TextureRender final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11TextureRender(const DXGI_FORMAT format);
 	~D3D11TextureRender() = default;
-
-	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height);
 
 	inline ID3D11RenderTargetView* GetRTV() const
 	{
@@ -62,32 +71,25 @@ private:
 
 class D3D11Texture2D : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11Texture2D();
 	~D3D11Texture2D() = default;
-
-
-	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height, const DXGI_FORMAT format, const BOOL bIsReadOnly);
-	void InitializeFromFile(const D3D11Renderer* pRenderer, const WCHAR* path);
-	void InitializeFromDDSFile(const D3D11Renderer* pRenderer, const WCHAR* path);
-
 };
 
 
 class D3D11Texture3D : public D3D11Texture, public D3D11Resource<ID3D11Texture3D>
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11Texture3D();
 	~D3D11Texture3D() = default;
-
-	void Initialize(const D3D11Renderer* pRenderer, const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format, const BOOL bIsReadOnly);
 };
 
 class D3D11TextureCube : public D3D11Texture
 {
+	friend class D3D11ResourceManager;
 public:
 	D3D11TextureCube();
 	~D3D11TextureCube() = default;
-
-	void Initialize(const D3D11Renderer* pRenderer, const WCHAR* path);
 };
