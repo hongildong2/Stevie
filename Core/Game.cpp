@@ -104,7 +104,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 		// Lights
 
-		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {});
+		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {}, TRUE);
 		m_renderer->SetSunLight(light);
 	}
 

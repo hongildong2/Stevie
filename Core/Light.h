@@ -36,11 +36,16 @@ static_assert(sizeof(LightData) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");
 class Light final : public SSceneObject
 {
 public:
-	Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld);
+	Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld, const BOOL bIsShadowing);
 	~Light() = default;
 
 	void GetLightData(LightData* outLightData) const;
 	void UpdateLightData(LightData& data);
+
+	inline BOOL IsShadowingLight() const
+	{
+		return m_bIsShadowingLight;
+	}
 
 private:
 	ELightType m_type;

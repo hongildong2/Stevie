@@ -95,49 +95,12 @@ void D3D11Renderer::BeginRender()
 
 	// Update Scene Resources
 	{
-		SetGlobalConstant();
+		UpdateGlobalConstant();
 		// Light
 		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
 	}
 
-	// Render Skybox
-	{
-		if (m_skybox != nullptr)
-		{
-			m_deviceResources->PIXBeginEvent(L"Sky Box");
-			auto* pMC = m_skybox->GetMeshComponent();
-			const auto* pRMG = static_cast<const D3D11MeshGeometry*>(pMC->GetMeshGeometry());
-			auto* pMat = pMC->GetMaterial();
-
-			auto* pContext = m_deviceResources->GetD3DDeviceContext();
-
-			D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
-			pContext->IASetInputLayout(samplingIL->Get());
-
-			SetMeshConstant(pMC, Matrix());
-			SetPipelineStateByMaterial(pMat);
-
-
-			ID3D11Buffer* cbs[3] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get() };
-
-			D3D11VertexShader* cubemapVS = static_cast<D3D11VertexShader*>(Graphics::CUBEMAP_VS);
-			pContext->VSSetShader(cubemapVS->Get(), nullptr, 0);
-			pContext->VSSetConstantBuffers(0, 3, cbs);
-
-			// No further resource for demoPS
-			const D3D11PixelShader* skyboxPS = static_cast<const D3D11PixelShader*>(pMat->GetShader());
-			pContext->PSSetShader(skyboxPS->Get(), nullptr, 0);
-
-			D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CCW_RS);
-			pContext->RSSetState(basicRS->Get());
-
-			pRMG->Draw();
-
-			m_deviceResources->PIXEndEvent();
-		}
-	}
-
-
+	RenderSkybox();
 }
 
 
@@ -226,7 +189,7 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
 	pContext->IASetInputLayout(basicIL->Get());
 
-	SetMeshConstant(pInMeshComponent, worldRow);
+	UpdateMeshConstant(pInMeshComponent, worldRow);
 	SetPipelineStateByMaterial(mat);
 
 	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
@@ -239,8 +202,6 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 	pContext->RSSetState(basicRS->Get());
 
 	mesh->Draw();
-
-
 }
 
 void D3D11Renderer::Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ)
@@ -307,7 +268,7 @@ void D3D11Renderer::AddLight(const Light* pLight)
 	m_lights.push_back(pLight);
 }
 
-void D3D11Renderer::SetGlobalConstant()
+void D3D11Renderer::UpdateGlobalConstant()
 {
 	GlobalConstant globalConstant;
 	ZeroMemory(&globalConstant, sizeof(GlobalConstant));
@@ -345,7 +306,7 @@ void D3D11Renderer::SetGlobalConstant()
 	m_resourceManager->UpdateConstantBuffer(sizeof(LightData), &lightData, m_sunLightCB.Get());
 }
 
-void D3D11Renderer::SetMeshConstant(const MeshComponent* pMeshComponent, Matrix worldRow)
+void D3D11Renderer::UpdateMeshConstant(const MeshComponent* pMeshComponent, Matrix worldRow)
 {
 	MeshConstant meshCB;
 	ZeroMemory(&meshCB, sizeof(MeshConstant));
@@ -444,4 +405,41 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 		pContext->OMSetBlendState(bs->Get(), nullptr, 0);
 	}
 
+}
+
+void D3D11Renderer::RenderSkybox()
+{
+	if (m_skybox != nullptr)
+	{
+		m_deviceResources->PIXBeginEvent(L"Sky Box");
+		auto* pMC = m_skybox->GetMeshComponent();
+		const auto* pRMG = static_cast<const D3D11MeshGeometry*>(pMC->GetMeshGeometry());
+		auto* pMat = pMC->GetMaterial();
+
+		auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+		D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
+		pContext->IASetInputLayout(samplingIL->Get());
+
+		UpdateMeshConstant(pMC, Matrix());
+		SetPipelineStateByMaterial(pMat);
+
+
+		ID3D11Buffer* cbs[3] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get() };
+
+		D3D11VertexShader* cubemapVS = static_cast<D3D11VertexShader*>(Graphics::CUBEMAP_VS);
+		pContext->VSSetShader(cubemapVS->Get(), nullptr, 0);
+		pContext->VSSetConstantBuffers(0, 3, cbs);
+
+		// No further resource for demoPS
+		const D3D11PixelShader* skyboxPS = static_cast<const D3D11PixelShader*>(pMat->GetShader());
+		pContext->PSSetShader(skyboxPS->Get(), nullptr, 0);
+
+		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CCW_RS);
+		pContext->RSSetState(basicRS->Get());
+
+		pRMG->Draw();
+
+		m_deviceResources->PIXEndEvent();
+	}
 }

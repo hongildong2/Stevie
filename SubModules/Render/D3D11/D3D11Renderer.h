@@ -70,9 +70,18 @@ public:
 	}
 
 private:
-	void SetGlobalConstant();
-	void SetMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
+	void UpdateGlobalConstant();
+	void UpdateMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
+
+	// TODO :: How shoud i manage these render passes?
+	void RenderSkybox();
+	void RenderDepthMap();
+	void RenderShadowMap();
+	void RenderOpaques();
+	void RenderTransparent();
+
+
 
 private:
 	DWORD m_dwBackBufferWidth;
@@ -93,17 +102,23 @@ private:
 	std::wstring m_shaderPath;
 
 	// Scene
-	// std::vector<SSceneObject*> m_opaques;
+	// std::vector<RenderItem> m_renderItems;
+	// std::vector<UINT> m_opaques;
+	// std::vector<UINT> m_transparents;
+
 	const Camera* m_camera;
 	Skybox* m_skybox;
 
+	// IBL
 	const D3D11TextureCube* m_irradianceMapTexture;
 	const D3D11TextureCube* m_specularMapTexture;
 	const D3D11Texture2D* m_BRDFMapTexture;
 
+	// Sun Light
 	const Light* m_sunLight;
 	const D3D11TextureDepth* m_sunShadowMap; // TODO :: Manage Depth textures by manager, pooling
 
+	// Dynamic Lights
 	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 500;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB; // structured buffer
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;

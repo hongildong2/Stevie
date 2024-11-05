@@ -51,6 +51,7 @@ public:
 
 protected:
 	bool AddSamplerState(const RSamplerState* pSamplerState);
+
 public:
 	static constexpr UINT MATERIAL_TEXTURE_MAX_COUNT = 20;
 	static constexpr UINT MATERIAL_SAMPLE_STATE_MAX_COUNT = 10;

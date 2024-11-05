@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Light.h"
 
-Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld)
+Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld, const BOOL bIsShadowing)
 	: SSceneObject()
 	, m_type(type)
 	, m_radiance{ 1.f, 1.f, 1.f }
@@ -12,16 +12,10 @@ Light::Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction
 	, m_radius(0.03f)
 	, m_haloRadius(0.01f)
 	, m_haloStrength(1.f)
-	, m_bIsShadowingLight(FALSE)
+	, m_bIsShadowingLight(bIsShadowing)
 {
 	m_posWorld = posWorld;
 	m_dirModel = direction;
-
-	// TODO :: Move to renderers
-	/*m_proj = type == ELightType::DIRECTIONAL ?
-		DirectX::SimpleMath::Matrix::CreateOrthographic(10.f, 10.f, 1.f, 100.f)
-		:
-		DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(120.f), 1, 1.f, 100.f);*/
 }
 
 
