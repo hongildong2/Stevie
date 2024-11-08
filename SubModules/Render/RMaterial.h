@@ -7,14 +7,8 @@ class RShader;
 class RSamplerState;
 class RBlendState;
 class RPixelShader;
+struct RenderParam;
 
-
-struct RMaterialConstant
-{
-	UINT data[127];
-	UINT size;
-};
-static_assert(sizeof(RMaterialConstant) % 16 == 0, "CONSTATN BUFFER ALIGNMENT");
 
 class RMaterial : public IRenderResource
 {
@@ -27,9 +21,9 @@ public:
 	virtual void Initialize();
 	virtual void Update();
 
-	virtual void GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const = 0;
-	void GetSamplerStates(void** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
-	void GetTextures(void** ppOutTextures, UINT* pOutTextureCount) const;
+	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const = 0;
+	void GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
+	void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const;
 
 	inline const RPixelShader* GetShader() const
 	{
@@ -72,7 +66,6 @@ protected:
 	bool m_bInitialized;
 };
 
-static_assert(sizeof(RMaterialConstant) <= (RMaterial::MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE + sizeof(UINT)));
 
 
 class RDemoMaterial final : public RMaterial
@@ -81,7 +74,7 @@ public:
 	RDemoMaterial(const IRenderer* pRenderer);
 	~RDemoMaterial() = default;
 
-	virtual void GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const override;
+	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
 };
 
 
@@ -92,7 +85,7 @@ public:
 	~RSkyboxMaterial() = default;
 
 	virtual void Initialize() override;
-	virtual void GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const override;
+	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
 
 };
 
@@ -164,7 +157,7 @@ public:
 	RBasicMaterial(const IRenderer* pRenderer);
 	~RBasicMaterial() = default;
 
-	virtual void GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const override;
+	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
 	void SetAlbedoTexture(const RTexture* pAlbedoTexture);
 	void SetAOTexture(const RTexture* pAOTexture);
 	void SetHeightTexture(const RTexture* pHeightTexture);

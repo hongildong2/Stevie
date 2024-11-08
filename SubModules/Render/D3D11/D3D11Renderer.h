@@ -1,5 +1,6 @@
 #pragma once
 #include "../IRenderer.h"
+#include "../RenderItem.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11DeviceResources.h"
 #include "D3D11PostProcess.h"
@@ -74,12 +75,12 @@ private:
 	void UpdateMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
 
-	// TODO :: How shoud i manage these render passes?
+	void RenderScene();
 	void RenderSkybox();
-	void RenderDepthMap();
-	void RenderShadowMap();
+	// void RenderDepthMap();
+	// void RenderShadowMap();
 	void RenderOpaques();
-	void RenderTransparent();
+	// void RenderTransparent();
 
 
 
@@ -102,9 +103,15 @@ private:
 	std::wstring m_shaderPath;
 
 	// Scene
-	// std::vector<RenderItem> m_renderItems;
-	// std::vector<UINT> m_opaques;
-	// std::vector<UINT> m_transparents;
+	static constexpr UINT MAX_RENDER_ITEM = 3000;
+	RenderItem m_renderItems[MAX_RENDER_ITEM];
+	UINT m_renderItemIndex;
+
+	UINT m_opaqueItems[MAX_RENDER_ITEM];
+	UINT m_opaqueItemIndex;
+
+	UINT m_transparentItems[MAX_RENDER_ITEM];
+	UINT m_transparentItemIndex;
 
 	const Camera* m_camera;
 	Skybox* m_skybox;

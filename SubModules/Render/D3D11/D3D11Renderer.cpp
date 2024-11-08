@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include "D3D11Resources.h"
 #include "D3D11Texture.h"
 #include "D3D11Renderer.h"
 #include "D3DUtil.h"
@@ -22,6 +23,12 @@ D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 	, m_resourceManager()
 	, m_postProcess()
+	, m_renderItemIndex(0)
+	, m_opaqueItemIndex(0)
+	, m_transparentItemIndex(0)
+	, m_renderItems{ nullptr, }
+	, m_opaqueItems{}
+	, m_transparentItems{}
 	, m_HDRRenderTarget()
 	, m_dwBackBufferWidth(0)
 	, m_dwBackBufferHeight(0)
@@ -54,8 +61,8 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_postProcess->Initialize(this);
 
 	m_resourceManager->CreateConstantBuffer(sizeof(GlobalConstant), nullptr, m_globalCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(MeshConstant), nullptr, m_meshCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RMaterialConstant), nullptr, m_materialCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(LightData), nullptr, m_sunLightCB.GetAddressOf());
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
@@ -92,27 +99,23 @@ void D3D11Renderer::BeginRender()
 		context->RSSetViewports(1, &viewport);
 		m_deviceResources->PIXEndEvent();
 	}
-
-	// Update Scene Resources
-	{
-		UpdateGlobalConstant();
-		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
-	}
-
-	RenderSkybox();
 }
 
 
 
 void D3D11Renderer::EndRender()
 {
-	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
+	RenderScene();
 
 	// Post Process
+	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
 	m_postProcess->Process();
 	m_postProcess->EndPostProcess(backBufferRTV);
+
+	m_renderItemIndex = 0;
+	m_opaqueItemIndex = 0;
+	m_transparentItemIndex = 0;
 }
 
 void D3D11Renderer::Present()
@@ -144,7 +147,7 @@ BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBuffer
 	m_dwBackBufferWidth = dwBackBufferWidth;
 	m_dwBackBufferHeight = dwBackBufferHeight;
 
-	// Re init window dependent resources
+	// TODO :: Re init window dependent resources
 	{
 		// m_HDRRenderTarget->Initialize(this, m_dwBackBufferWidth, m_dwBackBufferHeight);
 		// m_postProcess->Initialize(this);
@@ -180,28 +183,44 @@ RTexture* D3D11Renderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
 
 void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRow)
 {
-	MY_ASSERT(pInMeshComponent != nullptr);
+	if (m_renderItemIndex >= MAX_RENDER_ITEM)
+	{
+		return;
+	}
 
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(pInMeshComponent->GetMeshGeometry());
-	const RMaterial* mat = pInMeshComponent->GetMaterial();
-	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	UINT currentIndex = m_renderItemIndex++;
+	RenderItem& newRenderItem = m_renderItems[currentIndex];
+	newRenderItem.pMeshGeometry = pInMeshComponent->GetMeshGeometry();
+	newRenderItem.pMaterial = pInMeshComponent->GetMaterial();
+	newRenderItem.materialParam.size = 0;
+	newRenderItem.meshParam.size = 0;
 
-	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
-	pContext->IASetInputLayout(basicIL->Get());
+	// Parameter, Must be 16byte aligned
+	{
+		// HACK :: Mesh Parameter
+		MeshConstant meshCB;
+		Matrix world = worldRow;
+		Matrix worldInverse = world.Invert();
+		Matrix worldIT = worldInverse.Transpose();
 
-	UpdateMeshConstant(pInMeshComponent, worldRow);
-	SetPipelineStateByMaterial(mat);
+		meshCB.world = world.Transpose();
+		meshCB.worldInv = worldInverse.Transpose();
+		meshCB.worldIT = worldIT.Transpose();
 
-	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+		std::memcpy(&newRenderItem.meshParam.data, &meshCB, sizeof(MeshConstant));
+		newRenderItem.meshParam.size = sizeof(MeshConstant);
 
-	D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
-	pContext->VSSetShader(basicVS->Get(), nullptr, 0);
-	pContext->VSSetConstantBuffers(0, 2, cbs);
 
-	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
-	pContext->RSSetState(basicRS->Get());
+		// Material Parameter
+		if (newRenderItem.pMaterial != nullptr)
+		{
+			newRenderItem.pMaterial->GetMaterialConstant(&newRenderItem.materialParam);
+		}
+	}
 
-	mesh->Draw();
+	// draw policy
+	m_opaqueItems[m_opaqueItemIndex++] = currentIndex;
+
 }
 
 void D3D11Renderer::Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ)
@@ -324,23 +343,12 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 {
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-	RMaterialConstant materialConstant;
-	{
-		ZeroMemory(&materialConstant, sizeof(RMaterialConstant));
-		pMaterial->GetMaterialConstant(&materialConstant);
-		if (materialConstant.size != 0)
-		{
-			m_resourceManager->UpdateConstantBuffer(materialConstant.size, materialConstant.data, m_materialCB.Get());
-		}
-	}
-
-
 	UINT samplerStatesCount = 0;
 	UINT texturesCount = 0;
-	D3D11SamplerState* samplerStates[RMaterial::MATERIAL_SAMPLE_STATE_MAX_COUNT] = { NULL, };
-	D3D11Texture* textures[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
-	pMaterial->GetSamplerStates((void**)samplerStates, &samplerStatesCount);
-	pMaterial->GetTextures((void**)textures, &texturesCount);
+	const RSamplerState* samplerStates[RMaterial::MATERIAL_SAMPLE_STATE_MAX_COUNT] = { NULL, };
+	const RTexture* textures[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
+	pMaterial->GetSamplerStates(samplerStates, &samplerStatesCount);
+	pMaterial->GetTextures(textures, &texturesCount);
 
 
 	// Sampler States
@@ -348,7 +356,7 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 		ID3D11SamplerState* sss[RMaterial::MATERIAL_SAMPLE_STATE_MAX_COUNT] = { NULL, };
 		for (UINT i = 0; i < samplerStatesCount; ++i)
 		{
-			sss[i] = samplerStates[i]->Get();
+			sss[i] = static_cast<const D3D11SamplerState*>(samplerStates[i])->Get();
 		}
 
 		if (samplerStatesCount != 0)
@@ -369,7 +377,8 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 	{
 		ID3D11ShaderResourceView* srvs[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
 
-		const UINT IBL_TEXTURES_COUNT = 3;
+		const UINT IBL_TEXTURES_COUNT = 3; 	// TODO :: How to manage shader resource slots
+
 		srvs[0] = m_irradianceMapTexture->GetSRVOrNull();
 		srvs[1] = m_specularMapTexture->GetSRVOrNull();
 		srvs[2] = m_BRDFMapTexture->GetSRVOrNull();
@@ -378,7 +387,7 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 		{
 			if (textures[i] != nullptr)
 			{
-				srvs[i + IBL_TEXTURES_COUNT] = textures[i]->GetSRVOrNull();
+				srvs[i + IBL_TEXTURES_COUNT] = static_cast<const D3D11Texture*>(textures[i])->GetSRVOrNull();
 			}
 			else
 			{
@@ -402,9 +411,23 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 	const D3D11BlendState* bs = static_cast<const D3D11BlendState*>(pMaterial->GetBlendState());
 	if (bs != nullptr)
 	{
-		pContext->OMSetBlendState(bs->Get(), nullptr, 0);
+		pContext->OMSetBlendState(bs->Get(), nullptr, 0); // TODO :: BlendFactor
 	}
 
+}
+
+void D3D11Renderer::RenderScene()
+{
+	// Update Scene Resources
+	{
+		UpdateGlobalConstant();
+		// Light
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
+	}
+
+	RenderSkybox();
+
+	RenderOpaques();
 }
 
 void D3D11Renderer::RenderSkybox()
@@ -441,5 +464,36 @@ void D3D11Renderer::RenderSkybox()
 		pRMG->Draw();
 
 		m_deviceResources->PIXEndEvent();
+	}
+}
+
+void D3D11Renderer::RenderOpaques()
+{
+	for (UINT i = 0; i < m_opaqueItemIndex; ++i)
+	{
+		RenderItem& opaqueItem = m_renderItems[m_opaqueItems[i]];
+
+		const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(opaqueItem.pMeshGeometry);
+		const RMaterial* mat = opaqueItem.pMaterial;
+		auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+		D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
+		pContext->IASetInputLayout(basicIL->Get());
+
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &opaqueItem.meshParam, m_meshCB.Get());
+
+		SetPipelineStateByMaterial(mat);
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &opaqueItem.materialParam, m_materialCB.Get());
+
+		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+
+		D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
+		pContext->VSSetShader(basicVS->Get(), nullptr, 0);
+		pContext->VSSetConstantBuffers(0, 2, cbs);
+
+		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
+		pContext->RSSetState(basicRS->Get());
+
+		mesh->Draw();
 	}
 }

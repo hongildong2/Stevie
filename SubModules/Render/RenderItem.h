@@ -9,10 +9,11 @@ struct RenderParam
 
 static_assert((sizeof(RenderParam) % 16) == 0);
 
+
 struct RenderItem
 {
-	RMeshGeometry* pMeshGeometry;
-	RMaterial* pMaterial;
-	RenderParam objectParam;
-	RenderParam drawParam;
+	const RMeshGeometry* pMeshGeometry;
+	const RMaterial* pMaterial;
+	RenderParam meshParam;
+	RenderParam materialParam;
 };

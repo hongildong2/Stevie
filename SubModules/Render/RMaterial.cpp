@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "RenderItem.h"
 
 RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
 	: m_pRenderer(pRenderer)
@@ -44,21 +45,21 @@ void RMaterial::Update()
 	assert(m_bInitialized);
 }
 
-void RMaterial::GetSamplerStates(void** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const
+void RMaterial::GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const
 
 {
 	for (UINT i = 0; i < m_samplerStatesCount; ++i)
 	{
-		ppOutSamplerStates[i] = (void*)m_samplerStates[i];
+		ppOutSamplerStates[i] = m_samplerStates[i];
 	}
 	*pOutSamplerStatesCount = m_samplerStatesCount;
 }
 
-void RMaterial::GetTextures(void** ppOutTextures, UINT* pOutTextureCount) const
+void RMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
 	for (UINT i = 0; i < m_textureCount; ++i)
 	{
-		ppOutTextures[i] = (void*)m_textures[i];
+		ppOutTextures[i] = m_textures[i];
 	}
 	*pOutTextureCount = m_textureCount;
 }
@@ -72,9 +73,9 @@ RDemoMaterial::RDemoMaterial(const IRenderer* pRenderer)
 	Initialize();
 }
 
-void RDemoMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	pOutMaterialConstant->size = 0;
+	pOutRenderParam->size = 0;
 }
 
 
@@ -90,9 +91,9 @@ void RSkyboxMaterial::Initialize()
 	RMaterial::Initialize();
 }
 
-void RSkyboxMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	pOutMaterialConstant->size = 0;
+	pOutRenderParam->size = 0;
 }
 
 RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
@@ -104,10 +105,10 @@ RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
 	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
 }
 
-void RBasicMaterial::GetMaterialConstant(RMaterialConstant* pOutMaterialConstant) const
+void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	std::memcpy(pOutMaterialConstant->data, &m_constant, sizeof(RBasicMaterialConstant));
-	pOutMaterialConstant->size = sizeof(RBasicMaterialConstant);
+	std::memcpy(pOutRenderParam->data, &m_constant, sizeof(RBasicMaterialConstant));
+	pOutRenderParam->size = sizeof(RBasicMaterialConstant);
 }
 
 void RBasicMaterial::SetAlbedoTexture(const RTexture* pAlbedoTexture)
