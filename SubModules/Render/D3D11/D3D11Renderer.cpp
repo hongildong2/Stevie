@@ -325,20 +325,6 @@ void D3D11Renderer::UpdateGlobalConstant()
 	m_resourceManager->UpdateConstantBuffer(sizeof(LightData), &lightData, m_sunLightCB.Get());
 }
 
-void D3D11Renderer::UpdateMeshConstant(const MeshComponent* pMeshComponent, Matrix worldRow)
-{
-	MeshConstant meshCB;
-	ZeroMemory(&meshCB, sizeof(MeshConstant));
-	Matrix world = worldRow;
-	Matrix worldInverse = world.Invert();
-	Matrix worldIT = worldInverse.Transpose();
-
-	meshCB.world = world.Transpose();
-	meshCB.worldInv = worldInverse.Transpose();
-	meshCB.worldIT = worldIT.Transpose();
-	m_resourceManager->UpdateConstantBuffer(sizeof(MeshConstant), &meshCB, m_meshCB.Get());
-}
-
 void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 {
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();

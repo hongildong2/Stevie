@@ -72,7 +72,6 @@ public:
 
 private:
 	void UpdateGlobalConstant();
-	void UpdateMeshConstant(const MeshComponent* pMeshComponent, DirectX::SimpleMath::Matrix worldRow);
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
 
 	void RenderScene();
