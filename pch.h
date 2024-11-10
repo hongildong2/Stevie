@@ -95,6 +95,7 @@
 
 
 // Mine
+#include "SubModules\Render\GraphicsCommon.h"
 #include "SubModules\Render\RenderItem.h"
 #include "SubModules\Render\RenderConfig.h"
 #include "SubModules\Render\RenderDefs.h"
@@ -105,4 +106,3 @@
 #include "SubModules\Render\RBlendState.h"
 #include "SubModules\Render\RTexture.h"
 #include "SubModules\Render\RMeshGeometry.h"
-#include "SubModules\Render\GraphicsCommon1.h"

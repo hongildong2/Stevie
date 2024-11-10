@@ -45,7 +45,7 @@
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
     <ClInclude Include="SubModules\Render\RBlendState.h" />
     <ClInclude Include="SubModules\Render\RRasterizerState.h" />
-    <ClInclude Include="SubModules\Render\GraphicsCommon1.h" />
+    <ClInclude Include="SubModules\Render\GraphicsCommon.h" />
     <ClInclude Include="SubModules\Render\RInputLayout.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="Core\GeometryGenerator.h" />
@@ -58,6 +58,7 @@
     <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
     <ClInclude Include="SubModules\Render\RenderItem.h" />
     <ClInclude Include="Core\Ocean.h" />
+    <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -90,6 +91,7 @@
     <ClCompile Include="Core\Light.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
     <ClCompile Include="Core\Ocean.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
