@@ -221,6 +221,8 @@ void Game::Render()
 		obj->Render();
 	}
 
+	m_renderer->Render();
+
 	m_renderer->EndRender();
 
 	m_renderer->Present();

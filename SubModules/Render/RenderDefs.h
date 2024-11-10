@@ -1,7 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "IRenderer.h"
-#include "IRenderResource.h"
 
 enum class EBasicGeometry
 {

@@ -1,10 +1,8 @@
 #include "pch.h"
-#include "RenderItem.h"
 
 RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
-	, m_blendState(pBlendState)
 	, m_samplerStatesCount(0)
 	, m_samplerStates{ nullptr, }
 	, m_textureCount(0)
@@ -78,6 +76,11 @@ void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	pOutRenderParam->size = 0;
 }
 
+void RDemoMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+{
+	pOutTextureCount = 0;
+}
+
 
 RSkyboxMaterial::RSkyboxMaterial(const IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr)
@@ -96,6 +99,11 @@ void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	pOutRenderParam->size = 0;
 }
 
+void RSkyboxMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+{
+	*pOutTextureCount = 0;
+}
+
 RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS, nullptr)
 	, m_constant(DEFAULT_MATERIAL)
@@ -109,6 +117,12 @@ void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
 	std::memcpy(pOutRenderParam->data, &m_constant, sizeof(RBasicMaterialConstant));
 	pOutRenderParam->size = sizeof(RBasicMaterialConstant);
+}
+
+void RBasicMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+{
+	ppOutTextures[0] = m_textures[HEIGHT];
+	*pOutTextureCount = 0;
 }
 
 void RBasicMaterial::SetAlbedoTexture(const RTexture* pAlbedoTexture)

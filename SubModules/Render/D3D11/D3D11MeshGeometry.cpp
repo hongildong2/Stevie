@@ -6,8 +6,8 @@
 
 using namespace DirectX::SimpleMath;
 
-D3D11MeshGeometry::D3D11MeshGeometry(const EPrimitiveTopologyType type)
-	: RMeshGeometry(type)
+D3D11MeshGeometry::D3D11MeshGeometry(const EPrimitiveTopologyType type, const EMeshType meshType)
+	: RMeshGeometry(type, meshType)
 	, m_pRenderer(nullptr)
 {
 }

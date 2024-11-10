@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "../GraphicsCommon1.h"
 #include "../RenderDefs.h"
-#include "../RMaterial.h"
 #include "D3D11Renderer.h"
 #include "D3D11Resources.h"
 #include "D3D11DeviceResources.h"

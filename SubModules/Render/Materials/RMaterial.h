@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
-class IRenderer;
+
+interface IRenderer;
 class RTexture;
 class RTextureCube;
 class RShader;
@@ -22,6 +23,8 @@ public:
 	virtual void Update();
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const = 0;
+	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const = 0;
+
 	void GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
 	void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const;
 
@@ -29,11 +32,6 @@ public:
 	{
 		return m_pixelShader;
 	}
-	inline const RBlendState* GetBlendState() const
-	{
-		return m_blendState;
-	}
-
 	inline const UINT GetSamplerStatesCount() const
 	{
 		return m_samplerStatesCount;
@@ -55,7 +53,6 @@ public:
 protected:
 	const IRenderer* m_pRenderer;
 	const RPixelShader* m_pixelShader;
-	const RBlendState* m_blendState;
 
 	const RSamplerState* m_samplerStates[MATERIAL_SAMPLE_STATE_MAX_COUNT];
 	UINT m_samplerStatesCount;
@@ -75,9 +72,11 @@ public:
 	~RDemoMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
+	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+
 };
 
-
+// SkyboxMaterial
 class RSkyboxMaterial final : public RMaterial
 {
 public:
@@ -86,10 +85,11 @@ public:
 
 	virtual void Initialize() override;
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
+	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 
 };
 
-
+// BasicMaterial
 struct RBasicMaterialConstant
 {
 	FLOAT metallicFactor;
@@ -158,6 +158,8 @@ public:
 	~RBasicMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
+	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+
 	void SetAlbedoTexture(const RTexture* pAlbedoTexture);
 	void SetAOTexture(const RTexture* pAOTexture);
 	void SetHeightTexture(const RTexture* pHeightTexture);
@@ -184,5 +186,5 @@ private:
 	};
 
 	RBasicMaterialConstant m_constant;
-
 };
+

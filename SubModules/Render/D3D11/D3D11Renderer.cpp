@@ -24,11 +24,7 @@ D3D11Renderer::D3D11Renderer()
 	, m_resourceManager()
 	, m_postProcess()
 	, m_renderItemIndex(0)
-	, m_opaqueItemIndex(0)
-	, m_transparentItemIndex(0)
-	, m_renderItems{ nullptr, }
-	, m_opaqueItems{}
-	, m_transparentItems{}
+	, m_renderItems{ }
 	, m_HDRRenderTarget()
 	, m_dwBackBufferWidth(0)
 	, m_dwBackBufferHeight(0)
@@ -101,12 +97,26 @@ void D3D11Renderer::BeginRender()
 	}
 }
 
+void D3D11Renderer::Render()
+{
+	// Update Scene Resources
+	{
+		UpdateGlobalConstant();
+		// Light
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
+	}
+
+	RenderSkybox();
+
+	RenderOpaques();
+
+	RenderTransparent();
+}
+
 
 
 void D3D11Renderer::EndRender()
 {
-	RenderScene();
-
 	// Post Process
 	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
@@ -114,8 +124,6 @@ void D3D11Renderer::EndRender()
 	m_postProcess->EndPostProcess(backBufferRTV);
 
 	m_renderItemIndex = 0;
-	m_opaqueItemIndex = 0;
-	m_transparentItemIndex = 0;
 }
 
 void D3D11Renderer::Present()
@@ -181,9 +189,9 @@ RTexture* D3D11Renderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
 	return static_cast<RTexture*>(m_resourceManager->CreateTextureCubeFromDDSFile(wchFileName));
 }
 
-void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRow)
+void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRow)
 {
-	if (m_renderItemIndex >= MAX_RENDER_ITEM)
+	if (m_renderItemIndex >= MAX_RENDER_ITEM || false == pInMeshComponent->IsActive())
 	{
 		return;
 	}
@@ -192,8 +200,12 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 	RenderItem& newRenderItem = m_renderItems[currentIndex];
 	newRenderItem.pMeshGeometry = pInMeshComponent->GetMeshGeometry();
 	newRenderItem.pMaterial = pInMeshComponent->GetMaterial();
+	newRenderItem.pBlendState = nullptr;
 	newRenderItem.materialParam.size = 0;
 	newRenderItem.meshParam.size = 0;
+	newRenderItem.bIsTransparent = false;
+	newRenderItem.bIsOccluder = pInMeshComponent->IsOccluder();
+
 
 	// Parameter, Must be 16byte aligned
 	{
@@ -207,6 +219,7 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 		meshCB.worldInv = worldInverse.Transpose();
 		meshCB.worldIT = worldIT.Transpose();
 
+		// TODO :: In ResourceManager or Utility with size assertion
 		std::memcpy(&newRenderItem.meshParam.data, &meshCB, sizeof(MeshConstant));
 		newRenderItem.meshParam.size = sizeof(MeshConstant);
 
@@ -218,8 +231,15 @@ void D3D11Renderer::Render(const MeshComponent* pInMeshComponent, Matrix worldRo
 		}
 	}
 
-	// draw policy
-	m_opaqueItems[m_opaqueItemIndex++] = currentIndex;
+	// Draw Policy
+	{
+		if (pInMeshComponent->IsTransparent())
+		{
+			newRenderItem.bIsTransparent = true;
+			newRenderItem.pBlendState = pInMeshComponent->GetBlendState();
+			newRenderItem.blendFactor = pInMeshComponent->GetBlendFactor();
+		}
+	}
 
 }
 
@@ -393,28 +413,8 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 	{
 		pContext->PSSetShader(ps->Get(), nullptr, 0);
 	}
-
-	const D3D11BlendState* bs = static_cast<const D3D11BlendState*>(pMaterial->GetBlendState());
-	if (bs != nullptr)
-	{
-		pContext->OMSetBlendState(bs->Get(), nullptr, 0); // TODO :: BlendFactor
-	}
-
 }
 
-void D3D11Renderer::RenderScene()
-{
-	// Update Scene Resources
-	{
-		UpdateGlobalConstant();
-		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
-	}
-
-	RenderSkybox();
-
-	RenderOpaques();
-}
 
 void D3D11Renderer::RenderSkybox()
 {
@@ -430,19 +430,12 @@ void D3D11Renderer::RenderSkybox()
 		D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
 		pContext->IASetInputLayout(samplingIL->Get());
 
-		UpdateMeshConstant(pMC, Matrix());
-		SetPipelineStateByMaterial(pMat);
-
-
-		ID3D11Buffer* cbs[3] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get() };
-
+		ID3D11Buffer* cbs[1] = { m_globalCB.Get() };
 		D3D11VertexShader* cubemapVS = static_cast<D3D11VertexShader*>(Graphics::CUBEMAP_VS);
 		pContext->VSSetShader(cubemapVS->Get(), nullptr, 0);
-		pContext->VSSetConstantBuffers(0, 3, cbs);
+		pContext->VSSetConstantBuffers(0, 1, cbs);
 
-		// No further resource for demoPS
-		const D3D11PixelShader* skyboxPS = static_cast<const D3D11PixelShader*>(pMat->GetShader());
-		pContext->PSSetShader(skyboxPS->Get(), nullptr, 0);
+		SetPipelineStateByMaterial(pMat);
 
 		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CCW_RS);
 		pContext->RSSetState(basicRS->Get());
@@ -455,9 +448,15 @@ void D3D11Renderer::RenderSkybox()
 
 void D3D11Renderer::RenderOpaques()
 {
-	for (UINT i = 0; i < m_opaqueItemIndex; ++i)
+	m_deviceResources->PIXBeginEvent(L"Render Opaques");
+	for (UINT i = 0; i < m_renderItemIndex; ++i)
 	{
-		RenderItem& opaqueItem = m_renderItems[m_opaqueItems[i]];
+		RenderItem& opaqueItem = m_renderItems[i];
+		if (opaqueItem.bIsTransparent == true)
+		{
+			continue;
+		}
+
 
 		const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(opaqueItem.pMeshGeometry);
 		const RMaterial* mat = opaqueItem.pMaterial;
@@ -467,19 +466,69 @@ void D3D11Renderer::RenderOpaques()
 		pContext->IASetInputLayout(basicIL->Get());
 
 		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &opaqueItem.meshParam, m_meshCB.Get());
-
-		SetPipelineStateByMaterial(mat);
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &opaqueItem.materialParam, m_materialCB.Get());
-
 		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
 
 		D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
 		pContext->VSSetShader(basicVS->Get(), nullptr, 0);
 		pContext->VSSetConstantBuffers(0, 2, cbs);
 
+		SetPipelineStateByMaterial(mat);
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &opaqueItem.materialParam, m_materialCB.Get());
+
+
 		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
 		pContext->RSSetState(basicRS->Get());
 
 		mesh->Draw();
 	}
+
+	m_deviceResources->PIXEndEvent();
+}
+
+void D3D11Renderer::RenderTransparent()
+{
+	m_deviceResources->PIXBeginEvent(L"Render Transparent");
+	for (UINT i = 0; i < m_renderItemIndex; ++i)
+	{
+		RenderItem& transparentItem = m_renderItems[i];
+		if (transparentItem.bIsTransparent == false)
+		{
+			continue;
+		}
+
+		const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(transparentItem.pMeshGeometry);
+		const RMaterial* mat = transparentItem.pMaterial;
+		auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+		D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
+		pContext->IASetInputLayout(basicIL->Get());
+
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &transparentItem.meshParam, m_meshCB.Get());
+		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+
+		D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
+		pContext->VSSetShader(basicVS->Get(), nullptr, 0);
+		pContext->VSSetConstantBuffers(0, 2, cbs);
+
+		SetPipelineStateByMaterial(mat);
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &transparentItem.materialParam, m_materialCB.Get());
+
+		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
+		pContext->RSSetState(basicRS->Get());
+
+		// TODO :: 이 아래만 다름
+
+		const D3D11BlendState* bs = static_cast<const D3D11BlendState*>(transparentItem.pBlendState);
+		FLOAT blendFactor[4] = {
+			transparentItem.blendFactor.x,
+			transparentItem.blendFactor.y,
+			transparentItem.blendFactor.z,
+			transparentItem.blendFactor.w,
+		};
+
+		pContext->OMSetBlendState(bs->Get(), blendFactor, 0);
+
+	}
+
+	m_deviceResources->PIXEndEvent();
 }

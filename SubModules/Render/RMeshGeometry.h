@@ -2,10 +2,16 @@
 #include "pch.h"
 #include "IRenderResource.h"
 
+enum class EMeshType
+{
+	BASIC,
+	TESSELLATED_QUAD
+};
+
 class RMeshGeometry : public IRenderResource
 {
 public:
-	RMeshGeometry(const EPrimitiveTopologyType type);
+	RMeshGeometry(const EPrimitiveTopologyType type, const EMeshType meshType);
 	~RMeshGeometry() = default;
 
 	inline EPrimitiveTopologyType GetTopologyType() const
@@ -18,6 +24,7 @@ public:
 
 protected:
 	const EPrimitiveTopologyType m_topologyType;
+	const EMeshType m_meshType;
 
 	UINT m_vertexStride;
 	UINT m_vertexOffset;

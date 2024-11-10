@@ -30,6 +30,7 @@ public:
 	virtual BOOL Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath) = 0;
 
 	virtual void BeginRender() = 0;
+	virtual void Render() = 0;
 	virtual void EndRender() = 0;
 	virtual void Present() = 0;
 
@@ -37,7 +38,7 @@ public:
 	virtual BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight) = 0;
 
 	// Renders
-	virtual void Render(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) = 0;
+	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) = 0;
 
 
 	// TODO :: Buffer? We need RBuffer to control parameters in game layer

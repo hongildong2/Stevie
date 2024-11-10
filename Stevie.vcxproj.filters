@@ -28,7 +28,7 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="SubModules\Render\IRenderer.h" />
-    <ClInclude Include="SubModules\Render\RMaterial.h" />
+    <ClInclude Include="SubModules\Render\Materials\RMaterial.h" />
     <ClInclude Include="SubModules\Render\RenderDefs.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
     <ClInclude Include="SubModules\Render\RTexture.h" />
@@ -57,12 +57,13 @@
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
     <ClInclude Include="SubModules\Render\RenderItem.h" />
+    <ClInclude Include="Core\Ocean.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="SubModules\Render\RMaterial.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\RMaterial.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="SubModules\Render\RTexture.cpp" />
     <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
@@ -88,6 +89,7 @@
     <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Core\Light.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
+    <ClCompile Include="Core\Ocean.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

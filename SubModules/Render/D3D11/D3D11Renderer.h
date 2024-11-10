@@ -16,6 +16,7 @@ public:
 	virtual BOOL Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath) override;
 
 	virtual void BeginRender() override;
+	virtual void Render() override;
 	virtual void EndRender() override;
 	virtual void Present() override;
 
@@ -23,7 +24,7 @@ public:
 	virtual BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight) override;
 
 	// Renders
-	virtual void Render(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
+	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
 	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 	// IRenderDevice
@@ -74,12 +75,11 @@ private:
 	void UpdateGlobalConstant();
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
 
-	void RenderScene();
 	void RenderSkybox();
 	// void RenderDepthMap();
 	// void RenderShadowMap();
 	void RenderOpaques();
-	// void RenderTransparent();
+	void RenderTransparent();
 
 
 
@@ -105,12 +105,6 @@ private:
 	static constexpr UINT MAX_RENDER_ITEM = 3000;
 	RenderItem m_renderItems[MAX_RENDER_ITEM];
 	UINT m_renderItemIndex;
-
-	UINT m_opaqueItems[MAX_RENDER_ITEM];
-	UINT m_opaqueItemIndex;
-
-	UINT m_transparentItems[MAX_RENDER_ITEM];
-	UINT m_transparentItemIndex;
 
 	const Camera* m_camera;
 	Skybox* m_skybox;

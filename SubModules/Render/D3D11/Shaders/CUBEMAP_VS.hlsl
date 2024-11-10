@@ -6,10 +6,13 @@ cbuffer GlobalConstants : register(b0)
 	GlobalConstant globalConstants;
 }
 
-cbuffer MeshConstants : register(b1)
+static float4x4 IDENTITY_MATRIX =
 {
-	MeshConstant meshConstants;
-}
+	1.f, 0.f, 0.f, 0.f,
+	0.f, 1.f, 0.f, 0.f,
+	0.f, 0.f, 1.f, 0.f,
+	0.f, 0.f, 0.f, 1.f
+};
 
 SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 {
@@ -17,7 +20,7 @@ SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 
 	output.positionModel = input.positionModel;
 	output.texcoord = input.texcoord;
-	float4 pos = mul(float4(input.positionModel, 1.f), meshConstants.world);
+	float4 pos = mul(float4(input.positionModel, 1.f), IDENTITY_MATRIX);
 	
 
 	float4 viewPos = mul(float4(input.positionModel, 0), globalConstants.view);
