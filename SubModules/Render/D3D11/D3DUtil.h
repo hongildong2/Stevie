@@ -49,7 +49,7 @@ namespace DX
 
 			switch (type)
 			{
-			case EPrimitiveTopologyType::TRIANGLE:
+			case EPrimitiveTopologyType::TRIANGLE_LIST:
 				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			case EPrimitiveTopologyType::QUAD_PATCH:
 				return D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;

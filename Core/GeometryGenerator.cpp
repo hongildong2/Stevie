@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "GeometryGenerator.h"
-#include "GeometricPrimitive.h"
 
 using DirectX::SimpleMath::Vector2;
 using DirectX::SimpleMath::Vector3;

@@ -30,6 +30,11 @@ public:
 	D3D11Texture2D* CreateTexture2DFromDDSFile(const WCHAR* fileName);
 	D3D11TextureCube* CreateTextureCubeFromDDSFile(const WCHAR* fileName);
 
+	D3D11MeshGeometry* CreateCube();
+	D3D11MeshGeometry* CreateSphere();
+	D3D11MeshGeometry* CreateQuad();
+	D3D11MeshGeometry* CreateTessellatedQuad();
+
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
 	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);
 	void CreateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pInitData, ID3D11Buffer** ppOutBuffer, ID3D11ShaderResourceView** ppSRVOut);

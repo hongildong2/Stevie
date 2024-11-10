@@ -66,7 +66,7 @@ void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const vo
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
-	D3D11MeshGeometry* res = new D3D11MeshGeometry(EPrimitiveTopologyType::TRIANGLE, EMeshType::BASIC);
+	D3D11MeshGeometry* res = new D3D11MeshGeometry(EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 	res->Initialize(m_pRenderer, pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount);
 	return res;
 }

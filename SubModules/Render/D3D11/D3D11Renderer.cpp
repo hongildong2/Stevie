@@ -243,23 +243,16 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 
 }
 
-void D3D11Renderer::Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ)
+void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 }
 
-
-RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
-{
-	return nullptr;
-}
-
-RTexture* D3D11Renderer::CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format)
+RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format)
 {
 	return nullptr;
 }
 
-
-RMeshGeometry* D3D11Renderer::CreateQuadPatches(const UINT patchCount)
+RTexture* D3D11Renderer::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	return nullptr;
 }

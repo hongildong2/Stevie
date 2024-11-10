@@ -184,10 +184,12 @@
   <ItemGroup>
     <ClInclude Include="Core\GeometryGenerator.h" />
     <ClInclude Include="Core\Light.h" />
+    <ClInclude Include="Core\OceanDefinition.h" />
     <ClInclude Include="Core\SSceneObject.h" />
     <ClInclude Include="Core\SObject.h" />
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Ocean.h" />
+    <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
@@ -225,6 +227,7 @@
     <ClCompile Include="Core\SObject.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Core\Ocean.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />

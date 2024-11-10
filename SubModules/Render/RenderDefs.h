@@ -1,16 +1,17 @@
 #pragma once
 #include "pch.h"
 
-enum class EBasicGeometry
+enum class EBasicMeshGeometry
 {
 	QUAD,
-	BOX,
-	SPHERE
+	CUBE,
+	SPHERE,
+	TESSELLATED_QUAD
 };
 
 enum class EPrimitiveTopologyType
 {
-	TRIANGLE,
+	TRIANGLE_LIST,
 	QUAD_PATCH,
 	POINT,
 	LINE

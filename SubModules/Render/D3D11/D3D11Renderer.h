@@ -25,17 +25,14 @@ public:
 
 	// Renders
 	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
-	virtual void Compute(const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const void** alignedConstants, const UINT** constantSizes, const UINT constantsCount, const UINT batchX, const UINT batchY, const UINT batchZ) override;
-
-	// IRenderDevice
+	virtual void Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)	override;// IRenderDevice
 	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) override;
-	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
-	virtual RTexture* CreateDynamicTexture(const UINT width, const UINT height, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) override;
 
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) override;
-	virtual RMeshGeometry* CreateQuadPatches(const UINT patchCount) override;
 
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;

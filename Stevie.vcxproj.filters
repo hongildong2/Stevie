@@ -59,6 +59,8 @@
     <ClInclude Include="SubModules\Render\RenderItem.h" />
     <ClInclude Include="Core\Ocean.h" />
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
+    <ClInclude Include="Core\OceanDefinition.h" />
+    <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -92,6 +94,7 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
     <ClCompile Include="Core\Ocean.cpp" />
     <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
