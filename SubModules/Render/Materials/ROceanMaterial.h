@@ -39,9 +39,9 @@ private:
 		FOAM_TEXTURE
 	};
 
-	RStructuredBuffer* m_combineParameterSB;
-	RStructuredBuffer* m_localInitialSpectrumSB;
-	RStructuredBuffer* m_swellInitialParameterSB;
+	RTexture* m_combineParameterSB;
+	RTexture* m_localInitialSpectrumSB;
+	RTexture* m_swellInitialParameterSB;
 
 
 	std::array<ocean::CombineParameter, ocean::CASCADE_COUNT> m_combineParameters;

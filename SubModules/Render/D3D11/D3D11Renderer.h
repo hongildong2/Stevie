@@ -1,6 +1,5 @@
 #pragma once
-#include "../IRenderer.h"
-#include "../RenderItem.h"
+#include "pch.h""
 #include "D3D11ResourceManager.h"
 #include "D3D11DeviceResources.h"
 #include "D3D11PostProcess.h"
@@ -25,14 +24,17 @@ public:
 
 	// Renders
 	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
-	virtual void Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)	override;// IRenderDevice
+	virtual void Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) override;
+
 	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateStructuredBuffer(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT elementCount, const void* pInitData) override;
 
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) override;
+	virtual RMeshGeometry* CreateBasicMeshGeometry(EBasicMeshGeometry type) override;
 
 	// Scene
 	virtual void SetCamera(const Camera* pCamera) override;
@@ -117,8 +119,7 @@ private:
 
 	// Dynamic Lights
 	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 500;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightsSB; // structured buffer
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_lightsSRV;
+	D3D11StructuredBuffer* m_pLightsBuffer;
 	std::vector<const Light*> m_lights;
 	// std::vector<const D3D11TextureDepth*> m_shadowMaps;
 

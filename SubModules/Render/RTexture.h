@@ -6,7 +6,8 @@ enum class ETextureType
 {
 	TEXTURE_2D,
 	TEXTURE_3D,
-	TEXTURE_CUBE
+	TEXTURE_CUBE,
+	STRUCTURED_BUFFER
 };
 
 class RTexture

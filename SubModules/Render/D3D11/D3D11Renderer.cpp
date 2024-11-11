@@ -63,7 +63,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
-	m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr, m_lightsSB.ReleaseAndGetAddressOf(), m_lightsSRV.ReleaseAndGetAddressOf());
+	m_pLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr);
 
 	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
 	return TRUE;
@@ -103,7 +103,7 @@ void D3D11Renderer::Render()
 	{
 		UpdateGlobalConstant();
 		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_lightsSB.Get());
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_pLightsBuffer);
 	}
 
 	RenderSkybox();
@@ -169,6 +169,11 @@ RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, cons
 {
 	MY_ASSERT(pInVertexList != nullptr && pInIndexList != nullptr);
 	return static_cast<RMeshGeometry*>(m_resourceManager->CreateMeshGeometry(pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount));
+}
+
+RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
+{
+	return nullptr;
 }
 
 RTexture* D3D11Renderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
@@ -255,6 +260,13 @@ RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, co
 RTexture* D3D11Renderer::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	return nullptr;
+}
+
+RTexture* D3D11Renderer::CreateStructuredBuffer(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT elementCount, const void* pInitData)
+{
+	MY_ASSERT(totalSizeInByte == elementCount * elementSizeInByte);
+
+	return m_resourceManager->CreateStructuredBuffer(elementSizeInByte, elementCount, pInitData);
 }
 
 void D3D11Renderer::SetCamera(const Camera* pCamera)

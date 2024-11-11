@@ -3,12 +3,6 @@
 #include "../RTexture.h"
 #include "D3D11Resources.h"
 
-// CONSIDER :: Consider One big class and give Interface to access textures
-/*
-* class D3D11Texture : public RTexture, public IDepthTexture, public IRenderTexture, public IDynamicTexture, public IReadonlyTexture
-*
-*/
-
 class D3D11Renderer;
 class D3D11Texture : public RTexture
 {
@@ -92,4 +86,33 @@ class D3D11TextureCube : public D3D11Texture
 public:
 	D3D11TextureCube();
 	~D3D11TextureCube() = default;
+};
+
+class D3D11StructuredBuffer : public D3D11Texture
+{
+	friend class D3D11ResourceManager;
+public:
+	D3D11StructuredBuffer();
+	~D3D11StructuredBuffer() = default;
+
+	void Initialize(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT count);
+
+	ID3D11ShaderResourceView* GetSRV() const
+	{
+		return m_SRV.Get();
+	}
+
+	ID3D11Buffer* GetBuffer() const
+	{
+		return m_buffer.Get();
+	}
+
+private:
+	UINT m_totalSizeInByte;
+	UINT m_elementSizeInByte;
+	UINT m_elementCount;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
+
 };

@@ -366,10 +366,9 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 	pContext->Unmap(pBuffer, 0);
 }
 
-void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const UINT byteStride, const void* pInitData, ID3D11Buffer** ppOutBuffer, ID3D11ShaderResourceView** ppSRVOut)
+D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const UINT byteStride, const void* pInitData)
 {
-	MY_ASSERT(ppOutBuffer != nullptr);
-	*ppOutBuffer = nullptr;
+	D3D11StructuredBuffer* sb = new D3D11StructuredBuffer();
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
 	D3D11_BUFFER_DESC sbDesc;
@@ -383,7 +382,7 @@ void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const U
 
 	if (pInitData == nullptr)
 	{
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, ppOutBuffer));
+		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, sb->m_buffer.ReleaseAndGetAddressOf()));
 	}
 	else
 	{
@@ -393,12 +392,12 @@ void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const U
 		initData.SysMemPitch = 0;
 		initData.SysMemSlicePitch = 0;
 
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, ppOutBuffer));
+		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, sb->m_buffer.ReleaseAndGetAddressOf()));
 	}
 
 
 	D3D11_BUFFER_DESC descBuf = {};
-	(*ppOutBuffer)->GetDesc(&descBuf);
+	(sb->m_buffer.Get())->GetDesc(&descBuf);
 	const UINT BUFFER_TOTAL_SIZE = descBuf.ByteWidth;
 	const UINT BUFFER_ELEMENT_SIZE = descBuf.StructureByteStride;
 	const UINT BUFFER_LENGTH = BUFFER_TOTAL_SIZE / BUFFER_ELEMENT_SIZE;
@@ -427,10 +426,11 @@ void D3D11ResourceManager::CreateStructuredBuffer(const UINT bufferSize, const U
 			DX::ThrowIfFailed(E_INVALIDARG);
 		}
 	}
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(*ppOutBuffer, &desc, ppSRVOut));
+
+	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(sb->m_buffer.Get(), &desc, sb->m_SRV.ReleaseAndGetAddressOf()));
 }
 
-void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pData, ID3D11Buffer* pInBuffer)
+void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pData, D3D11StructuredBuffer* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
@@ -438,7 +438,7 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	DX::ThrowIfFailed(pContext->Map(pInBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	DX::ThrowIfFailed(pContext->Map(pInBuffer->m_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	for (UINT i = 0; i < uCount; ++i)
 	{
 		const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
@@ -447,7 +447,7 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const
 		std::memcpy(pMapped, pDataToWrite, uElementSize);
 	}
 
-	pContext->Unmap(pInBuffer, 0);
+	pContext->Unmap(pInBuffer->m_buffer.Get(), 0);
 
 }
 

@@ -33,11 +33,9 @@ void ROceanMaterial::Initialize()
 	RTexture* heightTexture = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, 1, DXGI_FORMAT_R32_FLOAT);
 
 
-
-	// TODO :: 
-	RStructuredBuffer* combineParameterSB = nullptr;
-	RStructuredBuffer* localInitialSpectrumSB = nullptr;
-	RStructuredBuffer* swellInitialParameterSB = nullptr;
+	m_combineParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::CombineParameter) * ocean::CASCADE_COUNT, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters);
+	m_localInitialSpectrumSB= m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
+	m_swellInitialParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters);
 
 
 	m_textures[DISPLACEMENT_TEXTURE2D_ARRAY] = displacementTextureArray;
@@ -121,7 +119,7 @@ void ROceanMaterial::Update()
 		const RTexture* srcTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_combineParameterSB };
 		const RTexture* dstTextures[1] = { m_textures[HEIGHT_TEXTURE2D] };
 
-		m_pRenderer->Compute(Graphics::OCEAN_COMBINE_WAVE_CS, dstTextures, 1, srcTextures, 2, ? ? , ? ? , &m_combineWaveConstant, ocean::GROUP_X, ocean::GROUP_Y, 1);
+		m_pRenderer->Compute(Graphics::OCEAN_COMBINE_WAVE_CS, dstTextures, 1, srcTextures, 2, ? ? , ? ? , reinterpret_cast<const RenderParam*>(&m_combineWaveConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
 
 	}
 }
