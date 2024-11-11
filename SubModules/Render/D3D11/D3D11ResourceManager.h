@@ -21,7 +21,7 @@ public:
 
 
 	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
-	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format);
+	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format);
 	D3D11Texture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
 	D3D11TextureDepth* CreateTextureDepth(const UINT width, const UINT height);
 	D3D11TextureRender* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);

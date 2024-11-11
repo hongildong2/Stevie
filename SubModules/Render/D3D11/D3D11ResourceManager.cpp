@@ -71,7 +71,7 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVerte
 	return res;
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const DXGI_FORMAT format)
+D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -83,7 +83,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = 1;
-	desc.ArraySize = 1;
+	desc.ArraySize = count;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -95,6 +95,14 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
+	if (desc.ArraySize > 1)
+	{
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+		shaderResourceViewDesc.Texture2DArray.ArraySize = count;
+		shaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+		shaderResourceViewDesc.Texture2DArray.MipLevels = 1;
+		shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+	}
 
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
 		res->m_resource.Get(),
@@ -104,6 +112,13 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 
 
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, format);
+	if (desc.ArraySize > 1)
+	{
+		unorderedAccessViewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+		unorderedAccessViewDesc.Texture2DArray.ArraySize = count;
+		unorderedAccessViewDesc.Texture2DArray.FirstArraySlice = 0;
+		unorderedAccessViewDesc.Texture2DArray.MipSlice = 0;
+	}
 	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
 
 

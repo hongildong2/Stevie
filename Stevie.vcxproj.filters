@@ -61,6 +61,7 @@
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
     <ClInclude Include="Core\OceanDefinition.h" />
     <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
+    <ClInclude Include="SubModules\Render\RStructuredBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -95,6 +96,7 @@
     <ClCompile Include="Core\Ocean.cpp" />
     <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
     <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
+    <ClCompile Include="SubModules\Render\RStructuredBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

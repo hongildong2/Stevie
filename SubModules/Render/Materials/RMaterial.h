@@ -14,7 +14,7 @@ struct RenderParam;
 class RMaterial : public IRenderResource
 {
 public:
-	RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState);
+	RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState);
 	virtual ~RMaterial() = default;
 
 	bool AddTexture(const RTexture* pTexture);
@@ -26,7 +26,7 @@ public:
 	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const = 0;
 
 	void GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
-	void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const;
+	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const;
 
 	inline const RPixelShader* GetShader() const
 	{
@@ -51,7 +51,7 @@ public:
 
 
 protected:
-	const IRenderer* m_pRenderer;
+	IRenderer* m_pRenderer;
 	const RPixelShader* m_pixelShader;
 
 	const RSamplerState* m_samplerStates[MATERIAL_SAMPLE_STATE_MAX_COUNT];

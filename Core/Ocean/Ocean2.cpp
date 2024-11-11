@@ -391,6 +391,8 @@ void Ocean::Render(ID3D11DeviceContext1* pContext)
 
 	ID3D11ShaderResourceView* SRVs[3] = { GetDisplacementMapsSRV(), GetDerivativeMapsSRV(), GetCombineParameterSRV() };
 	pContext->DSSetShaderResources(100, 3, SRVs);
+
+
 	ID3D11ShaderResourceView* foamSRVs[4] = { GetTurbulenceMapsSRV(), GetCombineParameterSRV(), m_skyTexture.Get(), m_foamTexture.Get() };
 	pContext->PSSetShaderResources(100, 4, foamSRVs);
 

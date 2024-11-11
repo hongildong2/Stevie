@@ -1,6 +1,6 @@
 #include "pch.h"
 
-RMaterial::RMaterial(const IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
+RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
 	, m_samplerStatesCount(0)

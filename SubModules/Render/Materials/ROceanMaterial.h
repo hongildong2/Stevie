@@ -6,7 +6,7 @@ class ROceanMaterial final :
 	public RMaterial
 {
 public:
-	ROceanMaterial(const IRenderer* pRenderer);
+	ROceanMaterial(IRenderer* pRenderer);
 	~ROceanMaterial();
 
 	virtual void Initialize() override;
@@ -17,6 +17,7 @@ public:
 	void SetSkyTexture(RTexture* tex);
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
+	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 private:
 	RComputeShader* m_initialSpectrumCS;
@@ -26,18 +27,22 @@ private:
 	RComputeShader* m_combineWaveCS;
 	RComputeShader* m_foamSimulationCS;
 
-	// TODO :: Structured Buffer
+	enum
+	{
+		DISPLACEMENT_TEXTURE2D_ARRAY,
+		DERIVATIVE_TEXTURE2D_ARRAY,
+		TURBULENCE_TEXTURE2D_ARRAY,
+		WAVE_VECTOR_TEXTURE2D_ARRAY,
+		INITIAL_SPECTRUM_TEXTURE2D_ARRAY,
+		HEIGHT_TEXTURE2D,
+		SKY_TEXTURE,
+		FOAM_TEXTURE
+	};
 
-	RTexture* m_displacementTextureArray;
-	RTexture* m_derivativeTextureArray;
-	RTexture* m_turbulenceTextureArray;
-	RTexture* m_waveVectorTextureArray;
+	RStructuredBuffer* m_combineParameterSB;
+	RStructuredBuffer* m_localInitialSpectrumSB;
+	RStructuredBuffer* m_swellInitialParameterSB;
 
-	RTexture* m_initialSpectrumTextureArray;
-	RTexture* m_heightTexture;
-
-	RTexture* m_skyTexture;
-	RTexture* m_foamTexture;
 
 	std::array<ocean::CombineParameter, ocean::CASCADE_COUNT> m_combineParameters;
 	ocean::CombineWaveConstant m_combineWaveConstant;
