@@ -7,8 +7,6 @@
 #include "D3D11ResourceManager.h"
 
 
-using Microsoft::WRL::ComPtr;
-
 D3D11ResourceManager::~D3D11ResourceManager()
 {
 	Graphics::D3D11::ClearCommonResources();
@@ -323,6 +321,33 @@ D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR
 	return res;
 }
 
+D3D11MeshGeometry* D3D11ResourceManager::CreateCube()
+{
+	MeshData md = geometryGenerator::MakeBox(1.f);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+}
+
+D3D11MeshGeometry* D3D11ResourceManager::CreateSphere()
+{
+	MeshData md = geometryGenerator::MakeSphere(1.f, 30, 30);
+
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+}
+
+D3D11MeshGeometry* D3D11ResourceManager::CreateQuad()
+{
+	MeshData md = geometryGenerator::MakeSquare(1.f);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+}
+
+D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
+{
+	MeshData md;
+	geometryGenerator::MakeCWQuadPatches(128, &md);
+
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+}
+
 void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
@@ -428,6 +453,8 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT b
 	}
 
 	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(sb->m_buffer.Get(), &desc, sb->m_SRV.ReleaseAndGetAddressOf()));
+
+	return sb;
 }
 
 void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pData, D3D11StructuredBuffer* pInBuffer)

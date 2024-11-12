@@ -15,10 +15,6 @@
 
 extern void ExitGame() noexcept;
 
-using namespace DirectX;
-using namespace DirectX::SimpleMath;
-using Microsoft::WRL::ComPtr;
-
 Game::Game() noexcept(false)
 {
 	m_renderer = std::make_unique<D3D11Renderer>();
@@ -36,7 +32,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 	// DEMO OBJECT
 	{
-		MeshData sphere = MakeSphere(1.f, 20, 20);
+		MeshData sphere = geometryGenerator::MakeSphere(1.f, 20, 20);
 		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
 
 		const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
@@ -82,7 +78,7 @@ void Game::Initialize(HWND window, int width, int height)
 		m_renderer->SetCamera(m_camera.get());
 
 		// Skybox
-		MeshData box = MakeBox(10.f);
+		MeshData box = geometryGenerator::MakeBox(10.f);
 		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_renderer.get());
 

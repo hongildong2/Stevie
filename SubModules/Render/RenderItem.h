@@ -3,11 +3,25 @@
 
 struct RenderParam
 {
-	UINT data[127];
-	UINT size;
+	UINT data[64];
 };
 
 static_assert((sizeof(RenderParam) % 16) == 0);
+
+template<typename T>
+FORCEINLINE RenderParam* CAST_RENDER_PARAM_PTR(T* a)
+{
+	static_assert(sizeof(T) <= sizeof(RenderParam), "GIVEN RENDER PARAMETER TOO LARGE");
+	return reinterpret_cast<RenderParam*>(a);
+}
+
+template<typename U>
+FORCEINLINE void MEMCPY_RENDER_PARAM(RenderParam* dst, U* src)
+{
+	static_assert(sizeof(U) <= sizeof(RenderParam), "GIVEN RENDER PARAMETER TOO LARGE");
+	std::memcpy(dst, src, sizeof(U));
+}
+
 
 
 struct RenderItem
@@ -19,7 +33,7 @@ struct RenderItem
 	const class RBlendState* pBlendState;
 	bool bIsOccluder;
 	bool bIsTransparent;
-	DirectX::SimpleMath::Vector4 blendFactor;
+	Vector4 blendFactor;
 
 	RenderParam meshParam;
 	RenderParam materialParam;

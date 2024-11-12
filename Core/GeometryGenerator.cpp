@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "GeometryGenerator.h"
 
-using DirectX::SimpleMath::Vector2;
-using DirectX::SimpleMath::Vector3;
-using DirectX::SimpleMath::Matrix;
+using namespace DirectX::SimpleMath;
 
-MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks)
+MeshData geometryGenerator::MakeSphere(const float radius, const unsigned int numSlices, const unsigned int numStacks)
 {
 	const float dTheta = -DirectX::XM_2PI / float(numSlices);
 	const float dPhi = -DirectX::XM_PI / float(numStacks);
@@ -62,7 +60,7 @@ MeshData MakeSphere(const float radius, const unsigned int numSlices, const unsi
 	return meshData;
 }
 
-MeshData MakeSquare(const float scale = 1.0f)
+MeshData geometryGenerator::MakeSquare(const float scale = 1.0f)
 {
 	std::vector<Vector3> positions;
 	std::vector<Vector3> colors;
@@ -111,7 +109,7 @@ MeshData MakeSquare(const float scale = 1.0f)
 	return meshData;
 }
 
-MeshData MakeBox(const float scale)
+MeshData geometryGenerator::MakeBox(const float scale)
 {
 
 	std::vector<Vector3> positions;
@@ -249,7 +247,7 @@ MeshData MakeBox(const float scale)
 	return meshData;
 }
 
-void MakeCWQuadPatches(unsigned int splitLevel, MeshData* const outMesh)
+void geometryGenerator::MakeCWQuadPatches(unsigned int splitLevel, MeshData* const outMesh)
 {
 	unsigned int currentLevel = splitLevel > 128 ? 128 : splitLevel;
 	Vector3 topLeft(-1.f, 1.f, 0.f);

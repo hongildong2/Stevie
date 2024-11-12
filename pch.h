@@ -95,6 +95,10 @@
 
 
 // Mine
+
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using Microsoft::WRL::ComPtr;
 #include "SubModules\Render\GraphicsCommon.h"
 #include "SubModules\Render\IRenderer.h"
 #include "SubModules\Render\IRenderResource.h"
@@ -106,4 +110,5 @@
 #include "SubModules\Render\RBlendState.h"
 #include "SubModules\Render\RTexture.h"
 #include "SubModules\Render\RMeshGeometry.h"
-#include "SubModules\Render\RStructuredBuffer.h"
+
+#include "Core\GeometryGenerator.h"

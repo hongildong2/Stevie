@@ -12,7 +12,6 @@ ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
 	, m_oceanConfigurationConstant(ocean::OceanConfigurationInitializer)
 	, m_renderingParameter(ocean::RenderingParamsInitialzer)
 {
-	// Add Sampler States
 }
 
 ROceanMaterial::~ROceanMaterial()
@@ -34,7 +33,7 @@ void ROceanMaterial::Initialize()
 
 
 	m_combineParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::CombineParameter) * ocean::CASCADE_COUNT, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters);
-	m_localInitialSpectrumSB= m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
+	m_localInitialSpectrumSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
 	m_swellInitialParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters);
 
 
@@ -53,7 +52,7 @@ void ROceanMaterial::InitializeData()
 {
 	const RTexture* resultTextures[3] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY], m_textures[TURBULENCE_TEXTURE2D_ARRAY] };
 	const RTexture* srcTextures[1] = { m_localInitialSpectrumSB };
-	m_pRenderer->Compute(Graphics::OCEAN_INITIAL_SPECTRUM_CS, resultTextures, 3, srcTextures, 1, m_samplerStates, ? ? , &m_oceanConfigurationConstant, ocean::GROUP_X, ocean::GROUP_Y, 1);
+	m_pRenderer->Compute(Graphics::OCEAN_INITIAL_SPECTRUM_CS, resultTextures, _countof(resultTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_oceanConfigurationConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
 
 	m_bInitialized = true;
 }
@@ -73,7 +72,7 @@ void ROceanMaterial::Update()
 		const RTexture* dstTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY] };
 		const RTexture* srcTextures[2] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY] };
 
-		m_pRenderer->Compute(Graphics::OCEAN_TIME_DEPENDENT_SPECTRUM_CS, dstTextures, 2, srcTextures, 2, ? ? , ? ? , &m_spectrumParameter, ocean::GROUP_X, ocean::GROUP_Y, 1);
+		m_pRenderer->Compute(Graphics::OCEAN_TIME_DEPENDENT_SPECTRUM_CS, dstTextures, _countof(dstTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_spectrumParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
 	}
 
 	// Inverse FFT
@@ -86,40 +85,42 @@ void ROceanMaterial::Update()
 			m_FFTParameter.bInverse = TRUE;
 			m_FFTParameter.bDirection = FALSE;
 
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, 1, ocean::N, 1);
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, 1, ocean::N, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, _countof(displacementTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), 1, ocean::N, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, _countof(derivativeTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), 1, ocean::N, 1);
 
 		}
 
 		// Vertical IFFT
 		{
 			m_FFTParameter.bDirection = TRUE;
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, 1, ocean::N, 1);
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, 1, ocean::N, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, _countof(displacementTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), 1, ocean::N, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, _countof(derivativeTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), 1, ocean::N, 1);
 		}
 
 		// PostProcess
 		{
 			m_FFTParameter.bPermute = TRUE;
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, ocean::GROUP_X, ocean::GROUP_Y, 1);
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, 1, nullptr, 0, ? ? , ? ? , &m_FFTParameter, ocean::GROUP_X, ocean::GROUP_Y, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, _countof(displacementTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, _countof(derivativeTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
 		}
 	}
+
 
 	// Foam Simulation
 	{
 		const RTexture* srcTextures[3] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY], m_combineParameterSB };
 		const RTexture* dstTextures[1] = { m_textures[TURBULENCE_TEXTURE2D_ARRAY] };
 
-		m_pRenderer->Compute(Graphics::OCEAN_FOAM_SIMULATION_CS, dstTextures, 1, srcTextures, 3, ? ? , ? ? , nullptr, ocean::GROUP_X, ocean::GROUP_Y, 1);
+		m_pRenderer->Compute(Graphics::OCEAN_FOAM_SIMULATION_CS, dstTextures, _countof(dstTextures), srcTextures, _countof(dstTextures), nullptr, 0, nullptr, ocean::GROUP_X, ocean::GROUP_Y, 1);
 	}
 
 	// Combine wave
 	{
 		const RTexture* srcTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_combineParameterSB };
 		const RTexture* dstTextures[1] = { m_textures[HEIGHT_TEXTURE2D] };
+		const RSamplerState* ss[1] = { Graphics::LINEAR_WRAP_SS };
 
-		m_pRenderer->Compute(Graphics::OCEAN_COMBINE_WAVE_CS, dstTextures, 1, srcTextures, 2, ? ? , ? ? , reinterpret_cast<const RenderParam*>(&m_combineWaveConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
+		m_pRenderer->Compute(Graphics::OCEAN_COMBINE_WAVE_CS, dstTextures, _countof(dstTextures), srcTextures, _countof(srcTextures), ss, _countof(ss), CAST_RENDER_PARAM_PTR(&m_combineWaveConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
 
 	}
 }

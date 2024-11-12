@@ -3,6 +3,7 @@
 #include "../RenderDefs.h"
 
 
+class D3D11StructuredBuffer;
 class D3D11Texture2D;
 class D3D11Texture3D;
 class D3D11TextureDepth;

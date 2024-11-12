@@ -26,8 +26,8 @@ public:
 	}
 
 protected:
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UAV;
+	ComPtr<ID3D11ShaderResourceView> m_SRV;
+	ComPtr<ID3D11UnorderedAccessView> m_UAV;
 };
 
 class D3D11TextureDepth final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
@@ -44,7 +44,7 @@ public:
 
 private:
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DSV;
+	ComPtr<ID3D11DepthStencilView> m_DSV;
 };
 
 class D3D11TextureRender final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
@@ -60,7 +60,7 @@ public:
 	}
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
+	ComPtr<ID3D11RenderTargetView> m_RTV;
 };
 
 class D3D11Texture2D : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
@@ -112,7 +112,7 @@ private:
 	UINT m_elementSizeInByte;
 	UINT m_elementCount;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
+	ComPtr<ID3D11Buffer> m_buffer;
+	ComPtr<ID3D11ShaderResourceView> m_SRV;
 
 };

@@ -58,7 +58,7 @@ private:
 	std::vector<std::unique_ptr<D3D11TextureRender>> m_blurTextures;
 
 	PostProcessConstant m_postProcessConstant;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_postProcessCB;
+	ComPtr<ID3D11Buffer> m_postProcessCB;
 
 private:
 	D3D11VertexShader* pQuadVS;

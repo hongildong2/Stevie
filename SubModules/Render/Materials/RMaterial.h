@@ -47,7 +47,7 @@ protected:
 public:
 	static constexpr UINT MATERIAL_TEXTURE_MAX_COUNT = 20;
 	static constexpr UINT MATERIAL_SAMPLE_STATE_MAX_COUNT = 10;
-	static constexpr UINT MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE = 508;
+	static constexpr UINT MATERIAL_CONSTANT_MAX_SIZE_IN_BYTE = sizeof(RenderParam);
 
 
 protected:
@@ -68,7 +68,7 @@ protected:
 class RDemoMaterial final : public RMaterial
 {
 public:
-	RDemoMaterial(const IRenderer* pRenderer);
+	RDemoMaterial(IRenderer* pRenderer);
 	~RDemoMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
@@ -80,7 +80,7 @@ public:
 class RSkyboxMaterial final : public RMaterial
 {
 public:
-	RSkyboxMaterial(const IRenderer* pRenderer);
+	RSkyboxMaterial(IRenderer* pRenderer);
 	~RSkyboxMaterial() = default;
 
 	virtual void Initialize() override;
@@ -98,7 +98,7 @@ struct RBasicMaterialConstant
 	FLOAT t1;
 
 	BOOL bUseTexture;
-	DirectX::SimpleMath::Vector3 albedo;
+	Vector3 albedo;
 
 	FLOAT metallic;
 	FLOAT roughness;
@@ -107,7 +107,7 @@ struct RBasicMaterialConstant
 
 	BOOL bUseHeightMap;
 	FLOAT heightScale;
-	DirectX::SimpleMath::Vector2 mcDummy;
+	Vector2 mcDummy;
 
 	BOOL bUseAlbedoTexture;
 	BOOL bUseAOTexture;
@@ -128,7 +128,7 @@ constexpr RBasicMaterialConstant DEFAULT_MATERIAL =
 	1.f,
 
 	TRUE,
-	DirectX::SimpleMath::Vector3(1.f, 1.f, 1.f),
+	Vector3(1.f, 1.f, 1.f),
 
 	0.5f,
 	0.5f,
@@ -137,7 +137,7 @@ constexpr RBasicMaterialConstant DEFAULT_MATERIAL =
 
 	FALSE,
 	0.2f,
-	DirectX::SimpleMath::Vector2(0.f, 0.f),
+	Vector2(0.f, 0.f),
 
 	FALSE,
 	FALSE,
@@ -154,7 +154,7 @@ static_assert(sizeof(RBasicMaterialConstant) <= RMaterial::MATERIAL_CONSTANT_MAX
 class RBasicMaterial final : public RMaterial
 {
 public:
-	RBasicMaterial(const IRenderer* pRenderer);
+	RBasicMaterial(IRenderer* pRenderer);
 	~RBasicMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;

@@ -64,7 +64,7 @@ void RMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCou
 
 
 
-RDemoMaterial::RDemoMaterial(const IRenderer* pRenderer)
+RDemoMaterial::RDemoMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::DEMO_PS, nullptr)
 {
 	// assert pRenderer not null
@@ -73,7 +73,6 @@ RDemoMaterial::RDemoMaterial(const IRenderer* pRenderer)
 
 void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	pOutRenderParam->size = 0;
 }
 
 void RDemoMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
@@ -82,7 +81,7 @@ void RDemoMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT
 }
 
 
-RSkyboxMaterial::RSkyboxMaterial(const IRenderer* pRenderer)
+RSkyboxMaterial::RSkyboxMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr)
 {
 	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
@@ -96,7 +95,6 @@ void RSkyboxMaterial::Initialize()
 
 void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	pOutRenderParam->size = 0;
 }
 
 void RSkyboxMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
@@ -104,7 +102,7 @@ void RSkyboxMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UI
 	*pOutTextureCount = 0;
 }
 
-RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
+RBasicMaterial::RBasicMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS, nullptr)
 	, m_constant(DEFAULT_MATERIAL)
 {
@@ -115,8 +113,7 @@ RBasicMaterial::RBasicMaterial(const IRenderer* pRenderer)
 
 void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
-	std::memcpy(pOutRenderParam->data, &m_constant, sizeof(RBasicMaterialConstant));
-	pOutRenderParam->size = sizeof(RBasicMaterialConstant);
+	MEMCPY_RENDER_PARAM(pOutRenderParam, &m_constant);
 }
 
 void RBasicMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const

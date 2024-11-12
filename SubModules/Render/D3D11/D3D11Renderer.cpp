@@ -10,15 +10,6 @@
 #include "Core/Camera.h"
 #include "Core/Light.h"
 
-using Microsoft::WRL::ComPtr;
-using namespace DirectX;
-
-using DirectX::SimpleMath::Matrix;
-using DirectX::SimpleMath::Vector2;
-using DirectX::SimpleMath::Vector3;
-using DirectX::SimpleMath::Vector4;
-
-
 D3D11Renderer::D3D11Renderer()
 	: m_deviceResources()
 	, m_resourceManager()
@@ -35,6 +26,7 @@ D3D11Renderer::D3D11Renderer()
 	, m_irradianceMapTexture(nullptr)
 	, m_specularMapTexture(nullptr)
 	, m_BRDFMapTexture(nullptr)
+	, m_pLightsBuffer()
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
 	m_resourceManager = std::make_unique<D3D11ResourceManager>();
@@ -173,7 +165,20 @@ RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, cons
 
 RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
 {
-	return nullptr;
+	switch (type)
+	{
+	case EBasicMeshGeometry::QUAD:
+		return m_resourceManager->CreateQuad();
+	case EBasicMeshGeometry::CUBE:
+		return m_resourceManager->CreateCube();
+	case EBasicMeshGeometry::SPHERE:
+		return m_resourceManager->CreateSphere();
+	case EBasicMeshGeometry::TESSELLATED_QUAD:
+		return m_resourceManager->CreateTessellatedQuad();
+	default:
+		MY_ASSERT(FALSE);
+		return nullptr;
+	}
 }
 
 RTexture* D3D11Renderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
@@ -206,8 +211,6 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 	newRenderItem.pMeshGeometry = pInMeshComponent->GetMeshGeometry();
 	newRenderItem.pMaterial = pInMeshComponent->GetMaterial();
 	newRenderItem.pBlendState = nullptr;
-	newRenderItem.materialParam.size = 0;
-	newRenderItem.meshParam.size = 0;
 	newRenderItem.bIsTransparent = false;
 	newRenderItem.bIsOccluder = pInMeshComponent->IsOccluder();
 
@@ -224,10 +227,7 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 		meshCB.worldInv = worldInverse.Transpose();
 		meshCB.worldIT = worldIT.Transpose();
 
-		// TODO :: In ResourceManager or Utility with size assertion
-		std::memcpy(&newRenderItem.meshParam.data, &meshCB, sizeof(MeshConstant));
-		newRenderItem.meshParam.size = sizeof(MeshConstant);
-
+		MEMCPY_RENDER_PARAM(&newRenderItem.meshParam, &meshCB);
 
 		// Material Parameter
 		if (newRenderItem.pMaterial != nullptr)

@@ -34,7 +34,7 @@ void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
 
 	m_postProcessConstant = DEFAULT_POST_PROCESS_PARAM;
 
-	MeshData quad = MakeSquare(1.f);
+	MeshData quad = geometryGenerator::MakeSquare(1.f);
 	m_screenQuad = std::unique_ptr<RMeshGeometry>(m_pRenderer->CreateMeshGeometry(quad.verticies.data(), sizeof(Vertex), quad.verticies.size(), quad.indicies.data(), sizeof(UINT), quad.indicies.size()));
 
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
