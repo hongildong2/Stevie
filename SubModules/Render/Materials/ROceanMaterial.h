@@ -18,7 +18,7 @@ public:
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
 	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
-	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 private:
 	RComputeShader* m_initialSpectrumCS;
 	RComputeShader* m_timeDependentSpectrumCS;

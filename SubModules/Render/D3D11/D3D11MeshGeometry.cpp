@@ -24,7 +24,6 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	m_vertexStride = vertexSize;
-	m_vertexOffset = 0;
 	m_indexCount = indexCount;
 	// TODO :: assert indexsize 32 or 16, 4 byte -> 32, or 16
 	m_indexFormat = indexSize == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
@@ -60,17 +59,4 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, m_indexBuffer.GetAddressOf()));
 
 
-}
-
-void D3D11MeshGeometry::Draw() const
-{
-	// assert
-	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	ID3D11Buffer* vBuffers[1] = { m_vertexBuffer.Get() };
-
-	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(m_topologyType));
-	pContext->IASetVertexBuffers(0, 1, vBuffers, &m_vertexStride, &m_vertexOffset);
-	pContext->IASetIndexBuffer(m_indexBuffer.Get(), m_indexFormat, 0);
-
-	pContext->DrawIndexed(m_indexCount, 0, 0);
 }

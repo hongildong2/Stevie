@@ -32,7 +32,8 @@ void SSceneObject::Render()
 {
 	if (m_pMeshComponent != nullptr)
 	{
-		m_pMeshComponent->Render(GetWorldRowMat());
+		Matrix T = GetWorldRowMat();
+		m_pMeshComponent->Render(T);
 	}
 }
 

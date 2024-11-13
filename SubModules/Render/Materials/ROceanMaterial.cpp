@@ -2,7 +2,7 @@
 #include "ROceanMaterial.h"
 
 ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::OCEAN_SURFACE_PS, Graphics::ALPHA_BS)
+	: RMaterial(pRenderer, Graphics::OCEAN_SURFACE_PS)
 	, m_combineWaveConstant(ocean::CombineWaveConstantInitializer)
 	, m_combineParameters(ocean::CombineParameterInitializer)
 	, m_FFTParameter(ocean::FFTConstantInitializer)
@@ -152,7 +152,7 @@ void ROceanMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextu
 	*pOutTextureCount = 4;
 }
 
-void ROceanMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+void ROceanMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
 	ppOutTextures[0] = m_textures[DISPLACEMENT_TEXTURE2D_ARRAY];
 	ppOutTextures[1] = m_textures[DERIVATIVE_TEXTURE2D_ARRAY];

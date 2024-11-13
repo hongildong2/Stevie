@@ -54,7 +54,9 @@ void Game::Initialize(HWND window, int width, int height)
 
 		MeshComponent* demoC = new MeshComponent();
 
-		demoC->Initialize(m_renderer.get(), sphereMesh, mat);
+		demoC->Initialize(m_renderer.get());
+		demoC->SetMeshGeometry(sphereMesh);
+		demoC->SetMaterial(mat);
 		for (int i = -100; i < 100; ++i)
 		{
 			auto demoObj = std::make_unique<SSceneObject>();
@@ -93,7 +95,9 @@ void Game::Initialize(HWND window, int width, int height)
 
 
 		MeshComponent* mcop = new MeshComponent();
-		mcop->Initialize(m_renderer.get(), cubeMesh, skyboxMaterial);
+		mcop->Initialize(m_renderer.get());
+		mcop->SetMeshGeometry(cubeMesh);
+		mcop->SetMaterial(skyboxMaterial);
 		m_skybox = std::make_unique<Skybox>(mcop);
 
 		m_renderer->SetSkybox(m_skybox.get());

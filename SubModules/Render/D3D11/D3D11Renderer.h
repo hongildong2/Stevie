@@ -80,7 +80,8 @@ private:
 	void RenderOpaques();
 	void RenderTransparent();
 
-
+	void Draw(const RenderItem& renderItem);
+	void DrawTessellatedQuad(const RenderItem& renderItem);
 
 private:
 	DWORD m_dwBackBufferWidth;

@@ -12,7 +12,16 @@ public:
 	~D3D11MeshGeometry() = default;
 
 	void Initialize(const D3D11Renderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
-	virtual void Draw() const override;
+
+	inline ID3D11Buffer* GetVertexBuffer() const
+	{
+		return m_vertexBuffer.Get();
+	}
+
+	inline ID3D11Buffer* GetIndexBuffer() const
+	{
+		return m_indexBuffer.Get();
+	}
 
 private:
 	const D3D11Renderer* m_pRenderer;

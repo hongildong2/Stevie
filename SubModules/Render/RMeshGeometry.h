@@ -19,8 +19,30 @@ public:
 		return m_topologyType;
 	}
 
-	virtual void Draw() const = 0;
+	inline EMeshType GetMeshType() const
+	{
+		return m_meshType;
+	}
 
+	inline UINT GetIndexCount() const
+	{
+		return m_indexCount;
+	}
+
+	inline DXGI_FORMAT GetIndexFormat() const
+	{
+		return m_indexFormat;
+	}
+
+	inline UINT GetVertexStride() const
+	{
+		return m_vertexStride;
+	}
+
+	inline UINT GetVertexOffset() const
+	{
+		return m_vertexOffset;
+	}
 
 protected:
 	const EPrimitiveTopologyType m_topologyType;

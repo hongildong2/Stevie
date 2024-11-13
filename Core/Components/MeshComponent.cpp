@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "MeshComponent.h"
 
+MeshComponent::MeshComponent()
+{
+}
+
 MeshComponent::~MeshComponent()
 {
 	// delete m_pMeshGeometry;
@@ -8,11 +12,9 @@ MeshComponent::~MeshComponent()
 
 
 
-void MeshComponent::Initialize(IRenderer* pRenderer, RMeshGeometry* pMeshGeometry, RMaterial* pMaterial)
+void MeshComponent::Initialize(IRenderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
-	m_pMeshGeometry = pMeshGeometry;
-	m_pMaterial = pMaterial;
 }
 
 void MeshComponent::SetTransparency(RBlendState* pBlendState, DirectX::SimpleMath::Vector4& blendFactor)
@@ -23,11 +25,22 @@ void MeshComponent::SetTransparency(RBlendState* pBlendState, DirectX::SimpleMat
 
 }
 
-void MeshComponent::Update()
+void MeshComponent::SetMaterial(RMaterial* pMaterial)
 {
+	m_pMaterial = pMaterial;
 }
 
-void MeshComponent::Render(DirectX::SimpleMath::Matrix parentTransform)
+void MeshComponent::SetMeshGeometry(RMeshGeometry* pMeshGeometry)
+{
+	m_pMeshGeometry = pMeshGeometry;
+}
+
+void MeshComponent::Update()
+{
+	m_pMaterial->Update();
+}
+
+void MeshComponent::Render(Matrix& parentTransform)
 {
 	m_pRenderer->Submit(this, parentTransform);
 }

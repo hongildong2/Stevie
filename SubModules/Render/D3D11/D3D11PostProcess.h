@@ -43,6 +43,7 @@ public:
 private:
 	void ProcessFog();
 	void ProcessBloom();
+	void DrawScreenQuad();
 private:
 	enum
 	{

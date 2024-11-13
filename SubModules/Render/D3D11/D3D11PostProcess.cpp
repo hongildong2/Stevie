@@ -4,8 +4,10 @@
 #include "D3D11PostProcess.h"
 #include "D3D11Texture.h"
 #include "D3D11Resources.h"
+#include "D3D11MeshGeometry.h"
 #include "Core/GeometryGenerator.h"
 #include "../RenderConfig.h"
+#include "../RMeshGeometry.h"
 
 void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
 {
@@ -34,8 +36,7 @@ void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
 
 	m_postProcessConstant = DEFAULT_POST_PROCESS_PARAM;
 
-	MeshData quad = geometryGenerator::MakeSquare(1.f);
-	m_screenQuad = std::unique_ptr<RMeshGeometry>(m_pRenderer->CreateMeshGeometry(quad.verticies.data(), sizeof(Vertex), quad.verticies.size(), quad.indicies.data(), sizeof(UINT), quad.indicies.size()));
+	m_screenQuad = std::unique_ptr<RMeshGeometry>(m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::QUAD));
 
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
 	UINT renderTargetHeight = m_pRenderer->GetBackBufferHeight();
@@ -88,8 +89,9 @@ void D3D11PostProcess::EndPostProcess(ID3D11RenderTargetView* pRTVToDraw)
 	pContext->IASetInputLayout(pSamplingIL->Get());
 	pContext->RSSetState(pBasicRS->Get());
 
-	m_screenQuad->Draw();
 
+
+	DrawScreenQuad();
 	ID3D11ShaderResourceView* release[6] = { NULL, };
 	pContext->PSSetShaderResources(0, 2, release);
 }
@@ -113,7 +115,7 @@ void D3D11PostProcess::ProcessFog()
 	pContext->PSSetSamplers(0, 1, pLinearClampSS->GetAddressOf());
 	pContext->OMSetRenderTargets(1, &resultRenderTarget, NULL);
 
-	m_screenQuad->Draw();
+	DrawScreenQuad();
 
 	ID3D11ShaderResourceView* release[6] = { NULL, };
 	pContext->PSSetShaderResources(0, 2, release);
@@ -173,4 +175,18 @@ void D3D11PostProcess::ProcessBloom()
 	pContext->CSSetShader(NULL, NULL, NULL);
 	// now has blurred texture
 	m_renderTargetProcessed.swap(m_blurTextures[0]);
+}
+
+void D3D11PostProcess::DrawScreenQuad()
+{
+	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
+	D3D11MeshGeometry* pMG = static_cast<D3D11MeshGeometry*>(m_screenQuad.get());
+	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
+	UINT vS = pMG->GetVertexStride();
+	UINT vO = pMG->GetVertexOffset();
+	pContext->IASetVertexBuffers(0, 1, vbf, &vS, &vO);
+	pContext->IASetIndexBuffer(pMG->GetIndexBuffer(), pMG->GetIndexFormat(), 0);
+	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(pMG->GetTopologyType()));
+
+	pContext->DrawIndexed(pMG->GetIndexCount(), 0, 0);
 }

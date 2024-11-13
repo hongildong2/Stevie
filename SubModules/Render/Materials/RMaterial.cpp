@@ -1,6 +1,6 @@
 #include "pch.h"
 
-RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState)
+RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
 	, m_samplerStatesCount(0)
@@ -8,6 +8,7 @@ RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader, con
 	, m_textureCount(0)
 	, m_textures{ nullptr, }
 	, m_bInitialized(false)
+	, m_bIsHeightMapped(false)
 {
 }
 
@@ -65,7 +66,7 @@ void RMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCou
 
 
 RDemoMaterial::RDemoMaterial(IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::DEMO_PS, nullptr)
+	: RMaterial(pRenderer, Graphics::DEMO_PS)
 {
 	// assert pRenderer not null
 	Initialize();
@@ -75,14 +76,14 @@ void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
 }
 
-void RDemoMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+void RDemoMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
 	pOutTextureCount = 0;
 }
 
 
 RSkyboxMaterial::RSkyboxMaterial(IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::CUBEMAP_PS, nullptr)
+	: RMaterial(pRenderer, Graphics::CUBEMAP_PS)
 {
 	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
 }
@@ -97,13 +98,13 @@ void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
 }
 
-void RSkyboxMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+void RSkyboxMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
 	*pOutTextureCount = 0;
 }
 
 RBasicMaterial::RBasicMaterial(IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::BASIC_PS, nullptr)
+	: RMaterial(pRenderer, Graphics::BASIC_PS)
 	, m_constant(DEFAULT_MATERIAL)
 {
 	m_textureCount = BASIC_TEXTURE_INDEX::COUNT;
@@ -116,10 +117,10 @@ void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	MEMCPY_RENDER_PARAM(pOutRenderParam, &m_constant);
 }
 
-void RBasicMaterial::GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+void RBasicMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
 	ppOutTextures[0] = m_textures[HEIGHT];
-	*pOutTextureCount = 0;
+	*pOutTextureCount = 1;
 }
 
 void RBasicMaterial::SetAlbedoTexture(const RTexture* pAlbedoTexture)
@@ -137,6 +138,7 @@ void RBasicMaterial::SetAOTexture(const RTexture* pAOTexture)
 void RBasicMaterial::SetHeightTexture(const RTexture* pHeightTexture)
 {
 	MY_ASSERT(pHeightTexture != nullptr);
+	m_bIsHeightMapped = TRUE;
 	m_textures[HEIGHT] = pHeightTexture;
 }
 void RBasicMaterial::SetMetallicTexture(const RTexture* pMetallicTexture)

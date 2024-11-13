@@ -14,7 +14,7 @@ struct RenderParam;
 class RMaterial : public IRenderResource
 {
 public:
-	RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader, const RBlendState* pBlendState);
+	RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader);
 	virtual ~RMaterial() = default;
 
 	bool AddTexture(const RTexture* pTexture);
@@ -23,7 +23,7 @@ public:
 	virtual void Update();
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const = 0;
-	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const = 0;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const = 0;
 
 	void GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const;
 	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const;
@@ -39,6 +39,10 @@ public:
 	inline const UINT GetTexturesCount() const
 	{
 		return m_textureCount;
+	}
+	inline const BOOL IsHeightMapped() const
+	{
+		return m_bIsHeightMapped;
 	}
 
 protected:
@@ -60,7 +64,8 @@ protected:
 	const RTexture* m_textures[MATERIAL_TEXTURE_MAX_COUNT];
 	UINT m_textureCount;
 
-	bool m_bInitialized;
+	BOOL m_bInitialized;
+	BOOL m_bIsHeightMapped;
 };
 
 
@@ -72,7 +77,7 @@ public:
 	~RDemoMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
-	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 
 };
 
@@ -85,7 +90,7 @@ public:
 
 	virtual void Initialize() override;
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
-	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 
 };
 
@@ -158,7 +163,7 @@ public:
 	~RBasicMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
-	virtual void GetDisplacementTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 
 	void SetAlbedoTexture(const RTexture* pAlbedoTexture);
 	void SetAOTexture(const RTexture* pAOTexture);

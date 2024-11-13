@@ -7,14 +7,16 @@ class RBlendState;
 class MeshComponent final
 {
 public:
-	MeshComponent() = default;
+	MeshComponent();
 	virtual ~MeshComponent();
 
-	void Initialize(IRenderer* pRenderer, RMeshGeometry* pMeshGeometry, RMaterial* pMaterial);
-	void SetTransparency(RBlendState* pBlendState, DirectX::SimpleMath::Vector4& blendFactor);
+	void Initialize(IRenderer* pRenderer);
+	void SetMaterial(RMaterial* pMaterial);
+	void SetMeshGeometry(RMeshGeometry* pMeshGeometry);
+	void SetTransparency(RBlendState* pBlendState, Vector4& blendFactor);
 
 	virtual void Update();
-	void Render(DirectX::SimpleMath::Matrix parentTransform);
+	void Render(Matrix& parentTransform);
 
 	inline const RMeshGeometry* GetMeshGeometry() const
 	{
@@ -32,41 +34,40 @@ public:
 		return m_pBlendState;
 	}
 
-	inline const DirectX::SimpleMath::Vector4& GetBlendFactor() const
+	inline const Vector4& GetBlendFactor() const
 	{
 		MY_ASSERT(IsTransparent() == true && m_pBlendState != nullptr);
 		return m_blendFactor;
 	}
 
-	inline bool IsTransparent() const
+	inline BOOL IsTransparent() const
 	{
 		return m_bIsTransparent;
 	}
 
-	inline bool IsOccluder() const
+	inline BOOL IsOccluder() const
 	{
 		return m_bIsOccluder;
 	}
 
-	inline bool IsActive() const
+	inline BOOL IsActive() const
 	{
 		return m_bIsActive;
 	}
 
 
 
-
-
 private:
 	IRenderer* m_pRenderer;
-	const RMeshGeometry* m_pMeshGeometry;
-	const RMaterial* m_pMaterial;
+	RMeshGeometry* m_pMeshGeometry;
+	RMaterial* m_pMaterial;
 
-	bool m_bIsTransparent = false;
-	bool m_bIsOccluder = true;
-	bool m_bIsActive = true; // IComponent
+	// This Component's DrawPolicy is decided by its material or meshGeometry, or can be changed.
+	BOOL m_bIsTransparent = false;
+	BOOL m_bIsOccluder = true;
+	BOOL m_bIsActive = true;
 
-	DirectX::SimpleMath::Vector4 m_blendFactor;
+	Vector4 m_blendFactor;
 	const RBlendState* m_pBlendState;
 };
 
