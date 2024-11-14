@@ -1,10 +1,19 @@
 #include "ShaderTypes.hlsli"
-#include "RenderingCommons.hlsli"
 #include "GPURandom.hlsli"
 
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstants;
+};
 
-Texture3D<float> densityTex : register(t60);
-Texture3D<float> lightingTex : register(t61);
+cbuffer MeshConstants : register(b1)
+{
+	MeshConstant meshConstants;
+}
+SamplerState linearClamp : register(s0);
+
+Texture3D<float> densityTex : register(t3);
+Texture3D<float> lightingTex : register(t4);
 
 float QueryVolumetricSDF(float3 posModel, float3 uvw)
 {

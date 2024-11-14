@@ -1,4 +1,4 @@
-#include "RenderingCommons.hlsli"
+#include "ShaderTypes.hlsli"
 #include "PBRCommons.hlsli"
 #include "BrunetonLighting.hlsli"
 #include "OceanGlobal.hlsli"
@@ -48,17 +48,45 @@ struct RenderingParameter
 	float foamCoverage; // 0.65
 	float foamTrailness; // 0.5
 	float foamValueBias; // 0.03 0~1
+	
+	float roughness;
+	float3 albedo;
+	
+	float metallic;
+	float IBLStrength;
+	float2 dummy;
 };
 
-cbuffer RenderParamBuffer : register(b5)
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstants;
+};
+
+cbuffer MeshConstants : register(b1)
+{
+	MeshConstant meshConstants;
+}
+
+cbuffer RenderParamBuffer : register(b2)
 {
 	RenderingParameter renderParam;
 }
 
-Texture2DArray<float4> OceanTurbulenceMap : register(t100);
-StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t101);
-Texture2D<float3> SkyTexture : register(t102);
-Texture2D<float> foamTexture : register(t103);
+cbuffer SunLight : register(b3)
+{
+	Light lightConstant;
+};
+
+SamplerState linearWrap : register(s0);
+
+TextureCube irradianceMap : register(t0);
+TextureCube SpecularMap : register(t1);
+Texture2D BRDFMap : register(t2);
+
+Texture2DArray<float4> OceanTurbulenceMap : register(t3);
+StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t4);
+Texture2D<float3> SkyTexture : register(t5);
+Texture2D<float> foamTexture : register(t6);
 
 float2 SlopeVarianceSquared(float windSpeed, float viewDist, float alignement, float scale)
 {
@@ -70,7 +98,7 @@ float4 HorizonBlend(float3 viewDir, float3 viewDist, float3 eyeWorld)
 {
 	float3 dir = -float3(viewDir.x, 0, viewDir.z);
 	
-	float3 horizonColor = cubeMap.Sample(linearWrap, dir);
+	float3 horizonColor = irradianceMap.Sample(linearWrap, dir);
 	
 	float distanceScale = 20 + 7 * abs(eyeWorld.y);
 
@@ -116,8 +144,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	const float3 UP_VEC = float3(0, 1, 0);
 	
 	// 라이트 추가하면 수정바람..
-	Light globalSunLight = globalLights[SUN_LIGHT_INDEX];
-	Texture2D sunShadowMap = shadowMaps[SUN_LIGHT_INDEX];
+	Light globalSunLight = lightConstant;
+	// Texture2D sunShadowMap = shadowMaps[SUN_LIGHT_INDEX];
 
 	
 	float3 tangentY = float3(0, input.normalWorld.z, -input.normalWorld.y);
@@ -144,7 +172,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float waveAlignment = renderParam.waveAlignment;
 	float scale = renderParam.scale;
 	float roughFac = renderParam.roughnessMultiplier;
-	float roughness = materialConstant.roughness;
+	float roughness = renderParam.roughness;
 	
 	BrInput.slopeVarianceSquared = roughFac * (1 + roughness * 0.3)
 								* SlopeVarianceSquared(windSpeed, viewDist, waveAlignment, scale);
@@ -156,32 +184,34 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	// Calc BRDF
 	
-	ShadowInput shadowIn =
-	{
-		sunShadowMap, globalSunLight, input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
+	//ShadowInput shadowIn =
+	//{
+	//	sunShadowMap, globalSunLight, input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
 
-	};
-	float shadowFactorBySunlight = renderParam.shadowMultiplier * GetShadowFactor(shadowIn);
+	//};
+	
+	// float shadowFactorBySunlight = renderParam.shadowMultiplier * GetShadowFactor(shadowIn);
+	float shadowFactorBySunlight = 1.0;
 
 	float specular = ReflectedSunRadiance(BrInput.lightDirWorld, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, max(1e-4, BrInput.slopeVarianceSquared + MIN_ROUGHNESS_BIAS))
 						* renderParam.specularStrength * globalSunLight.color;
 						
 	float2 sssF = SubsurfaceScatteringFactor(V, viewDist, globalSunLight.direction, input.positionWorld, input.normalWorld);
 	
-	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared) * materialConstant.IBLStrength;
-	float3 refracted = Refraction(materialConstant.albedo, globalSunLight.color, NdotL, sssF);
+	float3 reflected = MeanSkyRadiance(SkyTexture, linearWrap, BrInput.viewDirWorld, BrInput.normalWorld, BrInput.tangentXWorld, BrInput.tangentYWorld, BrInput.slopeVarianceSquared) * renderParam.IBLStrength;
+	float3 refracted = Refraction(renderParam.albedo, globalSunLight.color, NdotL, sssF);
 	float4 horizon = HorizonBlend(V, viewDist, globalConstants.eyeWorld);
 	
 	float3 color = specular + lerp(refracted, reflected, effectiveFresnel);
 	color *= shadowFactorBySunlight;
 	
 	
-	float3 Lo = float3(0.0, 0.0, 0.0);
+	float3 Lo = RadianceByLight(globalSunLight, WATER_F0, input.normalWorld, V, input.positionWorld, renderParam.albedo, roughness, renderParam.metallic);
 	
-	for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount - 1; ++lightIndex)
-	{
-		Lo += RadianceByLight(globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
-	}
+	//for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount - 1; ++lightIndex)
+	//{
+	//	Lo += RadianceByLight(globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
+	//}
 	
 	color += Lo * renderParam.directLightScaler;
 	color = lerp(color, horizon.rgb, horizon.a);
@@ -209,13 +239,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	foamIn.oceanSampling = oceanIn;
 	foamIn.foamParam = foamParamettter;
 	
-	FoamOutput foamOut = GetFoamOutput(foamTexture, linearWrap, foamIn);
+	//FoamOutput foamOut = GetFoamOutput(foamTexture, linearWrap, foamIn);
 	
-	ScreenSpaceContactFoam(foamOut, cameraDepthMap, shadowPointSampler, input.positionProjection, globalConstants.invProj);
+	//ScreenSpaceContactFoam(foamOut, cameraDepthMap, shadowPointSampler, input.positionProjection, globalConstants.invProj);
 	
-	const float SUN_SHADOW_ATTENUATION = 0.8;
-	float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
-	color = lerp(color, foamOut.albedo, foamOut.coverage);
+	//const float SUN_SHADOW_ATTENUATION = 0.8;
+	//float3 foamColor = LitFoamColor(foamOut, irradianceMap, linearWrap, input.normalWorld, NdotL, globalSunLight.color, SUN_SHADOW_ATTENUATION);
+	//color = lerp(color, foamOut.albedo, foamOut.coverage);
 	
 	color = clamp(color, 0.0, 1000.0);
 	return float4(color, 1);
