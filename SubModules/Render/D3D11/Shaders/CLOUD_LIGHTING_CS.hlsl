@@ -2,7 +2,7 @@
 
 SamplerState linearClamp : register(s0);
 
-Texture3D<float> densityTex : register(t60);
+Texture3D<float> densityTex : register(t0);
 RWTexture3D<float> lightingTex : register(u0);
 
 // https://wallisc.github.io/rendering/2020/05/02/Volumetric-Rendering-Part-2.html
