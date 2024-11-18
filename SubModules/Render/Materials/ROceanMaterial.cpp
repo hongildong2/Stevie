@@ -51,7 +51,7 @@ void ROceanMaterial::Initialize()
 void ROceanMaterial::InitializeData()
 {
 	const RTexture* resultTextures[3] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY], m_textures[TURBULENCE_TEXTURE2D_ARRAY] };
-	const RTexture* srcTextures[1] = { m_localInitialSpectrumSB };
+	const RTexture* srcTextures[2] = { m_localInitialSpectrumSB, m_swellInitialParameterSB };
 	m_pRenderer->Compute(Graphics::OCEAN_INITIAL_SPECTRUM_CS, resultTextures, _countof(resultTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_oceanConfigurationConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
 
 	m_bInitialized = true;
@@ -69,8 +69,8 @@ void ROceanMaterial::Update()
 
 	// Timedepedent Spectrum, from InitialSpectrum
 	{
-		const RTexture* dstTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY] };
 		const RTexture* srcTextures[2] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY] };
+		const RTexture* dstTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY] };
 
 		m_pRenderer->Compute(Graphics::OCEAN_TIME_DEPENDENT_SPECTRUM_CS, dstTextures, _countof(dstTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_spectrumParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
 	}

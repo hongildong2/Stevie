@@ -9,6 +9,7 @@ RCloudMaterial::RCloudMaterial(IRenderer* pRenderer)
 	, m_densityTexture3D(nullptr)
 	, m_lightingTexture3D(nullptr)
 {
+	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
 }
 
 RCloudMaterial::~RCloudMaterial()
@@ -20,6 +21,8 @@ void RCloudMaterial::Initialize()
 	m_densityTexture3D = m_pRenderer->CreateTexture3D(CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, 1, DXGI_FORMAT_R16_FLOAT);
 	m_lightingTexture3D = m_pRenderer->CreateTexture3D(CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, 1, DXGI_FORMAT_R16_FLOAT);
 
+	AddTexture(m_densityTexture3D);
+	AddTexture(m_lightingTexture3D);
 	InitializeData();
 }
 

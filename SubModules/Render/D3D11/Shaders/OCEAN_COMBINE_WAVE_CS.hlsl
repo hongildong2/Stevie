@@ -5,7 +5,6 @@ RWTexture2D<float> HeightMap : register(u0);
 SamplerState linearWrapEE : register(s0);
 
 Texture2DArray<float4> DisplacementMap : register(t0);
-
 StructuredBuffer<CombineParameter> parameters : register(t1);
 
 cbuffer Params : register(b0)

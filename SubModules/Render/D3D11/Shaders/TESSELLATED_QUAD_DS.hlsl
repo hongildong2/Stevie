@@ -7,9 +7,9 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
-Texture2DArray<float4> DisplacementMap : register(t100);
-Texture2DArray<float4> DerivativeMap : register(t101);
-StructuredBuffer<CombineParameter> parameters : register(t102);
+Texture2DArray<float4> DisplacementMap : register(t0);
+Texture2DArray<float4> DerivativeMap : register(t1);
+StructuredBuffer<CombineParameter> parameters : register(t2);
 
 static const float simulationScale = 2047.0;
 

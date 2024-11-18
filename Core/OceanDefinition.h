@@ -227,6 +227,13 @@ namespace ocean
 		float foamCoverage; // 0.65
 		float foamTrailness; // 0.5
 		float foamValueBias; // 0.03 0~1
+
+		float roughness;
+		Vector3 albedo;
+
+		float metallic;
+		float IBLStrength;
+		Vector2 dummy;
 	};
 
 	constexpr RenderingParameter RenderingParamsInitialzer =
@@ -260,7 +267,14 @@ namespace ocean
 		0.11f,
 		0.65f,
 		0.5f,
-		0.03f
+		0.03f,
+
+		0.7f,
+		{0.f, 0.5f, 0.1f},
+
+		0.5f,
+		1.f,
+		{1.f, 1.f}
 	};
 	static_assert(sizeof(RenderingParameter) % 16 == 0, "CB 16byte alignment");
 }

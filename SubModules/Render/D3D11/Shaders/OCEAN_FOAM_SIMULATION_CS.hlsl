@@ -5,7 +5,6 @@ RWTexture2DArray<float4> TurbulencenessTex : register(u0);
 
 Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
-
 StructuredBuffer<CombineParameter> parameters : register(t2);
 
 [numthreads(16, 16, CASCADE_COUNT)]
