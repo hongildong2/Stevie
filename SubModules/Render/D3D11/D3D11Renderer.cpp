@@ -52,6 +52,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(LightData), nullptr, m_sunLightCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.GetAddressOf());
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
@@ -253,10 +254,45 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 	MY_ASSERT(pComputeShader != nullptr);
+	MY_ASSERT( resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
+
 	const D3D11ComputeShader* cs = static_cast<const D3D11ComputeShader*>(pComputeShader);
-	// MAX_CS_RESOURCE_SLOTS
-	// ADD COMPUTE CONSTANT BUFFER
-	// RELEASE RESOURCES AT THE END
+
+	ID3D11ShaderResourceView* srvs[MAX_COMPUTE_RESOURCE_COUNT] = {};
+	ID3D11UnorderedAccessView* uavs[MAX_COMPUTE_RESOURCE_COUNT] = {};
+	ID3D11SamplerState* sss[MAX_COMPUTE_RESOURCE_COUNT] = {};
+
+	for (UINT i = 0; i < resultsCount; ++i)
+	{
+		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRVOrNull();
+	}
+
+	for (UINT i = 0; i < resourcesCount; ++i)
+	{
+		uavs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetUAVOrNull();
+	}
+
+	for (UINT i = 0; i < samplerStatesCount; ++i)
+	{
+		sss[i] = static_cast<const D3D11SamplerState*>(pSamplerStates[i])->Get();
+	}	
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), alignedComputeParam, m_computeCB.Get());
+
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->CSSetShader(cs->Get(), NULL, NULL);
+	pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
+	pContext->CSSetShaderResources(0, resourcesCount, srvs);
+	pContext->CSSetUnorderedAccessViews(0, resultsCount, uavs, NULL);
+	pContext->CSSetSamplers(0, samplerStatesCount, sss);
+
+	pContext->Dispatch(batchX, batchY, batchZ);
+
+	ZeroMemory(srvs, MAX_COMPUTE_RESOURCE_COUNT * sizeof(ID3D11ShaderResourceView*));
+	ZeroMemory(uavs, MAX_COMPUTE_RESOURCE_COUNT * sizeof(ID3D11UnorderedAccessView*));
+
+	// release
+	pContext->CSSetShaderResources(0, MAX_COMPUTE_RESOURCE_COUNT, srvs);
+	pContext->CSSetUnorderedAccessViews(0, MAX_COMPUTE_RESOURCE_COUNT, uavs, NULL);
 }
 
 RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format)

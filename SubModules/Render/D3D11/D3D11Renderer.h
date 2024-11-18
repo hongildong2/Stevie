@@ -96,12 +96,14 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_computeCB;
 
 	std::unique_ptr <D3D11TextureRender> m_HDRRenderTarget;
 
 	std::wstring m_shaderPath;
 
 	// Scene
+	static constexpr UINT MAX_COMPUTE_RESOURCE_COUNT = 20;
 	static constexpr UINT MAX_RENDER_ITEM = 3000;
 	RenderItem m_renderItems[MAX_RENDER_ITEM];
 	UINT m_renderItemIndex;
