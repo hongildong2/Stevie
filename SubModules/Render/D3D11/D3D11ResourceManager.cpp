@@ -62,9 +62,9 @@ void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const vo
 	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
 }
 
-D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
+D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
 {
-	D3D11MeshGeometry* res = new D3D11MeshGeometry(EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	D3D11MeshGeometry* res = new D3D11MeshGeometry(topologyType, meshType);
 	res->Initialize(m_pRenderer, pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount);
 	return res;
 }
@@ -324,20 +324,20 @@ D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR
 D3D11MeshGeometry* D3D11ResourceManager::CreateCube()
 {
 	MeshData md = geometryGenerator::MakeBox(1.f);
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateSphere()
 {
 	MeshData md = geometryGenerator::MakeSphere(1.f, 30, 30);
 
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateQuad()
 {
 	MeshData md = geometryGenerator::MakeSquare(1.f);
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
@@ -345,7 +345,8 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
 	MeshData md;
 	geometryGenerator::MakeCWQuadPatches(128, &md);
 
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size());
+	
+return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
 }
 
 void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)

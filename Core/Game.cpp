@@ -33,7 +33,7 @@ void Game::Initialize(HWND window, int width, int height)
 	// DEMO OBJECT
 	{
 		MeshData sphere = geometryGenerator::MakeSphere(1.f, 20, 20);
-		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size());
+		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 
 		const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
 		const RTexture* metallicTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
@@ -81,7 +81,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 		// Skybox
 		MeshData box = geometryGenerator::MakeBox(10.f);
-		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size());
+		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), box.verticies.size(), box.indicies.data(), sizeof(UINT), box.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_renderer.get());
 
 		const RTexture* IrradianceMapTexture = m_renderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
@@ -122,7 +122,6 @@ void Game::Initialize(HWND window, int width, int height)
 // Executes the basic game loop.
 void Game::Tick()
 {
-	// 뭔가 비동기적으로동작하는듯
 	m_timer.Tick([&]()
 		{
 			Update(m_timer);

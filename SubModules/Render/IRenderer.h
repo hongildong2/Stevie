@@ -3,8 +3,8 @@
 #include "RenderItem.h"
 #include "RenderDefs.h"
 
-using namespace DirectX;
-
+enum class EPrimitiveTopologyType;
+enum class EMeshType;
 class RTexture;
 class RMeshGeometry;
 class RShader;
@@ -52,7 +52,7 @@ public:
 	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) = 0;
 	virtual RTexture* CreateStructuredBuffer(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT elementCount, const void* pInitData) = 0;
 
-	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount) = 0;
+	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType) = 0;
 	virtual RMeshGeometry* CreateBasicMeshGeometry(EBasicMeshGeometry type) = 0;
 
 	// Scene
