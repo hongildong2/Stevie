@@ -156,7 +156,8 @@ namespace Graphics
 					new D3D11PixelShader(L"FILTER_COMBINE"),
 					new D3D11PixelShader(L"FOG"),
 					new D3D11PixelShader(L"VOLUME"),
-					new D3D11PixelShader(L"DEMO")
+					new D3D11PixelShader(L"DEMO"),
+					new D3D11PixelShader(L"OCEAN_SURFACE"),
 				};
 
 				RPixelShader** dst[] =
@@ -166,7 +167,8 @@ namespace Graphics
 					&FILTER_COMBINE_PS,
 					&FOG_PS,
 					&VOLUME_PS,
-					&DEMO_PS
+					&DEMO_PS,
+					&OCEAN_SURFACE_PS
 				};
 				static_assert(sizeof(src) == sizeof(dst));
 
@@ -230,6 +232,7 @@ namespace Graphics
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateHullShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadHS->ReleaseAndGetAddressOf()));
 
+				TESSELLATED_QUAD_HS = lTessellatedQuadHS;
 			}
 
 			// DOMAIN SHADER
@@ -239,6 +242,8 @@ namespace Graphics
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadDS->GetName(), ToString(EShaderType::DOMAIN_SHADER));
 				DX::ThrowIfFailed(DX::CompileShader(shaderFileNameBuffer, "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));
 				DX::ThrowIfFailed(pDevice->CreateDomainShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, lTessellatedQuadDS->ReleaseAndGetAddressOf()));
+
+				TESSELATED_QUAD_DS = lTessellatedQuadDS;
 			}
 
 		}

@@ -1,4 +1,4 @@
-#include "RenderingCommons.hlsli"
+#include "ShaderTypes.hlsli"
 #include "OceanGlobal.hlsli"
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -6,6 +6,19 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float EdgeTessFactor[4] : SV_TessFactor;
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
+
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstant;
+}
+
+cbuffer MeshConstant : register(b1)
+{
+	MeshConstant meshConstant;
+}
+
+
+SamplerState linearWrap : register(s0);
 
 Texture2DArray<float4> DisplacementMap : register(t0);
 Texture2DArray<float4> DerivativeMap : register(t1);
@@ -53,7 +66,7 @@ PixelShaderInput main(
 	float height = MultiSampleDisplacementModel(heightSamplingInput).y;
 	
 	Output.
-		positionWorld = mul(float4(Output.positionModel.xyz, 1.f), meshConstants.world).xyz;
+		positionWorld = mul(float4(Output.positionModel.xyz, 1.f), meshConstant.world).xyz;
 	Output.positionWorld += 1.f * height * Output.normalWorld; // normal is not yet mapped, height mapping first
 	
 	OceanSamplingInput normalSamplingInput =
@@ -61,11 +74,11 @@ PixelShaderInput main(
 		DerivativeMap, parameters, linearWrap, CASCADE_COUNT, uvModel, simulationScale
 	};
 	float3 normalModel = SampleNormalModel(normalSamplingInput);
-	Output.normalWorld = mul(float4(normalModel, 0.f), meshConstants.worldIT).xyz;
+	Output.normalWorld = mul(float4(normalModel, 0.f), meshConstant.worldIT).xyz;
 	Output.normalWorld = normalize(Output.normalWorld);
 	
-	Output.positionProjection = mul(float4(Output.positionWorld, 1.f), globalConstants.view);
-	Output.positionProjection = mul(Output.positionProjection, globalConstants.proj);
+	Output.positionProjection = mul(float4(Output.positionWorld, 1.f), globalConstant.view);
+	Output.positionProjection = mul(Output.positionProjection, globalConstant.proj);
 	
 	Output.tangentWorld = normalize(float3(0, Output.normalWorld.z, -Output.normalWorld.y));
 	

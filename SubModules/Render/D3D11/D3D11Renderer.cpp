@@ -254,7 +254,7 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 	MY_ASSERT(pComputeShader != nullptr);
-	MY_ASSERT( resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
+	MY_ASSERT(resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
 
 	const D3D11ComputeShader* cs = static_cast<const D3D11ComputeShader*>(pComputeShader);
 
@@ -262,20 +262,20 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture
 	ID3D11UnorderedAccessView* uavs[MAX_COMPUTE_RESOURCE_COUNT] = {};
 	ID3D11SamplerState* sss[MAX_COMPUTE_RESOURCE_COUNT] = {};
 
-	for (UINT i = 0; i < resultsCount; ++i)
+	for (UINT i = 0; i < resourcesCount; ++i)
 	{
 		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRVOrNull();
 	}
 
-	for (UINT i = 0; i < resourcesCount; ++i)
+	for (UINT i = 0; i < resultsCount; ++i)
 	{
-		uavs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetUAVOrNull();
+		uavs[i] = static_cast<const D3D11Texture*>(pResults[i])->GetUAVOrNull();
 	}
 
 	for (UINT i = 0; i < samplerStatesCount; ++i)
 	{
 		sss[i] = static_cast<const D3D11SamplerState*>(pSamplerStates[i])->Get();
-	}	
+	}
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), alignedComputeParam, m_computeCB.Get());
 
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
@@ -639,7 +639,8 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
 	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
-	pContext->VSSetShader(nullptr, 0, 0);
+	D3D11VertexShader* vs = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
+	pContext->VSSetShader(vs->Get(), 0, 0);
 	D3D11DomainShader* ds = static_cast<D3D11DomainShader*>(Graphics::TESSELATED_QUAD_DS);
 	pContext->DSSetShader(ds->Get(), 0, 0);
 	D3D11HullShader* hs = static_cast<D3D11HullShader*>(Graphics::TESSELLATED_QUAD_HS);
@@ -690,5 +691,8 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 
 
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+
+	pContext->DSSetShader(nullptr, 0, 0);
+	pContext->HSSetShader(nullptr, 0, 0);
 }
 

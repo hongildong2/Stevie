@@ -119,7 +119,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	}
 	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
 
-
+	res->Initialize(width, height, 0, format, FALSE);
 	return res;
 }
 
@@ -345,8 +345,8 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
 	MeshData md;
 	geometryGenerator::MakeCWQuadPatches(128, &md);
 
-	
-return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
+
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
 }
 
 void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)

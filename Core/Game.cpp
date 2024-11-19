@@ -7,6 +7,8 @@
 
 #include "GeometryGenerator.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
+#include "SubModules/Render/Materials/RCloudMaterial.h"
+#include "SubModules/Render/Materials/ROceanMaterial.h"
 #include "Components/MeshComponent.h"
 #include "Core/Camera.h"
 #include "SSceneObject.h"
@@ -69,6 +71,29 @@ void Game::Initialize(HWND window, int width, int height)
 			demoObj->UpdatePos(a);
 			m_objects.push_back(std::move(demoObj));
 		}
+	}
+
+	// OCEAN
+	{
+		RMeshGeometry* tQuad = m_renderer->CreateBasicMeshGeometry(EBasicMeshGeometry::TESSELLATED_QUAD);
+		ROceanMaterial* oceanMat = new ROceanMaterial(m_renderer.get());
+		RTexture* OceanFoamTexture = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/Ocean/foam.jpg");
+		RTexture* OceanSkyTexture = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/Ocean/overcast_sky.jpg");
+
+		oceanMat->SetFoamTexture(OceanFoamTexture);
+		oceanMat->SetSkyTexture(OceanSkyTexture);
+		oceanMat->Initialize();
+
+		MeshComponent* oceanMC = new MeshComponent();
+		oceanMC->SetMaterial(oceanMat);
+		oceanMC->SetMeshGeometry(tQuad);
+
+		oceanMC->Initialize(m_renderer.get());
+		auto oceanObj = std::make_unique<SSceneObject>();
+		oceanObj->Initialize();
+		oceanObj->SetMeshComponent(oceanMC);
+		m_objects.push_back(std::move(oceanObj));
+
 	}
 
 	// Scene
