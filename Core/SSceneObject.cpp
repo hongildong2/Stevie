@@ -39,6 +39,7 @@ void SSceneObject::Render()
 
 void SSceneObject::Update()
 {
+	m_pMeshComponent->Update();
 }
 
 void SSceneObject::UpdatePos(DirectX::SimpleMath::Vector3& deltaPos)

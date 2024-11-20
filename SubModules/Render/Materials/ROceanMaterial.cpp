@@ -32,9 +32,9 @@ void ROceanMaterial::Initialize()
 	RTexture* heightTexture = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, 1, DXGI_FORMAT_R32_FLOAT);
 
 
-	m_combineParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::CombineParameter) * ocean::CASCADE_COUNT, sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters);
-	m_localInitialSpectrumSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
-	m_swellInitialParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter) * ocean::CASCADE_COUNT, sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters);
+	m_combineParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters);
+	m_localInitialSpectrumSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
+	m_swellInitialParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters);
 
 
 	m_textures[DISPLACEMENT_TEXTURE2D_ARRAY] = displacementTextureArray;
@@ -59,10 +59,7 @@ void ROceanMaterial::InitializeData()
 
 void ROceanMaterial::Update()
 {
-	if (m_bInitialized == false)
-	{
-		InitializeData();
-	}
+	InitializeData();
 
 	// TEMP
 	m_spectrumParameter.time += ocean::TEMP_DELTA_TIME;
@@ -100,8 +97,8 @@ void ROceanMaterial::Update()
 		// PostProcess
 		{
 			m_FFTParameter.bPermute = TRUE;
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, displacementTexture, _countof(displacementTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
-			m_pRenderer->Compute(Graphics::OCEAN_FFT_CS, derivativeTexture, _countof(derivativeTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_POST_PROCESS_CS, displacementTexture, _countof(displacementTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
+			m_pRenderer->Compute(Graphics::OCEAN_FFT_POST_PROCESS_CS, derivativeTexture, _countof(derivativeTexture), nullptr, 0, nullptr, 0, CAST_RENDER_PARAM_PTR(&m_FFTParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
 		}
 	}
 

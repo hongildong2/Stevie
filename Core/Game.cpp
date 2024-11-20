@@ -33,45 +33,45 @@ void Game::Initialize(HWND window, int width, int height)
 
 
 	// DEMO OBJECT
-	{
-		MeshData sphere = geometryGenerator::MakeSphere(1.f, 20, 20);
-		RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	//{
+	//	MeshData sphere = geometryGenerator::MakeSphere(1.f, 20, 20);
+	//	RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 
-		const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
-		const RTexture* metallicTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
-		const RTexture* heightTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
-		const RTexture* aoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
-		const RTexture* normalTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
-		const RTexture* roughnessTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
+	//	const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
+	//	const RTexture* metallicTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
+	//	const RTexture* heightTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
+	//	const RTexture* aoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
+	//	const RTexture* normalTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
+	//	const RTexture* roughnessTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
 
-		RBasicMaterial* mat = new RBasicMaterial(m_renderer.get());
-		mat->SetAlbedoTexture(albedoTex);
-		mat->SetMetallicTexture(metallicTex);
-		// mat->SetHeightTexture(heightTex);
-		mat->SetAOTexture(aoTex);
-		mat->SetNormalTexture(normalTex);
-		mat->SetRoughnessTexture(roughnessTex);
+	//	RBasicMaterial* mat = new RBasicMaterial(m_renderer.get());
+	//	mat->SetAlbedoTexture(albedoTex);
+	//	mat->SetMetallicTexture(metallicTex);
+	//	// mat->SetHeightTexture(heightTex);
+	//	mat->SetAOTexture(aoTex);
+	//	mat->SetNormalTexture(normalTex);
+	//	mat->SetRoughnessTexture(roughnessTex);
 
-		mat->Initialize();
+	//	mat->Initialize();
 
-		MeshComponent* demoC = new MeshComponent();
+	//	MeshComponent* demoC = new MeshComponent();
 
-		demoC->Initialize(m_renderer.get());
-		demoC->SetMeshGeometry(sphereMesh);
-		demoC->SetMaterial(mat);
-		for (int i = -100; i < 100; ++i)
-		{
-			auto demoObj = std::make_unique<SSceneObject>();
+	//	demoC->Initialize(m_renderer.get());
+	//	demoC->SetMeshGeometry(sphereMesh);
+	//	demoC->SetMaterial(mat);
+	//	for (int i = -100; i < 100; ++i)
+	//	{
+	//		auto demoObj = std::make_unique<SSceneObject>();
 
 
-			demoObj->Initialize();
-			demoObj->SetMeshComponent(demoC);
+	//		demoObj->Initialize();
+	//		demoObj->SetMeshComponent(demoC);
 
-			auto a = Vector3(i / 2.f, i / 2.f, i / 2.f);
-			demoObj->UpdatePos(a);
-			m_objects.push_back(std::move(demoObj));
-		}
-	}
+	//		auto a = Vector3(i / 2.f, i / 2.f, i / 2.f);
+	//		demoObj->UpdatePos(a);
+	//		m_objects.push_back(std::move(demoObj));
+	//	}
+	//}
 
 	// OCEAN
 	{
@@ -224,6 +224,11 @@ void Game::Update(DX::StepTimer const& timer)
 		//m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
 	}
 
+
+	for (auto& obj : m_objects)
+	{
+		obj->Update();
+	}
 	elapsedTime;
 }
 #pragma endregion

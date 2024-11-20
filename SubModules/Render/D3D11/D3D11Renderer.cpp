@@ -56,7 +56,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
-	m_pLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(LightData) * MAX_SCENE_LIGHTS_COUNT, sizeof(LightData), nullptr);
+	m_pLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(LightData), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
 	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
 	return TRUE;
@@ -118,6 +118,14 @@ void D3D11Renderer::EndRender()
 
 	// Reset Render Queue
 	m_renderItemIndex = 0;
+
+	// Release
+	ID3D11ShaderResourceView* release[20] = { NULL, };
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->VSSetShaderResources(0, 20, release);
+	pContext->PSSetShaderResources(0, 20, release);
+	pContext->DSSetShaderResources(0, 20, release);
+	pContext->HSSetShaderResources(0, 20, release);
 }
 
 void D3D11Renderer::Present()
@@ -255,8 +263,10 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture
 {
 	MY_ASSERT(pComputeShader != nullptr);
 	MY_ASSERT(resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
-
 	const D3D11ComputeShader* cs = static_cast<const D3D11ComputeShader*>(pComputeShader);
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+	m_deviceResources->PIXBeginEvent(L"COMPUTE");
 
 	ID3D11ShaderResourceView* srvs[MAX_COMPUTE_RESOURCE_COUNT] = {};
 	ID3D11UnorderedAccessView* uavs[MAX_COMPUTE_RESOURCE_COUNT] = {};
@@ -276,23 +286,28 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture
 	{
 		sss[i] = static_cast<const D3D11SamplerState*>(pSamplerStates[i])->Get();
 	}
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), alignedComputeParam, m_computeCB.Get());
 
-	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+
+
 	pContext->CSSetShader(cs->Get(), NULL, NULL);
-	pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
 	pContext->CSSetShaderResources(0, resourcesCount, srvs);
 	pContext->CSSetUnorderedAccessViews(0, resultsCount, uavs, NULL);
 	pContext->CSSetSamplers(0, samplerStatesCount, sss);
 
+	if (alignedComputeParam != nullptr)
+	{
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), alignedComputeParam, m_computeCB.Get());
+		pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
+	}
+
 	pContext->Dispatch(batchX, batchY, batchZ);
 
-	ZeroMemory(srvs, MAX_COMPUTE_RESOURCE_COUNT * sizeof(ID3D11ShaderResourceView*));
-	ZeroMemory(uavs, MAX_COMPUTE_RESOURCE_COUNT * sizeof(ID3D11UnorderedAccessView*));
-
+	ID3D11ShaderResourceView* releaseSRV[MAX_COMPUTE_RESOURCE_COUNT] = { NULL, };
+	ID3D11UnorderedAccessView* releaseUAV[MAX_COMPUTE_RESOURCE_COUNT] = { NULL, };
 	// release
-	pContext->CSSetShaderResources(0, MAX_COMPUTE_RESOURCE_COUNT, srvs);
-	pContext->CSSetUnorderedAccessViews(0, MAX_COMPUTE_RESOURCE_COUNT, uavs, NULL);
+	pContext->CSSetShaderResources(0, MAX_COMPUTE_RESOURCE_COUNT, releaseSRV);
+	pContext->CSSetUnorderedAccessViews(0, MAX_COMPUTE_RESOURCE_COUNT, releaseUAV, NULL);
+	m_deviceResources->PIXEndEvent();
 }
 
 RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format)
@@ -305,11 +320,9 @@ RTexture* D3D11Renderer::CreateTexture2D(const UINT width, const UINT height, co
 	return m_resourceManager->CreateTexture2D(width, height, count, format);
 }
 
-RTexture* D3D11Renderer::CreateStructuredBuffer(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT elementCount, const void* pInitData)
+RTexture* D3D11Renderer::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
 {
-	MY_ASSERT(totalSizeInByte == elementCount * elementSizeInByte);
-
-	return m_resourceManager->CreateStructuredBuffer(elementSizeInByte, elementCount, pInitData);
+	return m_resourceManager->CreateStructuredBuffer(uElementSize, uElementCount, pInitData);
 }
 
 void D3D11Renderer::SetCamera(const Camera* pCamera)

@@ -31,7 +31,7 @@ public:
 	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) override;
-	virtual RTexture* CreateStructuredBuffer(const UINT totalSizeInByte, const UINT elementSizeInByte, const UINT elementCount, const void* pInitData) override;
+	virtual RTexture* CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData) override;
 
 	virtual RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType) override;
 	virtual RMeshGeometry* CreateBasicMeshGeometry(EBasicMeshGeometry type) override;
@@ -121,7 +121,7 @@ private:
 	const D3D11TextureDepth* m_sunShadowMap; // TODO :: Manage Depth textures by manager, pooling
 
 	// Dynamic Lights
-	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 500;
+	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 100;
 	D3D11StructuredBuffer* m_pLightsBuffer;
 	std::vector<const Light*> m_lights;
 	// std::vector<const D3D11TextureDepth*> m_shadowMaps;

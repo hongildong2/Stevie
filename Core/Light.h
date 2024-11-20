@@ -12,16 +12,16 @@ enum class ELightType
 
 struct LightData
 {
-	DirectX::SimpleMath::Vector3 radiance;
+	Vector3 radiance;
 	FLOAT fallOffStart;
 
-	DirectX::SimpleMath::Vector3 direction;
+	Vector3 direction;
 	FLOAT fallOffEnd;
 
-	DirectX::SimpleMath::Vector3 positionWorld;
+	Vector3 positionWorld;
 	FLOAT spotPower;
 
-	DirectX::SimpleMath::Vector3 color;
+	Vector3 color;
 	BOOL bIsShadowing;
 
 	ELightType type;

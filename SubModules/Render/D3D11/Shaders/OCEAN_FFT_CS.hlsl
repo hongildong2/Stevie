@@ -1,7 +1,6 @@
 // https:github.com/gasgiant/FFT-Ocean/blob/main/Assets/ComputeShaders/FastFourierTransform.compute
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/FFT.compute
 
-// #include "RenderingCommons.hlsli"
 #include "OceanGlobal.hlsli"
 
 static uint size = SIZE;
@@ -15,7 +14,9 @@ cbuffer FFTInfo : register(b0)
 	bool direction;
 	bool inverse;
 	bool scale;
+	
 	bool permute;
+	float3 dummy;
 }
 
 
