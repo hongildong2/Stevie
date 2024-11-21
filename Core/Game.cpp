@@ -14,12 +14,13 @@
 #include "SSceneObject.h"
 #include "Skybox.h"
 #include "Core/Light.h"
+#include "Core/Ocean.h"
 
 extern void ExitGame() noexcept;
 
 Game::Game() noexcept(false)
 {
-	m_renderer = std::make_unique<D3D11Renderer>();
+	m_pRenderer = std::make_unique<D3D11Renderer>();
 }
 
 // Initialize the Direct3D resources required to run.
@@ -28,8 +29,8 @@ void Game::Initialize(HWND window, int width, int height)
 	m_objects.reserve(1000);
 	float aspectRatio = (float)width / (float)height;
 
-	m_renderer->SetWindow(window, width, height);
-	m_renderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
+	m_pRenderer->SetWindow(window, width, height);
+	m_pRenderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
 
 
 	// DEMO OBJECT
@@ -75,25 +76,9 @@ void Game::Initialize(HWND window, int width, int height)
 
 	// OCEAN
 	{
-		RMeshGeometry* tQuad = m_renderer->CreateBasicMeshGeometry(EBasicMeshGeometry::TESSELLATED_QUAD);
-		ROceanMaterial* oceanMat = new ROceanMaterial(m_renderer.get());
-		RTexture* OceanFoamTexture = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/Ocean/foam.jpg");
-		RTexture* OceanSkyTexture = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/Ocean/overcast_sky.jpg");
-
-		oceanMat->SetFoamTexture(OceanFoamTexture);
-		oceanMat->SetSkyTexture(OceanSkyTexture);
-		oceanMat->Initialize();
-
-		MeshComponent* oceanMC = new MeshComponent();
-		oceanMC->SetMaterial(oceanMat);
-		oceanMC->SetMeshGeometry(tQuad);
-
-		oceanMC->Initialize(m_renderer.get());
-		auto oceanObj = std::make_unique<SSceneObject>();
+		auto oceanObj = std::make_unique<Ocean>(m_pRenderer.get());
 		oceanObj->Initialize();
-		oceanObj->SetMeshComponent(oceanMC);
 		m_objects.push_back(std::move(oceanObj));
-
 	}
 
 	// Scene
@@ -102,35 +87,35 @@ void Game::Initialize(HWND window, int width, int height)
 
 		// Camera
 		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f });
-		m_renderer->SetCamera(m_camera.get());
+		m_pRenderer->SetCamera(m_camera.get());
 
 		// Skybox
-		MeshData box = geometryGenerator::MakeBox(10.f);
-		RMeshGeometry* cubeMesh = m_renderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
-		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_renderer.get());
+		MeshData box = geometryGenerator::MakeBox(80.f);
+		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_pRenderer.get());
 
-		const RTexture* IrradianceMapTexture = m_renderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
-		const RTexture* SpecularMapTexture = m_renderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
-		const RTexture* BRDFMapTexture = m_renderer->CreateTexture2DFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
+		const RTexture* IrradianceMapTexture = m_pRenderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
+		const RTexture* SpecularMapTexture = m_pRenderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
+		const RTexture* BRDFMapTexture = m_pRenderer->CreateTexture2DFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
 
-		m_renderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
+		m_pRenderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
 
 		skyboxMaterial->AddTexture(IrradianceMapTexture);
 		skyboxMaterial->Initialize();
 
 
 		MeshComponent* mcop = new MeshComponent();
-		mcop->Initialize(m_renderer.get());
+		mcop->Initialize(m_pRenderer.get());
 		mcop->SetMeshGeometry(cubeMesh);
 		mcop->SetMaterial(skyboxMaterial);
 		m_skybox = std::make_unique<Skybox>(mcop);
 
-		m_renderer->SetSkybox(m_skybox.get());
+		m_pRenderer->SetSkybox(m_skybox.get());
 
 		// Lights
 
 		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {}, TRUE);
-		m_renderer->SetSunLight(light);
+		m_pRenderer->SetSunLight(light);
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
@@ -243,18 +228,18 @@ void Game::Render()
 		return;
 	}
 
-	m_renderer->BeginRender();
+	m_pRenderer->BeginRender();
 
 	for (auto& obj : m_objects)
 	{
 		obj->Render();
 	}
 
-	m_renderer->Render();
+	m_pRenderer->Render();
 
-	m_renderer->EndRender();
+	m_pRenderer->EndRender();
 
-	m_renderer->Present();
+	m_pRenderer->Present();
 }
 #pragma endregion
 
@@ -298,7 +283,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 	// TODO: Game window is being resized.
 	renderConfig::SCREEN_WIDTH = width;
 	renderConfig::SCREEN_HEIGHT = height;
-	m_renderer->UpdateWindowSize(width, height);
+	m_pRenderer->UpdateWindowSize(width, height);
 }
 
 // Properties

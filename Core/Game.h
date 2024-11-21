@@ -47,13 +47,14 @@ public:
 	void GetDefaultSize(int& width, int& height) const noexcept;
 
 
+
 private:
 	void Update(DX::StepTimer const& timer);
 
 	void Render();
 
 	// Device resources.
-	std::unique_ptr<IRenderer> m_renderer;
+	std::unique_ptr<IRenderer> m_pRenderer;
 
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;

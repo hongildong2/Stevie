@@ -7,6 +7,7 @@ using namespace DirectX::SimpleMath;
 SSceneObject::SSceneObject()
 	: m_pMeshComponent()
 	, m_posWorld()
+	, m_scale(1.f)
 	, m_dirModel(-1.f, 0.f, 0.f)
 	, m_pitchEuler()
 	, m_yawEuler()

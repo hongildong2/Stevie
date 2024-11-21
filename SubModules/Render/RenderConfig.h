@@ -13,8 +13,8 @@ namespace renderConfig
 	}
 
 	// Camera
-	static FLOAT CAMERA_NEAR_Z = 0.1f;
-	static FLOAT CAMERA_FAR_Z = 20.f;
+	static FLOAT CAMERA_NEAR_Z = 1.f;
+	static FLOAT CAMERA_FAR_Z = 100.f;
 	static FLOAT CAMERA_FOV = DirectX::XM_PIDIV2;
 	static inline DirectX::SimpleMath::Matrix GetCameraProjRowMat()
 	{

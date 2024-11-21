@@ -37,7 +37,7 @@ public:
 
 	inline Matrix GetWorldRowMat() const
 	{
-		return Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation(m_posWorld);
+		return Matrix::CreateScale(m_scale) * Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation(m_posWorld);
 	}
 
 	inline Matrix GetViewRowMat() const
@@ -50,6 +50,8 @@ protected:
 
 	Vector3 m_posWorld;
 	Vector3 m_dirModel;
+
+	float m_scale;
 
 	float m_yawEuler;
 	float m_pitchEuler;
