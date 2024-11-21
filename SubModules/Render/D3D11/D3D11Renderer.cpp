@@ -684,7 +684,8 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->HSSetConstantBuffers(0, 2, cbs);
 	pContext->DSSetConstantBuffers(0, 2, cbs);
 
-
+	ID3D11SamplerState* TEMP_SS[1] = { static_cast<D3D11SamplerState*>(Graphics::LINEAR_WRAP_SS)->Get() };
+	pContext->DSSetSamplers(0, 1, TEMP_SS);
 
 	SetPipelineStateByMaterial(mat);
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());

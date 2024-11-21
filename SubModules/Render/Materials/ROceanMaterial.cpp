@@ -15,6 +15,7 @@ ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
 	, m_localInitialSpectrumSB(nullptr)
 	, m_swellInitialParameterSB(nullptr)
 {
+	m_bIsHeightMapped = TRUE;
 }
 
 ROceanMaterial::~ROceanMaterial()
@@ -62,7 +63,10 @@ void ROceanMaterial::InitializeData()
 
 void ROceanMaterial::Update()
 {
-	InitializeData();
+	if (m_bInitialized == false)
+	{
+		InitializeData();
+	}
 
 	// TEMP
 	m_spectrumParameter.time += ocean::TEMP_DELTA_TIME;
