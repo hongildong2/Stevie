@@ -324,20 +324,20 @@ D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR
 D3D11MeshGeometry* D3D11ResourceManager::CreateCube()
 {
 	MeshData md = geometryGenerator::MakeBox(1.f);
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateSphere()
 {
 	MeshData md = geometryGenerator::MakeSphere(1.f, 30, 30);
 
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateQuad()
 {
 	MeshData md = geometryGenerator::MakeSquare(1.f);
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
@@ -346,7 +346,7 @@ D3D11MeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
 	geometryGenerator::MakeCWQuadPatches(128, &md);
 
 
-	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), md.verticies.size(), md.indicies.data(), sizeof(UINT), md.indicies.size(), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
+	return CreateMeshGeometry(md.verticies.data(), sizeof(Vertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
 }
 
 void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
@@ -456,7 +456,6 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT u
 void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, D3D11StructuredBuffer* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));

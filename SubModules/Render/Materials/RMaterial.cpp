@@ -14,7 +14,7 @@ RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader)
 
 bool RMaterial::AddTexture(const RTexture* pTexture)
 {
-	if (m_textureCount >= MATERIAL_TEXTURE_MAX_COUNT || m_bInitialized == true)
+	if (m_textureCount >= MATERIAL_TEXTURE_MAX_COUNT || m_bInitialized == TRUE)
 	{
 		return false;
 	}
@@ -25,7 +25,7 @@ bool RMaterial::AddTexture(const RTexture* pTexture)
 
 bool RMaterial::AddSamplerState(const RSamplerState* pSamplerState)
 {
-	if (m_samplerStatesCount >= MATERIAL_SAMPLE_STATE_MAX_COUNT || m_bInitialized == true)
+	if (m_samplerStatesCount >= MATERIAL_SAMPLE_STATE_MAX_COUNT || m_bInitialized == TRUE)
 	{
 		return false;
 	}
@@ -74,10 +74,12 @@ RDemoMaterial::RDemoMaterial(IRenderer* pRenderer)
 
 void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
+	pOutRenderParam;
 }
 
 void RDemoMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
+	ppOutTextures;
 	pOutTextureCount = 0;
 }
 
@@ -96,10 +98,12 @@ void RSkyboxMaterial::Initialize()
 
 void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
+	pOutRenderParam;
 }
 
 void RSkyboxMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
 {
+	ppOutTextures;
 	*pOutTextureCount = 0;
 }
 

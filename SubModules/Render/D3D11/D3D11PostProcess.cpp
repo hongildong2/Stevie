@@ -65,6 +65,8 @@ void D3D11PostProcess::BeginPostProcess(std::unique_ptr<D3D11TextureRender>& sou
 	// release DSV, RTV from context
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	pContext->OMSetRenderTargets(0, NULL, NULL);
+
+	m_pRenderer->GetDeviceResources()->PIXBeginEvent(L"PostProccess");
 }
 
 void D3D11PostProcess::Process()
@@ -94,6 +96,8 @@ void D3D11PostProcess::EndPostProcess(ID3D11RenderTargetView* pRTVToDraw)
 	DrawScreenQuad();
 	ID3D11ShaderResourceView* release[6] = { NULL, };
 	pContext->PSSetShaderResources(0, 2, release);
+
+	m_pRenderer->GetDeviceResources()->PIXEndEvent();
 }
 
 void D3D11PostProcess::ProcessFog()

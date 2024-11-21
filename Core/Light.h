@@ -12,22 +12,22 @@ enum class ELightType
 
 struct LightData
 {
-	Vector3 radiance;
-	FLOAT fallOffStart;
+	Vector3 radiance{};
+	FLOAT fallOffStart = 0.f;
 
-	Vector3 direction;
-	FLOAT fallOffEnd;
+	Vector3 direction{};
+	FLOAT fallOffEnd = 0.f;
 
-	Vector3 positionWorld;
-	FLOAT spotPower;
+	Vector3 positionWorld{};
+	FLOAT spotPower = 0.f;
 
-	Vector3 color;
-	BOOL bIsShadowing;
+	Vector3 color{};
+	BOOL bIsShadowing = FALSE;
 
-	ELightType type;
-	FLOAT radius;
-	FLOAT haloRadius;
-	FLOAT haloStrength;
+	ELightType type = ELightType::DIRECTIONAL;
+	FLOAT radius = 0.f;
+	FLOAT haloRadius = 0.f;
+	FLOAT haloStrength = 0.f;
 };
 static_assert(sizeof(LightData) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");
 
@@ -36,7 +36,7 @@ static_assert(sizeof(LightData) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");
 class Light final : public SSceneObject
 {
 public:
-	Light(const ELightType type, const DirectX::SimpleMath::Vector3 direction, const DirectX::SimpleMath::Vector3 posWorld, const BOOL bIsShadowing);
+	Light(const ELightType type, const Vector3 direction, const Vector3 posWorld, const BOOL bIsShadowing);
 	~Light() = default;
 
 	void GetLightData(LightData* outLightData) const;
@@ -49,8 +49,8 @@ public:
 
 private:
 	ELightType m_type;
-	DirectX::SimpleMath::Vector3 m_radiance;
-	DirectX::SimpleMath::Vector3 m_color;
+	Vector3 m_radiance;
+	Vector3 m_color;
 
 	float m_fallOffStart;
 	float m_fallOffEnd;

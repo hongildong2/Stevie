@@ -96,7 +96,7 @@ void D3D11Renderer::Render()
 	{
 		UpdateGlobalConstant();
 		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), m_lights.size(), m_lights.data(), m_pLightsBuffer);
+		m_resourceManager->UpdateStructuredBuffer(sizeof(LightData), static_cast<UINT>(m_lights.size()), m_lights.data(), m_pLightsBuffer);
 	}
 
 	RenderSkybox();
@@ -259,14 +259,14 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 
 }
 
-void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
+void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 	MY_ASSERT(pComputeShader != nullptr);
 	MY_ASSERT(resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
 	const D3D11ComputeShader* cs = static_cast<const D3D11ComputeShader*>(pComputeShader);
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-	m_deviceResources->PIXBeginEvent(L"COMPUTE");
+	m_deviceResources->PIXBeginEvent(pTaskName);
 
 	ID3D11ShaderResourceView* srvs[MAX_COMPUTE_RESOURCE_COUNT] = {};
 	ID3D11UnorderedAccessView* uavs[MAX_COMPUTE_RESOURCE_COUNT] = {};
@@ -294,9 +294,9 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture
 	pContext->CSSetUnorderedAccessViews(0, resultsCount, uavs, NULL);
 	pContext->CSSetSamplers(0, samplerStatesCount, sss);
 
-	if (alignedComputeParam != nullptr)
+	if (pAlignedComputeParam != nullptr)
 	{
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), alignedComputeParam, m_computeCB.Get());
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pAlignedComputeParam, m_computeCB.Get());
 		pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
 	}
 
@@ -310,7 +310,7 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const RTexture
 	m_deviceResources->PIXEndEvent();
 }
 
-RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format)
+RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {
 	return m_resourceManager->CreateTexture3D(width, height, depth, format);
 }
@@ -390,7 +390,7 @@ void D3D11Renderer::UpdateGlobalConstant()
 	globalConstant.globalTime = 0.f;
 
 	globalConstant.eyeDir = m_camera->GetDirWorld();
-	globalConstant.globalLightsCount = m_lights.size();
+	globalConstant.globalLightsCount = static_cast<UINT>(m_lights.size());
 
 	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
 	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
@@ -681,6 +681,8 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
 	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
 	pContext->VSSetConstantBuffers(0, 2, cbs);
+	pContext->HSSetConstantBuffers(0, 2, cbs);
+	pContext->DSSetConstantBuffers(0, 2, cbs);
 
 
 

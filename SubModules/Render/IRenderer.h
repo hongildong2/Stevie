@@ -41,14 +41,14 @@ public:
 	// Renders
 	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) = 0;
 
-	virtual void Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) = 0;
+	virtual void Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) = 0;
 
 
 	// IRenderDevice
 	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) = 0;
 	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) = 0;
-	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format) = 0;
+	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) = 0;
 	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) = 0;
 	virtual RTexture* CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData) = 0;
 

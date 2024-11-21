@@ -46,6 +46,7 @@ inline const WCHAR* ToString(const EShaderType type)
 		return L"GS";
 	default:
 		MY_ASSERT(FALSE);
+		return L"";
 		break;
 	}
 }

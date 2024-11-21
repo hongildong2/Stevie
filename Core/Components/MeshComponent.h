@@ -30,13 +30,13 @@ public:
 
 	inline const RBlendState* GetBlendState() const
 	{
-		MY_ASSERT(IsTransparent() == true && m_pBlendState != nullptr);
+		MY_ASSERT(IsTransparent() == TRUE && m_pBlendState != nullptr);
 		return m_pBlendState;
 	}
 
 	inline const Vector4& GetBlendFactor() const
 	{
-		MY_ASSERT(IsTransparent() == true && m_pBlendState != nullptr);
+		MY_ASSERT(IsTransparent() == TRUE && m_pBlendState != nullptr);
 		return m_blendFactor;
 	}
 

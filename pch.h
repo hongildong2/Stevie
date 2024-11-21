@@ -11,7 +11,7 @@
 #endif
 #include <sdkddkver.h>
 
-#define _MY_ASSERT(x) if ((x) == false) { __debugbreak(); }
+#define _MY_ASSERT(x) if ((x) == FALSE) { __debugbreak(); }
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC

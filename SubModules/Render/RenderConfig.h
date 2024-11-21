@@ -32,11 +32,11 @@ namespace renderConfig
 
 	static inline DirectX::SimpleMath::Matrix GetDirectionalLightProjRowMat()
 	{
-		return DirectX::SimpleMath::Matrix::CreateOrthographic(LIGHT_DEPTH_MAP_WIDTH, LIGHT_DEPTH_MAP_HEIGHT, LIGHT_DEPTH_MAP_NEAR_Z, LIGHT_DEPTH_MAP_FAR_Z);
+		return DirectX::SimpleMath::Matrix::CreateOrthographic(static_cast<float>(LIGHT_DEPTH_MAP_WIDTH), static_cast<float>(LIGHT_DEPTH_MAP_HEIGHT), LIGHT_DEPTH_MAP_NEAR_Z, LIGHT_DEPTH_MAP_FAR_Z);
 	}
 	static inline DirectX::SimpleMath::Matrix GetSpotLightProjRowMat()
 	{
-		return DirectX::SimpleMath::Matrix::CreatePerspective(LIGHT_DEPTH_MAP_WIDTH, LIGHT_DEPTH_MAP_HEIGHT, LIGHT_DEPTH_MAP_NEAR_Z, LIGHT_DEPTH_MAP_FAR_Z);
+		return DirectX::SimpleMath::Matrix::CreatePerspective(static_cast<float>(LIGHT_DEPTH_MAP_WIDTH), static_cast<float>(LIGHT_DEPTH_MAP_HEIGHT), LIGHT_DEPTH_MAP_NEAR_Z, LIGHT_DEPTH_MAP_FAR_Z);
 	}
 
 

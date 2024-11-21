@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h""
+#include "pch.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11DeviceResources.h"
 #include "D3D11PostProcess.h"
@@ -24,12 +24,12 @@ public:
 
 	// Renders
 	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
-	virtual void Compute(const RComputeShader* pComputeShader, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* alignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) override;
+	virtual void Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTexture2DFromDDSFile(const WCHAR* wchFileName) override;
 	virtual RTexture* CreateTextureCubeFromDDSFile(const WCHAR* wchFileName) override;
-	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const UINT count, const DXGI_FORMAT format) override;
+	virtual RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format) override;
 	virtual RTexture* CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData) override;
 
@@ -45,7 +45,7 @@ public:
 
 
 
-	inline const D3D11DeviceResources* GetDeviceResources() const
+	inline D3D11DeviceResources* GetDeviceResources() const
 	{
 		return m_deviceResources.get();
 	}

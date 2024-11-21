@@ -20,13 +20,6 @@ public:
 	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 private:
-	RComputeShader* m_initialSpectrumCS;
-	RComputeShader* m_timeDependentSpectrumCS;
-	RComputeShader* m_FFTCS;
-	RComputeShader* m_FFTPostProcessCS;
-	RComputeShader* m_combineWaveCS;
-	RComputeShader* m_foamSimulationCS;
-
 	enum
 	{
 		DISPLACEMENT_TEXTURE2D_ARRAY,
