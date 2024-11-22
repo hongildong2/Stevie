@@ -17,7 +17,7 @@ void MeshComponent::Initialize(IRenderer* pRenderer)
 	m_pRenderer = pRenderer;
 }
 
-void MeshComponent::SetTransparency(RBlendState* pBlendState, DirectX::SimpleMath::Vector4& blendFactor)
+void MeshComponent::SetTransparency(RBlendState* pBlendState, Vector4& blendFactor)
 {
 	m_pBlendState = pBlendState;
 	m_blendFactor = blendFactor;

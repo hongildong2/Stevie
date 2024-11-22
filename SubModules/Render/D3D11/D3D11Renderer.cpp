@@ -119,6 +119,8 @@ void D3D11Renderer::EndRender()
 	// Reset Render Queue
 	m_renderItemIndex = 0;
 
+
+
 	// Release
 	ID3D11ShaderResourceView* release[20] = { NULL, };
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
@@ -627,12 +629,11 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0);
+		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // TODO :: CHECK SAMPLE MASK
 	}
 
 
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
-
 }
 
 void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)

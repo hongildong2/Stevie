@@ -12,6 +12,8 @@ public:
 	void InitializeData();
 	virtual void Update() override;
 
+	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
+	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 
 private:
 	RTexture* m_densityTexture3D;

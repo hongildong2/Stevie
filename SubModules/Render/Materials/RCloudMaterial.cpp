@@ -45,3 +45,14 @@ void RCloudMaterial::Update()
 		InitializeData();
 	}
 }
+
+void RCloudMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
+{
+	pOutRenderParam;
+}
+
+void RCloudMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+{
+	ppOutTextures;
+	*pOutTextureCount = 0;
+}

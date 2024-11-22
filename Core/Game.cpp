@@ -7,14 +7,13 @@
 
 #include "GeometryGenerator.h"
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
-#include "SubModules/Render/Materials/RCloudMaterial.h"
-#include "SubModules/Render/Materials/ROceanMaterial.h"
 #include "Components/MeshComponent.h"
 #include "Core/Camera.h"
 #include "SSceneObject.h"
 #include "Skybox.h"
 #include "Core/Light.h"
 #include "Core/Ocean.h"
+#include "Core/Cloud.h"
 
 extern void ExitGame() noexcept;
 
@@ -81,6 +80,13 @@ void Game::Initialize(HWND window, int width, int height)
 		m_objects.push_back(std::move(oceanObj));
 	}
 
+	// CLOUD
+	{
+		auto cloudObj = std::make_unique<Cloud>(m_pRenderer.get());
+		cloudObj->Initialize();
+		m_objects.push_back(std::move(cloudObj));
+	}
+
 	// Scene
 	{
 		//IBL 
@@ -90,7 +96,7 @@ void Game::Initialize(HWND window, int width, int height)
 		m_pRenderer->SetCamera(m_camera.get());
 
 		// Skybox
-		MeshData box = geometryGenerator::MakeBox(80.f);
+		MeshData box = geometryGenerator::MakeBox(50.f);
 		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_pRenderer.get());
 
