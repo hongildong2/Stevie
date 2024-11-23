@@ -11,15 +11,16 @@ SamplerState linearClamp : register(s1);
 TextureCube irradianceMap : register(t0);
 TextureCube SpecularMap : register(t1);
 Texture2D BRDFMap : register(t2);
+StructuredBuffer<Light> SceneLights : register(t3);
 
-Texture2D<float3> albedoTex : register(t3);
-Texture2D<float> aoTex : register(t4);
-Texture2D<float> heightTex : register(t5);
-Texture2D<float> metallicTex : register(t6);
-Texture2D<float3> normalTex : register(t7);
-Texture2D<float> roughnessTex : register(t8);
-Texture2D<float> emissiveTex : register(t9);
-Texture2D<float> opacityTex : register(t10);
+Texture2D<float3> albedoTex : register(t4);
+Texture2D<float> aoTex : register(t5);
+Texture2D<float> heightTex : register(t6);
+Texture2D<float> metallicTex : register(t7);
+Texture2D<float3> normalTex : register(t8);
+Texture2D<float> roughnessTex : register(t9);
+Texture2D<float> emissiveTex : register(t10);
+Texture2D<float> opacityTex : register(t11);
 
 cbuffer GlobalConstants : register(b0)
 {
@@ -66,18 +67,26 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 F0 = float3(0.08, 0.08, 0.08) * materialConstant.specular; // specular 1 == 8%
 	F0 = lerp(F0, albedo, metallic);
 	
-	// Dynamic Lights
-	float3 Lo = float3(0.0, 0.0, 0.0);
-	{
 	
-		float shadowFactor = 1.0;
-
+	
+	// TODO :: Add SunLightRadiance, DynamicLightRadiance function into PBRFunctions.hlsli
+	float3 Lo = float3(0.0, 0.0, 0.0);
+	float shadowFactor = 1.0;
+	// Sun Light
+	Lo += RadianceByLight(sunLightConstant, F0, N, V, input.positionWorld, albedo, roughness, metallic) * shadowFactor;
+	// ShadowFactor by sunlight
+	
+	// Dynamic Lights
+	{
 		//ShadowInput directShadowIn =
 		//{
 		//	shadowMaps[lightIndex], globalLights[lightIndex], input.positionWorld, shadowPointSampler, shadowCompareSampler, globalConstants.nearZ
 		//};
+		for (uint i = 0; i < globalConstants.globalLightsCount; ++i)
+		{
+			Lo += RadianceByLight(SceneLights[i], F0, N, V, input.positionWorld, albedo, roughness, metallic) * shadowFactor;
 		
-		Lo += RadianceByLight(sunLightConstant, F0, N, V, input.positionWorld, albedo, roughness, metallic) * shadowFactor;
+		}
 	}
 	
 	

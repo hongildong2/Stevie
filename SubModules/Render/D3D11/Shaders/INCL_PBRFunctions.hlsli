@@ -91,7 +91,7 @@ float3 GetRadianceValue(Light light, float3 posWorld, float3 normalWorld)
 	
 	float attenuation = saturate((light.fallOffEnd - lightDist) / (light.fallOffEnd - light.fallOffStart));
 	
-	return light.radiance * spotFactor * attenuation;
+	return light.radiance * spotFactor * attenuation * light.color;
 }
 
 float3 RadianceByLight(Light light, float3 F0, float3 N, float3 V, float3 worldPos, float3 albedo, float roughness, float metallic)

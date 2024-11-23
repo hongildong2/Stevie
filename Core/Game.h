@@ -10,6 +10,7 @@
 #include "SubModules/Render/RenderDefs.h"
 #include "Camera.h"
 #include "Skybox.h"
+#include "Light.h"
 #include "SSceneObject.h"
 
 
@@ -69,6 +70,7 @@ private:
 
 
 	std::vector<std::unique_ptr<SSceneObject>> m_objects;
+	std::vector<std::unique_ptr<Light>> m_sceneLights;
 
 	// Scene[]
 	std::unique_ptr<Camera> m_camera;

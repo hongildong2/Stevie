@@ -104,7 +104,7 @@ private:
 
 	// Scene
 	static constexpr UINT MAX_COMPUTE_RESOURCE_COUNT = 20;
-	static constexpr UINT MAX_RENDER_ITEM = 3000;
+	static constexpr UINT MAX_RENDER_ITEM = 8000;
 	RenderItem m_renderItems[MAX_RENDER_ITEM];
 	UINT m_renderItemIndex;
 
@@ -112,18 +112,25 @@ private:
 	Skybox* m_skybox;
 
 	// IBL
+	static constexpr UINT SCENE_RESOURCES_COUNT = 4;
 	const D3D11TextureCube* m_irradianceMapTexture;
 	const D3D11TextureCube* m_specularMapTexture;
 	const D3D11Texture2D* m_BRDFMapTexture;
+	D3D11StructuredBuffer* m_sceneLightsBuffer;
+
+	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 100;
+	RLightConstant m_sceneLights[MAX_SCENE_LIGHTS_COUNT];
+	UINT m_sceneLightsIndex;
+
+	static constexpr UINT MAX_SHADOWING_LIGHTS_COUNT = 10;
+	UINT m_shadowingLightsIndices[MAX_SHADOWING_LIGHTS_COUNT];
+	UINT m_shadowingLightsIndex;
 
 	// Sun Light
 	const Light* m_sunLight;
 	const D3D11TextureDepth* m_sunShadowMap; // TODO :: Manage Depth textures by manager, pooling
 
 	// Dynamic Lights
-	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 100;
-	D3D11StructuredBuffer* m_pLightsBuffer;
-	std::vector<const Light*> m_lights;
 	// std::vector<const D3D11TextureDepth*> m_shadowMaps;
 
 

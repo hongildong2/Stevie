@@ -32,46 +32,62 @@ void Game::Initialize(HWND window, int width, int height)
 	m_pRenderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
 
 
+	// Light
+	{
+		auto pL = std::make_unique<Light>(ELightType::SPOT);
+		Vector3 lightPos(0.f, 2.f, 0.f);
+		Vector3 lightDir(-XM_PIDIV2, 0.f, 0.f);
+		pL->SetShadowing(TRUE);
+		pL->UpdateYawPitchRoll(lightDir);
+		pL->UpdatePos(lightPos);
+		pL->SetRadiance(10.f);
+		m_sceneLights.push_back(std::move(pL));
+	}
+
 	// DEMO OBJECT
-	//{
-	//	MeshData sphere = geometryGenerator::MakeSphere(1.f, 20, 20);
-	//	RMeshGeometry* sphereMesh = m_renderer->CreateMeshGeometry(sphere.verticies.data(), sizeof(Vertex), sphere.verticies.size(), sphere.indicies.data(), sizeof(UINT), sphere.indicies.size(), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+	{
+		RMeshGeometry* sphereMesh = m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::SPHERE);
 
-	//	const RTexture* albedoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
-	//	const RTexture* metallicTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
-	//	const RTexture* heightTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
-	//	const RTexture* aoTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
-	//	const RTexture* normalTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
-	//	const RTexture* roughnessTex = m_renderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
+		const RTexture* albedoTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
+		const RTexture* metallicTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
+		const RTexture* heightTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
+		const RTexture* aoTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
+		const RTexture* normalTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
+		const RTexture* roughnessTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
 
-	//	RBasicMaterial* mat = new RBasicMaterial(m_renderer.get());
-	//	mat->SetAlbedoTexture(albedoTex);
-	//	mat->SetMetallicTexture(metallicTex);
-	//	// mat->SetHeightTexture(heightTex);
-	//	mat->SetAOTexture(aoTex);
-	//	mat->SetNormalTexture(normalTex);
-	//	mat->SetRoughnessTexture(roughnessTex);
+		RBasicMaterial* mat = new RBasicMaterial(m_pRenderer.get());
+		mat->SetAlbedoTexture(albedoTex);
+		mat->SetMetallicTexture(metallicTex);
+		mat->SetHeightTexture(heightTex);
+		mat->SetAOTexture(aoTex);
+		mat->SetNormalTexture(normalTex);
+		mat->SetRoughnessTexture(roughnessTex);
 
-	//	mat->Initialize();
+		mat->Initialize();
 
-	//	MeshComponent* demoC = new MeshComponent();
+		MeshComponent* demoC = new MeshComponent();
 
-	//	demoC->Initialize(m_renderer.get());
-	//	demoC->SetMeshGeometry(sphereMesh);
-	//	demoC->SetMaterial(mat);
-	//	for (int i = -100; i < 100; ++i)
-	//	{
-	//		auto demoObj = std::make_unique<SSceneObject>();
+		demoC->Initialize(m_pRenderer.get());
+		demoC->SetMeshGeometry(sphereMesh);
+		demoC->SetMaterial(mat);
+		for (int i = -10; i < 10; ++i)
+		{
+			for (int j = -10; j < 10; ++j)
+			{
+				if (i == 0 && j == 0) continue;
+				auto demoObj = std::make_unique<SSceneObject>();
 
 
-	//		demoObj->Initialize();
-	//		demoObj->SetMeshComponent(demoC);
+				demoObj->Initialize();
+				demoObj->SetMeshComponent(demoC);
 
-	//		auto a = Vector3(i / 2.f, i / 2.f, i / 2.f);
-	//		demoObj->UpdatePos(a);
-	//		m_objects.push_back(std::move(demoObj));
-	//	}
-	//}
+				auto a = Vector3(i * 4, 0.5f, j * 4);
+				demoObj->UpdatePos(a);
+				m_objects.push_back(std::move(demoObj));
+			}
+		}
+
+	}
 
 	// OCEAN
 	{
@@ -122,6 +138,9 @@ void Game::Initialize(HWND window, int width, int height)
 
 		Light* light = new Light(ELightType::DIRECTIONAL);
 		light->SetShadowing(TRUE);
+		Vector3 sunPos(100000, 50000, 100000);
+		light->UpdatePos(sunPos);
+		light->SetRadiance(0.84f);
 		m_pRenderer->SetSunLight(light);
 	}
 
@@ -240,6 +259,11 @@ void Game::Render()
 	for (auto& obj : m_objects)
 	{
 		obj->Render();
+	}
+
+	for (auto& light : m_sceneLights)
+	{
+		m_pRenderer->AddLight(light.get());
 	}
 
 	m_pRenderer->Render();

@@ -23,5 +23,9 @@ Ocean::Ocean(IRenderer* pRenderer)
 	oceanMC->SetMeshGeometry(tQuad);
 	oceanMC->Initialize(m_pRenderer);
 
+
 	SetMeshComponent(oceanMC);
+
+
+
 }

@@ -82,11 +82,12 @@ SamplerState linearWrap : register(s0);
 TextureCube irradianceMap : register(t0);
 TextureCube SpecularMap : register(t1);
 Texture2D BRDFMap : register(t2);
+StructuredBuffer<Light> SceneLights : register(t3);
 
-Texture2DArray<float4> OceanTurbulenceMap : register(t3);
-StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t4);
-Texture2D<float3> SkyTexture : register(t5);
-Texture2D<float> foamTexture : register(t6);
+Texture2DArray<float4> OceanTurbulenceMap : register(t4);
+StructuredBuffer<CombineParameter> OceanCascadeParameters : register(t5);
+Texture2D<float3> SkyTexture : register(t6);
+Texture2D<float> foamTexture : register(t7);
 
 float2 SlopeVarianceSquared(float windSpeed, float viewDist, float alignement, float scale)
 {
@@ -207,11 +208,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	
 	
 	float3 Lo = RadianceByLight(globalSunLight, WATER_F0, input.normalWorld, V, input.positionWorld, renderParam.albedo, roughness, renderParam.metallic);
-	
-	//for (uint lightIndex = 0; lightIndex < globalConstants.globalLightsCount - 1; ++lightIndex)
-	//{
-	//	Lo += RadianceByLight(globalLights[lightIndex], WATER_F0, input.normalWorld, V, input.positionWorld, materialConstant.albedo, roughness, materialConstant.metallic);
-	//}
+	for (uint i = 0; i < globalConstants.globalLightsCount; ++i)
+	{
+		Lo += RadianceByLight(SceneLights[i], WATER_F0, input.normalWorld, V, input.positionWorld, renderParam.albedo, roughness, renderParam.metallic);
+		
+	}
 	
 	color += Lo * renderParam.directLightScaler;
 	color = lerp(color, horizon.rgb, horizon.a);
@@ -248,5 +249,5 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	//color = lerp(color, foamOut.albedo, foamOut.coverage);
 	
 	color = clamp(color, 0.0, 1000.0);
-	return float4(color, 1);
+	return float4(color, 0.93);
 }

@@ -81,14 +81,15 @@ struct RGlobalConstant
 	Matrix invViewProj;
 
 	Vector3 eyeWorld;
-	float globalTime;
+	FLOAT globalTime;
 
 	Vector3 eyeDir;
 	UINT globalLightsCount;
 
-	float nearZ;
-	float farZ;
-	Vector2 gcDummy;
+	FLOAT nearZ;
+	FLOAT farZ;
+	UINT shadowingLightsCount;
+	FLOAT dummy;
 };
 
 static_assert(sizeof(RGlobalConstant) % 16 == 0, "Constant Buffer Alignment");
@@ -109,6 +110,7 @@ enum class ELightType
 
 struct RLightConstant
 {
+	RLightConstant() = default;
 	RLightConstant(ELightType lightType, Vector3 dirWorld, Vector3 posWorld, Vector3 color, float radiance, float fallOffStart, float fallOffEnd, float spotPower, float radius)
 		: type(static_cast<UINT>(lightType))
 		, direction(dirWorld)
@@ -142,6 +144,7 @@ struct RLightConstant
 		invProj = proj.Invert();
 		view = view.Transpose();
 	}
+
 	Vector3 direction;
 	FLOAT radiance;
 

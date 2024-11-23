@@ -127,7 +127,8 @@ struct GlobalConstant
 	
 	float nearZ;
 	float farZ;
-	float2 gcDummy;
+	uint shadwoingLightsCount;
+	float gcDummy;
 };
 
 struct MeshConstant

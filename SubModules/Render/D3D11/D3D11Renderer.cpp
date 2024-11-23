@@ -26,7 +26,9 @@ D3D11Renderer::D3D11Renderer()
 	, m_irradianceMapTexture(nullptr)
 	, m_specularMapTexture(nullptr)
 	, m_BRDFMapTexture(nullptr)
-	, m_pLightsBuffer()
+	, m_sceneLightsBuffer()
+	, m_sceneLights{}
+	, m_sceneLightsIndex(0)
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
 	m_resourceManager = std::make_unique<D3D11ResourceManager>();
@@ -58,7 +60,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
-	m_pLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
+	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
 	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
 	return TRUE;
@@ -98,7 +100,7 @@ void D3D11Renderer::Render()
 	{
 		UpdateGlobalConstant();
 		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(RLightConstant), static_cast<UINT>(m_lights.size()), m_lights.data(), m_pLightsBuffer);
+		m_resourceManager->UpdateStructuredBuffer(sizeof(RLightConstant), static_cast<UINT>(m_sceneLightsIndex), m_sceneLights, m_sceneLightsBuffer);
 	}
 
 	RenderSkybox();
@@ -121,6 +123,9 @@ void D3D11Renderer::EndRender()
 	// Reset Render Queue
 	m_renderItemIndex = 0;
 
+	// Reset Scene Lights
+	m_sceneLightsIndex = 0;
+	m_shadowingLightsIndex = 0;
 
 
 	// Release
@@ -364,12 +369,18 @@ void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const 
 void D3D11Renderer::AddLight(const Light* pLight)
 {
 	// TODO :: Distinguish shadowing and non-shadowing light
-	if (m_lights.size() >= MAX_SCENE_LIGHTS_COUNT)
+	if (m_sceneLightsIndex >= MAX_SCENE_LIGHTS_COUNT)
 	{
 		return;
 	}
 
-	m_lights.push_back(pLight);
+	m_sceneLights[m_sceneLightsIndex] = pLight->GetLightConstant();
+	if (pLight->IsShadowingLight() && m_shadowingLightsIndex < MAX_SHADOWING_LIGHTS_COUNT)
+	{
+		m_shadowingLightsIndices[m_shadowingLightsIndex++] = m_sceneLightsIndex;
+	}
+
+	++m_sceneLightsIndex;
 }
 
 void D3D11Renderer::UpdateGlobalConstant()
@@ -394,7 +405,8 @@ void D3D11Renderer::UpdateGlobalConstant()
 	globalConstant.globalTime = 0.f;
 
 	globalConstant.eyeDir = m_camera->GetDirWorld();
-	globalConstant.globalLightsCount = static_cast<UINT>(m_lights.size());
+	globalConstant.globalLightsCount = m_sceneLightsIndex;
+	globalConstant.shadowingLightsCount = m_shadowingLightsIndex;
 
 	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
 	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
@@ -445,27 +457,27 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 	{
 		ID3D11ShaderResourceView* srvs[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
 
-		const UINT IBL_TEXTURES_COUNT = 3; 	// TODO :: How to manage shader resource slots
 
 		srvs[0] = m_irradianceMapTexture->GetSRVOrNull();
 		srvs[1] = m_specularMapTexture->GetSRVOrNull();
 		srvs[2] = m_BRDFMapTexture->GetSRVOrNull();
+		srvs[3] = m_sceneLightsBuffer->GetSRVOrNull();
 
 		for (UINT i = 0; i < texturesCount; ++i)
 		{
 			if (textures[i] != nullptr)
 			{
-				srvs[i + IBL_TEXTURES_COUNT] = static_cast<const D3D11Texture*>(textures[i])->GetSRVOrNull();
+				srvs[i + SCENE_RESOURCES_COUNT] = static_cast<const D3D11Texture*>(textures[i])->GetSRVOrNull();
 			}
 			else
 			{
-				srvs[i + IBL_TEXTURES_COUNT] = nullptr;
+				srvs[i + SCENE_RESOURCES_COUNT] = nullptr;
 			}
 		}
 
-		if (texturesCount != 0 && IBL_TEXTURES_COUNT != 0)
+		if (texturesCount != 0 && SCENE_RESOURCES_COUNT != 0)
 		{
-			pContext->PSSetShaderResources(0, texturesCount + IBL_TEXTURES_COUNT, srvs); // Deferred Shading does not need this!
+			pContext->PSSetShaderResources(0, texturesCount + SCENE_RESOURCES_COUNT, srvs); // Deferred Shading does not need this!
 		}
 	}
 

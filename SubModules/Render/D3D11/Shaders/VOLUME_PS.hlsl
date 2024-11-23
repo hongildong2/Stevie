@@ -12,8 +12,8 @@ cbuffer MeshConstants : register(b1)
 }
 SamplerState linearClamp : register(s0);
 
-Texture3D<float> densityTex : register(t3);
-Texture3D<float> lightingTex : register(t4);
+Texture3D<float> densityTex : register(t4);
+Texture3D<float> lightingTex : register(t5);
 
 float QueryVolumetricSDF(float3 posModel, float3 uvw)
 {

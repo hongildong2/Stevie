@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 #include "pch.h"
 #include "Core/SSceneObject.h"
@@ -11,6 +11,7 @@ public:
 	Light(const ELightType type);
 	~Light() = default;
 
+	void SetRadiance(const FLOAT radiance);
 	void SetLightType(const ELightType type);
 	void SetShadowing(const BOOL bIsShadowing);
 	void SetLightRadius(const FLOAT radius);
