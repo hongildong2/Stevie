@@ -1,5 +1,5 @@
-#include "GPURandom.hlsli"
-#include "OceanGlobal.hlsli"
+#include "INCL_GPURandom.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
 // https://github.com/gasgiant/FFT-Ocean/blob/main/Assets/ComputeShaders/InitialSpectrum.compute
 

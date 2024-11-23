@@ -113,12 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="SubModules\Render\D3D11\Shaders\BrunetonLighting.hlsli" />
-    <None Include="SubModules\Render\D3D11\Shaders\GPURandom.hlsli" />
-    <None Include="SubModules\Render\D3D11\Shaders\OceanGlobal.hlsli" />
-    <None Include="SubModules\Render\D3D11\Shaders\PBRCommons.hlsli" />
-    <None Include="SubModules\Render\D3D11\Shaders\RenderingCommons.hlsli" />
-    <None Include="SubModules\Render\D3D11\Shaders\ScreenSpace.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_BrunetonLighting.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_GPURandom.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_OceanGlobal.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_PBRFunctions.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_ShadowFunctions.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_CoordinateTransform.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SubModules\Render\D3D11\Shaders\VOLUME_PS.hlsl" />
@@ -134,8 +134,6 @@
     <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_SURFACE_PS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_PS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_VS.hlsl" />
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\SAMPLING_VS.hlsl" />
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_VS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_PS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_DS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_HS.hlsl" />
@@ -145,8 +143,10 @@
     <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl" />
     <FxCompile Include="SubModules\Render\D3D11\Shaders\DEMO_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\SAMPLING_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="SubModules\Render\D3D11\Shaders\ShaderTypes.hlsli" />
+    <Text Include="SubModules\Render\D3D11\Shaders\INCL_ShaderTypes.hlsli" />
   </ItemGroup>
 </Project>

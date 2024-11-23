@@ -34,7 +34,7 @@
 
 #ifndef BRUNETON_LIGHTING_INCLUDED
 
-#include "ScreenSpace.hlsli"
+#include "INCL_CoordinateTransform.hlsli"
 #define BRUNETON_LIGHTING_INCLUDED
 
 #define BRUNETON_PI 3.1415926

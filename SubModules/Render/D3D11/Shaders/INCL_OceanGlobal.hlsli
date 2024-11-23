@@ -3,7 +3,7 @@
 
 #define SIZE 1024 // 512 by 512 DFT
 #define FFT_SIZE 1024 // if SIZE < 1024, SIZE = FFT_SIZE
-#define LOG_SIZE 10 // log2  512
+#define LOG_SIZE 10 // log2  1024
 #define CASCADE_COUNT 4 // total 4 wave cascades
 #define SAMPLING_COUNT 9
 #define SIMULATION_SIZE_IN_METER 2048.0

@@ -1,16 +1,27 @@
-#include "RenderingCommons.hlsli"
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
-SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
+cbuffer GlobalConstants : register(b0)
 {
-	SamplingVertexShaderOutput output;
+	GlobalConstant globalConstants;
+};
+
+cbuffer MeshConstants : register(b1)
+{
+	MeshConstant meshConstants;
+}
+
+cbuffer DepthConstants : register(b2)
+{
+	DepthConstant depthConstants;
+}
+
+SamplingPixelShaderInput main(SamplingVertexShaderInput input)
+{
+	SamplingPixelShaderInput output;
 
 	output.positionModel = input.positionModel;
 	output.texcoord = input.texcoord;
 	float4 pos = mul(float4(input.positionModel, 1.f), meshConstants.world);
-	
-
-	float4 viewPos = mul(pos, depthView);
-	output.positionProj = mul(viewPos, depthProj);
+	output.positionProj = mul(pos, depthConstants.viewProj);
 	return output;
 }

@@ -23,7 +23,7 @@ public:
 	virtual BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight) override;
 
 	// Renders
-	virtual void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow) override;
+	virtual void Submit(const MeshComponent* pInMeshComponent, Matrix worldRow) override;
 	virtual void Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ) override;
 
 	virtual RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName) override;

@@ -1,11 +1,8 @@
 #ifndef __SHADER_TYPES__
 #define __SHADER_TYPES__
 
-#define SUN_LIGHT_INDEX (8)
-
 #define DIRECTIONAL_LIGHT (0)
-#define POINT_LIGHT (1)
-#define SPOT_LIGHT (2)
+#define SPOT_LIGHT (1)
 
 struct VertexShaderInput
 {
@@ -35,29 +32,51 @@ struct PixelShaderInput
 	float3 positionModel : POSITION1; // Volume casting Ω√¿€¡°
 };
 
+struct SamplingVertexShaderInput
+{
+	float3 positionModel : POSITION;
+	float2 texcoord : TEXCOORD;
+};
+
+
+
+struct SamplingPixelShaderInput
+{
+	float3 positionModel : POSITION;
+	float4 positionProj : SV_POSITION;
+	float2 texcoord : TEXCOORD;
+};
+
 
 struct Light
 {
-	float3 radiance;
-	float fallOffStart;
-	
 	float3 direction;
-	float fallOffEnd;
-	
-	float3 positionWorld;
-	float spotPower;
+	float radiance;
 	
 	float3 color;
-	float dummy;
+	float fallOffStart;
 	
+	float3 positionWorld;
+	float fallOffEnd;
+	
+	float spotPower;
 	uint type;
 	float radius;
-	float haloRadius;
-	float haloStrength;
+	float dummy;
 	
 	matrix view;
 	matrix proj;
 	matrix invProj;
+};
+
+struct ShadowInput
+{
+	Texture2D shadowMap;
+	Light light;
+	float3 posWorld;
+	SamplerState shadowPointSampler;
+	SamplerComparisonState shadowCompareSampler;
+	float nearZ;
 };
 
 struct MaterialConstant
@@ -117,6 +136,12 @@ struct MeshConstant
 	matrix worldIT;
 	matrix worldInv;
 };
+
+struct DepthConstant
+{
+	matrix viewProj;
+};
+
 static const float PI = 3.14159265359;
 
 

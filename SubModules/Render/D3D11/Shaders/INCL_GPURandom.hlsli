@@ -1,4 +1,3 @@
-
 #ifndef __GPU_RANDOM_HLSLI__
 #define __GPU_RANDOM_HLSLI__
 

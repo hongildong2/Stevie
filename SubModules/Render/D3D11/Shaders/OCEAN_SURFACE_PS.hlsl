@@ -1,8 +1,8 @@
-#include "ShaderTypes.hlsli"
-#include "PBRCommons.hlsli"
-#include "BrunetonLighting.hlsli"
-#include "OceanGlobal.hlsli"
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+#include "INCL_PBRFunctions.hlsli"
+#include "INCL_BrunetonLighting.hlsli"
+#include "INCL_OceanGlobal.hlsli"
+#include "INCL_ShadowFunctions.hlsli"
 
 
 struct BrunetonInput

@@ -1,5 +1,5 @@
-#include "ShaderTypes.hlsli"
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+
 
 cbuffer GlobalConstants : register(b0)
 {
@@ -14,9 +14,9 @@ static float4x4 IDENTITY_MATRIX =
 	0.f, 0.f, 0.f, 1.f
 };
 
-SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
+SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {
-	SamplingVertexShaderOutput output;
+	SamplingPixelShaderInput output;
 
 	output.positionModel = input.positionModel;
 	output.texcoord = input.texcoord;

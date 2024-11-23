@@ -1,8 +1,10 @@
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+
+SamplerState linearClamp : register(s0);
+
 Texture2D originalTex : register(t0);
 Texture2D blurTex : register(t1);
 
-SamplerState linearClamp : register(s0);
 
 cbuffer ImageFilterConstData : register(b5)
 {

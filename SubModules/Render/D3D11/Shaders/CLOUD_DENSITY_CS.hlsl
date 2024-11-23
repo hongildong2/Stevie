@@ -1,4 +1,4 @@
-#include "GPURandom.hlsli"
+#include "INCL_GPURandom.hlsli"
 
 SamplerState linearClamp : register(s0);
 RWTexture3D<float> densityTex : register(u0);

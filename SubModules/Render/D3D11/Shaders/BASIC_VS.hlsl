@@ -1,4 +1,4 @@
-#include "ShaderTypes.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
 cbuffer GlobalConstants : register(b0)
 {
@@ -12,8 +12,7 @@ cbuffer MeshConstant : register(b1)
 
 
 SamplerState linearWrap : register(s0);
-
-// Texture2D<float> heightTex : register(t0);
+Texture2D<float> heightTex : register(t0);
 
 
 VertexShaderOutput main(VertexShaderInput input)

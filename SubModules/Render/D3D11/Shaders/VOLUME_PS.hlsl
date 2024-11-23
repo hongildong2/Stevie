@@ -1,5 +1,5 @@
-#include "ShaderTypes.hlsli"
-#include "GPURandom.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+#include "INCL_GPURandom.hlsli"
 
 cbuffer GlobalConstants : register(b0)
 {

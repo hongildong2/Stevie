@@ -1,5 +1,5 @@
-#include "ScreenSpace.hlsli"
-#include "ShaderTypes.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+#include "INCL_CoordinateTransform.hlsli"
 
 Texture2D<float3> RenderResult : register(t0);
 Texture2D<float> depthOnlyTex : register(t1);

@@ -1,4 +1,4 @@
-#include "OceanGlobal.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
 // Note : This texture need to be initialized to -5 at t =0
 RWTexture2DArray<float4> TurbulencenessTex : register(u0);

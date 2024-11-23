@@ -1,4 +1,4 @@
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
 TextureCube cubeMap : register(t0);
 SamplerState linearClamp : register(s0);

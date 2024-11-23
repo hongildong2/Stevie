@@ -1,4 +1,4 @@
-#include "OceanGlobal.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
 RWTexture2D<float> HeightMap : register(u0);
 

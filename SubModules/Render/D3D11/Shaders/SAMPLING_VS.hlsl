@@ -1,13 +1,22 @@
-#include "RenderingCommons.hlsli"
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
-SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
+cbuffer GlobalConstants : register(b0)
 {
-	SamplingVertexShaderOutput output;
+	GlobalConstant globalConstant;
+}
+
+cbuffer MeshConstant : register(b1)
+{
+	MeshConstant meshConstant;
+}
+
+SamplingPixelShaderInput main(SamplingVertexShaderInput input)
+{
+	SamplingPixelShaderInput output;
 
 	output.positionModel = input.positionModel;
 	output.texcoord = input.texcoord;
-	float4 pos = mul(float4(input.positionModel, 1.f), meshConstants.world);
+	float4 pos = mul(float4(input.positionModel, 1.f), meshConstant.world);
 	
 
 	#ifdef DEPTH_ONLY
@@ -17,8 +26,8 @@ SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
 	float4 viewPos = mul(float4(input.positionModel, 0), view);
 	output.positionProj = mul(float4(viewPos.xyz, 1), proj);
 	#else
-	float4 viewPos = mul(pos, globalConstants.view);
-	output.positionProj = mul(viewPos, globalConstants.proj);
+	float4 viewPos = mul(pos, globalConstant.view);
+	output.positionProj = mul(viewPos, globalConstant.proj);
 	#endif
 	return output;
 }

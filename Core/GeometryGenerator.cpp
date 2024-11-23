@@ -18,7 +18,7 @@ MeshData geometryGenerator::MakeSphere(const float radius, const unsigned int nu
 
 		for (unsigned int i = 0; i <= numSlices; i++)
 		{
-			Vertex v;
+			RVertex v;
 
 			v.positionModel = DirectX::SimpleMath::Vector3::Transform(stackStartPoint, DirectX::SimpleMath::Matrix::CreateRotationY(dTheta * float(i)));
 
@@ -92,7 +92,7 @@ MeshData geometryGenerator::MakeSquare(const float scale = 1.0f)
 
 	for (size_t i = 0; i < positions.size(); i++)
 	{
-		Vertex v;
+		RVertex v;
 		v.positionModel = positions[i];
 		v.normalModel = normals[i];
 		v.texcoordinate = texcoords[i];
@@ -228,7 +228,7 @@ MeshData geometryGenerator::MakeBox(const float scale)
 	MeshData meshData;
 	for (size_t i = 0; i < positions.size(); i++)
 	{
-		Vertex v;
+		RVertex v;
 		v.positionModel = positions[i];
 		v.normalModel = normals[i];
 		v.texcoordinate = texcoords[i];
@@ -270,7 +270,7 @@ void geometryGenerator::MakeCWQuadPatches(unsigned int splitLevel, MeshData* con
 		for (unsigned int j = 0; j < splitLevel; ++j)
 		{
 			// instance quad clockwise
-			Vertex quadTopLeft;
+			RVertex quadTopLeft;
 			unsigned int quadTopLeftIndex = 4 * (i + splitLevel * j); // vertex index, 4 index per quad patch
 
 			quadTopLeft.normalModel = NORMAL_MODEL;
@@ -284,19 +284,19 @@ void geometryGenerator::MakeCWQuadPatches(unsigned int splitLevel, MeshData* con
 			// for offeset {00, 10, 01, -10} apply delta
 
 			// generate clockwise
-			Vertex quadTopRight = quadTopLeft;
+			RVertex quadTopRight = quadTopLeft;
 			quadTopRight.positionModel = quadTopLeft.positionModel + Vector3(dx, 0.f, 0.f);
 			quadTopRight.texcoordinate = quadTopLeft.texcoordinate + Vector2(du, 0.f);
 			outMesh->verticies.push_back(quadTopRight);
 			outMesh->indicies.push_back(quadTopLeftIndex + 1);
 
-			Vertex quadBottomRight = quadTopRight;
+			RVertex quadBottomRight = quadTopRight;
 			quadBottomRight.positionModel = quadTopRight.positionModel + Vector3(0.f, -dy, 0.f);
 			quadBottomRight.texcoordinate = quadTopRight.texcoordinate + Vector2(0.f, dv);
 			outMesh->verticies.push_back(quadBottomRight);
 			outMesh->indicies.push_back(quadTopLeftIndex + 2);
 
-			Vertex quadBottomLeft = quadBottomRight;
+			RVertex quadBottomLeft = quadBottomRight;
 			quadBottomLeft.positionModel = quadBottomRight.positionModel + Vector3(-dx, 0.f, 0.f);
 			quadBottomLeft.texcoordinate = quadBottomRight.texcoordinate + Vector2(-du, 0.f);
 			outMesh->verticies.push_back(quadBottomLeft);

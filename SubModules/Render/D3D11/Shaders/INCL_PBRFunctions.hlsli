@@ -1,8 +1,8 @@
-#ifndef __PBR_COMMONS__
-#define __PBR_COMMONS__
+#ifndef __PBR_FUNCTIONS__
+#define __PBR_FUNCTIONS__
 
-#include "ScreenSpace.hlsli"
-#include "ShaderTypes.hlsli"
+#include "INCL_ShadowFunctions.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
@@ -120,4 +120,5 @@ float3 RadianceByLight(Light light, float3 F0, float3 N, float3 V, float3 worldP
 	return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-#endif
+
+#endif /* __PBR_FUNCTIONS__ */

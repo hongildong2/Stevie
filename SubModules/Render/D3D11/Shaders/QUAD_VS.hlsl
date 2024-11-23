@@ -1,10 +1,8 @@
-#include "RenderingCommons.hlsli"
-#include "ScreenSpace.hlsli"
+#include "INCL_ShaderTypes.hlsli"
 
-
-SamplingVertexShaderOutput main(SamplingVertexShaderInput input)
+SamplingPixelShaderInput main(SamplingVertexShaderInput input)
 {
-	SamplingVertexShaderOutput output;
+	SamplingPixelShaderInput output;
 	
 	// for full screen quad draw
 	output.positionProj = float4(input.positionModel, 1);

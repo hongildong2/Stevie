@@ -1,6 +1,4 @@
-#include "RenderingCommons.hlsli"
-#include "ScreenSpace.hlsli"
-
+#include "INCL_ShaderTypes.hlsli"
 #define NUM_CONTROL_POINTS 4
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -9,13 +7,15 @@ struct HS_CONSTANT_DATA_OUTPUT
 	float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
+cbuffer GlobalConstants : register(b0)
+{
+	GlobalConstant globalConstant;
+}
 
-//걍 새로만들어
-#ifdef DEPTH_ONLY
-HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<SamplingPixelShaderInput, NUM_CONTROL_POINTS> ip)
-#else
+
+
+
 HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CONTROL_POINTS> ip)
-#endif
 {
 	HS_CONSTANT_DATA_OUTPUT Output;
 	
@@ -34,7 +34,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CO
 	patchCenterWorldPos /= float(NUM_CONTROL_POINTS);
 
 	
-	float dist = distance(patchCenterWorldPos, globalConstants.eyeWorld);
+	float dist = distance(patchCenterWorldPos, globalConstant.eyeWorld);
 	
 	dist = dist > 36 ? dist : 1;
 	
@@ -57,25 +57,6 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CO
 	return Output;
 }
 
-
-#ifdef DEPTH_ONLY
-[domain("quad")]
-[partitioning("pow2")]
-[outputtopology("triangle_cw")]
-[outputcontrolpoints(4)]
-[patchconstantfunc("CalcHSPatchConstants")]
-[maxtessfactor(8.0f)]
-	SamplingPixelShaderInput
-	main(
-
-	InputPatch<SamplingPixelShaderInput, NUM_CONTROL_POINTS> ip,
-	uint i : SV_OutputControlPointID,
-	uint PatchID : SV_PrimitiveID)
-{
-	return ip[i]; // no need to manipulate
-}
-#else
-
 [domain("quad")]
 [partitioning("pow2")]
 [outputtopology("triangle_cw")]
@@ -91,6 +72,3 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(InputPatch<PixelShaderInput, NUM_CO
 {
 	return ip[i]; // no need to manipulate
 }
-
-
-#endif

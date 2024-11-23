@@ -1,9 +1,9 @@
 // https:github.com/gasgiant/FFT-Ocean/blob/main/Assets/ComputeShaders/FastFourierTransform.compute
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/FFT.compute
 
-#include "OceanGlobal.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
-static uint size = SIZE;
+
 
 // z indexed wave cascades
 RWTexture2DArray<float4> FTResultTex : register(u0);
@@ -35,6 +35,7 @@ float2 ComplexMult(float2 a, float2 b)
 
 void ButterflyValues(uint step, uint index, out uint2 indices, out float2 twiddle)
 {
+	static uint size = SIZE;
 	const float twoPi = 6.28318530718;
 	uint b = size >> (step + 1); // step이 logged 되었으
 	uint w = b * (index / b); // frquency basis selection, ki of 2DIT radix case

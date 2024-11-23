@@ -1,4 +1,4 @@
-#include "OceanGlobal.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
 // https:github.com/gasgiant/Ocean-URP/blob/main/Assets/OceanSystem/Shaders/Resources/ComputeShaders/TimeDependentSpectrum.compute
 

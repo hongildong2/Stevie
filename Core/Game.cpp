@@ -97,7 +97,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 		// Skybox
 		MeshData box = geometryGenerator::MakeBox(50.f);
-		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(Vertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(RVertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_pRenderer.get());
 
 		const RTexture* IrradianceMapTexture = m_pRenderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
@@ -120,7 +120,8 @@ void Game::Initialize(HWND window, int width, int height)
 
 		// Lights
 
-		Light* light = new Light(ELightType::DIRECTIONAL, { 0.f, -1.f, 0.f }, {}, TRUE);
+		Light* light = new Light(ELightType::DIRECTIONAL);
+		light->SetShadowing(TRUE);
 		m_pRenderer->SetSunLight(light);
 	}
 

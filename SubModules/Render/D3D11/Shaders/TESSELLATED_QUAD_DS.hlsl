@@ -1,5 +1,5 @@
-#include "ShaderTypes.hlsli"
-#include "OceanGlobal.hlsli"
+#include "INCL_ShaderTypes.hlsli"
+#include "INCL_OceanGlobal.hlsli"
 
 struct HS_CONSTANT_DATA_OUTPUT
 {
