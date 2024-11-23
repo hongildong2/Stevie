@@ -640,8 +640,10 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 		};
 
 		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // TODO :: CHECK SAMPLE MASK
+
 	}
 
+	// TODO :: SET DEPTH STENCIL STATE pContext->OMSetDepthStencilState()
 
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
