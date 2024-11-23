@@ -21,7 +21,7 @@ float LightRay(Texture3D<float> densityTexture, SamplerState ss, float3 posModel
     // 근처만 탐색
 	int numSteps = 128 / 4;
 	float stepSize = 2.0 / float(numSteps);
-	float absorptionCoeff = 50.0;
+	float absorptionCoeff = 10.0;
 
 	float alpha = 1.0; // visibility 1.0으로 시작
 

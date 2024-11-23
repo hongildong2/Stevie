@@ -107,7 +107,7 @@ enum class ELightType
 	SPOT
 };
 
-struct RLightConstant // is consistent with shader's light struct
+struct RLightConstant
 {
 	RLightConstant(ELightType lightType, Vector3 dirWorld, Vector3 posWorld, Vector3 color, float radiance, float fallOffStart, float fallOffEnd, float spotPower, float radius)
 		: type(static_cast<UINT>(lightType))
@@ -123,14 +123,14 @@ struct RLightConstant // is consistent with shader's light struct
 	{
 		switch (lightType)
 		{
-			case ELightType::DIRECTIONAL:
-				proj = Matrix::CreateOrthographic(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT, renderConfig::LIGHT_DEPTH_MAP_NEAR_Z, renderConfig::LIGHT_DEPTH_MAP_FAR_Z);
-				break;
-			case ELightType::SPOT:
-				proj = Matrix::CreatePerspective(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT, renderConfig::LIGHT_DEPTH_MAP_NEAR_Z, renderConfig::LIGHT_DEPTH_MAP_FAR_Z);
-				break;
-			default:
-				MY_ASSERT(false);
+		case ELightType::DIRECTIONAL:
+			proj = renderConfig::GetDirectionalLightProjRowMat();
+			break;
+		case ELightType::SPOT:
+			proj = renderConfig::GetSpotLightProjRowMat();
+			break;
+		default:
+			MY_ASSERT(false);
 		}
 
 		Vector3 vLookAt(posWorld + direction);

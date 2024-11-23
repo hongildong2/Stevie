@@ -5,13 +5,13 @@ RWTexture3D<float> densityTex : register(u0);
 
 float cloudDensity(float3 uvw)
 {
-	float freq = 4.0f;
+	float freq = 32.0f;
     
-	float pfbm = lerp(1., perlinfbm(uvw, 4., 7), .5);
+	float pfbm = lerp(1., perlinfbm(uvw, 2., 1), .88);
 	pfbm = abs(pfbm * 2.f - 1.f); // billowy perlin noise
 
 	float g = worleyFbm(uvw, freq);
-	float r = remap(pfbm, 0.f, 1.f, g, 1.f); // perlin-worley
+	float r = remap(pfbm, 0.1f, 1.2f, g, 1.1f); // perlin-worley
 	float b = worleyFbm(uvw, freq * 2.0f);
 	float a = worleyFbm(uvw, freq * 4.0f);
 
@@ -31,7 +31,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	uint width, height, depth;
 	densityTex.GetDimensions(width, height, depth);
 	
-	float3 uvwOffset = float3(0.01, 0.01, 0.01);
+	float3 uvwOffset = float3(0.016, 0.013, 0.02);
     
 	float3 uvw = DTid / float3(width, height, depth) + uvwOffset; // 노이즈 생성을 위해 uvwOffset 사용
 

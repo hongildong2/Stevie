@@ -36,6 +36,8 @@ D3D11Renderer::D3D11Renderer()
 
 BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
 {
+	bEnableDebugLayer;
+	bEnableGBV;
 	if (!m_deviceResources || !m_deviceResources->GetWindow())
 	{
 		return FALSE;
@@ -68,7 +70,7 @@ void D3D11Renderer::BeginRender()
 	{
 		m_deviceResources->PIXBeginEvent(L"Clear");
 		auto* context = m_deviceResources->GetD3DDeviceContext();
- 		auto* depthStencil = m_deviceResources->GetDepthStencilView();
+		auto* depthStencil = m_deviceResources->GetDepthStencilView();
 		auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 		auto* hdrRTV = m_HDRRenderTarget->GetRTV();
 

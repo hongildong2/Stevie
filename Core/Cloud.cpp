@@ -20,9 +20,9 @@ Cloud::Cloud(IRenderer* pRenderer)
 
 	SetMeshComponent(pMC);
 
-	m_scale = 3.f;
+	m_scale = 2.f;
 
-	Vector3 d(-5.f, 3.f, 0.f);
+	Vector3 d(-5.f, 5.f, 0.f);
 	UpdatePos(d);
 
 }

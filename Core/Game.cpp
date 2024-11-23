@@ -96,7 +96,7 @@ void Game::Initialize(HWND window, int width, int height)
 		m_pRenderer->SetCamera(m_camera.get());
 
 		// Skybox
-		MeshData box = geometryGenerator::MakeBox(50.f);
+		MeshData box = geometryGenerator::MakeBox(45.f);
 		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(RVertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_pRenderer.get());
 

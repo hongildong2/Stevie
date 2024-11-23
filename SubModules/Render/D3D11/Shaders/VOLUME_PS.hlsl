@@ -67,11 +67,11 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	// temp
 	float3 lightDir = float3(0, 1, 0); 
 	float anisoParam = 0.2;
-	float absorptionCoeff = 50.0; // sig_a
+	float absorptionCoeff = 100.0; // sig_a
 
 	
 	// init
-	float3 color = 0;
+	float3 color = 0.7;
 	float transmission = 1.0;
 	
 	float3 marchPointModel = input.positionModel + VModel * 1e-6;

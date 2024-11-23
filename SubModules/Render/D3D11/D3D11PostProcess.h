@@ -25,6 +25,7 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 	1.f,
 	0.3f,
 };
+
 class D3D11PostProcess final
 {
 public:
