@@ -1,7 +1,6 @@
 #pragma once
 #include "RenderDefs.h"
 
-
 enum class ETextureType
 {
 	TEXTURE_2D,
@@ -58,3 +57,17 @@ protected:
 	BOOL m_bIsReadOnly;
 	BOOL m_bInitialized;
 };
+
+
+#ifdef D3D11
+#define RHIDepthTexture ReverseD3D11DepthTexture
+#include "D3D11/D3D11Texture.h"
+#endif
+
+// TODO :: How to manage reference count, How to struct texture handle with this?
+class RDepthTexture : public RHIDepthTexture
+{
+public:
+	RDepthTexture()
+};
+
