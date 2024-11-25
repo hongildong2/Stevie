@@ -42,7 +42,7 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 	InitData.pSysMem = pInVertexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, m_vertexBuffer.GetAddressOf()));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, m_vertexBuffer.GetAddressOf()));
 
 	// index buffer
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
@@ -56,7 +56,7 @@ void D3D11MeshGeometry::Initialize(const D3D11Renderer* pRenderer, const void* p
 	InitData.pSysMem = pInIndexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, m_indexBuffer.GetAddressOf()));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, m_indexBuffer.GetAddressOf()));
 
 
 }

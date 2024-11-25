@@ -7,7 +7,6 @@
 #include "D3D11DeviceResources.h"
 
 using namespace DirectX;
-using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 

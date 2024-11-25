@@ -190,7 +190,7 @@ void D3D11PostProcess::DrawScreenQuad()
 	UINT vO = pMG->GetVertexOffset();
 	pContext->IASetVertexBuffers(0, 1, vbf, &vS, &vO);
 	pContext->IASetIndexBuffer(pMG->GetIndexBuffer(), pMG->GetIndexFormat(), 0);
-	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(pMG->GetTopologyType()));
+	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pMG->GetTopologyType()));
 
 	pContext->DrawIndexed(pMG->GetIndexCount(), 0, 0);
 }

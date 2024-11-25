@@ -170,7 +170,7 @@ void Game::Tick()
 
 
 // Updates the world.
-void Game::Update(DX::StepTimer const& timer)
+void Game::Update(StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 

@@ -32,7 +32,7 @@ public:
 	void SetWindow(HWND window, int width, int height) noexcept;
 	bool WindowSizeChanged(int width, int height);
 	void HandleDeviceLost();
-	void RegisterDeviceNotify(DX::IDeviceNotify* deviceNotify) noexcept { m_deviceNotify = deviceNotify; }
+	void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { m_deviceNotify = deviceNotify; }
 	void Present();
 	void UpdateColorSpace();
 
@@ -111,5 +111,5 @@ private:
 	unsigned int                                    m_options;
 
 	// The IDeviceNotify can be held directly as it owns the DeviceResources.
-	DX::IDeviceNotify* m_deviceNotify;
+	IDeviceNotify* m_deviceNotify;
 };

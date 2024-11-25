@@ -4,7 +4,7 @@
 
 #pragma comment(lib,"d3dcompiler.lib")
 
-HRESULT DX::CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob)
+HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, const D3D_SHADER_MACRO* defines, _Outptr_ ID3DBlob** blob)
 {
 	if (!srcFile || !entryPoint || !profile || !blob)
 		return E_INVALIDARG;

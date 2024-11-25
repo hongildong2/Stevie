@@ -50,7 +50,7 @@ public:
 
 
 private:
-	void Update(DX::StepTimer const& timer);
+	void Update(StepTimer const& timer);
 
 	void Render();
 
@@ -58,7 +58,7 @@ private:
 	std::unique_ptr<IRenderer> m_pRenderer;
 
 	// Rendering loop timer.
-	DX::StepTimer                           m_timer;
+	StepTimer                           m_timer;
 
 
 	// Input Component

@@ -490,7 +490,7 @@ void D3D11Renderer::RenderSkybox()
 		D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
 		pContext->IASetInputLayout(samplingIL->Get());
 
-		pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(pRMG->GetTopologyType()));
+		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pRMG->GetTopologyType()));
 		ID3D11Buffer* pVB[1] = { pRMG->GetVertexBuffer() };
 		UINT mVS = pRMG->GetVertexStride();
 		UINT mVO = pRMG->GetVertexOffset();
@@ -578,7 +578,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 
 	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
 	pContext->IASetInputLayout(basicIL->Get());
-	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(mesh->GetTopologyType()));
+	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
 
 	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
@@ -643,7 +643,7 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 
 	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
 	pContext->IASetInputLayout(basicIL->Get());
-	pContext->IASetPrimitiveTopology(DX::D3D11::GetD3D11TopologyType(mesh->GetTopologyType()));
+	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
 	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
 	UINT mVS = mesh->GetVertexStride();

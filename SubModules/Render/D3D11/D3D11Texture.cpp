@@ -98,18 +98,18 @@ void RDepthTexture::Initialize()
 	desc.MiscFlags = 0;
 	desc.CPUAccessFlags = 0;
 
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, m_tex.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, m_tex.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_FLOAT);
 
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+	ThrowIfFailed(pDevice->CreateShaderResourceView(
 		m_tex.Get(),
 		&shaderResourceViewDesc,
 		m_SRV.ReleaseAndGetAddressOf()
 	));
 
 	CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D32_FLOAT);
-	DX::ThrowIfFailed(pDevice->CreateDepthStencilView(
+	ThrowIfFailed(pDevice->CreateDepthStencilView(
 		m_tex.Get(),
 		&dsvDesc,
 		m_DSV.ReleaseAndGetAddressOf()

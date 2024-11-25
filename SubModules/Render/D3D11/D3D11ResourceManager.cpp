@@ -36,7 +36,7 @@ void D3D11ResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const v
 	InitData.pSysMem = pInVertexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
 
 
 
@@ -59,7 +59,7 @@ void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const vo
 	InitData.pSysMem = pInIndexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	DX::ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
 }
 
 D3D11MeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
@@ -90,7 +90,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	desc.CPUAccessFlags = 0;
 
 
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
 	if (desc.ArraySize > 1)
@@ -102,7 +102,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 		shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
 	}
 
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+	ThrowIfFailed(pDevice->CreateShaderResourceView(
 		res->m_resource.Get(),
 		&shaderResourceViewDesc,
 		res->m_SRV.ReleaseAndGetAddressOf()
@@ -117,7 +117,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 		unorderedAccessViewDesc.Texture2DArray.FirstArraySlice = 0;
 		unorderedAccessViewDesc.Texture2DArray.MipSlice = 0;
 	}
-	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
 
 	res->Initialize(width, height, 0, format, FALSE);
 	return res;
@@ -141,11 +141,11 @@ D3D11Texture3D* D3D11ResourceManager::CreateTexture3D(const UINT width, const UI
 	desc.CPUAccessFlags = 0;
 
 
-	DX::ThrowIfFailed(pDevice->CreateTexture3D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateTexture3D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE3D, format);
 
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+	ThrowIfFailed(pDevice->CreateShaderResourceView(
 		res->m_resource.Get(),
 		&shaderResourceViewDesc,
 		res->m_SRV.ReleaseAndGetAddressOf()
@@ -153,7 +153,7 @@ D3D11Texture3D* D3D11ResourceManager::CreateTexture3D(const UINT width, const UI
 
 
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE3D, format);
-	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), &unorderedAccessViewDesc, res->m_UAV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), &unorderedAccessViewDesc, res->m_UAV.ReleaseAndGetAddressOf()));
 
 	res->Initialize(width, height, depth, format, FALSE);
 	return res;
@@ -207,7 +207,7 @@ D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT 
 	desc.MiscFlags = 0;
 	desc.CPUAccessFlags = 0;
 
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(
+	ThrowIfFailed(pDevice->CreateTexture2D(
 		&desc,
 		nullptr,
 		res->m_resource.ReleaseAndGetAddressOf()
@@ -216,7 +216,7 @@ D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT 
 	// Create RTV.
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, format);
 
-	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(
+	ThrowIfFailed(pDevice->CreateRenderTargetView(
 		res->m_resource.Get(),
 		&renderTargetViewDesc,
 		res->m_RTV.ReleaseAndGetAddressOf()
@@ -225,14 +225,14 @@ D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT 
 	// Create SRV.
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
 
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(
+	ThrowIfFailed(pDevice->CreateShaderResourceView(
 		res->m_resource.Get(),
 		&shaderResourceViewDesc,
 		res->m_SRV.ReleaseAndGetAddressOf()
 	));
 
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, format);
-	DX::ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
 	res->Initialize(width, height, 0, format, FALSE);
 	return res;
 }
@@ -243,7 +243,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fi
 
 	D3D11Texture2D* res = new D3D11Texture2D();
 	ComPtr<ID3D11Resource> resource;
-	DX::ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf()));
 
 	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
 	{
@@ -265,7 +265,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fi
 	D3D11Texture2D* res = new D3D11Texture2D();
 	ComPtr<ID3D11Resource> resource;
 
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf(), nullptr));
+	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf(), nullptr));
 
 	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
 	{
@@ -286,7 +286,7 @@ D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR
 	D3D11TextureCube* res = new D3D11TextureCube();
 	ComPtr<ID3D11Resource> resource;
 
-	DX::ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.GetAddressOf(), nullptr));
+	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.GetAddressOf(), nullptr));
 	res->Initialize(0, 0, 0, DXGI_FORMAT_UNKNOWN, TRUE);
 	return res;
 }
@@ -334,7 +334,7 @@ void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const voi
 
 	if (pInitData == nullptr)
 	{
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, ppOutBuffer));
+		ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, ppOutBuffer));
 	}
 	else
 	{
@@ -344,7 +344,7 @@ void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const voi
 		initDataDesc.SysMemPitch = 0;
 		initDataDesc.SysMemSlicePitch = 0;
 
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&desc, &initDataDesc, ppOutBuffer));
+		ThrowIfFailed(pDevice->CreateBuffer(&desc, &initDataDesc, ppOutBuffer));
 	}
 
 }
@@ -355,7 +355,7 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	DX::ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	memcpy(mappedResource.pData, pData, bufferSize);
 
@@ -378,14 +378,14 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT u
 
 	if (pInitData == nullptr)
 	{
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, sb->m_resource.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, sb->m_resource.ReleaseAndGetAddressOf()));
 	}
 	else
 	{
 		D3D11_SUBRESOURCE_DATA initData;
 		ZeroMemory(&initData, sizeof(D3D11_SUBRESOURCE_DATA));
 		initData.pSysMem = pInitData;
-		DX::ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, sb->m_resource.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, sb->m_resource.ReleaseAndGetAddressOf()));
 	}
 
 
@@ -414,11 +414,11 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT u
 		}
 		else
 		{
-			DX::ThrowIfFailed(E_INVALIDARG);
+			ThrowIfFailed(E_INVALIDARG);
 		}
 	}
 
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(sb->m_resource.Get(), &desc, sb->m_SRV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateShaderResourceView(sb->m_resource.Get(), &desc, sb->m_SRV.ReleaseAndGetAddressOf()));
 
 	return sb;
 }
@@ -430,7 +430,7 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	DX::ThrowIfFailed(pContext->Map(pInBuffer->m_resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	ThrowIfFailed(pContext->Map(pInBuffer->m_resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	for (UINT i = 0; i < uElementCount; ++i)
 	{
 		const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
