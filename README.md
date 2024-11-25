@@ -19,7 +19,7 @@
 - HDRI Pipeline, Gamma correction, depth only pass.
 - Physically Based Bloom using Compute Shader.
 - Fog effect.
-- Dynamic PCSS Shadow using light's shadow map.
+- Dynamic PCSS Shadow using light's shadow map. (Depth pass under construction currently)
 - [Video](https://www.youtube.com/watch?v=D6w55CkHi5U)
 
 ## Renderer Structure
@@ -45,15 +45,12 @@
  	2. Renderer populates render list with `RenderItem` struct to capture object's render pass, render states.
 	3. Renderer decides draw policy of `RenderItem` that is required to geometry pipeline or some render pass looking up to `RMeshGeometry` and `RMaterial`'s property.
 	4. Renderer then loops `RenderItem` to render each item according to its render pass. There can be multiple render pass and `RenderItem` might be drawn multiple times varying render states.
-	- If pipeline state is set, call `Draw()`.
- 	- Using this structure, render thread can diverge from flow of main game thread's loop. It can be multithreaded as each states recorded in `RenderItem` is immutable.
-# Work In Progress
-- Now refactoring renderer backend to accommodate different Graphics API like D3D12 other than D3D11.
-- Note that current branch is __WIP__.
-- __TODO__
-	- Deferred Rendering pipeline is planned.
-	- Reverse OOP structure to manage render resources(textures, meshes) and its reference count more freely.
-	  ```
+	5. Call `Draw()` according to mesh type.
+ 	6. Using this structure, render thread can diverge from flow of main game thread's loop. It can be multithreaded as each states recorded in `RenderItem` is stateless.
+# TODO
+- Deferred Rendering pipeline
+- Reverse OOP structure
+
 		#ifdef D3D11
 			#include "D3D11/D3D11Texture2D.h"
 			#define RHITexture2D D3D11Texture2D
@@ -62,14 +59,10 @@
 			#define RHITexture2D D3D12Texture2D
 		#endif
    
-		class RTexture
+		class RTexture : RHITexture2D
 		{
    			...
-			RHITexture2D* m_pTex;
 		}
-	  
-	  ```
 
 # Build
 requires Visual Studio 2022, nuget packages are referenced in VS Project
-requires vcpkg with _assimp_
