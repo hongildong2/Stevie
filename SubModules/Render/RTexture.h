@@ -64,10 +64,27 @@ protected:
 #include "D3D11/D3D11Texture.h"
 #endif
 
-// TODO :: How to manage reference count, How to struct texture handle with this?
 class RDepthTexture : public RHIDepthTexture
 {
 public:
-	RDepthTexture() = default;
+	RDepthTexture(IRenderer* pRenderer);
+	~RDepthTexture() = default;
+
+	void SetSize(const UINT width, const UINT height);
+	void Initialize();
+	void Reset();
+
+
+ private:
+	DXGI_FORMAT m_format;
+	ETextureType m_type;
+	UINT m_width;
+	UINT m_height;
+
+
+ // TEMP, Testing Reverse OOP
+#ifdef API_D3D11
+	D3D11Renderer* m_pRenderer;
+#endif
 };
 

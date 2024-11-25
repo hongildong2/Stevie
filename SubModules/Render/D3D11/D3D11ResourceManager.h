@@ -6,7 +6,6 @@
 class D3D11StructuredBuffer;
 class D3D11Texture2D;
 class D3D11Texture3D;
-class D3D11TextureDepth;
 class D3D11TextureRender;
 class D3D11TextureCube;
 class D3D11TextureVolume;
@@ -24,7 +23,7 @@ public:
 	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType);
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format);
 	D3D11Texture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
-	D3D11TextureDepth* CreateTextureDepth(const UINT width, const UINT height);
+	RDepthTexture* CreateTextureDepth(const UINT width, const UINT height);
 	D3D11TextureRender* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);
 
 	D3D11Texture2D* CreateTexture2DFromWICFile(const WCHAR* wchFileName);

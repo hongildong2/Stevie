@@ -30,34 +30,7 @@ protected:
 	ComPtr<ID3D11UnorderedAccessView> m_UAV;
 };
 
-class ReverseD3D11DepthTexture
-{
-	friend class D3D11ResourceManager;
-public:
-	ReverseD3D11DepthTexture() = default;
-	~ReverseD3D11DepthTexture() = default;
 
-protected:
-	ComPtr<ID3D11DepthStencilView> m_DSV;
-	ComPtr<ID3D11ShaderResourceView> m_SRV;
-};
-
-class D3D11TextureDepth final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
-{
-	friend class D3D11ResourceManager;
-public:
-	D3D11TextureDepth();
-	~D3D11TextureDepth() = default;
-
-	inline ID3D11DepthStencilView* GetDSV() const
-	{
-		return m_DSV.Get();
-	}
-
-private:
-
-	ComPtr<ID3D11DepthStencilView> m_DSV;
-};
 
 class D3D11TextureRender final : public D3D11Texture, public D3D11Resource<ID3D11Texture2D>
 {
@@ -113,4 +86,17 @@ private:
 	UINT m_totalSizeInByte;
 	UINT m_elementSizeInByte;
 	UINT m_elementCount;
+};
+
+
+class ReverseD3D11DepthTexture
+{
+public:
+	ReverseD3D11DepthTexture() = default;
+	~ReverseD3D11DepthTexture() = default;
+
+protected:
+	ComPtr<ID3D11Texture2D> m_tex;
+	ComPtr<ID3D11DepthStencilView> m_DSV;
+	ComPtr<ID3D11ShaderResourceView> m_SRV;
 };

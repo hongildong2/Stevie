@@ -73,8 +73,5 @@ float4 main(SamplingPixelShaderInput input) : SV_TARGET
     // Tone Mapping
 	combined = LinearToneMapping(combined);
     
-	// TODO : Motion blur
-	// combined = lerp(combined, prevFrame.Sample(g_sampler, input.texcoord).rgb, blur);
-    
 	return float4(combined, 1.0f);
 }

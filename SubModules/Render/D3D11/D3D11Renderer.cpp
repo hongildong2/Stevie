@@ -22,7 +22,6 @@ D3D11Renderer::D3D11Renderer()
 	, m_camera(nullptr)
 	, m_skybox(nullptr)
 	, m_sunLight(nullptr)
-	, m_sunShadowMap(nullptr)
 	, m_irradianceMapTexture(nullptr)
 	, m_specularMapTexture(nullptr)
 	, m_BRDFMapTexture(nullptr)
@@ -57,8 +56,6 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.GetAddressOf());
 	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.GetAddressOf());
-
-	m_sunShadowMap = m_resourceManager->CreateTextureDepth(renderConfig::LIGHT_DEPTH_MAP_WIDTH, renderConfig::LIGHT_DEPTH_MAP_HEIGHT);
 
 	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
@@ -236,20 +233,10 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 
 	// Parameter, Must be 16byte aligned
 	{
-		// TODO :: Add bUseHeightMap
-		// HACK :: Mesh Parameter
-		RMeshConstant meshCB;
-		Matrix world = worldRow;
-		Matrix worldInverse = world.Invert();
-		Matrix worldIT = worldInverse.Transpose();
-
-		meshCB.world = world.Transpose();
-		meshCB.worldInv = worldInverse.Transpose();
-		meshCB.worldIT = worldIT.Transpose();
-
+		BOOL bIsHeightMapped = newRenderItem.pMaterial == nullptr ? FALSE : newRenderItem.pMaterial->IsHeightMapped();
+		RMeshConstant meshCB(worldRow, bIsHeightMapped);
 		MEMCPY_RENDER_PARAM(&newRenderItem.meshParam, &meshCB);
 
-		// Material Parameter
 		if (newRenderItem.pMaterial != nullptr)
 		{
 			newRenderItem.pMaterial->GetMaterialConstant(&newRenderItem.materialParam);
@@ -368,7 +355,6 @@ void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const 
 
 void D3D11Renderer::AddLight(const Light* pLight)
 {
-	// TODO :: Distinguish shadowing and non-shadowing light
 	if (m_sceneLightsIndex >= MAX_SCENE_LIGHTS_COUNT)
 	{
 		return;
@@ -639,7 +625,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // TODO :: CHECK SAMPLE MASK
+		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // sampleMask : masking MSAA's sample??
 
 	}
 

@@ -96,9 +96,20 @@ static_assert(sizeof(RGlobalConstant) % 16 == 0, "Constant Buffer Alignment");
 
 struct RMeshConstant
 {
+	RMeshConstant(Matrix& worldRowMat, BOOL bUseHeightMap)
+		: bUseHeightMap(bUseHeightMap)
+	{
+		world = worldRowMat.Transpose();
+		worldInv = world.Invert();
+		worldIT = worldInv.Transpose();
+	}
+
 	Matrix world;
 	Matrix worldIT;
 	Matrix worldInv;
+
+	BOOL bUseHeightMap;
+	Vector3 DUMMY;
 };
 static_assert(sizeof(RMeshConstant) % 16 == 0, "Constant Buffer Alignment");
 

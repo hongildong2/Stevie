@@ -75,8 +75,6 @@ private:
 	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
 
 	void RenderSkybox();
-	// void RenderDepthMap();
-	// void RenderShadowMap();
 	void RenderOpaques();
 	void RenderTransparent();
 
@@ -128,10 +126,7 @@ private:
 
 	// Sun Light
 	const Light* m_sunLight;
-	const D3D11TextureDepth* m_sunShadowMap; // TODO :: Manage Depth textures by manager, pooling
 
-	// Dynamic Lights
-	// std::vector<const D3D11TextureDepth*> m_shadowMaps;
 
 
 };
