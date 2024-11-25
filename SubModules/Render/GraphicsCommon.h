@@ -78,15 +78,11 @@ namespace Graphics
 		void InitShaders(const D3D11Renderer* pRenderer);
 		void InitSamplerStates(const D3D11Renderer* pRenderer);
 		void InitBlendStates(const D3D11Renderer* pRenderer);
-		void InitSamplerStates(const D3D11Renderer* pRenderer);
 		void InitRasterizerStates(const D3D11Renderer* pRenderer);
 		void InitDepthStencilStates(const D3D11Renderer* pRenderer);
 		void CheckValidity();
 		void ClearCommonResources(); // Delete All
 	}
-
-	// namespace D3D12
-
 
 
 }

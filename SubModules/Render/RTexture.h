@@ -59,7 +59,7 @@ protected:
 };
 
 
-#ifdef D3D11
+#ifdef API_D3D11
 #define RHIDepthTexture ReverseD3D11DepthTexture
 #include "D3D11/D3D11Texture.h"
 #endif
@@ -68,6 +68,6 @@ protected:
 class RDepthTexture : public RHIDepthTexture
 {
 public:
-	RDepthTexture()
+	RDepthTexture() = default;
 };
 
