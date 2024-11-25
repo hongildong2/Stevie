@@ -27,129 +27,76 @@
     <ClInclude Include="Core\StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\DeviceResources.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Scene\Camera.h" />
-    <ClInclude Include="SubModules\Render\Core\RenderTexture.h" />
-    <ClInclude Include="Core\Ocean\Ocean.h">
-      <Filter>Ocean</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\Utility.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\ComputePSO.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\GraphicsCommon.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\GraphicsPSO.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Ocean\OceanConstants.h">
-      <Filter>Ocean</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Core\MyPostProcess.h">
-      <Filter>PostProcess</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Model.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\Render\Mesh\EMeshType.h" />
-    <ClInclude Include="SubModules\Render\Scene\SceneLights.h" />
-    <ClInclude Include="Core\EModelType.h" />
-    <ClInclude Include="SubModules\Render\Mesh\MeshPart.h" />
-    <ClInclude Include="SubModules\Render\Scene\SceneStateObject.h" />
-    <ClInclude Include="SubModules\Render\Core\IWindowSizeDependent.h" />
-    <ClInclude Include="SubModules\Render\Core\DepthTexture.h" />
-    <ClInclude Include="SubModules\Render\Core\IDepthRenderable.h" />
-    <ClInclude Include="SubModules\Render\Core\DepthOnlyResources.h" />
+    <ClInclude Include="SubModules\Render\IRenderer.h" />
+    <ClInclude Include="SubModules\Render\Materials\RMaterial.h" />
+    <ClInclude Include="SubModules\Render\RenderDefs.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
+    <ClInclude Include="SubModules\Render\RTexture.h" />
+    <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
+    <ClInclude Include="SubModules\Render\RShader.h" />
+    <ClInclude Include="Core\Components\MeshComponent.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11DeviceResources.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
+    <ClInclude Include="SubModules\Render\IRenderResource.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
+    <ClInclude Include="SubModules\Render\RSamplerState.h" />
+    <ClInclude Include="SubModules\Render\RBlendState.h" />
+    <ClInclude Include="SubModules\Render\RRasterizerState.h" />
+    <ClInclude Include="SubModules\Render\GraphicsCommon.h" />
+    <ClInclude Include="SubModules\Render\RInputLayout.h" />
+    <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
+    <ClInclude Include="Core\GeometryGenerator.h" />
+    <ClInclude Include="Core\SObject.h" />
+    <ClInclude Include="Core\SSceneObject.h" />
+    <ClInclude Include="Core\Camera.h" />
+    <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Light.h" />
-    <ClInclude Include="SubModules\GUI\GUI.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\GUI\DTOs.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\AObject.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\GUI\EGUIType.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\AObjectManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\IObjectHandler.h" />
-    <ClInclude Include="SubModules\GUI\IGUIComponent.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\IComponentManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\IComponentHandler.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\IComponent.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="SubModules\GUI\IMGUI\IMGUIController.h" />
-    <ClInclude Include="Core\ModelLoader.h" />
-    <ClInclude Include="SubModules\Render\Mesh\MeshCommon.h" />
+    <ClInclude Include="SubModules\Render\RenderConfig.h" />
+    <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
+    <ClInclude Include="SubModules\Render\RenderItem.h" />
+    <ClInclude Include="Core\Ocean.h" />
+    <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
+    <ClInclude Include="Core\OceanDefinition.h" />
+    <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="Core\Cloud.h" />
-    <ClInclude Include="SubModules\Render\Core\VolumetricTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="SubModules\Render\Core\DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Scene\Camera.cpp" />
-    <ClCompile Include="SubModules\Render\Core\RenderTexture.cpp" />
-    <ClCompile Include="Core\Ocean\Ocean.cpp">
-      <Filter>Ocean</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Core\Utility.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Core\GraphicsCommon.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Core\GraphicsPSO.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Core\MyPostProcess.cpp">
-      <Filter>PostProcess</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Model.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\Render\Scene\SceneLights.cpp" />
-    <ClCompile Include="SubModules\Render\Mesh\MeshPart.cpp" />
-    <ClCompile Include="SubModules\Render\Scene\SceneStateObject.cpp" />
-    <ClCompile Include="SubModules\Render\Core\DepthTexture.cpp" />
-    <ClCompile Include="SubModules\Render\Core\DepthOnlyResources.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\RMaterial.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
+    <ClCompile Include="SubModules\Render\RTexture.cpp" />
+    <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
+    <ClCompile Include="SubModules\Render\RShader.cpp" />
+    <ClCompile Include="Core\Components\MeshComponent.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
+    <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
+    <ClCompile Include="SubModules\Render\RSamplerState.cpp" />
+    <ClCompile Include="SubModules\Render\RBlendState.cpp" />
+    <ClCompile Include="SubModules\Render\RRasterizerState.cpp" />
+    <ClCompile Include="SubModules\Render\RInputLayout.cpp" />
+    <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
+    <ClCompile Include="Core\GeometryGenerator.cpp" />
+    <ClCompile Include="Core\SObject.cpp" />
+    <ClCompile Include="Core\SSceneObject.cpp" />
+    <ClCompile Include="Core\Camera.cpp" />
+    <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Core\Light.cpp" />
-    <ClCompile Include="SubModules\GUI\GUI.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\AObject.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\AObjectManager.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\IComponentManager.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SubModules\GUI\DTOs.cpp" />
-    <ClCompile Include="SubModules\GUI\IMGUI\IMGUIController.cpp" />
-    <ClCompile Include="Core\ModelLoader.cpp" />
+    <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
+    <ClCompile Include="Core\Ocean.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
+    <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="Core\Cloud.cpp" />
-    <ClCompile Include="SubModules\Render\Core\VolumetricTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -166,66 +113,40 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_BrunetonLighting.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_GPURandom.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_OceanGlobal.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_PBRFunctions.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_ShadowFunctions.hlsli" />
+    <None Include="SubModules\Render\D3D11\Shaders\INCL_CoordinateTransform.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SubModules\Render\Shaders\PBRVS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\PBRPS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\InitialOceanSpectrumCS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\TimeDependentWaveSpectrumCS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\OceanFFTCS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\CombineWaveCS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\FilterCombinePS.hlsl">
-      <Filter>PostProcess</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\ScreenQuadVS.hlsl">
-      <Filter>PostProcess</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\upBlurCS.hlsl">
-      <Filter>PostProcess</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\downBlurCS.hlsl">
-      <Filter>PostProcess</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\TessellatedQuadHS.hlsl">
-      <Filter>Model</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\TessellatedQuadDS.hlsl">
-      <Filter>Model</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\FoamSimulationCS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\FogPS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\OceanSurfacePS.hlsl">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\SamplingVS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\skyboxPS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\cubemapVS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\ScreenSpace.hlsli" />
-    <FxCompile Include="SubModules\Render\Shaders\RenderingCommons.hlsli" />
-    <FxCompile Include="SubModules\Render\Shaders\PBRCommons.hlsli" />
-    <FxCompile Include="SubModules\Render\Shaders\OceanGlobal.hlsli">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\GPURandom.hlsli">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\BrunetonLighting.hlsli">
-      <Filter>Ocean</Filter>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\Shaders\VolumePS.hlsl" />
-    <FxCompile Include="SubModules\Render\Shaders\CloudCS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\VOLUME_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_DENSITY_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_COMBINE_WAVE_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\DOWN_BLUR_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\FILTER_COMBINE_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FOAM_SIMULATION_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\FOG_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_INITIAL_SPECTRUM_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_SURFACE_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_DS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_HS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_TIME_DEPENDENT_SPECTRUM_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\UP_BLUR_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_POST_PROCESS_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEMO_PS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_VS.hlsl" />
+    <FxCompile Include="SubModules\Render\D3D11\Shaders\SAMPLING_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="SubModules\Render\Shaders\ShaderTypes.hlsli" />
+    <Text Include="SubModules\Render\D3D11\Shaders\INCL_ShaderTypes.hlsli" />
   </ItemGroup>
 </Project>

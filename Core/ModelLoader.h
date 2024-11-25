@@ -28,7 +28,7 @@ private:
 	// TODO :: ProcessMesh -> MeshPart, ProcessNode-> Mesh(composed of MeshParts)
 	void ProcessNode(const std::string& basePath, aiNode* node, const aiScene* scene, DirectX::SimpleMath::Matrix tr);
 	void ProcessMesh(const std::string& basePath, aiMesh* mesh, const aiScene* scene, MeshData* pOutMeshData, TextureFiles* pOutTextureFiles);
-	const std::wstring readFilename(const std::string& basePath, aiMaterial* material, aiTextureType type);
+	const std::wstring readFilename(const std::string& basePath, aiMaterial* pMaterial, aiTextureType type);
 
 private:
 	Model* m_pOutModel;

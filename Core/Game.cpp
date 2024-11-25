@@ -5,83 +5,149 @@
 #include "pch.h"
 #include "Game.h"
 
-#include "Model.h"
-#include "SubModules\Render\Core\GraphicsCommon.h"
-#include "SubModules\Render\Core\Utility.h"
-#include "SubModules\Render\Core\DepthOnlyResources.h"
-#include "SubModules\IComponentManager.h"
-#include "Core\ModelLoader.h"
-#include "AObject.h"
-#include "AObjectManager.h"
-#include "Ocean/Ocean.h"
-#include "Cloud.h"
+#include "GeometryGenerator.h"
+#include "SubModules/Render/D3D11/D3D11Renderer.h"
+#include "Components/MeshComponent.h"
+#include "Core/Camera.h"
+#include "SSceneObject.h"
+#include "Skybox.h"
+#include "Core/Light.h"
+#include "Core/Ocean.h"
+#include "Core/Cloud.h"
 
 extern void ExitGame() noexcept;
 
-using namespace DirectX;
-
-using Microsoft::WRL::ComPtr;
-using DirectX::SimpleMath::Vector3;
-using DirectX::SimpleMath::Matrix;
-using DirectX::SimpleMath::Quaternion;
-
-Game::Game() noexcept(false) :
-	m_sceneState(std::make_unique<SceneStateObject>())
+Game::Game() noexcept(false)
 {
-	m_deviceResources = std::make_unique<DX::DeviceResources>();
-	m_deviceResources->RegisterDeviceNotify(this);
-
-	/* TODO::Load Asset, Model, Environment Here Before Initialize Call.
-	* If AObject is constructed, AObjectManager will automatically Register Objects Here To Underlying Components
-	* Then Initialize Call will Initialize It All.
-	*
-	*/
-
-	auto* man = AObjectManager::GetInstance();
-	man->RegisterIObjectHandler(this);
-
-	auto* comp = IComponentManager::GetInstance();
-	m_GUI = std::make_unique<GUI>();
-	comp->RegisterComponentHandler(m_GUI.get());
-}
-
-// Resource Management
-void Game::Register(AObject* obj)
-{
-	assert(obj != nullptr);
-}
-
-// Resource Management
-void Game::UnRegister(AObject* obj)
-{
-	assert(obj != nullptr);
+	m_pRenderer = std::make_unique<D3D11Renderer>();
 }
 
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-	m_deviceResources->SetWindow(window, width, height);
-	m_deviceResources->CreateDeviceResources();
-	CreateDeviceDependentResources();
+	m_objects.reserve(1000);
+	float aspectRatio = (float)width / (float)height;
+
+	m_pRenderer->SetWindow(window, width, height);
+	m_pRenderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
 
 
-	m_deviceResources->CreateWindowSizeDependentResources();
-	CreateWindowSizeDependentResources();
-
-	// GUI Init
+	// Light
 	{
-		auto* device = m_deviceResources->GetD3DDevice();
-		auto* context = m_deviceResources->GetD3DDeviceContext();
-		if (m_GUI->Initialize(device, context, window, width, height) == false)
+		auto pL = std::make_unique<Light>(ELightType::SPOT);
+		Vector3 lightPos(0.f, 2.f, 0.f);
+		Vector3 lightDir(-XM_PIDIV2, 0.f, 0.f);
+		pL->SetShadowing(TRUE);
+		pL->UpdateYawPitchRoll(lightDir);
+		pL->UpdatePos(lightPos);
+		pL->SetRadiance(10.f);
+		m_sceneLights.push_back(std::move(pL));
+	}
+
+	// DEMO OBJECT
+	{
+		RMeshGeometry* sphereMesh = m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::SPHERE);
+
+		const RTexture* albedoTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-albedo.png");
+		const RTexture* metallicTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Metallic.png");
+		const RTexture* heightTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Height.png");
+		const RTexture* aoTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-ao.png");
+		const RTexture* normalTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Normal-dx.png");
+		const RTexture* roughnessTex = m_pRenderer->CreateTexture2DFromWICFile(L"./Assets/Textures/worn_shiny/worn-shiny-metal-Roughness.png");
+
+		RBasicMaterial* mat = new RBasicMaterial(m_pRenderer.get());
+		mat->SetAlbedoTexture(albedoTex);
+		mat->SetMetallicTexture(metallicTex);
+		mat->SetHeightTexture(heightTex);
+		mat->SetAOTexture(aoTex);
+		mat->SetNormalTexture(normalTex);
+		mat->SetRoughnessTexture(roughnessTex);
+
+		mat->Initialize();
+
+		MeshComponent* demoC = new MeshComponent();
+
+		demoC->Initialize(m_pRenderer.get());
+		demoC->SetMeshGeometry(sphereMesh);
+		demoC->SetMaterial(mat);
+		for (int i = -10; i < 10; ++i)
 		{
-			ExitGame();
+			for (int j = -10; j < 10; ++j)
+			{
+				if (i == 0 && j == 0) continue;
+				auto demoObj = std::make_unique<SSceneObject>();
+
+
+				demoObj->Initialize();
+				demoObj->SetMeshComponent(demoC);
+
+				auto a = Vector3(i * 4, 0.5f, j * 4);
+				demoObj->UpdatePos(a);
+				m_objects.push_back(std::move(demoObj));
+			}
 		}
+
+	}
+
+	// OCEAN
+	{
+		auto oceanObj = std::make_unique<Ocean>(m_pRenderer.get());
+		oceanObj->Initialize();
+		m_objects.push_back(std::move(oceanObj));
+	}
+
+	// CLOUD
+	{
+		auto cloudObj = std::make_unique<Cloud>(m_pRenderer.get());
+		cloudObj->Initialize();
+		m_objects.push_back(std::move(cloudObj));
+	}
+
+	// Scene
+	{
+		//IBL 
+
+		// Camera
+		m_camera = std::make_unique<Camera>(Vector3{ 0.f, 1.f, 0.f });
+		m_pRenderer->SetCamera(m_camera.get());
+
+		// Skybox
+		MeshData box = geometryGenerator::MakeBox(45.f);
+		RMeshGeometry* cubeMesh = m_pRenderer->CreateMeshGeometry(box.verticies.data(), sizeof(RVertex), static_cast<UINT>(box.verticies.size()), box.indicies.data(), sizeof(UINT), static_cast<UINT>(box.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
+		RMaterial* skyboxMaterial = new RSkyboxMaterial(m_pRenderer.get());
+
+		const RTexture* IrradianceMapTexture = m_pRenderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYEnvHDR.dds");
+		const RTexture* SpecularMapTexture = m_pRenderer->CreateTextureCubeFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYSpecularHDR.dds");
+		const RTexture* BRDFMapTexture = m_pRenderer->CreateTexture2DFromDDSFile(L"./Assets/IBL/PURE_SKY/SKYBrdf.dds");
+
+		m_pRenderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
+
+		skyboxMaterial->AddTexture(IrradianceMapTexture);
+		skyboxMaterial->Initialize();
+
+
+		MeshComponent* mcop = new MeshComponent();
+		mcop->Initialize(m_pRenderer.get());
+		mcop->SetMeshGeometry(cubeMesh);
+		mcop->SetMaterial(skyboxMaterial);
+		m_skybox = std::make_unique<Skybox>(mcop);
+
+		m_pRenderer->SetSkybox(m_skybox.get());
+
+		// Lights
+
+		Light* light = new Light(ELightType::DIRECTIONAL);
+		light->SetShadowing(TRUE);
+		Vector3 sunPos(100000, 50000, 100000);
+		light->UpdatePos(sunPos);
+		light->SetRadiance(0.84f);
+		m_pRenderer->SetSunLight(light);
 	}
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
 	m_timer.SetFixedTimeStep(false);
-	m_timer.SetTargetElapsedSeconds(1.0 / 60);
+	m_timer.SetTargetElapsedSeconds(1.0f / 60.0f);
 
 	m_keyboard = std::make_unique<Keyboard>();
 	m_mouse = std::make_unique<Mouse>();
@@ -92,7 +158,6 @@ void Game::Initialize(HWND window, int width, int height)
 // Executes the basic game loop.
 void Game::Tick()
 {
-	// 뭔가 비동기적으로동작하는듯
 	m_timer.Tick([&]()
 		{
 			Update(m_timer);
@@ -105,13 +170,9 @@ void Game::Tick()
 
 
 // Updates the world.
-void Game::Update(DX::StepTimer const& timer)
+void Game::Update(StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
-	auto* context = m_deviceResources->GetD3DDeviceContext();
-
-
-	m_GUI->Update();
 
 	// Update Control, CleanUp later
 	{
@@ -120,9 +181,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
-			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f)
-				* Camera::ROTATION_GAIN;
-			m_sceneState->GetCamera()->UpdatePitchYaw(deltaRotationRadian);
+			Vector3 deltaRotationRadian = Vector3(float(mouse.x), float(mouse.y), 0.f) * Camera::ROTATION_GAIN;
+			m_camera->UpdateYawPitchRoll(deltaRotationRadian);
 		}
 
 		m_mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
@@ -136,7 +196,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (kb.Home)
 		{
-			m_sceneState->GetCamera()->Reset();
+			m_camera->Reset();
 		}
 
 		Vector3 move = Vector3::Zero;
@@ -161,11 +221,11 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 		// Get Camera PitchYaw Quarternion
-		Quaternion q = m_sceneState->GetCamera()->GetPitchYawInQuarternion();
+		Quaternion q = m_camera->GetPitchYawInQuarternion();
 		move = Vector3::Transform(move, q); // represented in camera space
 
 		Vector3 deltaMove = move * Camera::MOVEMENT_GAIN;
-		m_sceneState->GetCamera()->UpdatePos(deltaMove);
+		m_camera->UpdatePos(deltaMove);
 
 		// no bound currently
 		//Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f))
@@ -176,21 +236,10 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 
-	// Update models
-	m_deviceResources->PIXBeginEvent(L"OceanUpdate");
-	m_ocean->Update(context);
-	m_deviceResources->PIXEndEvent();
-
-	m_cloud->Update(context);
-
-
-	for (auto& modelPtr : m_models)
+	for (auto& obj : m_objects)
 	{
-		modelPtr->Update(context);
+		obj->Update();
 	}
-	m_sceneState->Update(context);
-
-
 	elapsedTime;
 }
 #pragma endregion
@@ -205,108 +254,23 @@ void Game::Render()
 		return;
 	}
 
-	// clear renderTarget, clear depth-stencil buffer => set renderTarget with depth-stencil buffer, set viewport
-	Clear();
+	m_pRenderer->BeginRender();
 
-	auto context = m_deviceResources->GetD3DDeviceContext();
-
-	m_deviceResources->PIXBeginEvent(L"Scene");
-	// Scene.Draw()
+	for (auto& obj : m_objects)
 	{
-
-		m_deviceResources->PIXBeginEvent(L"DepthOnlyPass");
-		// DepthOnlyPass
-		{
-			auto* dor = DepthOnlyResources::GetInstance();
-			dor->BeginDepthOnlyPass(context);
-			const auto& createDEEPPTHHH = dor->GetDepthRenderableObjects();
-			for (auto& obj : createDEEPPTHHH)
-			{
-				obj->SetContextDepthOnly(context);
-
-				for (auto& model : m_models)
-				{
-					model->RenderOverride(context, Graphics::depthOnlyPSO);
-				}
-				m_skyBox->RenderOverride(context, Graphics::cubeMapDepthOnlyPSO);
-				m_ocean->RenderOverride(context, Graphics::Ocean::depthOnlyPSO);
-
-			}
-			dor->EndDepthOnlyPass(context);
-		}
-		m_deviceResources->PIXEndEvent();
-
-
-		// 글로벌 상태, 공용 리소스 설정
-		m_sceneState->PrepareRender(context);
-		m_skyBox->Render(context);
-
-		// Models
-		{
-			m_deviceResources->PIXBeginEvent(L"Models");
-			for (auto& model : m_models)
-			{
-				model->Render(context);
-			}
-			m_deviceResources->PIXEndEvent();
-		}
-
-		// Ocean
-		{
-			m_deviceResources->PIXBeginEvent(L"OceanPlane");
-			m_ocean->Render(context);
-			m_deviceResources->PIXEndEvent();
-		}
-
-		// Cloud
-		{
-			m_deviceResources->PIXBeginEvent(L"Cloud");
-			m_cloud->Render(context);
-			m_deviceResources->PIXEndEvent();
-		}
-
-
+		obj->Render();
 	}
-	m_deviceResources->PIXEndEvent();
 
-	m_deviceResources->PIXBeginEvent(L"PostProcess");
+	for (auto& light : m_sceneLights)
 	{
-		auto* rtv = m_deviceResources->GetRenderTargetView();
-		m_sceneState->RenderProcess(context, m_floatBuffer.Get(), rtv);
+		m_pRenderer->AddLight(light.get());
 	}
-	m_deviceResources->PIXEndEvent();
 
+	m_pRenderer->Render();
 
-	m_GUI->Render();
+	m_pRenderer->EndRender();
 
-	// Show the new frame.
-	m_deviceResources->Present();
-}
-
-// Helper method to clear the back buffers.
-void Game::Clear()
-{
-	m_deviceResources->PIXBeginEvent(L"Clear");
-	// 여길 정리할 방법은??
-	// Clear the views.
-	auto context = m_deviceResources->GetD3DDeviceContext();
-	auto depthStencil = m_deviceResources->GetDepthStencilView();
-	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
-
-	context->ClearRenderTargetView(m_floatRTV.Get(), Colors::Black); // HDR Pipeline, using float RTV
-	context->ClearRenderTargetView(backBufferRTV, Colors::Black);
-	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	ID3D11RenderTargetView* rtvs[1] = {
-		m_floatRTV.Get(),
-	};
-	context->OMSetRenderTargets(1, rtvs, depthStencil);
-
-	// Set the viewport.
-	auto const viewport = m_deviceResources->GetScreenViewport();
-	context->RSSetViewports(1, &viewport);
-
-	m_deviceResources->PIXEndEvent();
+	m_pRenderer->Present();
 }
 #pragma endregion
 
@@ -339,23 +303,18 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-	auto const r = m_deviceResources->GetOutputSize();
-	m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Game::OnDisplayChange()
 {
-	m_deviceResources->UpdateColorSpace();
 }
 
 void Game::OnWindowSizeChanged(int width, int height)
 {
-	if (!m_deviceResources->WindowSizeChanged(width, height))
-		return;
-
-	CreateWindowSizeDependentResources();
-
 	// TODO: Game window is being resized.
+	renderConfig::SCREEN_WIDTH = width;
+	renderConfig::SCREEN_HEIGHT = height;
+	m_pRenderer->UpdateWindowSize(width, height);
 }
 
 // Properties
@@ -364,125 +323,5 @@ void Game::GetDefaultSize(int& width, int& height) const noexcept
 	// TODO: Change to desired default window size (note minimum size is 320x200).
 	width = 1920;
 	height = 1080;
-}
-#pragma endregion
-
-#pragma region Direct3D Resources
-// These are the resources that depend on the device.
-void Game::CreateDeviceDependentResources()
-{
-	auto* device = m_deviceResources->GetD3DDevice();
-
-	Graphics::InitCommonStates(device);
-	auto* dop = DepthOnlyResources::GetInstance();
-
-	dop->InitDepthOnlyResources(device);
-
-	// MAKE SCENE CLASS PLEASE
-	{
-		// Sample model
-		{
-			MeshData sphereMesh = GeometryGenerator::MakeSphere(0.5f, 100, 100);
-
-			TextureFiles texes =
-			{
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_diffuse.jpg",
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_ao.jpg",
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_height.jpg",
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_glossiness.jpg",
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_normal.jpg",
-					L"./Assets/Textures/space_foil/space_station_foil_28_74_roughness.jpg"
-			};
-			std::unique_ptr<MeshPart> sph = std::make_unique<MeshPart>(sphereMesh, EMeshType::SOLID, device, texes);
-			std::unique_ptr<Model> smaple = std::make_unique<Model>("Sample Sphere", EModelType::DEFAULT, Graphics::basicPSO);
-			smaple->AddMeshComponent(std::move(sph));
-			smaple->Initialize(device);
-			smaple->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateTranslation(0.f, 5.f, 0.f));
-
-			m_models.push_back(std::move(smaple));
-
-
-			MeshData plane = GeometryGenerator::MakeSquare(75.f);
-			std::unique_ptr<MeshPart> plane2 = std::make_unique<MeshPart>(plane, EMeshType::SOLID, device);
-			std::unique_ptr<Model> samplane = std::make_unique<Model>("Sample Plane", EModelType::DEFAULT, Graphics::basicPSO);
-			samplane->AddMeshComponent(std::move(plane2));
-			samplane->Initialize(device);
-			samplane->UpdatePosByTransform(DirectX::SimpleMath::Matrix::CreateRotationX(DirectX::XM_PIDIV2) * DirectX::SimpleMath::Matrix::CreateTranslation(0.f, -1.65f, 0.f));
-
-			m_models.push_back(std::move(samplane));
-		}
-
-		// Ocean
-		{
-			m_ocean = std::make_unique<Ocean>();
-
-			m_ocean->SetSkyTexture(device, L"./Assets/Textures/Ocean/overcast_sky.jpg");
-			m_ocean->SetFoamTexture(device, L"./Assets/Textures/Ocean/foam.jpg");
-
-			m_ocean->Initialize(device);
-		}
-
-		// Cloud
-		{
-			m_cloud = std::make_unique<Cloud>(100);
-			m_cloud->Initialize(device);
-
-		}
-
-		// Cubemap
-		{
-			m_skyBox = std::make_unique<Model>("cubeMap", EModelType::DEFAULT, Graphics::cubemapPSO);
-			MeshData cube = GeometryGenerator::MakeBox(75.f);
-			auto cubeMesh = std::make_unique<MeshPart>(cube, EMeshType::SOLID, device);
-			m_skyBox->AddMeshComponent(std::move(cubeMesh));
-			m_skyBox->Initialize(device);
-		}
-		m_sceneState->Initialize(device);
-	}
-}
-
-// Allocate all memory resources that change on a window SizeChanged event.
-void Game::CreateWindowSizeDependentResources()
-{
-	D3D11_VIEWPORT screenVP = m_deviceResources->GetScreenViewport();
-	auto* pDevice = m_deviceResources->GetD3DDevice();
-
-	m_sceneState->OnWindowSizeChange(pDevice, screenVP, HDR_BUFFER_FORMAT);
-
-
-	D3D11_TEXTURE2D_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.Format = HDR_BUFFER_FORMAT; // for HDR Pipeline
-	desc.Width = static_cast<UINT>(screenVP.Width);
-	desc.Height = static_cast<UINT>(screenVP.Height);
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
-	desc.MiscFlags = 0;
-	desc.CPUAccessFlags = 0;
-
-	// HDR Pipeline
-	DX::ThrowIfFailed(pDevice->CreateTexture2D(&desc, NULL, m_floatBuffer.GetAddressOf()));
-	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R16G16B16A16_FLOAT);
-	DX::ThrowIfFailed(pDevice->CreateRenderTargetView(m_floatBuffer.Get(), &renderTargetViewDesc, m_floatRTV.ReleaseAndGetAddressOf()));
-	DX::ThrowIfFailed(pDevice->CreateShaderResourceView(m_floatBuffer.Get(), NULL, m_floatSRV.GetAddressOf()));
-
-}
-
-void Game::OnDeviceLost()
-{
-	// TODO: Add Direct3D resource cleanup here.
-}
-
-void Game::OnDeviceRestored()
-{
-	// TODO : reset all the resources
-
-	CreateDeviceDependentResources();
-
-	CreateWindowSizeDependentResources();
 }
 #pragma endregion
