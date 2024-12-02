@@ -325,10 +325,10 @@ namespace Graphics
 		{
 			auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 
-			auto* lSolidCwRS = new D3D11RasterizerState();
-			auto* lSolidCcwRS = new D3D11RasterizerState();
-			auto* lWireFrameCwRS = new D3D11RasterizerState();
-			auto* lWireFrameCcwRS = new D3D11RasterizerState();
+			auto* lSolidCwRS = new RRasterizerState();
+			auto* lSolidCcwRS = new RRasterizerState();
+			auto* lWireFrameCwRS = new RRasterizerState();
+			auto* lWireFrameCcwRS = new RRasterizerState();
 
 			D3D11_RASTERIZER_DESC rastDesc;
 			ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));

@@ -114,5 +114,6 @@ using Microsoft::WRL::ComPtr;
 #include "SubModules\Render\RTexture.h"
 #include "SubModules\Render\RSamplerState.h"
 #include "SubModules\Render\RMeshGeometry.h"
+#include "SubModules\Render\RRasterizerState.h"
 
 #include "Core\GeometryGenerator.h"

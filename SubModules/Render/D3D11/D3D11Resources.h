@@ -1,7 +1,6 @@
 #pragma once
 #include "../RShader.h"
 #include "../RDepthStencilState.h"
-#include "../RRasterizerState.h"
 
 template<typename T>
 class D3D11Resource
@@ -86,7 +85,7 @@ public:
 	~D3D11BlendState() = default;
 };
 
-class D3D11RasterizerState final : public RRasterizerState, public D3D11Resource<ID3D11RasterizerState>
+class D3D11RasterizerState : public D3D11Resource<ID3D11RasterizerState>
 {
 public:
 	D3D11RasterizerState() = default;
