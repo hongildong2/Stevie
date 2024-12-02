@@ -2,11 +2,8 @@
 #include "../RShader.h"
 #include "../RSamplerState.h"
 #include "../RDepthStencilState.h"
-#include "../RBlendState.h"
-#include "../RInputLayout.h"
 #include "../RRasterizerState.h"
 
-// 이게 맞을까?
 template<typename T>
 class D3D11Resource
 {
@@ -97,7 +94,7 @@ public:
 	~D3D11RasterizerState() = default;
 };
 
-class D3D11InputLayout final : public RInputLayout, public D3D11Resource<ID3D11InputLayout>
+class D3D11InputLayout : public D3D11Resource<ID3D11InputLayout>
 {
 public:
 	D3D11InputLayout() = default;

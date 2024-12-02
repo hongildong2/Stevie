@@ -94,8 +94,8 @@ namespace Graphics
 
 
 				// Input Layouts
-				auto* lBasicIL = new D3D11InputLayout();
-				auto* lSamplingIL = new D3D11InputLayout();
+				RInputLayout* lBasicIL = new RInputLayout();
+				RInputLayout* lSamplingIL = new RInputLayout();
 
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lBasicVS->GetName(), ToString(EShaderType::VERTEX_SHADER));

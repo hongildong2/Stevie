@@ -99,6 +99,8 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
+
+
 #include "SubModules\Render\GraphicsCommon.h"
 #include "SubModules\Render\IRenderer.h"
 #include "SubModules\Render\IRenderResource.h"
@@ -108,6 +110,7 @@ using Microsoft::WRL::ComPtr;
 #include "SubModules\Render\Materials\RMaterial.h"
 #include "SubModules\Render\RShader.h"
 #include "SubModules\Render\RBlendState.h"
+#include "SubModules\Render\RInputLayout.h"
 #include "SubModules\Render\RTexture.h"
 #include "SubModules\Render\RMeshGeometry.h"
 
