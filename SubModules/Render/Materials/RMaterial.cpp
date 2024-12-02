@@ -4,9 +4,13 @@ RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
 	, m_geometrySamplerStatesCount(0)
+	, m_geometrySamplerStates{ nullptr, }
 	, m_geometryTexturesCount(0)
+	, m_geometryTextures{ nullptr, }
 	, m_pixelSamplerStatesCount(0)
+	, m_pixelSamplerStates{ nullptr, }
 	, m_pixelTexturesCount(0)
+	, m_pixelTextures{ nullptr, }
 	, m_bInitialized(false)
 	, m_bIsHeightMapped(false)
 {
@@ -48,7 +52,6 @@ void RMaterial::GetPixelTextures(const RTexture** ppOutTextures) const
 	MY_ASSERT(m_bInitialized == TRUE);
 	for (UINT i = 0; i < m_pixelTexturesCount; ++i)
 	{
-		MY_ASSERT(m_pixelTextures[i] != nullptr);
 		ppOutTextures[i] = m_pixelTextures[i];
 	}
 }
@@ -67,12 +70,12 @@ void RMaterial::GetPixelSamplerStates(const RSamplerState** ppOutSamplerStates) 
 RSkyboxMaterial::RSkyboxMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS)
 {
-	m_geometryTexturesCount = GEOMETRY_TEX_SLOTS::COUNT;
-	m_geometrySamplerStatesCount = GEOMETRY_SS_SLOTS::COUNT;
-	m_pixelTexturesCount = PIXEL_TEX_SLOTS::COUNT;
+	m_geometryTexturesCount = 0;
+	m_geometrySamplerStatesCount = 0;
 
-	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_CLAMP] = Graphics::LINEAR_CLAMP_SS;
-	m_pixelSamplerStatesCount = PIXEL_SS_SLOTS::COUNT;
+
+	m_pixelSamplerStates[0] = Graphics::LINEAR_CLAMP_SS;
+	m_pixelSamplerStatesCount = 1;
 }
 
 void RSkyboxMaterial::Initialize()
@@ -80,9 +83,10 @@ void RSkyboxMaterial::Initialize()
 	RMaterial::Initialize();
 }
 
-void RSkyboxMaterial::SetSkyboxTexture(RTexture* pTex)
+void RSkyboxMaterial::SetSkyboxTexture(const RTexture* pTex)
 {
-	m_pixelTextures[PIXEL_TEX_SLOTS::SKYBOX_TEX] = pTex;
+	m_pixelTextures[0] = pTex;
+	m_pixelTexturesCount = 1;
 }
 
 void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
@@ -94,15 +98,13 @@ RBasicMaterial::RBasicMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS)
 	, m_constant(DEFAULT_MATERIAL)
 {
-	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_WRAP] = Graphics::LINEAR_WRAP_SS;
-	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_CLAMP] = Graphics::LINEAR_CLAMP_SS;
-	m_pixelSamplerStatesCount = PIXEL_SS_SLOTS::COUNT;
+	m_pixelSamplerStates[0] = Graphics::LINEAR_WRAP_SS;
+	m_pixelSamplerStates[1] = Graphics::LINEAR_CLAMP_SS;
+	m_pixelSamplerStatesCount = 2;
 
-	m_geometrySamplerStates[GEOMETRY_SS_SLOTS::LINEAR_WRAP] = Graphics::LINEAR_WRAP_SS;
-	m_geometrySamplerStatesCount = GEOMETRY_SS_SLOTS::COUNT;
+	m_geometrySamplerStates[0] = Graphics::LINEAR_WRAP_SS;
+	m_geometrySamplerStatesCount = 1;
 
-	m_geometryTexturesCount = GEOMETRY_TEX_SLOTS::COUNT;
-	m_pixelTexturesCount = PIXEL_TEX_SLOTS::COUNT;
 }
 
 void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
@@ -128,6 +130,7 @@ void RBasicMaterial::SetHeightTexture(const RTexture* pHeightTexture)
 	MY_ASSERT(pHeightTexture != nullptr);
 	m_bIsHeightMapped = TRUE;
 	m_geometryTextures[GEOMETRY_TEX_SLOTS::HEIGHT] = pHeightTexture;
+	m_geometryTexturesCount = 1;
 }
 void RBasicMaterial::SetMetallicTexture(const RTexture* pMetallicTexture)
 {
@@ -166,6 +169,8 @@ void RBasicMaterial::Initialize()
 	m_constant.bUseRoughnessTexture = m_pixelTextures[PIXEL_TEX_SLOTS::ROUGHNESS] != nullptr;
 	m_constant.bUseEmissiveTexture = m_pixelTextures[PIXEL_TEX_SLOTS::EMISSIVE] != nullptr;
 	m_constant.bUseOpacityTexture = m_pixelTextures[PIXEL_TEX_SLOTS::OPACITY] != nullptr;
+
+	m_pixelTexturesCount = PIXEL_TEX_SLOTS::COUNT;
 
 	m_bInitialized = TRUE;
 }

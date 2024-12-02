@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "RenderConfig.h"
 
 
 /* Render Param */
@@ -34,17 +35,17 @@ struct RenderItem
 
 	
 	/* Geometry Bindings */
-	const RTexture* ppGeometryTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	const class RTexture* ppGeometryTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT geometryTexCount;
-	const RSamplerState* ppGeometrySamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	const class RSamplerState* ppGeometrySamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT geometrySSCount;
 
 
 	/* Pixel Bindings */
-	const RPixelShader* pPS;
-	const RTexture* ppPixelTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	const class RPixelShader* pPS;
+	const class RTexture* ppPixelTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT pixelTexCount;
-	const RSamplerState* ppPixelSamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	const class RSamplerState* ppPixelSamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT pixelSSCount;
 
 

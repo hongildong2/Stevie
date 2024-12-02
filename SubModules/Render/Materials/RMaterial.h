@@ -80,30 +80,10 @@ public:
 	~RSkyboxMaterial() = default;
 
 	virtual void Initialize() override;
-	void SetSkyboxTexture(RTexture* pTex);
+	void SetSkyboxTexture(const RTexture* pTex);
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
 
-private:
-	enum GEOMETRY_TEX_SLOTS
-	{
-		COUNT
-	};
-	enum GEOMETRY_SS_SLOTS
-	{
-		COUNT
-	};
-	enum PIXEL_TEX_SLOTS
-	{
-		SKYBOX_TEX,
-		COUNT
-	};
-
-	enum PIXEL_SS_SLOTS
-	{
-		LINEAR_CLAMP,
-		COUNT
-	};
 };
 
 // BasicMaterial
@@ -192,12 +172,6 @@ private:
 	enum GEOMETRY_TEX_SLOTS
 	{
 		HEIGHT,
-		COUNT
-	};
-	enum GEOMETRY_SS_SLOTS
-	{
-		LINEAR_WRAP,
-		COUNT
 	};
 	enum PIXEL_TEX_SLOTS
 	{
@@ -211,12 +185,6 @@ private:
 		COUNT
 	};
 
-	enum PIXEL_SS_SLOTS
-	{
-		LINEAR_WRAP,
-		LINEAR_CLAMP,
-		COUNT
-	};
 
 	RBasicMaterialConstant m_constant;
 };
