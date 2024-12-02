@@ -112,6 +112,7 @@ using Microsoft::WRL::ComPtr;
 #include "SubModules\Render\RBlendState.h"
 #include "SubModules\Render\RInputLayout.h"
 #include "SubModules\Render\RTexture.h"
+#include "SubModules\Render\RSamplerState.h"
 #include "SubModules\Render\RMeshGeometry.h"
 
 #include "Core\GeometryGenerator.h"

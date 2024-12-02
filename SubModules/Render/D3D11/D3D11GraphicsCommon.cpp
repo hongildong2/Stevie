@@ -260,11 +260,11 @@ namespace Graphics
 			desc.MinLOD = 0;
 			desc.MaxLOD = D3D11_FLOAT32_MAX;
 
-			auto* lLinearWrapSS = new D3D11SamplerState();
-			auto* lLinearClampSS = new D3D11SamplerState();
-			auto* lLinearMirrorSS = new D3D11SamplerState();
-			auto* lShadowPointSS = new D3D11SamplerState();
-			auto* lShadowCompareSS = new D3D11SamplerState();
+			auto* lLinearWrapSS = new RSamplerState();
+			auto* lLinearClampSS = new RSamplerState();
+			auto* lLinearMirrorSS = new RSamplerState();
+			auto* lShadowPointSS = new RSamplerState();
+			auto* lShadowCompareSS = new RSamplerState();
 
 			ThrowIfFailed(pDevice->CreateSamplerState(&desc, lLinearWrapSS->ReleaseAndGetAddressOf()));
 

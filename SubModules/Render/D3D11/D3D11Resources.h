@@ -1,6 +1,5 @@
 #pragma once
 #include "../RShader.h"
-#include "../RSamplerState.h"
 #include "../RDepthStencilState.h"
 #include "../RRasterizerState.h"
 
@@ -73,7 +72,7 @@ public:
 };
 
 
-class D3D11SamplerState final : public RSamplerState, public D3D11Resource<ID3D11SamplerState>
+class D3D11SamplerState : public D3D11Resource<ID3D11SamplerState>
 {
 public:
 	D3D11SamplerState() = default;

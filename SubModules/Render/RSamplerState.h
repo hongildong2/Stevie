@@ -1,8 +1,11 @@
 #pragma once
-#include "IRenderResource.h"
 
-class RSamplerState :
-	public IRenderResource
+#ifdef API_D3D11
+#include "SubModules/Render/D3D11/D3D11Resources.h"
+#define RHISamplerState D3D11SamplerState
+#endif
+
+class RSamplerState final : public RHISamplerState
 {
 };
 
