@@ -83,7 +83,7 @@ public:
 	~D3D11SamplerState() = default;
 };
 
-class D3D11BlendState final : public RBlendState, public D3D11Resource<ID3D11BlendState>
+class D3D11BlendState : public D3D11Resource<ID3D11BlendState>
 {
 public:
 	D3D11BlendState() = default;

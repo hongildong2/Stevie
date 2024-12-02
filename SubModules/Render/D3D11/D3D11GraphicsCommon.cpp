@@ -301,7 +301,7 @@ namespace Graphics
 		{
 			auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 
-			D3D11BlendState* lAlphaBS = new D3D11BlendState();
+			RBlendState* lAlphaBS = new RBlendState();
 
 			D3D11_BLEND_DESC blendDesc;
 			ZeroMemory(&blendDesc, sizeof(blendDesc));
