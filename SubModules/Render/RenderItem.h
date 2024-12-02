@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
 
+
+/* Render Param */
 struct RenderParam
 {
 	UINT data[64];
@@ -25,13 +27,28 @@ FORCEINLINE void MEMCPY_RENDER_PARAM(RenderParam* dst, U* src)
 }
 
 
-
+/* Render Item */
 struct RenderItem
 {
 	const class RMeshGeometry* pMeshGeometry;
-	const class RMaterial* pMaterial;
 
-	// Draw Policy
+	
+	/* Geometry Bindings */
+	const RTexture* ppGeometryTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	UINT geometryTexCount;
+	const RSamplerState* ppGeometrySamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	UINT geometrySSCount;
+
+
+	/* Pixel Bindings */
+	const RPixelShader* pPS;
+	const RTexture* ppPixelTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	UINT pixelTexCount;
+	const RSamplerState* ppPixelSamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
+	UINT pixelSSCount;
+
+
+	/* Draw Policy */
 	const class RBlendState* pBlendState;
 	bool bIsOccluder;
 	bool bIsTransparent;

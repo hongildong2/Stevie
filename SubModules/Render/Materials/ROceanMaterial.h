@@ -17,20 +17,14 @@ public:
 	void SetSkyTexture(RTexture* tex);
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;
-	virtual void GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
-	virtual void GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const override;
 private:
-	enum
-	{
-		DISPLACEMENT_TEXTURE2D_ARRAY,
-		DERIVATIVE_TEXTURE2D_ARRAY,
-		TURBULENCE_TEXTURE2D_ARRAY,
-		WAVE_VECTOR_TEXTURE2D_ARRAY,
-		INITIAL_SPECTRUM_TEXTURE2D_ARRAY,
-		HEIGHT_TEXTURE2D,
-		SKY_TEXTURE,
-		FOAM_TEXTURE
-	};
+	RTexture* m_displacementTex;
+	RTexture* m_derivativeTex;
+	RTexture* m_turbulenceTex;
+	RTexture* m_waveVectorTex;
+	RTexture* m_initSpectrumTex;
+	RTexture* m_skyTex;
+	RTexture* m_foamTex;
 
 	RTexture* m_combineParameterSB;
 	RTexture* m_localInitialSpectrumSB;

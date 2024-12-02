@@ -3,36 +3,15 @@
 RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
-	, m_samplerStatesCount(0)
-	, m_samplerStates{ nullptr, }
-	, m_textureCount(0)
-	, m_textures{ nullptr, }
+	, m_geometrySamplerStatesCount(0)
+	, m_geometryTexturesCount(0)
+	, m_pixelSamplerStatesCount(0)
+	, m_pixelTexturesCount(0)
 	, m_bInitialized(false)
 	, m_bIsHeightMapped(false)
 {
 }
 
-bool RMaterial::AddTexture(const RTexture* pTexture)
-{
-	if (m_textureCount >= MATERIAL_TEXTURE_MAX_COUNT || m_bInitialized == TRUE)
-	{
-		return false;
-	}
-
-	m_textures[m_textureCount++] = pTexture;
-	return true;
-}
-
-bool RMaterial::AddSamplerState(const RSamplerState* pSamplerState)
-{
-	if (m_samplerStatesCount >= MATERIAL_SAMPLE_STATE_MAX_COUNT || m_bInitialized == TRUE)
-	{
-		return false;
-	}
-
-	m_samplerStates[m_samplerStatesCount++] = pSamplerState;
-	return true;
-}
 
 void RMaterial::Initialize()
 {
@@ -44,56 +23,66 @@ void RMaterial::Update()
 	assert(m_bInitialized);
 }
 
-void RMaterial::GetSamplerStates(const RSamplerState** ppOutSamplerStates, UINT* pOutSamplerStatesCount) const
-
+void RMaterial::GetGeometryTextures(const RTexture** ppOutTextures) const
 {
-	for (UINT i = 0; i < m_samplerStatesCount; ++i)
+	MY_ASSERT(m_bInitialized == TRUE);
+	for (UINT i = 0; i < m_geometryTexturesCount; ++i)
 	{
-		ppOutSamplerStates[i] = m_samplerStates[i];
+		MY_ASSERT(m_geometryTextures[i] != nullptr);
+		ppOutTextures[i] = m_geometryTextures[i];
 	}
-	*pOutSamplerStatesCount = m_samplerStatesCount;
 }
 
-void RMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
+void RMaterial::GetGeometrySamplerStates(const RSamplerState** ppOutSamplerStates) const
 {
-	for (UINT i = 0; i < m_textureCount; ++i)
+	MY_ASSERT(m_bInitialized == TRUE);
+	for (UINT i = 0; i < m_geometrySamplerStatesCount; ++i)
 	{
-		ppOutTextures[i] = m_textures[i];
+		MY_ASSERT(m_geometrySamplerStates[i] != nullptr);
+		ppOutSamplerStates[i] = m_geometrySamplerStates[i];
 	}
-	*pOutTextureCount = m_textureCount;
 }
 
-
-
-RDemoMaterial::RDemoMaterial(IRenderer* pRenderer)
-	: RMaterial(pRenderer, Graphics::DEMO_PS)
+void RMaterial::GetPixelTextures(const RTexture** ppOutTextures) const
 {
-	// assert pRenderer not null
-	Initialize();
+	MY_ASSERT(m_bInitialized == TRUE);
+	for (UINT i = 0; i < m_pixelTexturesCount; ++i)
+	{
+		MY_ASSERT(m_pixelTextures[i] != nullptr);
+		ppOutTextures[i] = m_pixelTextures[i];
+	}
 }
 
-void RDemoMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
+void RMaterial::GetPixelSamplerStates(const RSamplerState** ppOutSamplerStates) const
 {
-	pOutRenderParam;
-}
-
-void RDemoMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures;
-	pOutTextureCount = 0;
+	MY_ASSERT(m_bInitialized == TRUE);
+	for (UINT i = 0; i < m_pixelSamplerStatesCount; ++i)
+	{
+		MY_ASSERT(m_pixelSamplerStates[i] != nullptr);
+		ppOutSamplerStates[i] = m_pixelSamplerStates[i];
+	}
 }
 
 
 RSkyboxMaterial::RSkyboxMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS)
 {
-	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
+	m_geometryTexturesCount = GEOMETRY_TEX_SLOTS::COUNT;
+	m_geometrySamplerStatesCount = GEOMETRY_SS_SLOTS::COUNT;
+	m_pixelTexturesCount = PIXEL_TEX_SLOTS::COUNT;
+
+	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_CLAMP] = Graphics::LINEAR_CLAMP_SS;
+	m_pixelSamplerStatesCount = PIXEL_SS_SLOTS::COUNT;
 }
 
 void RSkyboxMaterial::Initialize()
 {
-	MY_ASSERT(m_textureCount == 1 && m_textures[0] != nullptr);
 	RMaterial::Initialize();
+}
+
+void RSkyboxMaterial::SetSkyboxTexture(RTexture* pTex)
+{
+	m_pixelTextures[PIXEL_TEX_SLOTS::SKYBOX_TEX] = pTex;
 }
 
 void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
@@ -101,19 +90,19 @@ void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	pOutRenderParam;
 }
 
-void RSkyboxMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures;
-	*pOutTextureCount = 0;
-}
-
 RBasicMaterial::RBasicMaterial(IRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS)
 	, m_constant(DEFAULT_MATERIAL)
 {
-	m_textureCount = BASIC_TEXTURE_INDEX::COUNT;
-	AddSamplerState(Graphics::LINEAR_WRAP_SS);
-	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
+	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_WRAP] = Graphics::LINEAR_WRAP_SS;
+	m_pixelSamplerStates[PIXEL_SS_SLOTS::LINEAR_CLAMP] = Graphics::LINEAR_CLAMP_SS;
+	m_pixelSamplerStatesCount = PIXEL_SS_SLOTS::COUNT;
+
+	m_geometrySamplerStates[GEOMETRY_SS_SLOTS::LINEAR_WRAP] = Graphics::LINEAR_WRAP_SS;
+	m_geometrySamplerStatesCount = GEOMETRY_SS_SLOTS::COUNT;
+
+	m_geometryTexturesCount = GEOMETRY_TEX_SLOTS::COUNT;
+	m_pixelTexturesCount = PIXEL_TEX_SLOTS::COUNT;
 }
 
 void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
@@ -121,67 +110,62 @@ void RBasicMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	MEMCPY_RENDER_PARAM(pOutRenderParam, &m_constant);
 }
 
-void RBasicMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures[0] = m_textures[HEIGHT];
-	*pOutTextureCount = 1;
-}
 
 void RBasicMaterial::SetAlbedoTexture(const RTexture* pAlbedoTexture)
 {
 	MY_ASSERT(pAlbedoTexture != nullptr);
 
-	m_textures[ALBEDO] = pAlbedoTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::ALBEDO] = pAlbedoTexture;
 }
 
 void RBasicMaterial::SetAOTexture(const RTexture* pAOTexture)
 {
 	MY_ASSERT(pAOTexture != nullptr);
-	m_textures[AO] = pAOTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::AO] = pAOTexture;
 }
 void RBasicMaterial::SetHeightTexture(const RTexture* pHeightTexture)
 {
 	MY_ASSERT(pHeightTexture != nullptr);
 	m_bIsHeightMapped = TRUE;
-	m_textures[HEIGHT] = pHeightTexture;
+	m_geometryTextures[GEOMETRY_TEX_SLOTS::HEIGHT] = pHeightTexture;
 }
 void RBasicMaterial::SetMetallicTexture(const RTexture* pMetallicTexture)
 {
 	MY_ASSERT(pMetallicTexture != nullptr);
-	m_textures[METALLIC] = pMetallicTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::METALLIC] = pMetallicTexture;
 }
 void RBasicMaterial::SetNormalTexture(const RTexture* pNormalTexture)
 {
 	MY_ASSERT(pNormalTexture != nullptr);
-	m_textures[NORMAL] = pNormalTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::NORMAL] = pNormalTexture;
 }
 void RBasicMaterial::SetRoughnessTexture(const RTexture* pRoughnessTexture)
 {
 	MY_ASSERT(pRoughnessTexture != nullptr);
-	m_textures[ROUGHNESS] = pRoughnessTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::ROUGHNESS] = pRoughnessTexture;
 }
 void RBasicMaterial::SetEmissiveTexture(const RTexture* pEmissiveTexture)
 {
 	MY_ASSERT(pEmissiveTexture != nullptr);
-	m_textures[EMISSIVE] = pEmissiveTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::EMISSIVE] = pEmissiveTexture;
 }
 void RBasicMaterial::SetOpacityTexture(const RTexture* pOpacityTexture)
 {
 	MY_ASSERT(pOpacityTexture != nullptr);
-	m_textures[OPACITY] = pOpacityTexture;
+	m_pixelTextures[PIXEL_TEX_SLOTS::OPACITY] = pOpacityTexture;
 }
 
 void RBasicMaterial::Initialize()
 {
-	m_constant.bUseAlbedoTexture = m_textures[ALBEDO] != nullptr;
-	m_constant.bUseAOTexture = m_textures[AO] != nullptr;
-	m_constant.bUseHeightTexture = m_textures[HEIGHT] != nullptr;
-	m_constant.bUseMetallicTexture = m_textures[METALLIC] != nullptr;
+	m_constant.bUseAlbedoTexture = m_pixelTextures[PIXEL_TEX_SLOTS::ALBEDO] != nullptr;
+	m_constant.bUseAOTexture = m_pixelTextures[PIXEL_TEX_SLOTS::AO] != nullptr;
+	m_constant.bUseHeightTexture = m_geometryTextures[GEOMETRY_TEX_SLOTS::HEIGHT] != nullptr;
+	m_constant.bUseMetallicTexture = m_pixelTextures[PIXEL_TEX_SLOTS::METALLIC] != nullptr;
 
-	m_constant.bUseNormalTexture = m_textures[NORMAL] != nullptr;
-	m_constant.bUseRoughnessTexture = m_textures[ROUGHNESS] != nullptr;
-	m_constant.bUseEmissiveTexture = m_textures[EMISSIVE] != nullptr;
-	m_constant.bUseOpacityTexture = m_textures[OPACITY] != nullptr;
+	m_constant.bUseNormalTexture = m_pixelTextures[PIXEL_TEX_SLOTS::NORMAL] != nullptr;
+	m_constant.bUseRoughnessTexture = m_pixelTextures[PIXEL_TEX_SLOTS::ROUGHNESS] != nullptr;
+	m_constant.bUseEmissiveTexture = m_pixelTextures[PIXEL_TEX_SLOTS::EMISSIVE] != nullptr;
+	m_constant.bUseOpacityTexture = m_pixelTextures[PIXEL_TEX_SLOTS::OPACITY] != nullptr;
 
 	m_bInitialized = TRUE;
 }

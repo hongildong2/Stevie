@@ -4,10 +4,13 @@
 enum class ETextureType
 {
 	TEXTURE_2D,
+	TEXTURE_2D_ARRAY,
 	TEXTURE_3D,
 	TEXTURE_CUBE,
 	STRUCTURED_BUFFER
 };
+
+// IRenderResource -> TEXTURE_HANDLE, MESH_GEOMETRY_HANDLE
 
 class RTexture
 	: public IRenderResource

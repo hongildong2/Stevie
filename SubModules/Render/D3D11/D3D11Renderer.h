@@ -72,7 +72,7 @@ public:
 
 private:
 	void UpdateGlobalConstant();
-	void SetPipelineStateByMaterial(const RMaterial* pMaterial);
+	void SetPipelineState(const RenderItem& item);
 
 	void RenderSkybox();
 	void RenderOpaques();
