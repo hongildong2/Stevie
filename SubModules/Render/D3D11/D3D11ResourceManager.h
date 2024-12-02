@@ -9,7 +9,6 @@ class D3D11Texture3D;
 class D3D11TextureRender;
 class D3D11TextureCube;
 class D3D11TextureVolume;
-class D3D11MeshGeometry;
 class D3D11Renderer;
 
 class D3D11ResourceManager final
@@ -20,7 +19,7 @@ public:
 	void Initialize(D3D11Renderer* pRenderer);
 
 
-	D3D11MeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType);
+	RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType);
 	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format);
 	D3D11Texture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
 	RDepthTexture* CreateTextureDepth(const UINT width, const UINT height);
@@ -30,10 +29,10 @@ public:
 	D3D11Texture2D* CreateTexture2DFromDDSFile(const WCHAR* fileName);
 	D3D11TextureCube* CreateTextureCubeFromDDSFile(const WCHAR* fileName);
 
-	D3D11MeshGeometry* CreateCube();
-	D3D11MeshGeometry* CreateSphere();
-	D3D11MeshGeometry* CreateQuad();
-	D3D11MeshGeometry* CreateTessellatedQuad();
+	RMeshGeometry* CreateCube();
+	RMeshGeometry* CreateSphere();
+	RMeshGeometry* CreateQuad();
+	RMeshGeometry* CreateTessellatedQuad();
 
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
 	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);

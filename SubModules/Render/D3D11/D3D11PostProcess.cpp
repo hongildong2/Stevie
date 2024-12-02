@@ -184,7 +184,7 @@ void D3D11PostProcess::ProcessBloom()
 void D3D11PostProcess::DrawScreenQuad()
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	D3D11MeshGeometry* pMG = static_cast<D3D11MeshGeometry*>(m_screenQuad.get());
+	RMeshGeometry* pMG = m_screenQuad.get();
 	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
 	UINT vS = pMG->GetVertexStride();
 	UINT vO = pMG->GetVertexOffset();

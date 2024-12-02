@@ -482,7 +482,7 @@ void D3D11Renderer::RenderSkybox()
 	{
 		m_deviceResources->PIXBeginEvent(L"Sky Box");
 		auto* pMC = m_skybox->GetMeshComponent();
-		const auto* pRMG = static_cast<const D3D11MeshGeometry*>(pMC->GetMeshGeometry());
+		const auto* pRMG = pMC->GetMeshGeometry();
 		auto* pMat = pMC->GetMaterial();
 
 		auto* pContext = m_deviceResources->GetD3DDeviceContext();
@@ -571,7 +571,7 @@ void D3D11Renderer::RenderTransparent()
 
 void D3D11Renderer::Draw(const RenderItem& renderItem)
 {
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(renderItem.pMeshGeometry);
+	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	const RMaterial* mat = renderItem.pMaterial;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
@@ -636,7 +636,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 
 void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 {
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(renderItem.pMeshGeometry);
+	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	const RMaterial* mat = renderItem.pMaterial;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
