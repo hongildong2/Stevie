@@ -1,6 +1,4 @@
 #pragma once
-#include "../RShader.h"
-#include "../RDepthStencilState.h"
 
 template<typename T>
 class D3D11Resource
@@ -26,47 +24,47 @@ protected:
 };
 
 
-class D3D11VertexShader final : public RVertexShader, public D3D11Resource<ID3D11VertexShader>
+class D3D11VertexShader : public D3D11Resource<ID3D11VertexShader>
 {
 public:
-	D3D11VertexShader(const WCHAR* name) : RVertexShader(name) {};
+	D3D11VertexShader() = default;
 	~D3D11VertexShader() = default;
 };
 
 
-class D3D11PixelShader final : public RPixelShader, public D3D11Resource<ID3D11PixelShader>
+class D3D11PixelShader : public D3D11Resource<ID3D11PixelShader>
 {
 public:
-	D3D11PixelShader(const WCHAR* name) : RPixelShader(name) {};
+	D3D11PixelShader() = default; 
 	~D3D11PixelShader() = default;
 };
 
 
-class D3D11ComputeShader final : public RComputeShader, public D3D11Resource<ID3D11ComputeShader>
+class D3D11ComputeShader : public D3D11Resource<ID3D11ComputeShader>
 {
 public:
-	D3D11ComputeShader(const WCHAR* name) : RComputeShader(name) {};
+	D3D11ComputeShader() = default;
 	~D3D11ComputeShader() = default;
 };
 
-class D3D11DomainShader final : public RDomainShader, public D3D11Resource<ID3D11DomainShader>
+class D3D11DomainShader : public D3D11Resource<ID3D11DomainShader>
 {
 public:
-	D3D11DomainShader(const WCHAR* name) : RDomainShader(name) {};
+	D3D11DomainShader() = default;
 	~D3D11DomainShader() = default;
 };
 
-class D3D11HullShader final : public RHullShader, public D3D11Resource<ID3D11HullShader>
+class D3D11HullShader : public D3D11Resource<ID3D11HullShader>
 {
 public:
-	D3D11HullShader(const WCHAR* name) : RHullShader(name) {};
+	D3D11HullShader() = default;
 	~D3D11HullShader() = default;
 };
 
-class D3D11GeometryShader final : public RGeometryShader, public D3D11Resource<ID3D11GeometryShader>
+class D3D11GeometryShader : public D3D11Resource<ID3D11GeometryShader>
 {
 public:
-	D3D11GeometryShader(const WCHAR* name) : RGeometryShader(name) {};
+	D3D11GeometryShader() = default;
 	~D3D11GeometryShader() = default;
 };
 

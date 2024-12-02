@@ -86,11 +86,11 @@ namespace Graphics
 
 			// VERTEX SHADER
 			{
-				auto* lBasicVS = new D3D11VertexShader(L"BASIC");
-				auto* lCubemapVS = new D3D11VertexShader(L"CUBEMAP");
-				auto* lQuadVS = new D3D11VertexShader(L"QUAD");
-				auto* lDepthOnlyVS = new D3D11VertexShader(L"DEPTH_ONLY");
-				auto* lSamplingVS = new D3D11VertexShader(L"SAMPLING");
+				auto* lBasicVS = new RVertexShader(L"BASIC");
+				auto* lCubemapVS = new RVertexShader(L"CUBEMAP");
+				auto* lQuadVS = new RVertexShader(L"QUAD");
+				auto* lDepthOnlyVS = new RVertexShader(L"DEPTH_ONLY");
+				auto* lSamplingVS = new RVertexShader(L"SAMPLING");
 
 
 				// Input Layouts
@@ -149,15 +149,15 @@ namespace Graphics
 
 			// PIXEL SHADER
 			{
-				D3D11PixelShader* src[] =
+				RPixelShader* src[] =
 				{
-					new D3D11PixelShader(L"BASIC"),
-					new D3D11PixelShader(L"CUBEMAP"),
-					new D3D11PixelShader(L"FILTER_COMBINE"),
-					new D3D11PixelShader(L"FOG"),
-					new D3D11PixelShader(L"VOLUME"),
-					new D3D11PixelShader(L"DEMO"),
-					new D3D11PixelShader(L"OCEAN_SURFACE"),
+					new RPixelShader(L"BASIC"),
+					new RPixelShader(L"CUBEMAP"),
+					new RPixelShader(L"FILTER_COMBINE"),
+					new RPixelShader(L"FOG"),
+					new RPixelShader(L"VOLUME"),
+					new RPixelShader(L"DEMO"),
+					new RPixelShader(L"OCEAN_SURFACE"),
 				};
 
 				RPixelShader** dst[] =
@@ -185,18 +185,18 @@ namespace Graphics
 
 			// COMPUTE SHADER
 			{
-				D3D11ComputeShader* src[] =
+				RComputeShader* src[] =
 				{
-					new D3D11ComputeShader(L"DOWN_BLUR"),
-					new D3D11ComputeShader(L"UP_BLUR"),
-					new D3D11ComputeShader(L"CLOUD_DENSITY"),
-					new D3D11ComputeShader(L"CLOUD_LIGHTING"),
-					new D3D11ComputeShader(L"OCEAN_INITIAL_SPECTRUM"),
-					new D3D11ComputeShader(L"OCEAN_TIME_DEPENDENT_SPECTRUM"),
-					new D3D11ComputeShader(L"OCEAN_FFT"),
-					new D3D11ComputeShader(L"OCEAN_FFT_POST_PROCESS"),
-					new D3D11ComputeShader(L"OCEAN_COMBINE_WAVE"),
-					new D3D11ComputeShader(L"OCEAN_FOAM_SIMULATION"),
+					new RComputeShader(L"DOWN_BLUR"),
+					new RComputeShader(L"UP_BLUR"),
+					new RComputeShader(L"CLOUD_DENSITY"),
+					new RComputeShader(L"CLOUD_LIGHTING"),
+					new RComputeShader(L"OCEAN_INITIAL_SPECTRUM"),
+					new RComputeShader(L"OCEAN_TIME_DEPENDENT_SPECTRUM"),
+					new RComputeShader(L"OCEAN_FFT"),
+					new RComputeShader(L"OCEAN_FFT_POST_PROCESS"),
+					new RComputeShader(L"OCEAN_COMBINE_WAVE"),
+					new RComputeShader(L"OCEAN_FOAM_SIMULATION"),
 				};
 
 				RComputeShader** dst[] =
@@ -226,7 +226,7 @@ namespace Graphics
 
 			// HULL SHADER
 			{
-				D3D11HullShader* lTessellatedQuadHS = new D3D11HullShader(L"TESSELLATED_QUAD");
+				auto* lTessellatedQuadHS = new RHullShader(L"TESSELLATED_QUAD");
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadHS->GetName(), ToString(EShaderType::HULL_SHADER));
 				ThrowIfFailed(CompileShader(shaderFileNameBuffer, "main", "hs_5_0", NULL, shaderBlob.GetAddressOf()));
@@ -237,7 +237,7 @@ namespace Graphics
 
 			// DOMAIN SHADER
 			{
-				D3D11DomainShader* lTessellatedQuadDS = new D3D11DomainShader(L"TESSELLATED_QUAD");
+				auto* lTessellatedQuadDS = new RDomainShader(L"TESSELLATED_QUAD");
 
 				swprintf(shaderFileNameBuffer, BUFFER_COUNT, L"%s%s_%s.hlsl", BASE_PATH, lTessellatedQuadDS->GetName(), ToString(EShaderType::DOMAIN_SHADER));
 				ThrowIfFailed(CompileShader(shaderFileNameBuffer, "main", "ds_5_0", NULL, shaderBlob.GetAddressOf()));

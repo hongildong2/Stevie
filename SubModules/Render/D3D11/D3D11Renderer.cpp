@@ -468,7 +468,7 @@ void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
 	}
 
 
-	const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>(pMaterial->GetShader());
+	const RPixelShader* ps = pMaterial->GetShader();
 	if (ps != nullptr)
 	{
 		pContext->PSSetShader(ps->Get(), nullptr, 0);
@@ -487,8 +487,7 @@ void D3D11Renderer::RenderSkybox()
 
 		auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-		D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
-		pContext->IASetInputLayout(samplingIL->Get());
+		pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
 
 		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pRMG->GetTopologyType()));
 		ID3D11Buffer* pVB[1] = { pRMG->GetVertexBuffer() };
@@ -499,14 +498,12 @@ void D3D11Renderer::RenderSkybox()
 
 
 		ID3D11Buffer* cbs[1] = { m_globalCB.Get() };
-		D3D11VertexShader* cubemapVS = static_cast<D3D11VertexShader*>(Graphics::CUBEMAP_VS);
-		pContext->VSSetShader(cubemapVS->Get(), nullptr, 0);
+		pContext->VSSetShader(Graphics::CUBEMAP_VS->Get(), nullptr, 0);
 		pContext->VSSetConstantBuffers(0, 1, cbs);
 
 		SetPipelineStateByMaterial(pMat);
 
-		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CCW_RS);
-		pContext->RSSetState(basicRS->Get());
+		pContext->RSSetState(Graphics::SOLID_CCW_RS->Get());
 
 		pContext->DrawIndexed(pRMG->GetIndexCount(), 0, 0);
 
@@ -575,9 +572,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 	const RMaterial* mat = renderItem.pMaterial;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-
-	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
-	pContext->IASetInputLayout(basicIL->Get());
+	pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
 	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
 
@@ -586,9 +581,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 	UINT mVO = mesh->GetVertexOffset();
 	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
 	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-
-	D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
-	pContext->VSSetShader(basicVS->Get(), nullptr, 0);
+	pContext->VSSetShader(Graphics::BASIC_VS->Get(), nullptr, 0);
 
 
 	if (mat->IsHeightMapped()) // Set HeightMap Resource
@@ -612,8 +605,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 
 	SetPipelineStateByMaterial(mat);
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
-	pContext->RSSetState(basicRS->Get());
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
 
 	if (renderItem.bIsTransparent)
 	{
@@ -641,8 +633,7 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
 
-	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
-	pContext->IASetInputLayout(basicIL->Get());
+	pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
 	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
 	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
@@ -651,12 +642,10 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
 	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
-	D3D11VertexShader* vs = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
-	pContext->VSSetShader(vs->Get(), 0, 0);
-	D3D11DomainShader* ds = static_cast<D3D11DomainShader*>(Graphics::TESSELATED_QUAD_DS);
-	pContext->DSSetShader(ds->Get(), 0, 0);
-	D3D11HullShader* hs = static_cast<D3D11HullShader*>(Graphics::TESSELLATED_QUAD_HS);
-	pContext->HSSetShader(hs->Get(), 0, 0);
+
+	pContext->VSSetShader(Graphics::BASIC_VS->Get(), 0, 0);
+	pContext->DSSetShader(Graphics::TESSELATED_QUAD_DS->Get(), 0, 0);
+	pContext->HSSetShader(Graphics::TESSELLATED_QUAD_HS->Get(), 0, 0);
 
 
 	if (mat->IsHeightMapped()) // Set HeightMap Resource
@@ -683,17 +672,15 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->HSSetConstantBuffers(0, 2, cbs);
 	pContext->DSSetConstantBuffers(0, 2, cbs);
 
-	ID3D11SamplerState* TEMP_SS[1] = { static_cast<D3D11SamplerState*>(Graphics::LINEAR_WRAP_SS)->Get() };
+	ID3D11SamplerState* TEMP_SS[1] = { Graphics::LINEAR_WRAP_SS->Get() };
 	pContext->DSSetSamplers(0, 1, TEMP_SS);
 
 	SetPipelineStateByMaterial(mat);
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
-	pContext->RSSetState(basicRS->Get());
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
 
 	if (renderItem.bIsTransparent)
 	{
-		const D3D11BlendState* bs = static_cast<const D3D11BlendState*>(renderItem.pBlendState);
 		FLOAT blendFactor[4] = {
 			renderItem.blendFactor.x,
 			renderItem.blendFactor.y,
@@ -701,7 +688,7 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0);
+		pContext->OMSetBlendState(renderItem.pBlendState->Get(), blendFactor, 0);
 	}
 
 
