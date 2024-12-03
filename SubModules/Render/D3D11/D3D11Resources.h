@@ -96,3 +96,10 @@ public:
 	D3D11InputLayout() = default;
 	~D3D11InputLayout() = default;
 };
+
+class D3D11DepthStencilState : public D3D11Resource<ID3D11DepthStencilState>
+{
+public:
+	D3D11DepthStencilState() = default;
+	~D3D11DepthStencilState() = default;
+};

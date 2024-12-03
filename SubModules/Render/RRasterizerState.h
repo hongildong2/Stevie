@@ -5,7 +5,7 @@
 #define RHIRasterizerState D3D11RasterizerState
 #endif
 
-class RRasterizerState : public RHIRasterizerState
+class RRasterizerState final : public RHIRasterizerState
 {
 };
 

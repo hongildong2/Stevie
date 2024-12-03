@@ -564,6 +564,7 @@ void D3D11Renderer::RenderSkybox()
 
 
 		pContext->RSSetState(Graphics::SOLID_CCW_RS->Get());
+		pContext->OMSetDepthStencilState(Graphics::SKYBOX_DSS->Get(), 0);
 
 		pContext->DrawIndexed(pRMG->GetIndexCount(), 0, 0);
 
@@ -574,6 +575,11 @@ void D3D11Renderer::RenderSkybox()
 void D3D11Renderer::RenderOpaques()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Opaques");
+
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->OMSetDepthStencilState(Graphics::OPAQUE_DSS->Get(), 0);
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+
 	for (UINT i = 0; i < m_renderItemIndex; ++i)
 	{
 		RenderItem& opaqueItem = m_renderItems[i];
@@ -602,6 +608,11 @@ void D3D11Renderer::RenderOpaques()
 void D3D11Renderer::RenderTransparent()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Transparent");
+
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->OMSetDepthStencilState(Graphics::TRANSPARENT_DSS->Get(), 0);
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+
 	for (UINT i = 0; i < m_renderItemIndex; ++i)
 	{
 		RenderItem& transparentItem = m_renderItems[i];
@@ -631,27 +642,27 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-	pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
-	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
+	// Geometry Pipeline
+	{
+		pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
+		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
+
+		ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
+		UINT mVS = mesh->GetVertexStride();
+		UINT mVO = mesh->GetVertexOffset();
+		pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
+		pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+		pContext->VSSetShader(Graphics::BASIC_VS->Get(), nullptr, 0);
 
 
-	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
-	UINT mVS = mesh->GetVertexStride();
-	UINT mVO = mesh->GetVertexOffset();
-	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
-	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-	pContext->VSSetShader(Graphics::BASIC_VS->Get(), nullptr, 0);
-
-
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
-	pContext->VSSetConstantBuffers(0, 2, cbs);
-
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
+		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+		pContext->VSSetConstantBuffers(0, 2, cbs);
+	}
 
 
 	SetPipelineState(renderItem);
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
 
 	if (renderItem.bIsTransparent)
 	{
@@ -663,11 +674,8 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // sampleMask : masking MSAA's sample??
-
+		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // sampleMask : masking MSAA's sample?
 	}
-
-	// TODO :: SET DEPTH STENCIL STATE pContext->OMSetDepthStencilState()
 
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
@@ -678,31 +686,33 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
 
-	pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
-	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
+	// Geometry Pipeline
+	{
+		pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
+		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
-	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
-	UINT mVS = mesh->GetVertexStride();
-	UINT mVO = mesh->GetVertexOffset();
-	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
-	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-
-
-	pContext->VSSetShader(Graphics::BASIC_VS->Get(), 0, 0);
-	pContext->DSSetShader(Graphics::TESSELATED_QUAD_DS->Get(), 0, 0);
-	pContext->HSSetShader(Graphics::TESSELLATED_QUAD_HS->Get(), 0, 0);
+		ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
+		UINT mVS = mesh->GetVertexStride();
+		UINT mVO = mesh->GetVertexOffset();
+		pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
+		pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
-	pContext->VSSetConstantBuffers(0, 2, cbs);
-	pContext->HSSetConstantBuffers(0, 2, cbs);
-	pContext->DSSetConstantBuffers(0, 2, cbs);
+		pContext->VSSetShader(Graphics::BASIC_VS->Get(), 0, 0);
+		pContext->DSSetShader(Graphics::TESSELATED_QUAD_DS->Get(), 0, 0);
+		pContext->HSSetShader(Graphics::TESSELLATED_QUAD_HS->Get(), 0, 0);
+
+
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
+		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+		pContext->VSSetConstantBuffers(0, 2, cbs);
+		pContext->HSSetConstantBuffers(0, 2, cbs);
+		pContext->DSSetConstantBuffers(0, 2, cbs);
+	}
 
 
 	SetPipelineState(renderItem);
 	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
 
 	if (renderItem.bIsTransparent)
 	{

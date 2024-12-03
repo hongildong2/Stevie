@@ -9,7 +9,7 @@
 
 D3D11ResourceManager::~D3D11ResourceManager()
 {
-	Graphics::D3D11::ClearCommonResources();
+	Graphics::ClearCommonResources();
 }
 
 void D3D11ResourceManager::Initialize(D3D11Renderer* pRenderer)
@@ -445,5 +445,5 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const
 
 void D3D11ResourceManager::InitializeCommonResource() const
 {
-	Graphics::D3D11::InitCommonResources(m_pRenderer);
+	Graphics::InitCommonResources(m_pRenderer);
 }
