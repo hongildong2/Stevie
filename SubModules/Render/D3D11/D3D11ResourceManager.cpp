@@ -69,11 +69,13 @@ RMeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexLis
 	return res;
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
+RTexture* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+	ComPtr<ID3D11Texture2D> lBuffer;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
+	ComPtr<ID3D11UnorderedAccessView> lUAV;
 
-	D3D11Texture2D* res = new D3D11Texture2D();
 
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
@@ -90,7 +92,7 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	desc.CPUAccessFlags = 0;
 
 
-	ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, lBuffer.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
 	if (desc.ArraySize > 1)
@@ -103,9 +105,9 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 	}
 
 	ThrowIfFailed(pDevice->CreateShaderResourceView(
-		res->m_resource.Get(),
+		lBuffer.Get(),
 		&shaderResourceViewDesc,
-		res->m_SRV.ReleaseAndGetAddressOf()
+		lSRV.ReleaseAndGetAddressOf()
 	));
 
 
@@ -117,16 +119,26 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2D(const UINT width, const UI
 		unorderedAccessViewDesc.Texture2DArray.FirstArraySlice = 0;
 		unorderedAccessViewDesc.Texture2DArray.MipSlice = 0;
 	}
-	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(lBuffer.Get(), &unorderedAccessViewDesc, lUAV.ReleaseAndGetAddressOf()));
 
-	res->Initialize(width, height, 0, format, FALSE);
+	ETextureType type = count > 1 ? ETextureType::TEXTURE_2D_ARRAY : ETextureType::TEXTURE_2D;
+	RTexture* res = new RTexture(type, format, TRUE);
+	res->m_resource.Swap(lBuffer);
+	res->m_SRV.Swap(lSRV);
+	res->m_UAV.Swap(lUAV);
+	res->SetSize(width, height, 1, count);
+	res->Initialize();
+
 	return res;
 }
 
-D3D11Texture3D* D3D11ResourceManager::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
+RTexture* D3D11ResourceManager::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {
-	D3D11Texture3D* res = new D3D11Texture3D();
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+	ComPtr<ID3D11Texture3D> lBuffer;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
+	ComPtr<ID3D11UnorderedAccessView> lUAV;
+
 
 	D3D11_TEXTURE3D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
@@ -141,39 +153,90 @@ D3D11Texture3D* D3D11ResourceManager::CreateTexture3D(const UINT width, const UI
 	desc.CPUAccessFlags = 0;
 
 
-	ThrowIfFailed(pDevice->CreateTexture3D(&desc, nullptr, res->m_resource.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateTexture3D(&desc, nullptr, lBuffer.ReleaseAndGetAddressOf()));
 
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE3D, format);
 
 	ThrowIfFailed(pDevice->CreateShaderResourceView(
-		res->m_resource.Get(),
+		lBuffer.Get(),
 		&shaderResourceViewDesc,
-		res->m_SRV.ReleaseAndGetAddressOf()
+		lSRV.ReleaseAndGetAddressOf()
 	));
 
 
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE3D, format);
-	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), &unorderedAccessViewDesc, res->m_UAV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(lBuffer.Get(), &unorderedAccessViewDesc, lUAV.ReleaseAndGetAddressOf()));
 
-	res->Initialize(width, height, depth, format, FALSE);
+	RTexture* res = new RTexture(ETextureType::TEXTURE_3D, format, TRUE);
+	res->m_resource.Swap(lBuffer);
+	res->m_SRV.Swap(lSRV);
+	res->m_UAV.Swap(lUAV);
+
+	res->SetSize(width, height, depth, 1);
+	res->Initialize();
+
 	return res;
 }
 
-RDepthTexture* D3D11ResourceManager::CreateTextureDepth(const UINT width, const UINT height)
+RTexture* D3D11ResourceManager::CreateTextureDepth(const UINT width, const UINT height)
 {
-	RDepthTexture* pDT = new RDepthTexture(m_pRenderer);
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+	ComPtr<ID3D11Texture2D> lBuffer;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
+	ComPtr<ID3D11DepthStencilView> lDSV;
 
-	pDT->SetSize(width, height);
-	pDT->Initialize();
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Format = DXGI_FORMAT_R32_TYPELESS;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+	desc.MiscFlags = 0;
+	desc.CPUAccessFlags = 0;
 
-	return pDT;
+	ThrowIfFailed(pDevice->CreateTexture2D(&desc, nullptr, lBuffer.ReleaseAndGetAddressOf()));
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_FLOAT);
+
+	ThrowIfFailed(pDevice->CreateShaderResourceView(
+		lBuffer.Get(),
+		&shaderResourceViewDesc,
+		lSRV.ReleaseAndGetAddressOf()
+	));
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D32_FLOAT);
+	ThrowIfFailed(pDevice->CreateDepthStencilView(
+		lBuffer.Get(),
+		&dsvDesc,
+		lDSV.ReleaseAndGetAddressOf()
+	));
+
+	RTexture* res = new RTexture(ETextureType::TEXTURE_2D_DEPTH, DXGI_FORMAT_R32_TYPELESS, FALSE);
+	res->SetSize(width, height, 1, 1);
+
+	res->m_resource.Swap(lBuffer);
+	res->m_SRV.Swap(lSRV);
+	res->m_DSV.Swap(lDSV);
+
+	res->Initialize();
+
+	return res;
 }
 
-D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
+RTexture* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
 {
-	D3D11TextureRender* res = new D3D11TextureRender(format);
-
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
+	ComPtr<ID3D11Texture2D> lBuffer;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
+	ComPtr<ID3D11UnorderedAccessView> lUAV;
+	ComPtr<ID3D11RenderTargetView> lRTV;
+
+
 	{
 		UINT formatSupport = 0;
 		if (FAILED(pDevice->CheckFormatSupport(format, &formatSupport)))
@@ -210,46 +273,64 @@ D3D11TextureRender* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT 
 	ThrowIfFailed(pDevice->CreateTexture2D(
 		&desc,
 		nullptr,
-		res->m_resource.ReleaseAndGetAddressOf()
+		lBuffer.ReleaseAndGetAddressOf()
 	));
 
 	// Create RTV.
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, format);
 
 	ThrowIfFailed(pDevice->CreateRenderTargetView(
-		res->m_resource.Get(),
+		lBuffer.Get(),
 		&renderTargetViewDesc,
-		res->m_RTV.ReleaseAndGetAddressOf()
+		lRTV.ReleaseAndGetAddressOf()
 	));
 
 	// Create SRV.
 	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2D, format);
 
 	ThrowIfFailed(pDevice->CreateShaderResourceView(
-		res->m_resource.Get(),
+		lBuffer.Get(),
 		&shaderResourceViewDesc,
-		res->m_SRV.ReleaseAndGetAddressOf()
+		lSRV.ReleaseAndGetAddressOf()
 	));
 
+	// Create UAV.
 	CD3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc(D3D11_UAV_DIMENSION_TEXTURE2D, format);
-	ThrowIfFailed(pDevice->CreateUnorderedAccessView(res->m_resource.Get(), NULL, res->m_UAV.ReleaseAndGetAddressOf()));
-	res->Initialize(width, height, 0, format, FALSE);
-	return res;
+	ThrowIfFailed(pDevice->CreateUnorderedAccessView(lBuffer.Get(), NULL, lUAV.ReleaseAndGetAddressOf()));
+
+	RTexture* res = new RTexture(ETextureType::TEXTURE_2D_RENDER, format, TRUE);
+	res->m_resource.Swap(lBuffer);
+	res->m_SRV.Swap(lSRV);
+	res->m_UAV.Swap(lUAV);
+	res->m_RTV.Swap(lRTV);
+
+	res->SetSize(width, height, 1, 1);
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
+RTexture* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
-	D3D11Texture2D* res = new D3D11Texture2D();
-	ComPtr<ID3D11Resource> resource;
-	ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf()));
+	ComPtr<ID3D11Texture2D> lTex2D;
+	ComPtr<ID3D11Resource> lResource;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
+	ThrowIfFailed(CreateWICTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DirectX::WIC_LOADER_DEFAULT, lResource.ReleaseAndGetAddressOf(), lSRV.ReleaseAndGetAddressOf()));
 
-	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
+	RTexture* res = nullptr;
+
+	if (SUCCEEDED(lResource->QueryInterface(lTex2D.ReleaseAndGetAddressOf())))
 	{
 		D3D11_TEXTURE2D_DESC desc{};
-		res->m_resource->GetDesc(&desc);
-		res->Initialize(desc.Width, desc.Height, 0, desc.Format, TRUE);
+		lTex2D->GetDesc(&desc);
+
+		res = new RTexture(ETextureType::TEXTURE_2D, desc.Format, FALSE);
+		res->SetSize(desc.Width, desc.Height, 1, 1);
+
+		res->m_resource.Swap(lTex2D);
+		res->m_SRV.Swap(lSRV);
+
+		res->Initialize();
+
 	}
 	else
 	{
@@ -259,19 +340,30 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fi
 	return res;
 }
 
-D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName)
+RTexture* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
-	D3D11Texture2D* res = new D3D11Texture2D();
-	ComPtr<ID3D11Resource> resource;
+	ComPtr<ID3D11Texture2D> lTex2D;
+	ComPtr<ID3D11Resource> lResource;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
 
-	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.ReleaseAndGetAddressOf(), nullptr));
+	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D10_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, lResource.ReleaseAndGetAddressOf(), lSRV.ReleaseAndGetAddressOf(), nullptr));
 
-	if (SUCCEEDED(resource->QueryInterface(res->m_resource.ReleaseAndGetAddressOf())))
+	RTexture* res = nullptr;
+
+	if (SUCCEEDED(lResource->QueryInterface(lTex2D.ReleaseAndGetAddressOf())))
 	{
 		D3D11_TEXTURE2D_DESC desc{};
-		res->m_resource->GetDesc(&desc);
-		res->Initialize(desc.Width, desc.Height, 0, desc.Format, TRUE);
+		lTex2D->GetDesc(&desc);
+
+
+		res = new RTexture(ETextureType::TEXTURE_2D, desc.Format, FALSE);
+		res->SetSize(desc.Width, desc.Height, 1, 1);
+
+		res->m_resource.Swap(lTex2D);
+		res->m_SRV.Swap(lSRV);
+
+		res->Initialize();
 	}
 	else
 	{
@@ -280,14 +372,16 @@ D3D11Texture2D* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fi
 	return res;
 }
 
-D3D11TextureCube* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileName)
+RTexture* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
-	D3D11TextureCube* res = new D3D11TextureCube();
-	ComPtr<ID3D11Resource> resource;
+	RTexture* res = new RTexture(ETextureType::TEXTURE_CUBE, DXGI_FORMAT_UNKNOWN, FALSE);
 
-	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, resource.ReleaseAndGetAddressOf(), res->m_SRV.GetAddressOf(), nullptr));
-	res->Initialize(0, 0, 0, DXGI_FORMAT_UNKNOWN, TRUE);
+	ThrowIfFailed(CreateDDSTextureFromFileEx(pDevice, fileName, 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D10_RESOURCE_MISC_FLAG(false), DDS_LOADER_DEFAULT, res->m_resource.ReleaseAndGetAddressOf(), res->m_SRV.GetAddressOf(), nullptr));
+
+	res->SetSize(1, 1, 1, 1);
+	res->Initialize();
+
 	return res;
 }
 
@@ -362,9 +456,11 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 	pContext->Unmap(pBuffer, 0);
 }
 
-D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
+RTexture* D3D11ResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
 {
-	D3D11StructuredBuffer* sb = new D3D11StructuredBuffer();
+	
+	ComPtr<ID3D11Buffer> lBuffer;
+	ComPtr<ID3D11ShaderResourceView> lSRV;
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
 	D3D11_BUFFER_DESC sbDesc;
@@ -378,19 +474,19 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT u
 
 	if (pInitData == nullptr)
 	{
-		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, sb->m_resource.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, nullptr, lBuffer.ReleaseAndGetAddressOf()));
 	}
 	else
 	{
 		D3D11_SUBRESOURCE_DATA initData;
 		ZeroMemory(&initData, sizeof(D3D11_SUBRESOURCE_DATA));
 		initData.pSysMem = pInitData;
-		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, sb->m_resource.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(pDevice->CreateBuffer(&sbDesc, &initData, lBuffer.ReleaseAndGetAddressOf()));
 	}
 
 
 	D3D11_BUFFER_DESC descBuf = {};
-	(sb->m_resource.Get())->GetDesc(&descBuf);
+	(lBuffer.Get())->GetDesc(&descBuf);
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -418,12 +514,20 @@ D3D11StructuredBuffer* D3D11ResourceManager::CreateStructuredBuffer(const UINT u
 		}
 	}
 
-	ThrowIfFailed(pDevice->CreateShaderResourceView(sb->m_resource.Get(), &desc, sb->m_SRV.ReleaseAndGetAddressOf()));
+	ThrowIfFailed(pDevice->CreateShaderResourceView(lBuffer.Get(), &desc, lSRV.ReleaseAndGetAddressOf()));
+
+	RTexture* sb = new RTexture(ETextureType::STRUCTURED_BUFFER, DXGI_FORMAT_UNKNOWN, FALSE);
+
+	sb->m_resource.Swap(lBuffer);
+	sb->m_SRV.Swap(lSRV);
+
+	sb->SetSize(uElementSize, 1, 1, uElementCount);
+	sb->Initialize();
 
 	return sb;
 }
 
-void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, D3D11StructuredBuffer* pInBuffer)
+void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, RTexture* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 

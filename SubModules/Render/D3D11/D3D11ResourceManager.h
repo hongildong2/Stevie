@@ -2,13 +2,6 @@
 #include "pch.h"
 #include "../RenderDefs.h"
 
-
-class D3D11StructuredBuffer;
-class D3D11Texture2D;
-class D3D11Texture3D;
-class D3D11TextureRender;
-class D3D11TextureCube;
-class D3D11TextureVolume;
 class D3D11Renderer;
 
 class D3D11ResourceManager final
@@ -20,14 +13,14 @@ public:
 
 
 	RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType);
-	D3D11Texture2D* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format);
-	D3D11Texture3D* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
-	RDepthTexture* CreateTextureDepth(const UINT width, const UINT height);
-	D3D11TextureRender* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);
+	RTexture* CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format);
+	RTexture* CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format);
+	RTexture* CreateTextureDepth(const UINT width, const UINT height);
+	RTexture* CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height);
 
-	D3D11Texture2D* CreateTexture2DFromWICFile(const WCHAR* wchFileName);
-	D3D11Texture2D* CreateTexture2DFromDDSFile(const WCHAR* fileName);
-	D3D11TextureCube* CreateTextureCubeFromDDSFile(const WCHAR* fileName);
+	RTexture* CreateTexture2DFromWICFile(const WCHAR* wchFileName);
+	RTexture* CreateTexture2DFromDDSFile(const WCHAR* fileName);
+	RTexture* CreateTextureCubeFromDDSFile(const WCHAR* fileName);
 
 	RMeshGeometry* CreateCube();
 	RMeshGeometry* CreateSphere();
@@ -36,8 +29,8 @@ public:
 
 	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
 	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);
-	D3D11StructuredBuffer* CreateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pInitData);
-	void UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, D3D11StructuredBuffer* pInBuffer);
+	RTexture* CreateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pInitData);
+	void UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, RTexture* pInBuffer);
 
 	void InitializeCommonResource() const;
 
