@@ -103,7 +103,6 @@ using Microsoft::WRL::ComPtr;
 
 #include "SubModules\Render\GraphicsCommon.h"
 #include "SubModules\Render\IRenderer.h"
-#include "SubModules\Render\IRenderResource.h"
 #include "SubModules\Render\RenderItem.h"
 #include "SubModules\Render\RenderConfig.h"
 #include "SubModules\Render\RenderDefs.h"

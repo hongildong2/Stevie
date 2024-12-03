@@ -11,7 +11,7 @@ class RPixelShader;
 struct RenderParam;
 
 
-class RMaterial : public IRenderResource
+class RMaterial
 {
 public:
 	RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader);

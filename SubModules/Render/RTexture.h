@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderDefs.h"
+#include "pch.h"
 
 enum class ETextureType
 {
@@ -10,10 +10,7 @@ enum class ETextureType
 	STRUCTURED_BUFFER
 };
 
-// IRenderResource -> TEXTURE_HANDLE, MESH_GEOMETRY_HANDLE
-
 class RTexture
-	: public IRenderResource
 {
 public:
 	inline BOOL IsReadOnly() const
@@ -52,9 +49,6 @@ protected:
 	UINT m_height;
 	UINT m_depth;
 
-
-
-protected:
 	DXGI_FORMAT m_format;
 	ETextureType m_textureType;
 	BOOL m_bIsReadOnly;
@@ -64,7 +58,7 @@ protected:
 
 #ifdef API_D3D11
 #define RHIDepthTexture ReverseD3D11DepthTexture
-#include "D3D11/D3D11Texture.h"
+#include "SubModules/Render/D3D11/D3D11Texture.h"
 #endif
 
 class RDepthTexture : public RHIDepthTexture

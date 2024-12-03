@@ -282,7 +282,6 @@
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
-    <ClInclude Include="SubModules\Render\IRenderResource.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
@@ -320,7 +319,6 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
-    <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
