@@ -61,17 +61,5 @@ private:
 
 	PostProcessConstant m_postProcessConstant;
 	ComPtr<ID3D11Buffer> m_postProcessCB;
-
-private:
-	D3D11VertexShader* pQuadVS;
-	D3D11InputLayout* pSamplingIL;
-	D3D11PixelShader* pFogPS;
-	D3D11PixelShader* pFilterCombinePS;
-	D3D11RasterizerState* pBasicRS;
-
-	D3D11ComputeShader* pUpBlurCS;
-	D3D11ComputeShader* pDownBlurCS;
-
-	D3D11SamplerState* pLinearClampSS;
 };
 
