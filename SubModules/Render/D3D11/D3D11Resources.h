@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 
 template<typename T>
 class D3D11Resource
@@ -35,7 +36,7 @@ public:
 class D3D11PixelShader : public D3D11Resource<ID3D11PixelShader>
 {
 public:
-	D3D11PixelShader() = default; 
+	D3D11PixelShader() = default;
 	~D3D11PixelShader() = default;
 };
 
@@ -102,4 +103,11 @@ class D3D11DepthStencilState : public D3D11Resource<ID3D11DepthStencilState>
 public:
 	D3D11DepthStencilState() = default;
 	~D3D11DepthStencilState() = default;
+};
+
+class D3D11Buffer : public D3D11Resource<ID3D11Buffer>
+{
+public:
+	D3D11Buffer() = default;
+	~D3D11Buffer() = default;
 };

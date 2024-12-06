@@ -1,5 +1,7 @@
 #pragma once
 #include "pch.h"
+#include "RBuffer.h"
+
 
 struct PostProcessConstant
 {
@@ -59,6 +61,6 @@ private:
 	std::vector<std::unique_ptr<RTexture>> m_blurTextures;
 
 	PostProcessConstant m_postProcessConstant;
-	ComPtr<ID3D11Buffer> m_postProcessCB;
+	std::unique_ptr<RBuffer> m_postProcessCB;
 };
 

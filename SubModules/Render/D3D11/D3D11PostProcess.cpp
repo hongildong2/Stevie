@@ -12,7 +12,9 @@
 RPostProcess::RPostProcess()
 	: m_pRenderer(nullptr)
 	, m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM)
+	, m_postProcessCB()
 {
+	m_postProcessCB = std::make_unique<RBuffer>();
 }
 
 void RPostProcess::Initialize(RRenderer* pRenderer)
@@ -36,7 +38,7 @@ void RPostProcess::Initialize(RRenderer* pRenderer)
 	m_renderTargetToProcess = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
 	m_renderTargetProcessed = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
 
-	pResourceManager->CreateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.ReleaseAndGetAddressOf());
+	pResourceManager->CreateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.get());
 
 	UINT blurRTWidth = renderTargetWidth;
 	UINT blurRTHeight = renderTargetHeight;
@@ -52,7 +54,7 @@ void RPostProcess::Initialize(RRenderer* pRenderer)
 void RPostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget)
 {
 	m_renderTargetToProcess.swap(sourceRenderTarget);
-	m_pRenderer->GetResourceManager()->UpdateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.Get());
+	m_pRenderer->GetResourceManager()->UpdateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.get());
 
 	// release DSV, RTV from context
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
@@ -76,7 +78,7 @@ void RPostProcess::EndPostProcess()
 
 	ID3D11RenderTargetView* rtv[1] = { pRTV };
 	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetProcessed->GetSRV(), m_renderTargetToProcess->GetSRV() };
-	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
+	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB->GetAddressOf());
 	pContext->PSSetShaderResources(0, 2, srvs);
 	pContext->OMSetRenderTargets(1, rtv, NULL);
 	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
@@ -109,7 +111,7 @@ void RPostProcess::ProcessFog()
 	pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
 	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
 	pContext->PSSetShaderResources(0, 2, srvs);
-	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
+	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB->GetAddressOf());
 	pContext->PSSetSamplers(0, 1, Graphics::LINEAR_CLAMP_SS->GetAddressOf());
 	pContext->OMSetRenderTargets(1, &resultRenderTarget, NULL);
 

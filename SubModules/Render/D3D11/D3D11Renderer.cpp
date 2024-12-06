@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SubModules/Render/RResourceManager.h"
 #include "SubModules/Render/RPostProcess.h"
+#include "SubModules/Render/RBuffer.h"
 #include "D3D11Resources.h"
 #include "D3D11DeviceResources.h"
 #include "D3DUtil.h"
@@ -33,6 +34,11 @@ RRenderer::RRenderer()
 	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
 	m_resourceManager = std::make_unique<RResourceManager>();
 	m_postProcess = std::make_unique<RPostProcess>();
+	m_globalCB = std::make_unique<RBuffer>();
+	m_sunLightCB = std::make_unique<RBuffer>();
+	m_meshCB = std::make_unique<RBuffer>();
+	m_materialCB = std::make_unique<RBuffer>();
+	m_computeCB = std::make_unique<RBuffer>();
 }
 
 BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
@@ -51,11 +57,11 @@ BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR*
 	m_resourceManager->Initialize(this);
 	m_postProcess->Initialize(this);
 
-	m_resourceManager->CreateConstantBuffer(sizeof(RGlobalConstant), nullptr, m_globalCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RLightConstant), nullptr, m_sunLightCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(RGlobalConstant), nullptr, m_globalCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RLightConstant), nullptr, m_sunLightCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.get());
 
 	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
@@ -197,8 +203,8 @@ void RRenderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTask
 
 	if (pAlignedComputeParam != nullptr)
 	{
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pAlignedComputeParam, m_computeCB.Get());
-		pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pAlignedComputeParam, m_computeCB.get());
+		pContext->CSSetConstantBuffers(0, 1, m_computeCB->GetAddressOf());
 	}
 
 	pContext->Dispatch(batchX, batchY, batchZ);
@@ -240,11 +246,11 @@ void RRenderer::UpdateGlobalConstant()
 	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
 	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(RGlobalConstant), &globalConstant, m_globalCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RGlobalConstant), &globalConstant, m_globalCB.get());
 
 	// Sun Light
 	RLightConstant lightData = m_sunLight->GetLightConstant();
-	m_resourceManager->UpdateConstantBuffer(sizeof(RLightConstant), &lightData, m_sunLightCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RLightConstant), &lightData, m_sunLightCB.get());
 }
 
 void RRenderer::SetPipelineState(const RenderItem& item)
@@ -323,7 +329,7 @@ void RRenderer::SetPipelineState(const RenderItem& item)
 
 	// Constant Buffers
 	{
-		ID3D11Buffer* cbs[4] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get(), m_sunLightCB.Get() };
+		ID3D11Buffer* cbs[4] = { m_globalCB->Get(), m_meshCB->Get(), m_materialCB->Get(), m_sunLightCB->Get() };
 		pContext->PSSetConstantBuffers(0, 4, cbs);
 	}
 }
@@ -350,7 +356,7 @@ void RRenderer::RenderSkybox()
 		pContext->IASetIndexBuffer(pRMG->GetIndexBuffer(), pRMG->GetIndexFormat(), 0);
 
 
-		ID3D11Buffer* cbs[1] = { m_globalCB.Get() };
+		ID3D11Buffer* cbs[1] = { m_globalCB->Get() };
 		pContext->VSSetShader(Graphics::CUBEMAP_VS->Get(), nullptr, 0);
 		pContext->VSSetConstantBuffers(0, 1, cbs);
 
@@ -473,14 +479,14 @@ void RRenderer::Draw(const RenderItem& renderItem)
 		pContext->VSSetShader(Graphics::BASIC_VS->Get(), nullptr, 0);
 
 
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.get());
+		ID3D11Buffer* cbs[2] = { m_globalCB->Get(), m_meshCB->Get() };
 		pContext->VSSetConstantBuffers(0, 2, cbs);
 	}
 
 
 	SetPipelineState(renderItem);
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.get());
 
 	if (renderItem.bIsTransparent)
 	{
@@ -521,8 +527,8 @@ void RRenderer::DrawTessellatedQuad(const RenderItem& renderItem)
 		pContext->HSSetShader(Graphics::TESSELLATED_QUAD_HS->Get(), 0, 0);
 
 
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-		ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.get());
+		ID3D11Buffer* cbs[2] = { m_globalCB->Get(), m_meshCB->Get() };
 		pContext->VSSetConstantBuffers(0, 2, cbs);
 		pContext->HSSetConstantBuffers(0, 2, cbs);
 		pContext->DSSetConstantBuffers(0, 2, cbs);
@@ -530,7 +536,7 @@ void RRenderer::DrawTessellatedQuad(const RenderItem& renderItem)
 
 
 	SetPipelineState(renderItem);
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.get());
 
 	if (renderItem.bIsTransparent)
 	{

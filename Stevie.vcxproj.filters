@@ -52,6 +52,7 @@
     <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="Core\Cloud.h" />
     <ClInclude Include="SubModules\Render\RRenderer.h" />
+    <ClInclude Include="SubModules\Render\RBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -87,6 +88,7 @@
     <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="Core\Cloud.cpp" />
     <ClCompile Include="SubModules\Render\RRenderer.cpp" />
+    <ClCompile Include="SubModules\Render\RBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

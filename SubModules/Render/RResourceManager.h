@@ -2,6 +2,9 @@
 #include "pch.h"
 
 class RRenderer;
+class RBuffer;
+class RTexture;
+class RMeshGeometry;
 enum class EMeshType;
 
 class RResourceManager final
@@ -27,16 +30,16 @@ public:
 	RMeshGeometry* CreateQuad();
 	RMeshGeometry* CreateTessellatedQuad();
 
-	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer);
-	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer);
+	void CreateConstantBuffer(const UINT bufferSize, const void* pInitData, RBuffer* pOutBuffer);
+	void UpdateConstantBuffer(const UINT bufferSize, const void* pData, const RBuffer* pInBuffer);
 	RTexture* CreateStructuredBuffer(const UINT uElementSize, const UINT uCount, const void* pInitData);
 	void UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, RTexture* pInBuffer);
 
 	void InitializeCommonResource() const;
 
 private:
-	void CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount);
-	void CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
+	void CreateVertexBuffer(RBuffer* pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount);
+	void CreateIndexBuffer(RBuffer* pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
 
 
 private:

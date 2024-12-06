@@ -17,10 +17,10 @@ protected:
 
 	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
+	std::unique_ptr<RBuffer> m_globalCB;
+	std::unique_ptr<RBuffer> m_sunLightCB;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_computeCB;
+	std::unique_ptr<RBuffer> m_meshCB;
+	std::unique_ptr<RBuffer> m_materialCB;
+	std::unique_ptr<RBuffer> m_computeCB;
 };

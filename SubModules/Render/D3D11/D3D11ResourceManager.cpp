@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "SubModules/Render/RResourceManager.h"
+#include "SubModules/Render/RBuffer.h"
+#include "SubModules/Render/RMeshGeometry.h"
+#include "SubModules/Render/RTexture.h"
 #include "D3D11DeviceResources.h"
 
 RResourceManager::~RResourceManager()
@@ -14,7 +17,7 @@ void RResourceManager::Initialize(RRenderer* pRenderer)
 	InitializeCommonResource();
 }
 
-void RResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount)
+void RResourceManager::CreateVertexBuffer(RBuffer* pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	D3D11_BUFFER_DESC bufferDesc;
@@ -31,13 +34,13 @@ void RResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void*
 	InitData.pSysMem = pInVertexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer->ReleaseAndGetAddressOf()));
 
 
 
 }
 
-void RResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
+void RResourceManager::CreateIndexBuffer(RBuffer* pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -54,7 +57,7 @@ void RResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const void* 
 	InitData.pSysMem = pInIndexList;
 	InitData.SysMemPitch = 0;
 	InitData.SysMemSlicePitch = 0;
-	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
+	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer->ReleaseAndGetAddressOf()));
 }
 
 RMeshGeometry* RResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
@@ -411,7 +414,7 @@ RMeshGeometry* RResourceManager::CreateTessellatedQuad()
 	return CreateMeshGeometry(md.verticies.data(), sizeof(RVertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
 }
 
-void RResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
+void RResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, RBuffer* pOutBuffer)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -426,7 +429,7 @@ void RResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* p
 
 	if (pInitData == nullptr)
 	{
-		ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, ppOutBuffer));
+		ThrowIfFailed(pDevice->CreateBuffer(&desc, NULL, pOutBuffer->ReleaseAndGetAddressOf()));
 	}
 	else
 	{
@@ -436,22 +439,22 @@ void RResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* p
 		initDataDesc.SysMemPitch = 0;
 		initDataDesc.SysMemSlicePitch = 0;
 
-		ThrowIfFailed(pDevice->CreateBuffer(&desc, &initDataDesc, ppOutBuffer));
+		ThrowIfFailed(pDevice->CreateBuffer(&desc, &initDataDesc, pOutBuffer->ReleaseAndGetAddressOf()));
 	}
 
 }
-void RResourceManager::UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer)
+void RResourceManager::UpdateConstantBuffer(const UINT bufferSize, const void* pData, const RBuffer* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	ThrowIfFailed(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	ThrowIfFailed(pContext->Map(pInBuffer->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	memcpy(mappedResource.pData, pData, bufferSize);
 
-	pContext->Unmap(pBuffer, 0);
+	pContext->Unmap(pInBuffer->Get(), 0);
 }
 
 RTexture* RResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
@@ -532,7 +535,7 @@ void RResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UIN
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	ThrowIfFailed(pContext->Map(pInBuffer->m_resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	ThrowIfFailed(pContext->Map(pInBuffer->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	for (UINT i = 0; i < uElementCount; ++i)
 	{
 		const void* pDataToWrite = static_cast<const char*>(pData) + (i * uElementSize);
@@ -541,7 +544,7 @@ void RResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UIN
 		std::memcpy(pMapped, pDataToWrite, uElementSize);
 	}
 
-	pContext->Unmap(pInBuffer->m_resource.Get(), 0);
+	pContext->Unmap(pInBuffer->Get(), 0);
 
 }
 
