@@ -1,12 +1,18 @@
 #include "pch.h"
-#include "D3D11ResourceManager.h"
 #include "D3D11PostProcess.h"
+#include "D3D11ResourceManager.h"
 #include "D3D11Texture.h"
 #include "D3D11Resources.h"
 #include "D3D11MeshGeometry.h"
 #include "Core/GeometryGenerator.h"
 #include "../RenderConfig.h"
 #include "../RMeshGeometry.h"
+
+D3D11PostProcess::D3D11PostProcess()
+	: m_pRenderer(nullptr)
+	, m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM)
+{
+}
 
 void D3D11PostProcess::Initialize(RRenderer* pRenderer)
 {
@@ -21,9 +27,6 @@ void D3D11PostProcess::Initialize(RRenderer* pRenderer)
 
 	m_pRenderer = pRenderer;
 	auto* pResourceManager = pRenderer->GetResourceManager();
-
-	m_postProcessConstant = DEFAULT_POST_PROCESS_PARAM;
-
 	m_screenQuad = std::unique_ptr<RMeshGeometry>(m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::QUAD));
 
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();

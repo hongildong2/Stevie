@@ -28,7 +28,7 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 class D3D11PostProcess final
 {
 public:
-	D3D11PostProcess() = default;
+	D3D11PostProcess();
 	~D3D11PostProcess() = default;
 
 	D3D11PostProcess(const D3D11PostProcess& other) = delete;
