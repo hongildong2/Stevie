@@ -450,6 +450,10 @@ namespace Graphics
 
 		delete ALPHA_BS;
 
+		delete OPAQUE_DSS;
+		delete TRANSPARENT_DSS;
+		delete SKYBOX_DSS;
+
 	}
 
 }

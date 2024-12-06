@@ -82,6 +82,13 @@ private:
 	void DrawTessellatedQuad(const RenderItem& renderItem);
 
 private:
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_computeCB;
+
 	DWORD m_dwBackBufferWidth;
 	DWORD m_dwBackBufferHeight;
 
@@ -89,12 +96,6 @@ private:
 	std::unique_ptr <D3D11ResourceManager> m_resourceManager;
 	std::unique_ptr <D3D11PostProcess> m_postProcess;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_globalCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_sunLightCB;
-
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_meshCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_computeCB;
 
 	std::unique_ptr <RTexture> m_HDRRenderTarget;
 
