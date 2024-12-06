@@ -33,7 +33,7 @@ struct RenderItem
 {
 	const class RMeshGeometry* pMeshGeometry;
 
-	
+
 	/* Geometry Bindings */
 	const class RTexture* ppGeometryTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT geometryTexCount;
@@ -42,12 +42,12 @@ struct RenderItem
 
 
 	/* Pixel Bindings */
-	const class RPixelShader* pPS;
 	const class RTexture* ppPixelTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT pixelTexCount;
 	const class RSamplerState* ppPixelSamplerStates[renderLimits::MAX_RENDER_BINDINGS_COUNT];
 	UINT pixelSSCount;
 
+	const class RPixelShader* pPS;
 
 	/* Draw Policy */
 	const class RBlendState* pBlendState;

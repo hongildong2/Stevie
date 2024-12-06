@@ -46,5 +46,5 @@ namespace renderConfig
 
 namespace renderLimits
 {
-	constexpr static UINT MAX_RENDER_BINDINGS_COUNT = 20;
+	constexpr static UINT MAX_RENDER_BINDINGS_COUNT = 12;
 }
