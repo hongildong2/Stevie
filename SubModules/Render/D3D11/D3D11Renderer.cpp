@@ -101,7 +101,6 @@ void RRenderer::BeginRender()
 void RRenderer::EndRender()
 {
 	// Post Process
-	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
 	m_postProcess->Process();
 	m_postProcess->EndPostProcess();
