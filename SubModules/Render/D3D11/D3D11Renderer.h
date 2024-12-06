@@ -96,7 +96,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialCB;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_computeCB;
 
-	std::unique_ptr <D3D11TextureRender> m_HDRRenderTarget;
+	std::unique_ptr <RTexture> m_HDRRenderTarget;
 
 	std::wstring m_shaderPath;
 
@@ -111,10 +111,10 @@ private:
 
 	// IBL
 	static constexpr UINT SCENE_RESOURCES_COUNT = 4;
-	const D3D11TextureCube* m_irradianceMapTexture;
-	const D3D11TextureCube* m_specularMapTexture;
-	const D3D11Texture2D* m_BRDFMapTexture;
-	D3D11StructuredBuffer* m_sceneLightsBuffer;
+	const RTexture* m_irradianceMapTexture;
+	const RTexture* m_specularMapTexture;
+	const RTexture* m_BRDFMapTexture;
+	RTexture* m_sceneLightsBuffer;
 
 	static constexpr UINT MAX_SCENE_LIGHTS_COUNT = 100;
 	RLightConstant m_sceneLights[MAX_SCENE_LIGHTS_COUNT];

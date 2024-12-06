@@ -59,7 +59,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 
 	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
-	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
+	m_HDRRenderTarget = std::unique_ptr<RTexture>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
 	return TRUE;
 }
 
@@ -284,12 +284,12 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* p
 
 	for (UINT i = 0; i < resourcesCount; ++i)
 	{
-		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRVOrNull();
+		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRV();
 	}
 
 	for (UINT i = 0; i < resultsCount; ++i)
 	{
-		uavs[i] = static_cast<const D3D11Texture*>(pResults[i])->GetUAVOrNull();
+		uavs[i] = static_cast<const D3D11Texture*>(pResults[i])->GetUAV();
 	}
 
 	for (UINT i = 0; i < samplerStatesCount; ++i)
@@ -361,9 +361,9 @@ void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const 
 	MY_ASSERT(pSpecularMapTexture->GetTextureType() == ETextureType::TEXTURE_CUBE);
 	MY_ASSERT(pBRDFMapTexture->GetTextureType() == ETextureType::TEXTURE_2D);
 
-	m_irradianceMapTexture = static_cast<const D3D11TextureCube*>(pIrradianceMapTexture);
-	m_specularMapTexture = static_cast<const D3D11TextureCube*>(pSpecularMapTexture);
-	m_BRDFMapTexture = static_cast<const D3D11Texture2D*>(pBRDFMapTexture);
+	m_irradianceMapTexture = pIrradianceMapTexture;
+	m_specularMapTexture = pSpecularMapTexture;
+	m_BRDFMapTexture = pBRDFMapTexture;
 
 }
 
@@ -429,7 +429,7 @@ void D3D11Renderer::SetPipelineState(const RenderItem& item)
 			ID3D11ShaderResourceView* srvs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
 			for (UINT i = 0; i < item.geometryTexCount; ++i)
 			{
-				srvs[i] = static_cast<const D3D11Texture*>(item.ppGeometryTextures[i])->GetSRVOrNull();
+				srvs[i] = static_cast<const D3D11Texture*>(item.ppGeometryTextures[i])->GetSRV();
 			}
 			pContext->VSSetShaderResources(0, item.geometryTexCount, srvs);
 			pContext->DSSetShaderResources(0, item.geometryTexCount, srvs);
@@ -472,16 +472,16 @@ void D3D11Renderer::SetPipelineState(const RenderItem& item)
 		ID3D11ShaderResourceView* srvs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
 		if (item.pixelTexCount > 0 && SCENE_RESOURCES_COUNT != 0)
 		{
-			srvs[0] = m_irradianceMapTexture->GetSRVOrNull();
-			srvs[1] = m_specularMapTexture->GetSRVOrNull();
-			srvs[2] = m_BRDFMapTexture->GetSRVOrNull();
-			srvs[3] = m_sceneLightsBuffer->GetSRVOrNull();
+			srvs[0] = m_irradianceMapTexture->GetSRV();
+			srvs[1] = m_specularMapTexture->GetSRV();
+			srvs[2] = m_BRDFMapTexture->GetSRV();
+			srvs[3] = m_sceneLightsBuffer->GetSRV();
 
 			for (UINT i = 0; i < item.pixelTexCount; ++i)
 			{
 				if (item.ppPixelTextures[i] != nullptr)
 				{
-					srvs[i + SCENE_RESOURCES_COUNT] = static_cast<const D3D11Texture*>(item.ppPixelTextures[i])->GetSRVOrNull();
+					srvs[i + SCENE_RESOURCES_COUNT] = static_cast<const D3D11Texture*>(item.ppPixelTextures[i])->GetSRV();
 				}
 				else
 				{
@@ -556,7 +556,7 @@ void D3D11Renderer::RenderSkybox()
 		for (UINT i = 0; i < psTexCount; ++i)
 		{
 			MY_ASSERT(texs[i] != nullptr);
-			srvs[i] = static_cast<const D3D11Texture*>(texs[i])->GetSRVOrNull();
+			srvs[i] = static_cast<const D3D11Texture*>(texs[i])->GetSRV();
 		}
 
 		pContext->PSSetSamplers(0, psSSCount, d3dsss);

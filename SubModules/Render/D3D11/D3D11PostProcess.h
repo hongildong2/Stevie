@@ -37,7 +37,7 @@ public:
 
 	void Initialize(D3D11Renderer* pRenderer);
 
-	void BeginPostProcess(std::unique_ptr<D3D11TextureRender>& sourceRenderTarget);
+	void BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget);
 	void Process();
 	void EndPostProcess(ID3D11RenderTargetView* pRTVToDraw);
 
@@ -52,12 +52,12 @@ private:
 	};
 	D3D11Renderer* m_pRenderer;
 
-	std::unique_ptr<D3D11TextureRender> m_renderTargetToProcess;
-	std::unique_ptr<D3D11TextureRender> m_renderTargetProcessed;
+	std::unique_ptr<RTexture> m_renderTargetToProcess;
+	std::unique_ptr<RTexture> m_renderTargetProcessed;
 
 	std::unique_ptr<RMeshGeometry> m_screenQuad;
 
-	std::vector<std::unique_ptr<D3D11TextureRender>> m_blurTextures;
+	std::vector<std::unique_ptr<RTexture>> m_blurTextures;
 
 	PostProcessConstant m_postProcessConstant;
 	ComPtr<ID3D11Buffer> m_postProcessCB;

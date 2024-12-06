@@ -300,11 +300,14 @@ RTexture* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, co
 
 	RTexture* res = new RTexture(ETextureType::TEXTURE_2D_RENDER, format, TRUE);
 	res->m_resource.Swap(lBuffer);
+	res->SetSize(width, height, 1, 1);
 	res->m_SRV.Swap(lSRV);
 	res->m_UAV.Swap(lUAV);
 	res->m_RTV.Swap(lRTV);
 
-	res->SetSize(width, height, 1, 1);
+	res->Initialize();
+
+	return res;
 }
 
 RTexture* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
@@ -458,7 +461,7 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 
 RTexture* D3D11ResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
 {
-	
+
 	ComPtr<ID3D11Buffer> lBuffer;
 	ComPtr<ID3D11ShaderResourceView> lSRV;
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();

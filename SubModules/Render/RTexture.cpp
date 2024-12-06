@@ -7,7 +7,7 @@ RTexture::RTexture(ETextureType type, DXGI_FORMAT format, BOOL bIsDynamic)
 	, m_depth(0)
 	, m_count(0)
 	, m_format(format)
-	, m_bIsDynamic(FALSE)
+	, m_bIsDynamic(bIsDynamic)
 	, m_bInitialized(FALSE)
 	, m_type(type)
 {
@@ -19,7 +19,7 @@ void RTexture::SetSize(const UINT width, const UINT height, const UINT depth, co
 	{
 		return;
 	}
-	
+
 	m_width = width;
 	m_height = height;
 	m_depth = depth;

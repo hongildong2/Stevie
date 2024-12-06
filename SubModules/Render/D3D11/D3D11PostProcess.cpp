@@ -41,8 +41,8 @@ void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
 	UINT renderTargetHeight = m_pRenderer->GetBackBufferHeight();
 
-	m_renderTargetToProcess = std::unique_ptr<D3D11TextureRender>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
-	m_renderTargetProcessed = std::unique_ptr<D3D11TextureRender>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
+	m_renderTargetToProcess = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
+	m_renderTargetProcessed = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
 
 	pResourceManager->CreateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.ReleaseAndGetAddressOf());
 
@@ -50,14 +50,14 @@ void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
 	UINT blurRTHeight = renderTargetHeight;
 	for (UINT i = 0; i <= LEVEL; ++i)
 	{
-		m_blurTextures.emplace_back(std::unique_ptr<D3D11TextureRender>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, blurRTWidth, blurRTHeight)));
+		m_blurTextures.emplace_back(std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, blurRTWidth, blurRTHeight)));
 		blurRTWidth /= 2;
 		blurRTHeight /= 2;
 	}
 
 }
 
-void D3D11PostProcess::BeginPostProcess(std::unique_ptr<D3D11TextureRender>& sourceRenderTarget)
+void D3D11PostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget)
 {
 	m_renderTargetToProcess.swap(sourceRenderTarget);
 	m_pRenderer->GetResourceManager()->UpdateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.Get());
@@ -81,7 +81,7 @@ void D3D11PostProcess::EndPostProcess(ID3D11RenderTargetView* pRTVToDraw)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 
-	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetProcessed->GetSRVOrNull(), m_renderTargetToProcess->GetSRVOrNull() };
+	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetProcessed->GetSRV(), m_renderTargetToProcess->GetSRV() };
 	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
 	pContext->PSSetShaderResources(0, 2, srvs);
 	pContext->OMSetRenderTargets(1, &pRTVToDraw, NULL);
@@ -107,7 +107,7 @@ void D3D11PostProcess::ProcessFog()
 	auto* resultRenderTarget = m_renderTargetProcessed->GetRTV();
 	auto* depthSRV = m_pRenderer->GetDeviceResources()->GetDepthSRV();
 
-	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetToProcess->GetSRVOrNull(), depthSRV };
+	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetToProcess->GetSRV(), depthSRV };
 
 
 	pContext->VSSetShader(pQuadVS->Get(), NULL, NULL);
@@ -149,8 +149,8 @@ void D3D11PostProcess::ProcessBloom()
 
 	for (size_t i = 0; i < LEVEL; ++i)
 	{
-		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRVOrNull();
-		ID3D11UnorderedAccessView* to = m_blurTextures[i + 1]->GetUAVOrNull();
+		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRV();
+		ID3D11UnorderedAccessView* to = m_blurTextures[i + 1]->GetUAV();
 		pContext->CSSetShaderResources(0, 1, &from);
 		pContext->CSSetUnorderedAccessViews(0, 1, &to, NULL);
 
@@ -166,8 +166,8 @@ void D3D11PostProcess::ProcessBloom()
 	pContext->CSSetShader(pUpBlurCS->Get(), NULL, NULL);
 	for (size_t i = LEVEL; i > 0; --i)
 	{
-		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRVOrNull();
-		ID3D11UnorderedAccessView* to = m_blurTextures[i - 1]->GetUAVOrNull();
+		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRV();
+		ID3D11UnorderedAccessView* to = m_blurTextures[i - 1]->GetUAV();
 		pContext->CSSetShaderResources(0, 1, &from);
 		pContext->CSSetUnorderedAccessViews(0, 1, &to, NULL);
 
