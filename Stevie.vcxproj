@@ -271,7 +271,7 @@
     <ClInclude Include="Core\Ocean.h" />
     <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
+    <ClInclude Include="SubModules\Render\RPostProcess.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
     <ClInclude Include="SubModules\Render\RenderItem.h" />
@@ -280,7 +280,7 @@
     <ClInclude Include="SubModules\Render\RRasterizerState.h" />
     <ClInclude Include="SubModules\Render\RBlendState.h" />
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
+    <ClInclude Include="SubModules\Render\RResourceManager.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />

@@ -1,25 +1,20 @@
 #include "pch.h"
-
-#include "D3D11Renderer.h"
-#include "D3D11Texture.h"
-#include "D3D11MeshGeometry.h"
+#include "SubModules/Render/RResourceManager.h"
 #include "D3D11DeviceResources.h"
-#include "D3D11ResourceManager.h"
 
-
-D3D11ResourceManager::~D3D11ResourceManager()
+RResourceManager::~RResourceManager()
 {
 	Graphics::ClearCommonResources();
 }
 
-void D3D11ResourceManager::Initialize(RRenderer* pRenderer)
+void RResourceManager::Initialize(RRenderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
 
 	InitializeCommonResource();
 }
 
-void D3D11ResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount)
+void RResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	D3D11_BUFFER_DESC bufferDesc;
@@ -42,7 +37,7 @@ void D3D11ResourceManager::CreateVertexBuffer(ID3D11Buffer** pOutBuffer, const v
 
 }
 
-void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
+void RResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -62,14 +57,14 @@ void D3D11ResourceManager::CreateIndexBuffer(ID3D11Buffer** pOutBuffer, const vo
 	ThrowIfFailed(pDevice->CreateBuffer(&bufferDesc, &InitData, pOutBuffer));
 }
 
-RMeshGeometry* D3D11ResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
+RMeshGeometry* RResourceManager::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
 {
 	RMeshGeometry* res = new RMeshGeometry(topologyType, meshType);
 	res->Initialize(m_pRenderer, pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount);
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
+RTexture* RResourceManager::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	ComPtr<ID3D11Texture2D> lBuffer;
@@ -132,7 +127,7 @@ RTexture* D3D11ResourceManager::CreateTexture2D(const UINT width, const UINT hei
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
+RTexture* RResourceManager::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	ComPtr<ID3D11Texture3D> lBuffer;
@@ -178,7 +173,7 @@ RTexture* D3D11ResourceManager::CreateTexture3D(const UINT width, const UINT hei
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTextureDepth(const UINT width, const UINT height)
+RTexture* RResourceManager::CreateTextureDepth(const UINT width, const UINT height)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	ComPtr<ID3D11Texture2D> lBuffer;
@@ -228,7 +223,7 @@ RTexture* D3D11ResourceManager::CreateTextureDepth(const UINT width, const UINT 
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
+RTexture* RResourceManager::CreateTextureRender(const DXGI_FORMAT format, const UINT width, const UINT height)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	ComPtr<ID3D11Texture2D> lBuffer;
@@ -310,7 +305,7 @@ RTexture* D3D11ResourceManager::CreateTextureRender(const DXGI_FORMAT format, co
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
+RTexture* RResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -343,7 +338,7 @@ RTexture* D3D11ResourceManager::CreateTexture2DFromWICFile(const WCHAR* fileName
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName)
+RTexture* RResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	ComPtr<ID3D11Texture2D> lTex2D;
@@ -375,7 +370,7 @@ RTexture* D3D11ResourceManager::CreateTexture2DFromDDSFile(const WCHAR* fileName
 	return res;
 }
 
-RTexture* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileName)
+RTexture* RResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileName)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	RTexture* res = new RTexture(ETextureType::TEXTURE_CUBE, DXGI_FORMAT_UNKNOWN, FALSE);
@@ -388,26 +383,26 @@ RTexture* D3D11ResourceManager::CreateTextureCubeFromDDSFile(const WCHAR* fileNa
 	return res;
 }
 
-RMeshGeometry* D3D11ResourceManager::CreateCube()
+RMeshGeometry* RResourceManager::CreateCube()
 {
 	MeshData md = geometryGenerator::MakeBox(1.f);
 	return CreateMeshGeometry(md.verticies.data(), sizeof(RVertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
-RMeshGeometry* D3D11ResourceManager::CreateSphere()
+RMeshGeometry* RResourceManager::CreateSphere()
 {
 	MeshData md = geometryGenerator::MakeSphere(1.f, 30, 30);
 
 	return CreateMeshGeometry(md.verticies.data(), sizeof(RVertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
-RMeshGeometry* D3D11ResourceManager::CreateQuad()
+RMeshGeometry* RResourceManager::CreateQuad()
 {
 	MeshData md = geometryGenerator::MakeSquare(1.f);
 	return CreateMeshGeometry(md.verticies.data(), sizeof(RVertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::TRIANGLE_LIST, EMeshType::BASIC);
 }
 
-RMeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
+RMeshGeometry* RResourceManager::CreateTessellatedQuad()
 {
 	MeshData md;
 	geometryGenerator::MakeCWQuadPatches(128, &md);
@@ -416,7 +411,7 @@ RMeshGeometry* D3D11ResourceManager::CreateTessellatedQuad()
 	return CreateMeshGeometry(md.verticies.data(), sizeof(RVertex), static_cast<UINT>(md.verticies.size()), md.indicies.data(), sizeof(UINT), static_cast<UINT>(md.indicies.size()), EPrimitiveTopologyType::QUAD_PATCH, EMeshType::TESSELLATED_QUAD);
 }
 
-void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
+void RResourceManager::CreateConstantBuffer(const UINT bufferSize, const void* pInitData, ID3D11Buffer** ppOutBuffer)
 {
 	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 
@@ -445,7 +440,7 @@ void D3D11ResourceManager::CreateConstantBuffer(const UINT bufferSize, const voi
 	}
 
 }
-void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer)
+void RResourceManager::UpdateConstantBuffer(const UINT bufferSize, const void* pData, ID3D11Buffer* pBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 
@@ -459,7 +454,7 @@ void D3D11ResourceManager::UpdateConstantBuffer(const UINT bufferSize, const voi
 	pContext->Unmap(pBuffer, 0);
 }
 
-RTexture* D3D11ResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
+RTexture* RResourceManager::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
 {
 
 	ComPtr<ID3D11Buffer> lBuffer;
@@ -530,7 +525,7 @@ RTexture* D3D11ResourceManager::CreateStructuredBuffer(const UINT uElementSize, 
 	return sb;
 }
 
-void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, RTexture* pInBuffer)
+void RResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pData, RTexture* pInBuffer)
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 
@@ -550,7 +545,7 @@ void D3D11ResourceManager::UpdateStructuredBuffer(const UINT uElementSize, const
 
 }
 
-void D3D11ResourceManager::InitializeCommonResource() const
+void RResourceManager::InitializeCommonResource() const
 {
 	Graphics::InitCommonResources(m_pRenderer);
 }

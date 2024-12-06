@@ -1,15 +1,14 @@
 #pragma once
 #include "pch.h"
-#include "../RenderDefs.h"
 
 class RRenderer;
 enum class EMeshType;
 
-class D3D11ResourceManager final
+class RResourceManager final
 {
 public:
-	D3D11ResourceManager() = default;
-	~D3D11ResourceManager();
+	RResourceManager() = default;
+	~RResourceManager();
 	void Initialize(RRenderer* pRenderer);
 
 

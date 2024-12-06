@@ -1,6 +1,8 @@
 #include "pch.h"
+#include "SubModules/Render/RResourceManager.h"
+#include "SubModules/Render/RPostProcess.h"
 #include "D3D11Resources.h"
-#include "D3D11Texture.h"
+#include "D3D11DeviceResources.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
 #include "Core/Components/MeshComponent.h"
@@ -9,11 +11,10 @@
 #include "Core/Light.h"
 
 RRenderer::RRenderer()
-	: m_deviceResources()
-	, m_resourceManager()
+	: m_resourceManager()
 	, m_postProcess()
 	, m_renderItemIndex(0)
-	, m_renderItems{ }
+	, m_renderItems{}
 	, m_HDRRenderTarget()
 	, m_dwBackBufferWidth(0)
 	, m_dwBackBufferHeight(0)
@@ -30,8 +31,8 @@ RRenderer::RRenderer()
 	, m_shadowingLightsIndex(0)
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
-	m_resourceManager = std::make_unique<D3D11ResourceManager>();
-	m_postProcess = std::make_unique<D3D11PostProcess>();
+	m_resourceManager = std::make_unique<RResourceManager>();
+	m_postProcess = std::make_unique<RPostProcess>();
 }
 
 BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
@@ -97,7 +98,7 @@ void RRenderer::EndRender()
 	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
 	m_postProcess->Process();
-	m_postProcess->EndPostProcess(backBufferRTV);
+	m_postProcess->EndPostProcess();
 
 	// Reset Render Queue
 	m_renderItemIndex = 0;

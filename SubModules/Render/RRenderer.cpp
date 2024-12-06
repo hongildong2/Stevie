@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "RRenderer.h"
+#include "RResourceManager.h"
 #include "Core/Components/MeshComponent.h"
 #include "Core/Skybox.h"
 #include "Core/Camera.h"

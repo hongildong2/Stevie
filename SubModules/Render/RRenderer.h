@@ -2,12 +2,17 @@
 #include "pch.h"
 #include "RenderItem.h"
 #include "RenderDefs.h"
+#include "RResourceManager.h"
+#include "RPostProcess.h"
 
 #ifdef API_D3D11
 #define RHIRenderer D3D11Renderer
 #include "SubModules/Render/D3D11/D3D11Renderer.h"
 #endif
 
+class RResourceManager;
+class D3D11DeviceResources;
+class RPostProcess;
 enum class EPrimitiveTopologyType;
 enum class EMeshType;
 class RTexture;
@@ -65,12 +70,7 @@ public:
 	void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture);
 	void AddLight(const Light* pLight);
 
-	inline D3D11DeviceResources* GetDeviceResources() const
-	{
-		return m_deviceResources.get();
-	}
-
-	inline D3D11ResourceManager* GetResourceManager() const
+	inline RResourceManager* GetResourceManager() const
 	{
 		return m_resourceManager.get();
 	}
@@ -104,9 +104,8 @@ private:
 	DWORD m_dwBackBufferWidth;
 	DWORD m_dwBackBufferHeight;
 
-	std::unique_ptr <D3D11DeviceResources> m_deviceResources;
-	std::unique_ptr <D3D11ResourceManager> m_resourceManager;
-	std::unique_ptr <D3D11PostProcess> m_postProcess;
+	std::unique_ptr <RResourceManager> m_resourceManager;
+	std::unique_ptr <RPostProcess> m_postProcess;
 
 
 	std::unique_ptr <RTexture> m_HDRRenderTarget;
@@ -139,5 +138,4 @@ private:
 
 	// Sun Light
 	const Light* m_sunLight;
-
 };

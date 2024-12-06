@@ -25,20 +25,20 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 	0.3f,
 };
 
-class D3D11PostProcess final
+class RPostProcess final
 {
 public:
-	D3D11PostProcess();
-	~D3D11PostProcess() = default;
+	RPostProcess();
+	~RPostProcess() = default;
 
-	D3D11PostProcess(const D3D11PostProcess& other) = delete;
-	D3D11PostProcess& operator=(const D3D11PostProcess& other) = delete;
+	RPostProcess(const RPostProcess& other) = delete;
+	RPostProcess& operator=(const RPostProcess& other) = delete;
 
 	void Initialize(RRenderer* pRenderer);
 
 	void BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget);
 	void Process();
-	void EndPostProcess(ID3D11RenderTargetView* pRTVToDraw);
+	void EndPostProcess();
 
 private:
 	void ProcessFog();

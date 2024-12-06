@@ -1,20 +1,21 @@
 #include "pch.h"
-#include "D3D11PostProcess.h"
-#include "D3D11ResourceManager.h"
 #include "D3D11Texture.h"
 #include "D3D11Resources.h"
 #include "D3D11MeshGeometry.h"
+#include "D3D11DeviceResources.h"
 #include "Core/GeometryGenerator.h"
+#include "../RPostProcess.h"
+#include "../RResourceManager.h"
 #include "../RenderConfig.h"
 #include "../RMeshGeometry.h"
 
-D3D11PostProcess::D3D11PostProcess()
+RPostProcess::RPostProcess()
 	: m_pRenderer(nullptr)
 	, m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM)
 {
 }
 
-void D3D11PostProcess::Initialize(RRenderer* pRenderer)
+void RPostProcess::Initialize(RRenderer* pRenderer)
 {
 	MY_ASSERT(pRenderer != nullptr);
 
@@ -48,7 +49,7 @@ void D3D11PostProcess::Initialize(RRenderer* pRenderer)
 
 }
 
-void D3D11PostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget)
+void RPostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget)
 {
 	m_renderTargetToProcess.swap(sourceRenderTarget);
 	m_pRenderer->GetResourceManager()->UpdateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.Get());
@@ -60,7 +61,7 @@ void D3D11PostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderT
 	m_pRenderer->GetDeviceResources()->PIXBeginEvent(L"PostProccess");
 }
 
-void D3D11PostProcess::Process()
+void RPostProcess::Process()
 {
 	ProcessFog();
 
@@ -68,14 +69,16 @@ void D3D11PostProcess::Process()
 	ProcessBloom();
 }
 
-void D3D11PostProcess::EndPostProcess(ID3D11RenderTargetView* pRTVToDraw)
+void RPostProcess::EndPostProcess()
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
+	auto* pRTV = m_pRenderer->GetDeviceResources()->GetRenderTargetView();
 
+	ID3D11RenderTargetView* rtv[1] = { pRTV };
 	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetProcessed->GetSRV(), m_renderTargetToProcess->GetSRV() };
 	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB.GetAddressOf());
 	pContext->PSSetShaderResources(0, 2, srvs);
-	pContext->OMSetRenderTargets(1, &pRTVToDraw, NULL);
+	pContext->OMSetRenderTargets(1, rtv, NULL);
 	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
 	pContext->PSSetSamplers(0, 1, Graphics::LINEAR_CLAMP_SS->GetAddressOf());
 	pContext->PSSetShader(Graphics::FILTER_COMBINE_PS->Get(), NULL, NULL);
@@ -91,7 +94,7 @@ void D3D11PostProcess::EndPostProcess(ID3D11RenderTargetView* pRTVToDraw)
 	m_pRenderer->GetDeviceResources()->PIXEndEvent();
 }
 
-void D3D11PostProcess::ProcessFog()
+void RPostProcess::ProcessFog()
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 
@@ -118,7 +121,7 @@ void D3D11PostProcess::ProcessFog()
 	m_renderTargetProcessed.swap(m_renderTargetToProcess);
 }
 
-void D3D11PostProcess::ProcessBloom()
+void RPostProcess::ProcessBloom()
 {
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	pContext->VSSetShader(NULL, NULL, NULL);
@@ -126,6 +129,7 @@ void D3D11PostProcess::ProcessBloom()
 	ID3D11ShaderResourceView* release[1] = { NULL };
 	ID3D11UnorderedAccessView* releaseUAV[1] = { NULL };
 
+	// TODO :: Use RRenderer->Compute
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
 	UINT renderTargetHeight = m_pRenderer->GetBackBufferHeight();
 
@@ -172,8 +176,9 @@ void D3D11PostProcess::ProcessBloom()
 	m_renderTargetProcessed.swap(m_blurTextures[0]);
 }
 
-void D3D11PostProcess::DrawScreenQuad()
+void RPostProcess::DrawScreenQuad()
 {
+	// TODO :: RRenderer::DrawScreenQuad(VS,PS,PSResource,PSSamplers,RenderTexture,PSConstant);
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	RMeshGeometry* pMG = m_screenQuad.get();
 	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
