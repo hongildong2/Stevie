@@ -107,6 +107,12 @@ private:
 	std::unique_ptr <RResourceManager> m_resourceManager;
 	std::unique_ptr <RPostProcess> m_postProcess;
 
+	std::unique_ptr<RBuffer> m_globalCB;
+	std::unique_ptr<RBuffer> m_sunLightCB;
+
+	std::unique_ptr<RBuffer> m_meshCB;
+	std::unique_ptr<RBuffer> m_materialCB;
+	std::unique_ptr<RBuffer> m_computeCB;
 
 	std::unique_ptr <RTexture> m_HDRRenderTarget;
 
