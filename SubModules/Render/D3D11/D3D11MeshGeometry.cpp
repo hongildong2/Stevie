@@ -3,7 +3,7 @@
 #include "D3DUtil.h"
 #include "D3D11DeviceResources.h"
 
-void RMeshGeometry::Initialize(const IRenderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
+void RMeshGeometry::Initialize(const RRenderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount)
 {
 	if (pRenderer == nullptr)
 	{
@@ -14,7 +14,7 @@ void RMeshGeometry::Initialize(const IRenderer* pRenderer, const void* pInVertex
 	m_pRenderer = pRenderer;
 
 
-	auto* pDevice = static_cast<const D3D11Renderer*>(m_pRenderer)->GetDeviceResources()->GetD3DDevice();
+	auto* pDevice = m_pRenderer->GetDeviceResources()->GetD3DDevice();
 	m_vertexStride = vertexSize;
 	m_indexCount = indexCount;
 	MY_ASSERT(indexSize == 4 || indexSize == 2);

@@ -4,7 +4,7 @@
 constexpr unsigned int CLOUD_TEX_SIZE = 512;
 
 
-RCloudMaterial::RCloudMaterial(IRenderer* pRenderer)
+RCloudMaterial::RCloudMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::VOLUME_PS)
 	, m_densityTexture3D(nullptr)
 	, m_lightingTexture3D(nullptr)

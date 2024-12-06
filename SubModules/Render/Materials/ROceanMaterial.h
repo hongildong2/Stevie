@@ -6,7 +6,7 @@ class ROceanMaterial final :
 	public RMaterial
 {
 public:
-	ROceanMaterial(IRenderer* pRenderer);
+	ROceanMaterial(RRenderer* pRenderer);
 	~ROceanMaterial();
 
 	virtual void Initialize() override;

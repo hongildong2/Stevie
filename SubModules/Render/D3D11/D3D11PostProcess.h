@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "D3D11Texture.h"
 
 struct PostProcessConstant
 {
@@ -35,7 +34,7 @@ public:
 	D3D11PostProcess(const D3D11PostProcess& other) = delete;
 	D3D11PostProcess& operator=(const D3D11PostProcess& other) = delete;
 
-	void Initialize(D3D11Renderer* pRenderer);
+	void Initialize(RRenderer* pRenderer);
 
 	void BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget);
 	void Process();
@@ -50,7 +49,7 @@ private:
 	{
 		LEVEL = 4,
 	};
-	D3D11Renderer* m_pRenderer;
+	RRenderer* m_pRenderer;
 
 	std::unique_ptr<RTexture> m_renderTargetToProcess;
 	std::unique_ptr<RTexture> m_renderTargetProcessed;

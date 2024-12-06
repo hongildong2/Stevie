@@ -6,7 +6,6 @@
 #include "Game.h"
 
 #include "GeometryGenerator.h"
-#include "SubModules/Render/D3D11/D3D11Renderer.h"
 #include "Components/MeshComponent.h"
 #include "Core/Camera.h"
 #include "SSceneObject.h"
@@ -19,7 +18,7 @@ extern void ExitGame() noexcept;
 
 Game::Game() noexcept(false)
 {
-	m_pRenderer = std::make_unique<D3D11Renderer>();
+	m_pRenderer = std::make_unique<RRenderer>();
 }
 
 // Initialize the Direct3D resources required to run.
@@ -122,7 +121,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 		m_pRenderer->SetIBLTextures(IrradianceMapTexture, SpecularMapTexture, BRDFMapTexture);
 
-		
+
 		skyboxMaterial->SetSkyboxTexture(IrradianceMapTexture);
 		skyboxMaterial->Initialize();
 

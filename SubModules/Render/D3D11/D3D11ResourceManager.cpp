@@ -12,7 +12,7 @@ D3D11ResourceManager::~D3D11ResourceManager()
 	Graphics::ClearCommonResources();
 }
 
-void D3D11ResourceManager::Initialize(D3D11Renderer* pRenderer)
+void D3D11ResourceManager::Initialize(RRenderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
 

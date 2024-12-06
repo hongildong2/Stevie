@@ -3,7 +3,7 @@
 #include "SubModules/Render/Materials/ROceanMaterial.h"
 #include "Components/MeshComponent.h"
 
-Ocean::Ocean(IRenderer* pRenderer)
+Ocean::Ocean(RRenderer* pRenderer)
 	:m_pRenderer(pRenderer)
 {
 	m_scale = 75.f;

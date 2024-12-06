@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "D3D11Renderer.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11PostProcess.h"
 #include "D3D11Texture.h"
@@ -9,7 +8,7 @@
 #include "../RenderConfig.h"
 #include "../RMeshGeometry.h"
 
-void D3D11PostProcess::Initialize(D3D11Renderer* pRenderer)
+void D3D11PostProcess::Initialize(RRenderer* pRenderer)
 {
 	MY_ASSERT(pRenderer != nullptr);
 

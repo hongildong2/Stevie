@@ -15,7 +15,7 @@ class RGeometryShader;
 class RBlendState;
 class RDepthStencilState;
 
-class IRenderer;
+class RRenderer;
 
 namespace Graphics
 {
@@ -77,12 +77,12 @@ namespace Graphics
 	extern RDepthStencilState* TRANSPARENT_DSS;
 
 
-	void InitCommonResources(const IRenderer* pRenderer);
-	void InitShaders(const IRenderer* pRenderer);
-	void InitSamplerStates(const IRenderer* pRenderer);
-	void InitBlendStates(const IRenderer* pRenderer);
-	void InitRasterizerStates(const IRenderer* pRenderer);
-	void InitDepthStencilStates(const IRenderer* pRenderer);
+	void InitCommonResources(const RRenderer* pRenderer);
+	void InitShaders(const RRenderer* pRenderer);
+	void InitSamplerStates(const RRenderer* pRenderer);
+	void InitBlendStates(const RRenderer* pRenderer);
+	void InitRasterizerStates(const RRenderer* pRenderer);
+	void InitDepthStencilStates(const RRenderer* pRenderer);
 	void CheckValidity();
 	void ClearCommonResources(); // Delete All
 }

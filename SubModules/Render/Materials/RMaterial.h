@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-interface IRenderer;
+class RRenderer;
 class RTexture;
 class RTextureCube;
 class RShader;
@@ -14,7 +14,7 @@ struct RenderParam;
 class RMaterial
 {
 public:
-	RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader);
+	RMaterial(RRenderer* pRenderer, const RPixelShader* pPixelShader);
 	virtual ~RMaterial() = default;
 
 	virtual void Initialize();
@@ -54,7 +54,7 @@ public:
 	}
 
 protected:
-	IRenderer* m_pRenderer;
+	RRenderer* m_pRenderer;
 	const RPixelShader* m_pixelShader;
 
 	const RTexture* m_geometryTextures[renderLimits::MAX_RENDER_BINDINGS_COUNT];
@@ -76,7 +76,7 @@ protected:
 class RSkyboxMaterial final : public RMaterial
 {
 public:
-	RSkyboxMaterial(IRenderer* pRenderer);
+	RSkyboxMaterial(RRenderer* pRenderer);
 	~RSkyboxMaterial() = default;
 
 	virtual void Initialize() override;
@@ -151,7 +151,7 @@ static_assert(sizeof(RBasicMaterialConstant) <= sizeof(RenderParam));
 class RBasicMaterial final : public RMaterial
 {
 public:
-	RBasicMaterial(IRenderer* pRenderer);
+	RBasicMaterial(RRenderer* pRenderer);
 	~RBasicMaterial() = default;
 
 	virtual void GetMaterialConstant(RenderParam* pOutRenderParam) const override;

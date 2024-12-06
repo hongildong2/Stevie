@@ -1,8 +1,6 @@
 #include "pch.h"
-
 #include "D3D11Resources.h"
 #include "D3D11Texture.h"
-#include "D3D11Renderer.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
 #include "Core/Components/MeshComponent.h"
@@ -10,7 +8,7 @@
 #include "Core/Camera.h"
 #include "Core/Light.h"
 
-D3D11Renderer::D3D11Renderer()
+RRenderer::RRenderer()
 	: m_deviceResources()
 	, m_resourceManager()
 	, m_postProcess()
@@ -35,7 +33,7 @@ D3D11Renderer::D3D11Renderer()
 
 }
 
-BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
+BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
 {
 	bEnableDebugLayer;
 	bEnableGBV;
@@ -63,7 +61,7 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	return TRUE;
 }
 
-void D3D11Renderer::BeginRender()
+void RRenderer::BeginRender()
 {
 	// Clear
 	{
@@ -91,7 +89,7 @@ void D3D11Renderer::BeginRender()
 	}
 }
 
-void D3D11Renderer::Render()
+void RRenderer::Render()
 {
 	// Update Scene Resources
 	{
@@ -109,7 +107,7 @@ void D3D11Renderer::Render()
 
 
 
-void D3D11Renderer::EndRender()
+void RRenderer::EndRender()
 {
 	// Post Process
 	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
@@ -134,12 +132,12 @@ void D3D11Renderer::EndRender()
 	pContext->HSSetShaderResources(0, 20, release);
 }
 
-void D3D11Renderer::Present()
+void RRenderer::Present()
 {
 	m_deviceResources->Present();
 }
 
-BOOL D3D11Renderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
+BOOL RRenderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
 {
 	if (!m_deviceResources)
 	{
@@ -153,7 +151,7 @@ BOOL D3D11Renderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBu
 	return TRUE;
 }
 
-BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
+BOOL RRenderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
 {
 	if (!m_deviceResources || (m_dwBackBufferWidth == dwBackBufferHeight && m_dwBackBufferHeight == dwBackBufferHeight))
 	{
@@ -173,13 +171,13 @@ BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBuffer
 }
 
 
-RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
+RMeshGeometry* RRenderer::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
 {
 	MY_ASSERT(pInVertexList != nullptr && pInIndexList != nullptr);
 	return static_cast<RMeshGeometry*>(m_resourceManager->CreateMeshGeometry(pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount, topologyType, meshType));
 }
 
-RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
+RMeshGeometry* RRenderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
 {
 	switch (type)
 	{
@@ -197,25 +195,25 @@ RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
 	}
 }
 
-RTexture* D3D11Renderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
+RTexture* RRenderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
 	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromWICFile(wchFileName));
 }
 
-RTexture* D3D11Renderer::CreateTexture2DFromDDSFile(const WCHAR* wchFileName)
+RTexture* RRenderer::CreateTexture2DFromDDSFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
 	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromDDSFile(wchFileName));
 }
 
-RTexture* D3D11Renderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
+RTexture* RRenderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
 {
 	MY_ASSERT(wchFileName != nullptr);
 	return static_cast<RTexture*>(m_resourceManager->CreateTextureCubeFromDDSFile(wchFileName));
 }
 
-void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRow)
+void RRenderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRow)
 {
 	if (m_renderItemIndex >= MAX_RENDER_ITEM || false == pInMeshComponent->IsActive())
 	{
@@ -269,7 +267,7 @@ void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRo
 
 }
 
-void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
+void RRenderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 	MY_ASSERT(pComputeShader != nullptr);
 	MY_ASSERT(resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
@@ -320,41 +318,41 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* p
 	m_deviceResources->PIXEndEvent();
 }
 
-RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
+RTexture* RRenderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
 {
 	return m_resourceManager->CreateTexture3D(width, height, depth, format);
 }
 
-RTexture* D3D11Renderer::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
+RTexture* RRenderer::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
 {
 	return m_resourceManager->CreateTexture2D(width, height, count, format);
 }
 
-RTexture* D3D11Renderer::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
+RTexture* RRenderer::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
 {
 	return m_resourceManager->CreateStructuredBuffer(uElementSize, uElementCount, pInitData);
 }
 
-void D3D11Renderer::SetCamera(const Camera* pCamera)
+void RRenderer::SetCamera(const Camera* pCamera)
 {
 	MY_ASSERT(pCamera != nullptr);
 
 	m_camera = pCamera;
 }
 
-void D3D11Renderer::SetSkybox(Skybox* pSkybox)
+void RRenderer::SetSkybox(Skybox* pSkybox)
 {
 	MY_ASSERT(pSkybox != nullptr);
 	m_skybox = pSkybox;
 }
 
-void D3D11Renderer::SetSunLight(const Light* pLight)
+void RRenderer::SetSunLight(const Light* pLight)
 {
 	MY_ASSERT(pLight != nullptr);
 	m_sunLight = pLight;
 }
 
-void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture)
+void RRenderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture)
 {
 	MY_ASSERT(pIrradianceMapTexture != nullptr && pSpecularMapTexture != nullptr && pBRDFMapTexture != nullptr);
 	MY_ASSERT(pIrradianceMapTexture->GetTextureType() == ETextureType::TEXTURE_CUBE);
@@ -367,7 +365,7 @@ void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const 
 
 }
 
-void D3D11Renderer::AddLight(const Light* pLight)
+void RRenderer::AddLight(const Light* pLight)
 {
 	if (m_sceneLightsIndex >= MAX_SCENE_LIGHTS_COUNT)
 	{
@@ -383,7 +381,7 @@ void D3D11Renderer::AddLight(const Light* pLight)
 	++m_sceneLightsIndex;
 }
 
-void D3D11Renderer::UpdateGlobalConstant()
+void RRenderer::UpdateGlobalConstant()
 {
 	RGlobalConstant globalConstant;
 	ZeroMemory(&globalConstant, sizeof(RGlobalConstant));
@@ -418,7 +416,7 @@ void D3D11Renderer::UpdateGlobalConstant()
 	m_resourceManager->UpdateConstantBuffer(sizeof(RLightConstant), &lightData, m_sunLightCB.Get());
 }
 
-void D3D11Renderer::SetPipelineState(const RenderItem& item)
+void RRenderer::SetPipelineState(const RenderItem& item)
 {
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
@@ -511,7 +509,7 @@ void D3D11Renderer::SetPipelineState(const RenderItem& item)
 }
 
 
-void D3D11Renderer::RenderSkybox()
+void RRenderer::RenderSkybox()
 {
 	if (m_skybox != nullptr)
 	{
@@ -572,7 +570,7 @@ void D3D11Renderer::RenderSkybox()
 	}
 }
 
-void D3D11Renderer::RenderOpaques()
+void RRenderer::RenderOpaques()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Opaques");
 
@@ -605,7 +603,7 @@ void D3D11Renderer::RenderOpaques()
 	m_deviceResources->PIXEndEvent();
 }
 
-void D3D11Renderer::RenderTransparent()
+void RRenderer::RenderTransparent()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Transparent");
 
@@ -637,7 +635,7 @@ void D3D11Renderer::RenderTransparent()
 	m_deviceResources->PIXEndEvent();
 }
 
-void D3D11Renderer::Draw(const RenderItem& renderItem)
+void RRenderer::Draw(const RenderItem& renderItem)
 {
 	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
@@ -680,7 +678,7 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
 
-void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
+void RRenderer::DrawTessellatedQuad(const RenderItem& renderItem)
 {
 	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();

@@ -12,7 +12,7 @@ MeshComponent::~MeshComponent()
 
 
 
-void MeshComponent::Initialize(IRenderer* pRenderer)
+void MeshComponent::Initialize(RRenderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
 }

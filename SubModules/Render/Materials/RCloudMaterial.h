@@ -5,7 +5,7 @@ class RCloudMaterial final :
 	public RMaterial
 {
 public:
-	RCloudMaterial(IRenderer* pRenderer);
+	RCloudMaterial(RRenderer* pRenderer);
 	~RCloudMaterial();
 
 	virtual void Initialize() override;

@@ -2,14 +2,15 @@
 #include "pch.h"
 #include "../RenderDefs.h"
 
-class D3D11Renderer;
+class RRenderer;
+enum class EMeshType;
 
 class D3D11ResourceManager final
 {
 public:
 	D3D11ResourceManager() = default;
 	~D3D11ResourceManager();
-	void Initialize(D3D11Renderer* pRenderer);
+	void Initialize(RRenderer* pRenderer);
 
 
 	RMeshGeometry* CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType);
@@ -40,6 +41,6 @@ private:
 
 
 private:
-	D3D11Renderer* m_pRenderer;
+	RRenderer* m_pRenderer;
 };
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ROceanMaterial.h"
 
-ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
+ROceanMaterial::ROceanMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::OCEAN_SURFACE_PS)
 	, m_combineWaveConstant(ocean::CombineWaveConstantInitializer)
 	, m_combineParameters(ocean::CombineParameterInitializer)

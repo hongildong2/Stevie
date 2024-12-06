@@ -18,7 +18,7 @@ public:
 	RMeshGeometry(const EPrimitiveTopologyType type, const EMeshType meshType);
 	~RMeshGeometry() = default;
 
-	void Initialize(const IRenderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
+	void Initialize(const RRenderer* pRenderer, const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount);
 
 	inline EPrimitiveTopologyType GetTopologyType() const
 	{
@@ -55,7 +55,7 @@ public:
 private:
 	const EPrimitiveTopologyType m_topologyType;
 	const EMeshType m_meshType;
-	const IRenderer* m_pRenderer;
+	const RRenderer* m_pRenderer;
 
 	UINT m_vertexStride;
 	UINT m_vertexOffset;

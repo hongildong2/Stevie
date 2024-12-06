@@ -1,6 +1,6 @@
 #include "pch.h"
 
-RMaterial::RMaterial(IRenderer* pRenderer, const RPixelShader* pPixelShader)
+RMaterial::RMaterial(RRenderer* pRenderer, const RPixelShader* pPixelShader)
 	: m_pRenderer(pRenderer)
 	, m_pixelShader(pPixelShader)
 	, m_geometrySamplerStatesCount(0)
@@ -67,7 +67,7 @@ void RMaterial::GetPixelSamplerStates(const RSamplerState** ppOutSamplerStates) 
 }
 
 
-RSkyboxMaterial::RSkyboxMaterial(IRenderer* pRenderer)
+RSkyboxMaterial::RSkyboxMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::CUBEMAP_PS)
 {
 	m_geometryTexturesCount = 0;
@@ -94,7 +94,7 @@ void RSkyboxMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 	pOutRenderParam;
 }
 
-RBasicMaterial::RBasicMaterial(IRenderer* pRenderer)
+RBasicMaterial::RBasicMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::BASIC_PS)
 	, m_constant(DEFAULT_MATERIAL)
 {

@@ -10,7 +10,7 @@ public:
 	MeshComponent();
 	virtual ~MeshComponent();
 
-	void Initialize(IRenderer* pRenderer);
+	void Initialize(RRenderer* pRenderer);
 	void SetMaterial(RMaterial* pMaterial);
 	void SetMeshGeometry(RMeshGeometry* pMeshGeometry);
 	void SetTransparency(RBlendState* pBlendState, Vector4& blendFactor);
@@ -58,7 +58,7 @@ public:
 
 
 private:
-	IRenderer* m_pRenderer;
+	RRenderer* m_pRenderer;
 	RMeshGeometry* m_pMeshGeometry;
 	RMaterial* m_pMaterial;
 

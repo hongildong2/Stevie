@@ -6,10 +6,10 @@ class Ocean final :
 	public SSceneObject
 {
 public:
-	Ocean(IRenderer* pRenderer);
+	Ocean(RRenderer* pRenderer);
 	~Ocean() = default;
 
 private:
-	IRenderer* m_pRenderer;
+	RRenderer* m_pRenderer;
 };
 

@@ -68,7 +68,7 @@ namespace Graphics
 	{
 
 	}
-	void InitCommonResources(const IRenderer* pRenderer)
+	void InitCommonResources(const RRenderer* pRenderer)
 	{
 		InitShaders(pRenderer);
 		InitSamplerStates(pRenderer);
@@ -76,11 +76,11 @@ namespace Graphics
 		InitRasterizerStates(pRenderer);
 		InitDepthStencilStates(pRenderer);
 	}
-	void InitShaders(const IRenderer* pRenderer)
+	void InitShaders(const RRenderer* pRenderer)
 	{
 
-		const WCHAR* BASE_PATH = static_cast<const D3D11Renderer*>(pRenderer)->GetShaderPath();
-		auto* pDevice = static_cast<const D3D11Renderer*>(pRenderer)->GetDeviceResources()->GetD3DDevice();
+		const WCHAR* BASE_PATH = pRenderer->GetShaderPath();
+		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 		constexpr size_t BUFFER_COUNT = 500;
 		WCHAR shaderFileNameBuffer[BUFFER_COUNT] = { NULL, };
 
@@ -251,9 +251,9 @@ namespace Graphics
 		}
 
 	}
-	void InitSamplerStates(const IRenderer* pRenderer)
+	void InitSamplerStates(const RRenderer* pRenderer)
 	{
-		auto* pDevice = static_cast<const D3D11Renderer*>(pRenderer)->GetDeviceResources()->GetD3DDevice();
+		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 		D3D11_SAMPLER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
 		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -301,9 +301,9 @@ namespace Graphics
 
 	}
 
-	void InitBlendStates(const IRenderer* pRenderer)
+	void InitBlendStates(const RRenderer* pRenderer)
 	{
-		auto* pDevice = static_cast<const D3D11Renderer*>(pRenderer)->GetDeviceResources()->GetD3DDevice();
+		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 
 		RBlendState* lAlphaBS = new RBlendState();
 
@@ -325,9 +325,9 @@ namespace Graphics
 		ALPHA_BS = lAlphaBS;
 	}
 
-	void InitRasterizerStates(const IRenderer* pRenderer)
+	void InitRasterizerStates(const RRenderer* pRenderer)
 	{
-		auto* pDevice = static_cast<const D3D11Renderer*>(pRenderer)->GetDeviceResources()->GetD3DDevice();
+		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 
 		auto* lSolidCwRS = new RRasterizerState();
 		auto* lSolidCcwRS = new RRasterizerState();
@@ -359,13 +359,13 @@ namespace Graphics
 		WIRE_FRAME_CCW_RS = lWireFrameCcwRS;
 	}
 
-	void InitDepthStencilStates(const IRenderer* pRenderer)
+	void InitDepthStencilStates(const RRenderer* pRenderer)
 	{
 		OPAQUE_DSS = new RDepthStencilState();
 		TRANSPARENT_DSS = new RDepthStencilState();
 		SKYBOX_DSS = new RDepthStencilState();
 
-		auto* pDevice = static_cast<const D3D11Renderer*>(pRenderer)->GetDeviceResources()->GetD3DDevice();
+		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 		D3D11_DEPTH_STENCILOP_DESC defaultDSODesc;
 		ZeroMemory(&defaultDSODesc, sizeof(D3D11_DEPTH_STENCILOP_DESC));
 		defaultDSODesc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
