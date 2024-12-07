@@ -3,7 +3,7 @@
 #include "SubModules/Render/Materials/RCloudMaterial.h"
 #include "Core/Components/MeshComponent.h"
 
-Cloud::Cloud(IRenderer* pRenderer)
+Cloud::Cloud(RRenderer* pRenderer)
 {
 	RCloudMaterial* mat = new RCloudMaterial(pRenderer);
 	mat->Initialize();

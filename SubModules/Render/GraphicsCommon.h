@@ -15,7 +15,7 @@ class RGeometryShader;
 class RBlendState;
 class RDepthStencilState;
 
-class D3D11Renderer;
+class RRenderer;
 
 namespace Graphics
 {
@@ -72,18 +72,19 @@ namespace Graphics
 
 	extern RBlendState* ALPHA_BS;
 
-	namespace D3D11
-	{
-		void InitCommonResources(const D3D11Renderer* pRenderer);
-		void InitShaders(const D3D11Renderer* pRenderer);
-		void InitSamplerStates(const D3D11Renderer* pRenderer);
-		void InitBlendStates(const D3D11Renderer* pRenderer);
-		void InitRasterizerStates(const D3D11Renderer* pRenderer);
-		void InitDepthStencilStates(const D3D11Renderer* pRenderer);
-		void CheckValidity();
-		void ClearCommonResources(); // Delete All
-	}
+	extern RDepthStencilState* SKYBOX_DSS;
+	extern RDepthStencilState* OPAQUE_DSS;
+	extern RDepthStencilState* TRANSPARENT_DSS;
+	extern RDepthStencilState* SCREEN_QUAD_DSS;
 
 
+	void InitCommonResources(const RRenderer* pRenderer);
+	void InitShaders(const RRenderer* pRenderer);
+	void InitSamplerStates(const RRenderer* pRenderer);
+	void InitBlendStates(const RRenderer* pRenderer);
+	void InitRasterizerStates(const RRenderer* pRenderer);
+	void InitDepthStencilStates(const RRenderer* pRenderer);
+	void CheckValidity();
+	void ClearCommonResources(); // Delete All
 }
 

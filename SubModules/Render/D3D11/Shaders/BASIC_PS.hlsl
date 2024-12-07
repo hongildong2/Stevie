@@ -15,12 +15,11 @@ StructuredBuffer<Light> SceneLights : register(t3);
 
 Texture2D<float3> albedoTex : register(t4);
 Texture2D<float> aoTex : register(t5);
-Texture2D<float> heightTex : register(t6);
-Texture2D<float> metallicTex : register(t7);
-Texture2D<float3> normalTex : register(t8);
-Texture2D<float> roughnessTex : register(t9);
-Texture2D<float> emissiveTex : register(t10);
-Texture2D<float> opacityTex : register(t11);
+Texture2D<float> metallicTex : register(t6);
+Texture2D<float3> normalTex : register(t7);
+Texture2D<float> roughnessTex : register(t8);
+Texture2D<float> emissiveTex : register(t9);
+Texture2D<float> opacityTex : register(t10);
 
 cbuffer GlobalConstants : register(b0)
 {

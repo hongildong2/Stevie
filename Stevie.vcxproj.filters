@@ -8,17 +8,8 @@
       <UniqueIdentifier>9b0c6983-910c-432f-a280-7200eb685e73</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Ocean">
-      <UniqueIdentifier>{9320104d-048f-4197-8d9c-3430d9ce4afb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="PostProcess">
-      <UniqueIdentifier>{24f3df86-4a95-46ad-bc9a-da649b89ca93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model">
-      <UniqueIdentifier>{d0a96982-dafb-4309-a1c3-1bbc6d9bdab2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI">
-      <UniqueIdentifier>{102b86ee-f9b0-4a19-9799-7326efc058dc}</UniqueIdentifier>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{7c825b67-a662-4194-b491-124edf996bc1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,7 +18,6 @@
     <ClInclude Include="Core\StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="SubModules\Render\IRenderer.h" />
     <ClInclude Include="SubModules\Render\Materials\RMaterial.h" />
     <ClInclude Include="SubModules\Render\RenderDefs.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
@@ -39,9 +29,8 @@
     <ClInclude Include="SubModules\Render\D3D11\D3D11DeviceResources.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
-    <ClInclude Include="SubModules\Render\IRenderResource.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
+    <ClInclude Include="SubModules\Render\RResourceManager.h" />
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
     <ClInclude Include="SubModules\Render\RBlendState.h" />
     <ClInclude Include="SubModules\Render\RRasterizerState.h" />
@@ -55,13 +44,15 @@
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Light.h" />
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
+    <ClInclude Include="SubModules\Render\RPostProcess.h" />
     <ClInclude Include="SubModules\Render\RenderItem.h" />
     <ClInclude Include="Core\Ocean.h" />
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
     <ClInclude Include="Core\OceanDefinition.h" />
     <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="Core\Cloud.h" />
+    <ClInclude Include="SubModules\Render\RRenderer.h" />
+    <ClInclude Include="SubModules\Render\RBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -76,7 +67,6 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
-    <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
@@ -97,6 +87,8 @@
     <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
     <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="Core\Cloud.cpp" />
+    <ClCompile Include="SubModules\Render\RRenderer.cpp" />
+    <ClCompile Include="SubModules\Render\RBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

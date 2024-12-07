@@ -6,7 +6,7 @@ class Cloud :
 	public SSceneObject
 {
 public:
-	Cloud(IRenderer* pRenderer);
+	Cloud(RRenderer* pRenderer);
 	~Cloud() = default;
 };
 

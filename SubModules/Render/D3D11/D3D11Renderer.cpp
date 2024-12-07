@@ -1,8 +1,9 @@
 #include "pch.h"
-
+#include "SubModules/Render/RResourceManager.h"
+#include "SubModules/Render/RPostProcess.h"
+#include "SubModules/Render/RBuffer.h"
 #include "D3D11Resources.h"
-#include "D3D11Texture.h"
-#include "D3D11Renderer.h"
+#include "D3D11DeviceResources.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
 #include "Core/Components/MeshComponent.h"
@@ -10,12 +11,11 @@
 #include "Core/Camera.h"
 #include "Core/Light.h"
 
-D3D11Renderer::D3D11Renderer()
-	: m_deviceResources()
-	, m_resourceManager()
+RRenderer::RRenderer()
+	: m_resourceManager()
 	, m_postProcess()
 	, m_renderItemIndex(0)
-	, m_renderItems{ }
+	, m_renderItems{}
 	, m_HDRRenderTarget()
 	, m_dwBackBufferWidth(0)
 	, m_dwBackBufferHeight(0)
@@ -28,14 +28,20 @@ D3D11Renderer::D3D11Renderer()
 	, m_sceneLightsBuffer()
 	, m_sceneLights{}
 	, m_sceneLightsIndex(0)
+	, m_shadowingLightsIndices{}
+	, m_shadowingLightsIndex(0)
 {
 	m_deviceResources = std::make_unique<D3D11DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R32_TYPELESS);
-	m_resourceManager = std::make_unique<D3D11ResourceManager>();
-	m_postProcess = std::make_unique<D3D11PostProcess>();
-
+	m_resourceManager = std::make_unique<RResourceManager>();
+	m_postProcess = std::make_unique<RPostProcess>();
+	m_globalCB = std::make_unique<RBuffer>();
+	m_sunLightCB = std::make_unique<RBuffer>();
+	m_meshCB = std::make_unique<RBuffer>();
+	m_materialCB = std::make_unique<RBuffer>();
+	m_computeCB = std::make_unique<RBuffer>();
 }
 
-BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
+BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR* wchShaderPath)
 {
 	bEnableDebugLayer;
 	bEnableGBV;
@@ -51,19 +57,21 @@ BOOL D3D11Renderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WC
 	m_resourceManager->Initialize(this);
 	m_postProcess->Initialize(this);
 
-	m_resourceManager->CreateConstantBuffer(sizeof(RGlobalConstant), nullptr, m_globalCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RLightConstant), nullptr, m_sunLightCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.GetAddressOf());
-	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.GetAddressOf());
+	m_resourceManager->CreateConstantBuffer(sizeof(RGlobalConstant), nullptr, m_globalCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RLightConstant), nullptr, m_sunLightCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_meshCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_materialCB.get());
+	m_resourceManager->CreateConstantBuffer(sizeof(RenderParam), nullptr, m_computeCB.get());
 
 	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
-	m_HDRRenderTarget = std::unique_ptr<D3D11TextureRender>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
+	m_HDRRenderTarget = std::unique_ptr<RTexture>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
+	m_screenQuad = std::unique_ptr<RMeshGeometry>(CreateBasicMeshGeometry(EBasicMeshGeometry::QUAD));
+
 	return TRUE;
 }
 
-void D3D11Renderer::BeginRender()
+void RRenderer::BeginRender()
 {
 	// Clear
 	{
@@ -91,31 +99,13 @@ void D3D11Renderer::BeginRender()
 	}
 }
 
-void D3D11Renderer::Render()
-{
-	// Update Scene Resources
-	{
-		UpdateGlobalConstant();
-		// Light
-		m_resourceManager->UpdateStructuredBuffer(sizeof(RLightConstant), static_cast<UINT>(m_sceneLightsIndex), m_sceneLights, m_sceneLightsBuffer);
-	}
 
-	RenderSkybox();
-
-	RenderOpaques();
-
-	RenderTransparent();
-}
-
-
-
-void D3D11Renderer::EndRender()
+void RRenderer::EndRender()
 {
 	// Post Process
-	auto* backBufferRTV = m_deviceResources->GetRenderTargetView();
 	m_postProcess->BeginPostProcess(m_HDRRenderTarget);
 	m_postProcess->Process();
-	m_postProcess->EndPostProcess(backBufferRTV);
+	m_postProcess->EndPostProcess();
 
 	// Reset Render Queue
 	m_renderItemIndex = 0;
@@ -134,12 +124,12 @@ void D3D11Renderer::EndRender()
 	pContext->HSSetShaderResources(0, 20, release);
 }
 
-void D3D11Renderer::Present()
+void RRenderer::Present()
 {
 	m_deviceResources->Present();
 }
 
-BOOL D3D11Renderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
+BOOL RRenderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
 {
 	if (!m_deviceResources)
 	{
@@ -153,7 +143,7 @@ BOOL D3D11Renderer::SetWindow(HWND hWnd, DWORD dwBackBufferWidth, DWORD dwBackBu
 	return TRUE;
 }
 
-BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
+BOOL RRenderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight)
 {
 	if (!m_deviceResources || (m_dwBackBufferWidth == dwBackBufferHeight && m_dwBackBufferHeight == dwBackBufferHeight))
 	{
@@ -173,89 +163,11 @@ BOOL D3D11Renderer::UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBuffer
 }
 
 
-RMeshGeometry* D3D11Renderer::CreateMeshGeometry(const void* pInVertexList, const UINT vertexSize, const UINT vertexCount, const void* pInIndexList, const UINT indexSize, const UINT indexCount, const EPrimitiveTopologyType topologyType, const EMeshType meshType)
-{
-	MY_ASSERT(pInVertexList != nullptr && pInIndexList != nullptr);
-	return static_cast<RMeshGeometry*>(m_resourceManager->CreateMeshGeometry(pInVertexList, vertexSize, vertexCount, pInIndexList, indexSize, indexCount, topologyType, meshType));
-}
-
-RMeshGeometry* D3D11Renderer::CreateBasicMeshGeometry(EBasicMeshGeometry type)
-{
-	switch (type)
-	{
-	case EBasicMeshGeometry::QUAD:
-		return m_resourceManager->CreateQuad();
-	case EBasicMeshGeometry::CUBE:
-		return m_resourceManager->CreateCube();
-	case EBasicMeshGeometry::SPHERE:
-		return m_resourceManager->CreateSphere();
-	case EBasicMeshGeometry::TESSELLATED_QUAD:
-		return m_resourceManager->CreateTessellatedQuad();
-	default:
-		MY_ASSERT(FALSE);
-		return nullptr;
-	}
-}
-
-RTexture* D3D11Renderer::CreateTexture2DFromWICFile(const WCHAR* wchFileName)
-{
-	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromWICFile(wchFileName));
-}
-
-RTexture* D3D11Renderer::CreateTexture2DFromDDSFile(const WCHAR* wchFileName)
-{
-	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTexture2DFromDDSFile(wchFileName));
-}
-
-RTexture* D3D11Renderer::CreateTextureCubeFromDDSFile(const WCHAR* wchFileName)
-{
-	MY_ASSERT(wchFileName != nullptr);
-	return static_cast<RTexture*>(m_resourceManager->CreateTextureCubeFromDDSFile(wchFileName));
-}
-
-void D3D11Renderer::Submit(const MeshComponent* pInMeshComponent, Matrix worldRow)
-{
-	if (m_renderItemIndex >= MAX_RENDER_ITEM || false == pInMeshComponent->IsActive())
-	{
-		return;
-	}
-
-	UINT currentIndex = m_renderItemIndex++;
-	RenderItem& newRenderItem = m_renderItems[currentIndex];
-	newRenderItem.pMeshGeometry = pInMeshComponent->GetMeshGeometry();
-	newRenderItem.pMaterial = pInMeshComponent->GetMaterial();
-	newRenderItem.pBlendState = nullptr;
-	newRenderItem.bIsTransparent = false;
-	newRenderItem.bIsOccluder = pInMeshComponent->IsOccluder();
 
 
-	// Parameter, Must be 16byte aligned
-	{
-		BOOL bIsHeightMapped = newRenderItem.pMaterial == nullptr ? FALSE : newRenderItem.pMaterial->IsHeightMapped();
-		RMeshConstant meshCB(worldRow, bIsHeightMapped);
-		MEMCPY_RENDER_PARAM(&newRenderItem.meshParam, &meshCB);
 
-		if (newRenderItem.pMaterial != nullptr)
-		{
-			newRenderItem.pMaterial->GetMaterialConstant(&newRenderItem.materialParam);
-		}
-	}
 
-	// Draw Policy
-	{
-		if (pInMeshComponent->IsTransparent())
-		{
-			newRenderItem.bIsTransparent = true;
-			newRenderItem.pBlendState = pInMeshComponent->GetBlendState();
-			newRenderItem.blendFactor = pInMeshComponent->GetBlendFactor();
-		}
-	}
-
-}
-
-void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
+void RRenderer::Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ)
 {
 	MY_ASSERT(pComputeShader != nullptr);
 	MY_ASSERT(resourcesCount <= MAX_COMPUTE_RESOURCE_COUNT && resultsCount <= MAX_COMPUTE_RESOURCE_COUNT && samplerStatesCount <= MAX_COMPUTE_RESOURCE_COUNT);
@@ -270,12 +182,12 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* p
 
 	for (UINT i = 0; i < resourcesCount; ++i)
 	{
-		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRVOrNull();
+		srvs[i] = static_cast<const D3D11Texture*>(pResources[i])->GetSRV();
 	}
 
 	for (UINT i = 0; i < resultsCount; ++i)
 	{
-		uavs[i] = static_cast<const D3D11Texture*>(pResults[i])->GetUAVOrNull();
+		uavs[i] = static_cast<const D3D11Texture*>(pResults[i])->GetUAV();
 	}
 
 	for (UINT i = 0; i < samplerStatesCount; ++i)
@@ -292,8 +204,8 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* p
 
 	if (pAlignedComputeParam != nullptr)
 	{
-		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pAlignedComputeParam, m_computeCB.Get());
-		pContext->CSSetConstantBuffers(0, 1, m_computeCB.GetAddressOf());
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pAlignedComputeParam, m_computeCB.get());
+		pContext->CSSetConstantBuffers(0, 1, m_computeCB->GetAddressOf());
 	}
 
 	pContext->Dispatch(batchX, batchY, batchZ);
@@ -306,70 +218,8 @@ void D3D11Renderer::Compute(const RComputeShader* pComputeShader, const WCHAR* p
 	m_deviceResources->PIXEndEvent();
 }
 
-RTexture* D3D11Renderer::CreateTexture3D(const UINT width, const UINT height, const UINT depth, const DXGI_FORMAT format)
-{
-	return m_resourceManager->CreateTexture3D(width, height, depth, format);
-}
 
-RTexture* D3D11Renderer::CreateTexture2D(const UINT width, const UINT height, const UINT count, const DXGI_FORMAT format)
-{
-	return m_resourceManager->CreateTexture2D(width, height, count, format);
-}
-
-RTexture* D3D11Renderer::CreateStructuredBuffer(const UINT uElementSize, const UINT uElementCount, const void* pInitData)
-{
-	return m_resourceManager->CreateStructuredBuffer(uElementSize, uElementCount, pInitData);
-}
-
-void D3D11Renderer::SetCamera(const Camera* pCamera)
-{
-	MY_ASSERT(pCamera != nullptr);
-
-	m_camera = pCamera;
-}
-
-void D3D11Renderer::SetSkybox(Skybox* pSkybox)
-{
-	MY_ASSERT(pSkybox != nullptr);
-	m_skybox = pSkybox;
-}
-
-void D3D11Renderer::SetSunLight(const Light* pLight)
-{
-	MY_ASSERT(pLight != nullptr);
-	m_sunLight = pLight;
-}
-
-void D3D11Renderer::SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture)
-{
-	MY_ASSERT(pIrradianceMapTexture != nullptr && pSpecularMapTexture != nullptr && pBRDFMapTexture != nullptr);
-	MY_ASSERT(pIrradianceMapTexture->GetTextureType() == ETextureType::TEXTURE_CUBE);
-	MY_ASSERT(pSpecularMapTexture->GetTextureType() == ETextureType::TEXTURE_CUBE);
-	MY_ASSERT(pBRDFMapTexture->GetTextureType() == ETextureType::TEXTURE_2D);
-
-	m_irradianceMapTexture = static_cast<const D3D11TextureCube*>(pIrradianceMapTexture);
-	m_specularMapTexture = static_cast<const D3D11TextureCube*>(pSpecularMapTexture);
-	m_BRDFMapTexture = static_cast<const D3D11Texture2D*>(pBRDFMapTexture);
-
-}
-
-void D3D11Renderer::AddLight(const Light* pLight)
-{
-	if (m_sceneLightsIndex >= MAX_SCENE_LIGHTS_COUNT)
-	{
-		return;
-	}
-
-	m_sceneLights[m_sceneLightsIndex] = pLight->GetLightConstant();
-	if (pLight->IsShadowingLight() && m_shadowingLightsIndex < MAX_SHADOWING_LIGHTS_COUNT)
-	{
-		m_shadowingLightsIndices[m_shadowingLightsIndex++] = m_sceneLightsIndex;
-	}
-
-	++m_sceneLightsIndex;
-}
-
-void D3D11Renderer::UpdateGlobalConstant()
+void RRenderer::UpdateGlobalConstant()
 {
 	RGlobalConstant globalConstant;
 	ZeroMemory(&globalConstant, sizeof(RGlobalConstant));
@@ -397,98 +247,107 @@ void D3D11Renderer::UpdateGlobalConstant()
 	globalConstant.nearZ = renderConfig::CAMERA_NEAR_Z;
 	globalConstant.farZ = renderConfig::CAMERA_FAR_Z;
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(RGlobalConstant), &globalConstant, m_globalCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RGlobalConstant), &globalConstant, m_globalCB.get());
 
 	// Sun Light
 	RLightConstant lightData = m_sunLight->GetLightConstant();
-	m_resourceManager->UpdateConstantBuffer(sizeof(RLightConstant), &lightData, m_sunLightCB.Get());
+	m_resourceManager->UpdateConstantBuffer(sizeof(RLightConstant), &lightData, m_sunLightCB.get());
 }
 
-void D3D11Renderer::SetPipelineStateByMaterial(const RMaterial* pMaterial)
+void RRenderer::SetPipelineState(const RenderItem& item)
 {
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-	UINT samplerStatesCount = 0;
-	UINT texturesCount = 0;
-	const RSamplerState* samplerStates[RMaterial::MATERIAL_SAMPLE_STATE_MAX_COUNT] = { NULL, };
-	const RTexture* textures[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
-	pMaterial->GetSamplerStates(samplerStates, &samplerStatesCount);
-	pMaterial->GetTextures(textures, &texturesCount);
-
-
-	// Sampler States
+	// Geometry Pipeline State
 	{
-		ID3D11SamplerState* sss[RMaterial::MATERIAL_SAMPLE_STATE_MAX_COUNT] = { NULL, };
-		for (UINT i = 0; i < samplerStatesCount; ++i)
+		if (item.geometryTexCount > 0)
 		{
-			MY_ASSERT(samplerStates[i] != nullptr);
-			sss[i] = static_cast<const D3D11SamplerState*>(samplerStates[i])->Get();
+			ID3D11ShaderResourceView* srvs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+			for (UINT i = 0; i < item.geometryTexCount; ++i)
+			{
+				srvs[i] = static_cast<const D3D11Texture*>(item.ppGeometryTextures[i])->GetSRV();
+			}
+			pContext->VSSetShaderResources(0, item.geometryTexCount, srvs);
+			pContext->DSSetShaderResources(0, item.geometryTexCount, srvs);
+
 		}
 
-		if (samplerStatesCount != 0)
+		if (item.geometrySSCount > 0)
 		{
-			pContext->PSSetSamplers(0, samplerStatesCount, sss);
+			ID3D11SamplerState* sss[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+			for (UINT i = 0; i < item.geometrySSCount; ++i)
+			{
+				sss[i] = item.ppGeometrySamplerStates[i]->Get();
+			}
+			pContext->VSSetSamplers(0, item.geometrySSCount, sss);
+			pContext->DSSetSamplers(0, item.geometrySSCount, sss);
+		}
+	}
+
+
+	// Pixel Shader
+	if (item.pPS != nullptr)
+	{
+		pContext->PSSetShader(item.pPS->Get(), nullptr, 0);
+
+
+		// Sampler States
+		if (item.pixelSSCount > 0)
+		{
+			ID3D11SamplerState* sss[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+			for (UINT i = 0; i < item.pixelSSCount; ++i)
+			{
+				MY_ASSERT(item.ppPixelSamplerStates[i] != nullptr);
+				sss[i] = item.ppPixelSamplerStates[i]->Get();
+			}
+
+			pContext->PSSetSamplers(0, item.pixelSSCount, sss);
+		}
+
+		// Shader Resources
+		ID3D11ShaderResourceView* srvs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+		if (item.pixelTexCount > 0 && SCENE_RESOURCES_COUNT != 0)
+		{
+			srvs[0] = m_irradianceMapTexture->GetSRV();
+			srvs[1] = m_specularMapTexture->GetSRV();
+			srvs[2] = m_BRDFMapTexture->GetSRV();
+			srvs[3] = m_sceneLightsBuffer->GetSRV();
+
+			for (UINT i = 0; i < item.pixelTexCount; ++i)
+			{
+				if (item.ppPixelTextures[i] != nullptr)
+				{
+					srvs[i + SCENE_RESOURCES_COUNT] = static_cast<const D3D11Texture*>(item.ppPixelTextures[i])->GetSRV();
+				}
+				else
+				{
+					srvs[i + SCENE_RESOURCES_COUNT] = nullptr;
+				}
+			}
+			pContext->PSSetShaderResources(0, item.pixelTexCount + SCENE_RESOURCES_COUNT, srvs);
 		}
 	}
 
 	// Constant Buffers
 	{
-		ID3D11Buffer* cbs[4] = { m_globalCB.Get(), m_meshCB.Get(), m_materialCB.Get(), m_sunLightCB.Get() };
+		ID3D11Buffer* cbs[4] = { m_globalCB->Get(), m_meshCB->Get(), m_materialCB->Get(), m_sunLightCB->Get() };
 		pContext->PSSetConstantBuffers(0, 4, cbs);
-	}
-
-
-
-	// Shader Resources
-	{
-		ID3D11ShaderResourceView* srvs[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = { NULL, };
-
-
-		srvs[0] = m_irradianceMapTexture->GetSRVOrNull();
-		srvs[1] = m_specularMapTexture->GetSRVOrNull();
-		srvs[2] = m_BRDFMapTexture->GetSRVOrNull();
-		srvs[3] = m_sceneLightsBuffer->GetSRVOrNull();
-
-		for (UINT i = 0; i < texturesCount; ++i)
-		{
-			if (textures[i] != nullptr)
-			{
-				srvs[i + SCENE_RESOURCES_COUNT] = static_cast<const D3D11Texture*>(textures[i])->GetSRVOrNull();
-			}
-			else
-			{
-				srvs[i + SCENE_RESOURCES_COUNT] = nullptr;
-			}
-		}
-
-		if (texturesCount != 0 && SCENE_RESOURCES_COUNT != 0)
-		{
-			pContext->PSSetShaderResources(0, texturesCount + SCENE_RESOURCES_COUNT, srvs); // Deferred Shading does not need this!
-		}
-	}
-
-
-	const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>(pMaterial->GetShader());
-	if (ps != nullptr)
-	{
-		pContext->PSSetShader(ps->Get(), nullptr, 0);
 	}
 }
 
 
-void D3D11Renderer::RenderSkybox()
+void RRenderer::RenderSkybox()
 {
 	if (m_skybox != nullptr)
 	{
 		m_deviceResources->PIXBeginEvent(L"Sky Box");
 		auto* pMC = m_skybox->GetMeshComponent();
-		const auto* pRMG = static_cast<const D3D11MeshGeometry*>(pMC->GetMeshGeometry());
+		const auto* pRMG = pMC->GetMeshGeometry();
 		auto* pMat = pMC->GetMaterial();
 
 		auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-		D3D11InputLayout* samplingIL = static_cast<D3D11InputLayout*>(Graphics::SAMPLING_IL);
-		pContext->IASetInputLayout(samplingIL->Get());
+		pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
 
 		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pRMG->GetTopologyType()));
 		ID3D11Buffer* pVB[1] = { pRMG->GetVertexBuffer() };
@@ -498,15 +357,39 @@ void D3D11Renderer::RenderSkybox()
 		pContext->IASetIndexBuffer(pRMG->GetIndexBuffer(), pRMG->GetIndexFormat(), 0);
 
 
-		ID3D11Buffer* cbs[1] = { m_globalCB.Get() };
-		D3D11VertexShader* cubemapVS = static_cast<D3D11VertexShader*>(Graphics::CUBEMAP_VS);
-		pContext->VSSetShader(cubemapVS->Get(), nullptr, 0);
+		ID3D11Buffer* cbs[1] = { m_globalCB->Get() };
+		pContext->VSSetShader(Graphics::CUBEMAP_VS->Get(), nullptr, 0);
 		pContext->VSSetConstantBuffers(0, 1, cbs);
 
-		SetPipelineStateByMaterial(pMat);
+		pContext->PSSetShader(Graphics::CUBEMAP_PS->Get(), 0, 0);
+		UINT psSSCount = pMat->GetPixelSamplerStatesCount();
+		UINT psTexCount = pMat->GetPixelTexturesCount();
 
-		D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CCW_RS);
-		pContext->RSSetState(basicRS->Get());
+		const RSamplerState* sss[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+		const RTexture* texs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+
+		pMat->GetPixelSamplerStates(sss);
+		pMat->GetPixelTextures(texs);
+
+		ID3D11SamplerState* d3dsss[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+		for (UINT i = 0; i < psSSCount; ++i)
+		{
+			MY_ASSERT(sss[i] != nullptr);
+			d3dsss[i] = sss[i]->Get();
+		}
+		ID3D11ShaderResourceView* srvs[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { NULL, };
+		for (UINT i = 0; i < psTexCount; ++i)
+		{
+			MY_ASSERT(texs[i] != nullptr);
+			srvs[i] = static_cast<const D3D11Texture*>(texs[i])->GetSRV();
+		}
+
+		pContext->PSSetSamplers(0, psSSCount, d3dsss);
+		pContext->PSSetShaderResources(0, psTexCount, srvs);
+
+
+		pContext->RSSetState(Graphics::SOLID_CCW_RS->Get());
+		pContext->OMSetDepthStencilState(Graphics::SKYBOX_DSS->Get(), 0);
 
 		pContext->DrawIndexed(pRMG->GetIndexCount(), 0, 0);
 
@@ -514,9 +397,14 @@ void D3D11Renderer::RenderSkybox()
 	}
 }
 
-void D3D11Renderer::RenderOpaques()
+void RRenderer::RenderOpaques()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Opaques");
+
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->OMSetDepthStencilState(Graphics::OPAQUE_DSS->Get(), 0);
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+
 	for (UINT i = 0; i < m_renderItemIndex; ++i)
 	{
 		RenderItem& opaqueItem = m_renderItems[i];
@@ -542,9 +430,14 @@ void D3D11Renderer::RenderOpaques()
 	m_deviceResources->PIXEndEvent();
 }
 
-void D3D11Renderer::RenderTransparent()
+void RRenderer::RenderTransparent()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Transparent");
+
+	auto* pContext = m_deviceResources->GetD3DDeviceContext();
+	pContext->OMSetDepthStencilState(Graphics::TRANSPARENT_DSS->Get(), 0);
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+
 	for (UINT i = 0; i < m_renderItemIndex; ++i)
 	{
 		RenderItem& transparentItem = m_renderItems[i];
@@ -569,51 +462,32 @@ void D3D11Renderer::RenderTransparent()
 	m_deviceResources->PIXEndEvent();
 }
 
-void D3D11Renderer::Draw(const RenderItem& renderItem)
+void RRenderer::Draw(const RenderItem& renderItem)
 {
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(renderItem.pMeshGeometry);
-	const RMaterial* mat = renderItem.pMaterial;
+	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
-
-	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
-	pContext->IASetInputLayout(basicIL->Get());
-	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
-
-
-	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
-	UINT mVS = mesh->GetVertexStride();
-	UINT mVO = mesh->GetVertexOffset();
-	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
-	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-
-	D3D11VertexShader* basicVS = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
-	pContext->VSSetShader(basicVS->Get(), nullptr, 0);
-
-
-	if (mat->IsHeightMapped()) // Set HeightMap Resource
+	// Geometry Pipeline
 	{
-		const RTexture* heightMapResources[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = {};
-		UINT heightMapCount = 0;
-		mat->GetHeightMapTextures(heightMapResources, &heightMapCount);
+		pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
+		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
-		MY_ASSERT(heightMapCount == 1); // BASIC_VS only 1 height map texture;
-		MY_ASSERT(heightMapResources[0] != nullptr);
+		ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
+		UINT mVS = mesh->GetVertexStride();
+		UINT mVO = mesh->GetVertexOffset();
+		pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
+		pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+		pContext->VSSetShader(Graphics::BASIC_VS->Get(), nullptr, 0);
 
-		ID3D11ShaderResourceView* srv[1] = { static_cast<const D3D11Texture*>(heightMapResources[0])->GetSRVOrNull() };
-		pContext->VSSetShaderResources(0, 1, srv);
+
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.get());
+		ID3D11Buffer* cbs[2] = { m_globalCB->Get(), m_meshCB->Get() };
+		pContext->VSSetConstantBuffers(0, 2, cbs);
 	}
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
-	pContext->VSSetConstantBuffers(0, 2, cbs);
 
-
-
-	SetPipelineStateByMaterial(mat);
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
-	pContext->RSSetState(basicRS->Get());
+	SetPipelineState(renderItem);
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.get());
 
 	if (renderItem.bIsTransparent)
 	{
@@ -625,75 +499,48 @@ void D3D11Renderer::Draw(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // sampleMask : masking MSAA's sample??
-
+		pContext->OMSetBlendState(bs->Get(), blendFactor, 0xffffffff); // sampleMask : masking MSAA's sample?
 	}
-
-	// TODO :: SET DEPTH STENCIL STATE pContext->OMSetDepthStencilState()
 
 	pContext->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
 
-void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
+void RRenderer::DrawTessellatedQuad(const RenderItem& renderItem)
 {
-	const D3D11MeshGeometry* mesh = static_cast<const D3D11MeshGeometry*>(renderItem.pMeshGeometry);
-	const RMaterial* mat = renderItem.pMaterial;
+	const RMeshGeometry* mesh = renderItem.pMeshGeometry;
 	auto* pContext = m_deviceResources->GetD3DDeviceContext();
 
 
-	D3D11InputLayout* basicIL = static_cast<D3D11InputLayout*>(Graphics::BASIC_IL);
-	pContext->IASetInputLayout(basicIL->Get());
-	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
-
-	ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
-	UINT mVS = mesh->GetVertexStride();
-	UINT mVO = mesh->GetVertexOffset();
-	pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
-	pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-
-	D3D11VertexShader* vs = static_cast<D3D11VertexShader*>(Graphics::BASIC_VS);
-	pContext->VSSetShader(vs->Get(), 0, 0);
-	D3D11DomainShader* ds = static_cast<D3D11DomainShader*>(Graphics::TESSELATED_QUAD_DS);
-	pContext->DSSetShader(ds->Get(), 0, 0);
-	D3D11HullShader* hs = static_cast<D3D11HullShader*>(Graphics::TESSELLATED_QUAD_HS);
-	pContext->HSSetShader(hs->Get(), 0, 0);
-
-
-	if (mat->IsHeightMapped()) // Set HeightMap Resource
+	// Geometry Pipeline
 	{
-		const RTexture* heightMapResources[RMaterial::MATERIAL_TEXTURE_MAX_COUNT] = {};
-		UINT heightMapCount = 0;
-		mat->GetHeightMapTextures(heightMapResources, &heightMapCount);
+		pContext->IASetInputLayout(Graphics::BASIC_IL->Get());
+		pContext->IASetPrimitiveTopology(GetD3D11TopologyType(mesh->GetTopologyType()));
 
-		MY_ASSERT(heightMapCount == 3);
-		MY_ASSERT(heightMapResources[0] != nullptr && heightMapResources[1] != nullptr && heightMapResources[2] != nullptr);
+		ID3D11Buffer* pVB[1] = { mesh->GetVertexBuffer() };
+		UINT mVS = mesh->GetVertexStride();
+		UINT mVO = mesh->GetVertexOffset();
+		pContext->IASetVertexBuffers(0, 1, pVB, &mVS, &mVO);
+		pContext->IASetIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
-		ID3D11ShaderResourceView* srv[3] =
-		{
-			static_cast<const D3D11Texture*>(heightMapResources[0])->GetSRVOrNull(),
-			static_cast<const D3D11Texture*>(heightMapResources[1])->GetSRVOrNull(),
-			static_cast<const D3D11Texture*>(heightMapResources[2])->GetSRVOrNull()
-		};
-		pContext->DSSetShaderResources(0, 3, srv);
+
+		pContext->VSSetShader(Graphics::BASIC_VS->Get(), 0, 0);
+		pContext->DSSetShader(Graphics::TESSELATED_QUAD_DS->Get(), 0, 0);
+		pContext->HSSetShader(Graphics::TESSELLATED_QUAD_HS->Get(), 0, 0);
+
+
+		m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.get());
+		ID3D11Buffer* cbs[2] = { m_globalCB->Get(), m_meshCB->Get() };
+		pContext->VSSetConstantBuffers(0, 2, cbs);
+		pContext->HSSetConstantBuffers(0, 2, cbs);
+		pContext->DSSetConstantBuffers(0, 2, cbs);
 	}
 
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.meshParam, m_meshCB.Get());
-	ID3D11Buffer* cbs[2] = { m_globalCB.Get(), m_meshCB.Get() };
-	pContext->VSSetConstantBuffers(0, 2, cbs);
-	pContext->HSSetConstantBuffers(0, 2, cbs);
-	pContext->DSSetConstantBuffers(0, 2, cbs);
 
-	ID3D11SamplerState* TEMP_SS[1] = { static_cast<D3D11SamplerState*>(Graphics::LINEAR_WRAP_SS)->Get() };
-	pContext->DSSetSamplers(0, 1, TEMP_SS);
-
-	SetPipelineStateByMaterial(mat);
-	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.Get());
-	D3D11RasterizerState* basicRS = static_cast<D3D11RasterizerState*>(Graphics::SOLID_CW_RS);
-	pContext->RSSetState(basicRS->Get());
+	SetPipelineState(renderItem);
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), &renderItem.materialParam, m_materialCB.get());
 
 	if (renderItem.bIsTransparent)
 	{
-		const D3D11BlendState* bs = static_cast<const D3D11BlendState*>(renderItem.pBlendState);
 		FLOAT blendFactor[4] = {
 			renderItem.blendFactor.x,
 			renderItem.blendFactor.y,
@@ -701,7 +548,7 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 			renderItem.blendFactor.w,
 		};
 
-		pContext->OMSetBlendState(bs->Get(), blendFactor, 0);
+		pContext->OMSetBlendState(renderItem.pBlendState->Get(), blendFactor, 0);
 	}
 
 
@@ -711,3 +558,61 @@ void D3D11Renderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->HSSetShader(nullptr, 0, 0);
 }
 
+
+void RRenderer::DrawScreenQuad(const RPixelShader* pPS, const RTexture** ppPSResource, const UINT PSResourceCount, const RSamplerState** ppPSSamplerStates, const UINT PSSamplerCount, const RTexture* pTextureRender, RenderParam* pRenderParam)
+{
+	auto* pContext = GetDeviceResources()->GetD3DDeviceContext();
+	RMeshGeometry* pMG = m_screenQuad.get();
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+	pContext->OMSetDepthStencilState(Graphics::SCREEN_QUAD_DSS->Get(), 0);
+
+	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
+	UINT vS = pMG->GetVertexStride();
+	UINT vO = pMG->GetVertexOffset();
+	pContext->IASetVertexBuffers(0, 1, vbf, &vS, &vO);
+	pContext->IASetIndexBuffer(pMG->GetIndexBuffer(), pMG->GetIndexFormat(), 0);
+	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pMG->GetTopologyType()));
+	pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
+
+	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
+
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pRenderParam, m_computeCB.get());
+
+	ID3D11SamplerState* ppSS[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+	ID3D11ShaderResourceView* ppResources[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+	ID3D11ShaderResourceView* release[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+
+	MY_ASSERT(pTextureRender->GetTextureType() == ETextureType::TEXTURE_2D_RENDER);
+	ID3D11RenderTargetView* pRTV = pTextureRender->GetRTV();
+
+	for (UINT i = 0; i < PSSamplerCount; ++i)
+	{
+		ppSS[i] = ppPSSamplerStates[i]->Get();
+	}
+	for (UINT i = 0; i < PSResourceCount; ++i)
+	{
+		ppResources[i] = ppPSResource[i]->GetSRV();
+	}
+
+	pContext->PSSetShader(pPS->Get(), NULL, 0);
+	pContext->PSSetShaderResources(0, PSResourceCount, ppResources);
+	pContext->PSSetSamplers(0, PSSamplerCount, ppSS);
+	pContext->PSSetConstantBuffers(5, 1, m_computeCB->GetAddressOf());
+
+	pContext->OMSetRenderTargets(1, &pRTV, nullptr);
+	pContext->DrawIndexed(pMG->GetIndexCount(), 0, 0);
+
+	// Release
+	pContext->PSSetShaderResources(0, renderLimits::MAX_RENDER_BINDINGS_COUNT, release);
+	pContext->OMSetRenderTargets(0, NULL, NULL);
+}
+
+const RTexture* RRenderer::GetRenderTexture() const
+{
+	return m_deviceResources->GetRenderTexture();
+}
+
+const RTexture* RRenderer::GetDepthTexture() const
+{
+	return m_deviceResources->GetDepthTexture();
+}

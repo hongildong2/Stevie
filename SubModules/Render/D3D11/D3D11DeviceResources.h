@@ -5,6 +5,7 @@
 #pragma once
 #include "pch.h"
 #include "D3DUtil.h"
+#include "../RTexture.h"
 
 	// Controls all the DirectX device resources.
 class D3D11DeviceResources
@@ -46,17 +47,27 @@ public:
 	auto                    GetDXGIFactory() const noexcept { return m_dxgiFactory.Get(); }
 	HWND                    GetWindow() const noexcept { return m_window; }
 	D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const noexcept { return m_d3dFeatureLevel; }
-	ID3D11Texture2D* GetRenderTarget() const noexcept { return m_renderTarget.Get(); }
-	ID3D11Texture2D* GetDepthStencil() const noexcept { return m_depthStencil.Get(); }
-	ID3D11RenderTargetView* GetRenderTargetView() const noexcept { return m_d3dRenderTargetView.Get(); }
-	ID3D11DepthStencilView* GetDepthStencilView() const noexcept { return m_d3dDepthStencilView.Get(); }
-	ID3D11ShaderResourceView* GetDepthSRV() const noexcept { return m_d3dDepthSRV.Get(); }
+	ID3D11Texture2D* GetRenderTarget() const noexcept { return static_cast<ID3D11Texture2D*>(m_renderTexture->Get()); }
+	ID3D11Texture2D* GetDepthStencil() const noexcept { return static_cast<ID3D11Texture2D*>(m_depthTexture->Get()); }
+	ID3D11RenderTargetView* GetRenderTargetView() const noexcept { return m_renderTexture->GetRTV(); }
+	ID3D11DepthStencilView* GetDepthStencilView() const noexcept { return m_depthTexture->GetDSV(); }
+	ID3D11ShaderResourceView* GetDepthSRV() const noexcept { return m_depthTexture->GetSRV(); }
 	DXGI_FORMAT             GetBackBufferFormat() const noexcept { return m_backBufferFormat; }
 	DXGI_FORMAT             GetDepthBufferFormat() const noexcept { return m_depthBufferFormat; }
 	D3D11_VIEWPORT          GetScreenViewport() const noexcept { return m_screenViewport; }
 	UINT                    GetBackBufferCount() const noexcept { return m_backBufferCount; }
 	DXGI_COLOR_SPACE_TYPE   GetColorSpace() const noexcept { return m_colorSpace; }
 	unsigned int            GetDeviceOptions() const noexcept { return m_options; }
+
+	// TEMP
+	RTexture* GetRenderTexture() const noexcept
+	{
+		return m_renderTexture.get();
+	};
+	RTexture* GetDepthTexture() const noexcept
+	{
+		return m_depthTexture.get();
+	};
 
 	// Performance events
 	void PIXBeginEvent(_In_z_ const wchar_t* name)
@@ -86,11 +97,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
 	// Direct3D rendering objects. Required for 3D.
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_renderTarget;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_depthStencil;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_d3dRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_d3dDepthSRV;
+	std::unique_ptr<RTexture>						m_renderTexture;
+	std::unique_ptr<RTexture>						m_depthTexture;
 	D3D11_VIEWPORT                                  m_screenViewport;
 
 	// Direct3D properties.

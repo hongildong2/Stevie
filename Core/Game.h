@@ -55,7 +55,7 @@ private:
 	void Render();
 
 	// Device resources.
-	std::unique_ptr<IRenderer> m_pRenderer;
+	std::unique_ptr<RRenderer> m_pRenderer;
 
 	// Rendering loop timer.
 	StepTimer                           m_timer;

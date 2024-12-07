@@ -264,11 +264,8 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 
 	// Clear the previous window size specific context.
 	m_d3dContext->OMSetRenderTargets(0, nullptr, nullptr);
-	m_d3dRenderTargetView.Reset();
-	m_d3dDepthStencilView.Reset();
-	m_d3dDepthSRV.Reset();
-	m_renderTarget.Reset();
-	m_depthStencil.Reset();
+	m_renderTexture.reset();
+	m_depthTexture.reset();
 	m_d3dContext->Flush();
 
 	// Determine the render target size in pixels.
@@ -342,19 +339,25 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 	// Handle color space settings for HDR
 	UpdateColorSpace();
 
+	m_renderTexture = std::make_unique<RTexture>(ETextureType::TEXTURE_2D_RENDER, m_backBufferFormat, TRUE);
+	m_renderTexture->m_bInitialized = TRUE;
+	m_depthTexture = std::make_unique<RTexture>(ETextureType::TEXTURE_2D_DEPTH, m_depthBufferFormat, FALSE);
+	m_depthTexture->m_bInitialized = TRUE;
+
 	// Create a render target view of the swap chain back buffer.
-	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
+	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTexture->m_resource.ReleaseAndGetAddressOf())));
 
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
 	ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
-		m_renderTarget.Get(),
+		m_renderTexture->m_resource.Get(),
 		&renderTargetViewDesc,
-		m_d3dRenderTargetView.ReleaseAndGetAddressOf()
+		m_renderTexture->m_RTV.ReleaseAndGetAddressOf()
 	));
 
 	if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
 	{
 		// Create a depth stencil view for use with 3D rendering if needed.
+
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(
 			m_depthBufferFormat,
 			backBufferWidth,
@@ -364,25 +367,26 @@ void D3D11DeviceResources::CreateWindowSizeDependentResources()
 			D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
 		);
 
-
+		ComPtr<ID3D11Texture2D> lDepthBuffer;
 		ThrowIfFailed(m_d3dDevice->CreateTexture2D(
 			&depthStencilDesc,
 			nullptr,
-			m_depthStencil.ReleaseAndGetAddressOf()
+			lDepthBuffer.ReleaseAndGetAddressOf()
 		));
+		m_depthTexture->m_resource.Swap(lDepthBuffer);
 
 		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D32_FLOAT);
 		ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
-			m_depthStencil.Get(),
+			m_depthTexture->m_resource.Get(),
 			&dsvDesc,
-			m_d3dDepthStencilView.ReleaseAndGetAddressOf()
+			m_depthTexture->m_DSV.ReleaseAndGetAddressOf()
 		));
 
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_FLOAT);
 		ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(
-			m_depthStencil.Get(),
+			m_depthTexture->m_resource.Get(),
 			&srvDesc,
-			m_d3dDepthSRV.ReleaseAndGetAddressOf()
+			m_depthTexture->m_SRV.ReleaseAndGetAddressOf()
 		));
 	}
 
@@ -431,10 +435,8 @@ void D3D11DeviceResources::HandleDeviceLost()
 		m_deviceNotify->OnDeviceLost();
 	}
 
-	m_d3dDepthStencilView.Reset();
-	m_d3dRenderTargetView.Reset();
-	m_renderTarget.Reset();
-	m_depthStencil.Reset();
+	m_renderTexture.reset();
+	m_depthTexture.reset();
 	m_swapChain.Reset();
 	m_d3dContext.Reset();
 	m_d3dAnnotation.Reset();
@@ -481,12 +483,12 @@ void D3D11DeviceResources::Present()
 	// Discard the contents of the render target.
 	// This is a valid operation only when the existing contents will be entirely
 	// overwritten. If dirty or scroll rects are used, this call should be removed.
-	m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
+	m_d3dContext->DiscardView(m_renderTexture->GetRTV());
 
-	if (m_d3dDepthStencilView)
+	if (m_depthTexture->GetDSV())
 	{
 		// Discard the contents of the depth stencil.
-		m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
+		m_d3dContext->DiscardView(GetDepthStencilView());
 	}
 
 	// If the device was removed either by a disconnection or a driver upgrade, we

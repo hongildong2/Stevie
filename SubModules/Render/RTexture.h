@@ -1,21 +1,52 @@
 #pragma once
-#include "RenderDefs.h"
+#include "pch.h"
+
+// Texture :: SRV + TextureDepth :: DSV, TextureDynamic :: UAV, TextureRender : public TextureDynamic :: RTV, UAV
+
 
 enum class ETextureType
 {
 	TEXTURE_2D,
+	TEXTURE_2D_ARRAY,
+	TEXTURE_2D_RENDER,
+	TEXTURE_2D_DEPTH,
 	TEXTURE_3D,
 	TEXTURE_CUBE,
 	STRUCTURED_BUFFER
 };
 
-class RTexture
-	: public IRenderResource
+#ifdef API_D3D11
+#define RHITexture D3D11Texture
+#include "SubModules/Render/D3D11/D3D11Texture.h"
+#endif
+
+
+class RTexture : public RHITexture
 {
+	friend class RResourceManager;
+
+#ifdef API_D3D11
+#include "SubModules/Render/D3D11/D3D11DeviceResources.h"
+	friend class D3D11DeviceResources;
+#endif
+
 public:
-	inline BOOL IsReadOnly() const
+	RTexture(ETextureType type, DXGI_FORMAT format, BOOL bIsDynamic);
+	~RTexture() = default;
+
+	inline virtual bool IsInitialized() const override
 	{
-		return m_bIsReadOnly;
+		return m_bInitialized;
+	}
+
+	inline BOOL IsDynamic() const
+	{
+		return m_bIsDynamic;
+	}
+
+	inline ETextureType GetTextureType() const
+	{
+		return m_type;
 	}
 
 	inline UINT GetWidth() const
@@ -30,61 +61,23 @@ public:
 
 	inline UINT GetDepth() const
 	{
-		MY_ASSERT(m_textureType == ETextureType::TEXTURE_3D);
+		MY_ASSERT(m_type == ETextureType::TEXTURE_3D);
 		return m_depth;
 	}
 
-	inline ETextureType GetTextureType() const
-	{
-		return m_textureType;
-	}
-
-
-protected:
-	RTexture(ETextureType type);
-	virtual ~RTexture() = default;
-
-protected:
-	UINT m_width;
-	UINT m_height;
-	UINT m_depth;
-
-
-
-protected:
-	DXGI_FORMAT m_format;
-	ETextureType m_textureType;
-	BOOL m_bIsReadOnly;
-	BOOL m_bInitialized;
-};
-
-
-#ifdef API_D3D11
-#define RHIDepthTexture ReverseD3D11DepthTexture
-#include "D3D11/D3D11Texture.h"
-#endif
-
-class RDepthTexture : public RHIDepthTexture
-{
-public:
-	RDepthTexture(IRenderer* pRenderer);
-	~RDepthTexture() = default;
-
-	void SetSize(const UINT width, const UINT height);
+	void SetSize(const UINT width, const UINT height, const UINT depth, const UINT count);
 	void Initialize();
-	void Reset();
 
-
- private:
-	DXGI_FORMAT m_format;
+private:
 	ETextureType m_type;
-	UINT m_width;
+	DXGI_FORMAT m_format;
+	BOOL m_bIsDynamic;
+	BOOL m_bInitialized;
+
+	UINT m_width; // Element size in structured buffer
 	UINT m_height;
-
-
- // TEMP, Testing Reverse OOP
-#ifdef API_D3D11
-	D3D11Renderer* m_pRenderer;
-#endif
+	UINT m_depth; // 3D
+	UINT m_count; // Array or structured buffer
 };
+
 

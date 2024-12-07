@@ -2,8 +2,7 @@
 #include "RShader.h"
 
 RShader::RShader(const EShaderType type, const WCHAR* name)
-	: IRenderResource()
-	, m_type(type)
+	: m_type(type)
 	, m_name(name)
 {
 }

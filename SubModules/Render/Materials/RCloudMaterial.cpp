@@ -4,12 +4,15 @@
 constexpr unsigned int CLOUD_TEX_SIZE = 512;
 
 
-RCloudMaterial::RCloudMaterial(IRenderer* pRenderer)
+RCloudMaterial::RCloudMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::VOLUME_PS)
 	, m_densityTexture3D(nullptr)
 	, m_lightingTexture3D(nullptr)
 {
-	AddSamplerState(Graphics::LINEAR_CLAMP_SS);
+	m_geometrySamplerStatesCount = 0;
+	m_geometryTexturesCount = 0;
+	m_pixelSamplerStatesCount = 1;
+	m_pixelSamplerStates[0] = Graphics::LINEAR_CLAMP_SS;
 }
 
 RCloudMaterial::~RCloudMaterial()
@@ -21,8 +24,9 @@ void RCloudMaterial::Initialize()
 	m_densityTexture3D = m_pRenderer->CreateTexture3D(CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, DXGI_FORMAT_R16_FLOAT);
 	m_lightingTexture3D = m_pRenderer->CreateTexture3D(CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, CLOUD_TEX_SIZE, DXGI_FORMAT_R16_FLOAT);
 
-	AddTexture(m_densityTexture3D);
-	AddTexture(m_lightingTexture3D);
+	m_pixelTextures[0] = m_densityTexture3D;
+	m_pixelTextures[1] = m_lightingTexture3D;
+	m_pixelTexturesCount = 2;
 	InitializeData();
 }
 
@@ -49,10 +53,4 @@ void RCloudMaterial::Update()
 void RCloudMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
 	pOutRenderParam;
-}
-
-void RCloudMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures;
-	*pOutTextureCount = 0;
 }

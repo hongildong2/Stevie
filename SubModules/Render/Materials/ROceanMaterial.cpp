@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ROceanMaterial.h"
 
-ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
+ROceanMaterial::ROceanMaterial(RRenderer* pRenderer)
 	: RMaterial(pRenderer, Graphics::OCEAN_SURFACE_PS)
 	, m_combineWaveConstant(ocean::CombineWaveConstantInitializer)
 	, m_combineParameters(ocean::CombineParameterInitializer)
@@ -16,6 +16,11 @@ ROceanMaterial::ROceanMaterial(IRenderer* pRenderer)
 	, m_swellInitialParameterSB(nullptr)
 {
 	m_bIsHeightMapped = TRUE;
+
+	m_pixelSamplerStates[0] = Graphics::LINEAR_WRAP_SS;
+	m_pixelSamplerStatesCount = 1;
+	m_geometrySamplerStates[0] = Graphics::LINEAR_WRAP_SS;
+	m_geometrySamplerStatesCount = 1;
 }
 
 ROceanMaterial::~ROceanMaterial()
@@ -24,37 +29,37 @@ ROceanMaterial::~ROceanMaterial()
 
 void ROceanMaterial::Initialize()
 {
-	MY_ASSERT(m_textures[SKY_TEXTURE] != nullptr);
-	MY_ASSERT(m_textures[FOAM_TEXTURE] != nullptr);
+	MY_ASSERT(m_skyTex != nullptr);
+	MY_ASSERT(m_foamTex != nullptr);
 
-	RTexture* displacementTextureArray = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
-	RTexture* derivativeTextureArray = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
-	RTexture* turbulenceTextureArray = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
-	RTexture* waveVectorTextureArray = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	m_displacementTex = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	m_derivativeTex = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	m_turbulenceTex = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	m_waveVectorTex = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32B32A32_FLOAT);
 
-	RTexture* initialSpectrumTextureArray = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32_FLOAT);
-	RTexture* heightTexture = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, 1, DXGI_FORMAT_R32_FLOAT);
-
+	m_initSpectrumTex = m_pRenderer->CreateTexture2D(ocean::N, ocean::N, ocean::CASCADE_COUNT, DXGI_FORMAT_R32G32_FLOAT);
 
 	m_combineParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::CombineParameter), ocean::CASCADE_COUNT, &m_combineParameters);
 	m_localInitialSpectrumSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_LocalInitialSpectrumParameters);
 	m_swellInitialParameterSB = m_pRenderer->CreateStructuredBuffer(sizeof(ocean::InitialSpectrumParameter), ocean::CASCADE_COUNT, &m_SwellInitialSpectrumParameters);
 
+	m_pixelTextures[0] = m_turbulenceTex;
+	m_pixelTextures[1] = m_combineParameterSB;
+	m_pixelTextures[2] = m_skyTex;
+	m_pixelTextures[3] = m_foamTex;
+	m_pixelTexturesCount = 4;
 
-	m_textures[DISPLACEMENT_TEXTURE2D_ARRAY] = displacementTextureArray;
-	m_textures[DERIVATIVE_TEXTURE2D_ARRAY] = derivativeTextureArray;
-	m_textures[TURBULENCE_TEXTURE2D_ARRAY] = turbulenceTextureArray;
-	m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY] = waveVectorTextureArray;
-
-	m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY] = initialSpectrumTextureArray;
-	m_textures[HEIGHT_TEXTURE2D] = heightTexture;
+	m_geometryTextures[0] = m_displacementTex;
+	m_geometryTextures[1] = m_derivativeTex;
+	m_geometryTextures[2] = m_combineParameterSB;
+	m_geometryTexturesCount = 3;
 
 	InitializeData();
 }
 
 void ROceanMaterial::InitializeData()
 {
-	const RTexture* resultTextures[3] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY], m_textures[TURBULENCE_TEXTURE2D_ARRAY] };
+	const RTexture* resultTextures[3] = { m_initSpectrumTex , m_waveVectorTex, m_turbulenceTex };
 	const RTexture* srcTextures[2] = { m_localInitialSpectrumSB, m_swellInitialParameterSB };
 	m_pRenderer->Compute(Graphics::OCEAN_INITIAL_SPECTRUM_CS, L"OCEAN INITIAL SPECTRUM COMPUTE", resultTextures, _countof(resultTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_oceanConfigurationConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
 
@@ -73,16 +78,16 @@ void ROceanMaterial::Update()
 
 	// Timedepedent Spectrum, from InitialSpectrum
 	{
-		const RTexture* srcTextures[2] = { m_textures[INITIAL_SPECTRUM_TEXTURE2D_ARRAY], m_textures[WAVE_VECTOR_TEXTURE2D_ARRAY] };
-		const RTexture* dstTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY] };
+		const RTexture* srcTextures[2] = { m_initSpectrumTex, m_waveVectorTex };
+		const RTexture* dstTextures[2] = { m_displacementTex, m_derivativeTex };
 
 		m_pRenderer->Compute(Graphics::OCEAN_TIME_DEPENDENT_SPECTRUM_CS, L"OCEAN TIME DEPENDENT COMPUTE", dstTextures, _countof(dstTextures), srcTextures, _countof(srcTextures), nullptr, 0, CAST_RENDER_PARAM_PTR(&m_spectrumParameter), ocean::GROUP_X, ocean::GROUP_Y, 1);
 	}
 
 	// Inverse FFT
 	{
-		const RTexture* displacementTexture[1] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY] };
-		const RTexture* derivativeTexture[1] = { m_textures[DERIVATIVE_TEXTURE2D_ARRAY] };
+		const RTexture* displacementTexture[1] = { m_displacementTex };
+		const RTexture* derivativeTexture[1] = { m_derivativeTex };
 
 		// Horizontal IFFT
 		{
@@ -112,55 +117,26 @@ void ROceanMaterial::Update()
 
 	// Foam Simulation
 	{
-		const RTexture* srcTextures[3] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_textures[DERIVATIVE_TEXTURE2D_ARRAY], m_combineParameterSB };
-		const RTexture* dstTextures[1] = { m_textures[TURBULENCE_TEXTURE2D_ARRAY] };
+		const RTexture* srcTextures[3] = { m_displacementTex, m_derivativeTex, m_combineParameterSB };
+		const RTexture* dstTextures[1] = { m_turbulenceTex };
 
 		m_pRenderer->Compute(Graphics::OCEAN_FOAM_SIMULATION_CS, L"OCEAN FOAM SIMULATION COMPUTE", dstTextures, _countof(dstTextures), srcTextures, _countof(dstTextures), nullptr, 0, nullptr, ocean::GROUP_X, ocean::GROUP_Y, 1);
-	}
-
-	// Combine wave
-	{
-		const RTexture* srcTextures[2] = { m_textures[DISPLACEMENT_TEXTURE2D_ARRAY], m_combineParameterSB };
-		const RTexture* dstTextures[1] = { m_textures[HEIGHT_TEXTURE2D] };
-		const RSamplerState* ss[1] = { Graphics::LINEAR_WRAP_SS };
-
-		m_pRenderer->Compute(Graphics::OCEAN_COMBINE_WAVE_CS, L"OCEAN COMBINE WAVE COMPUTE", dstTextures, _countof(dstTextures), srcTextures, _countof(srcTextures), ss, _countof(ss), CAST_RENDER_PARAM_PTR(&m_combineWaveConstant), ocean::GROUP_X, ocean::GROUP_Y, 1);
-
 	}
 }
 
 void ROceanMaterial::SetFoamTexture(RTexture* tex)
 {
 	MY_ASSERT(tex != nullptr);
-	m_textures[FOAM_TEXTURE] = tex;
+	m_foamTex = tex;
 }
 
 void ROceanMaterial::SetSkyTexture(RTexture* tex)
 {
 	MY_ASSERT(tex != nullptr);
-	m_textures[SKY_TEXTURE] = tex;
+	m_skyTex = tex;
 }
 
 void ROceanMaterial::GetMaterialConstant(RenderParam* pOutRenderParam) const
 {
 	MEMCPY_RENDER_PARAM(pOutRenderParam, &m_renderingParameter);
-}
-
-void ROceanMaterial::GetTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures[0] = m_textures[TURBULENCE_TEXTURE2D_ARRAY];
-	ppOutTextures[1] = m_combineParameterSB;
-	ppOutTextures[2] = m_textures[SKY_TEXTURE];
-	ppOutTextures[3] = m_textures[FOAM_TEXTURE];
-
-	*pOutTextureCount = 4;
-}
-
-void ROceanMaterial::GetHeightMapTextures(const RTexture** ppOutTextures, UINT* pOutTextureCount) const
-{
-	ppOutTextures[0] = m_textures[DISPLACEMENT_TEXTURE2D_ARRAY];
-	ppOutTextures[1] = m_textures[DERIVATIVE_TEXTURE2D_ARRAY];
-	ppOutTextures[2] = m_combineParameterSB;
-
-	*pOutTextureCount = 3;
 }

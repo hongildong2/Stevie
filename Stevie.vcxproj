@@ -269,9 +269,10 @@
     <ClInclude Include="Core\SObject.h" />
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\Ocean.h" />
+    <ClInclude Include="SubModules\Render\RBuffer.h" />
     <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11PostProcess.h" />
+    <ClInclude Include="SubModules\Render\RPostProcess.h" />
     <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
     <ClInclude Include="SubModules\Render\RenderConfig.h" />
     <ClInclude Include="SubModules\Render\RenderItem.h" />
@@ -280,9 +281,8 @@
     <ClInclude Include="SubModules\Render\RRasterizerState.h" />
     <ClInclude Include="SubModules\Render\RBlendState.h" />
     <ClInclude Include="SubModules\Render\RSamplerState.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11ResourceManager.h" />
+    <ClInclude Include="SubModules\Render\RResourceManager.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
-    <ClInclude Include="SubModules\Render\IRenderResource.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
@@ -293,7 +293,7 @@
     <ClInclude Include="SubModules\Render\RTexture.h" />
     <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
     <ClInclude Include="SubModules\Render\Materials\RMaterial.h" />
-    <ClInclude Include="SubModules\Render\IRenderer.h" />
+    <ClInclude Include="SubModules\Render\RRenderer.h" />
     <ClInclude Include="SubModules\Render\RenderDefs.h" />
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="pch.h" />
@@ -308,6 +308,7 @@
     <ClCompile Include="Core\SObject.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Core\Ocean.cpp" />
+    <ClCompile Include="SubModules\Render\RBuffer.cpp" />
     <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
@@ -320,7 +321,6 @@
     <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
-    <ClCompile Include="SubModules\Render\IRenderResource.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
     <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
@@ -341,6 +341,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Core\Camera.cpp" />
+    <ClCompile Include="SubModules\Render\RRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
