@@ -20,11 +20,11 @@ constexpr PostProcessConstant DEFAULT_POST_PROCESS_PARAM =
 	0.f,
 	0.f,
 	0.f,
-	0.8f,
+	0.5f,
 	0.3f,
 	2.4f,
-	1.f,
-	0.3f,
+	2.5f,
+	1.5f,
 };
 
 class RPostProcess final
@@ -45,7 +45,6 @@ public:
 private:
 	void ProcessFog();
 	void ProcessBloom();
-	void DrawScreenQuad();
 private:
 	enum
 	{
@@ -56,11 +55,8 @@ private:
 	std::unique_ptr<RTexture> m_renderTargetToProcess;
 	std::unique_ptr<RTexture> m_renderTargetProcessed;
 
-	std::unique_ptr<RMeshGeometry> m_screenQuad;
-
 	std::vector<std::unique_ptr<RTexture>> m_blurTextures;
 
 	PostProcessConstant m_postProcessConstant;
-	std::unique_ptr<RBuffer> m_postProcessCB;
 };
 

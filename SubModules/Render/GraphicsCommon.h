@@ -75,6 +75,7 @@ namespace Graphics
 	extern RDepthStencilState* SKYBOX_DSS;
 	extern RDepthStencilState* OPAQUE_DSS;
 	extern RDepthStencilState* TRANSPARENT_DSS;
+	extern RDepthStencilState* SCREEN_QUAD_DSS;
 
 
 	void InitCommonResources(const RRenderer* pRenderer);

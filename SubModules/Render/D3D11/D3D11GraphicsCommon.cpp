@@ -62,6 +62,7 @@ namespace Graphics
 	RDepthStencilState* SKYBOX_DSS;
 	RDepthStencilState* OPAQUE_DSS;
 	RDepthStencilState* TRANSPARENT_DSS;
+	RDepthStencilState* SCREEN_QUAD_DSS;
 
 
 	void CheckValidity()
@@ -364,6 +365,7 @@ namespace Graphics
 		OPAQUE_DSS = new RDepthStencilState();
 		TRANSPARENT_DSS = new RDepthStencilState();
 		SKYBOX_DSS = new RDepthStencilState();
+		SCREEN_QUAD_DSS = new RDepthStencilState();
 
 		auto* pDevice = pRenderer->GetDeviceResources()->GetD3DDevice();
 		D3D11_DEPTH_STENCILOP_DESC defaultDSODesc;
@@ -395,6 +397,10 @@ namespace Graphics
 		dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		dssDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
 		ThrowIfFailed(pDevice->CreateDepthStencilState(&dssDesc, SKYBOX_DSS->ReleaseAndGetAddressOf()));
+
+		dssDesc.DepthEnable = FALSE;
+		dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		ThrowIfFailed(pDevice->CreateDepthStencilState(&dssDesc, SCREEN_QUAD_DSS->ReleaseAndGetAddressOf()));
 
 
 	}

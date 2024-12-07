@@ -12,11 +12,10 @@
 RPostProcess::RPostProcess()
 	: m_pRenderer(nullptr)
 	, m_postProcessConstant(DEFAULT_POST_PROCESS_PARAM)
-	, m_postProcessCB()
 {
-	m_postProcessCB = std::make_unique<RBuffer>();
 }
 
+// move to RPostProcess.cpp later
 void RPostProcess::Initialize(RRenderer* pRenderer)
 {
 	MY_ASSERT(pRenderer != nullptr);
@@ -30,15 +29,13 @@ void RPostProcess::Initialize(RRenderer* pRenderer)
 
 	m_pRenderer = pRenderer;
 	auto* pResourceManager = pRenderer->GetResourceManager();
-	m_screenQuad = std::unique_ptr<RMeshGeometry>(m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::QUAD));
+
 
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
 	UINT renderTargetHeight = m_pRenderer->GetBackBufferHeight();
 
 	m_renderTargetToProcess = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
 	m_renderTargetProcessed = std::unique_ptr<RTexture>(pResourceManager->CreateTextureRender(renderConfig::HDR_PIPELINE_FORMAT, renderTargetWidth, renderTargetHeight));
-
-	pResourceManager->CreateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.get());
 
 	UINT blurRTWidth = renderTargetWidth;
 	UINT blurRTHeight = renderTargetHeight;
@@ -54,13 +51,10 @@ void RPostProcess::Initialize(RRenderer* pRenderer)
 void RPostProcess::BeginPostProcess(std::unique_ptr<RTexture>& sourceRenderTarget)
 {
 	m_renderTargetToProcess.swap(sourceRenderTarget);
-	m_pRenderer->GetResourceManager()->UpdateConstantBuffer(sizeof(PostProcessConstant), &m_postProcessConstant, m_postProcessCB.get());
 
 	// release DSV, RTV from context
 	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
 	pContext->OMSetRenderTargets(0, NULL, NULL);
-
-	m_pRenderer->GetDeviceResources()->PIXBeginEvent(L"PostProccess");
 }
 
 void RPostProcess::Process()
@@ -73,53 +67,19 @@ void RPostProcess::Process()
 
 void RPostProcess::EndPostProcess()
 {
-	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	auto* pRTV = m_pRenderer->GetDeviceResources()->GetRenderTargetView();
+	const RTexture* rtv = m_pRenderer->GetRenderTexture();
+	const RTexture* srvs[2] = { m_renderTargetProcessed.get(), m_renderTargetToProcess.get() };
+	const RSamplerState* ss[1] = { Graphics::LINEAR_CLAMP_SS };
 
-	ID3D11RenderTargetView* rtv[1] = { pRTV };
-	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetProcessed->GetSRV(), m_renderTargetToProcess->GetSRV() };
-	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB->GetAddressOf());
-	pContext->PSSetShaderResources(0, 2, srvs);
-	pContext->OMSetRenderTargets(1, rtv, NULL);
-	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
-	pContext->PSSetSamplers(0, 1, Graphics::LINEAR_CLAMP_SS->GetAddressOf());
-	pContext->PSSetShader(Graphics::FILTER_COMBINE_PS->Get(), NULL, NULL);
-	pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
-	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
-
-
-
-	DrawScreenQuad();
-	ID3D11ShaderResourceView* release[6] = { NULL, };
-	pContext->PSSetShaderResources(0, 2, release);
-
-	m_pRenderer->GetDeviceResources()->PIXEndEvent();
+	m_pRenderer->DrawScreenQuad(Graphics::FILTER_COMBINE_PS, srvs, _countof(srvs), ss, _countof(ss), rtv, CAST_RENDER_PARAM_PTR(&m_postProcessConstant));
 }
 
 void RPostProcess::ProcessFog()
 {
-	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
+	const RTexture* srvs[2] = { m_renderTargetToProcess.get(), m_pRenderer->GetDepthTexture() };
+	const RSamplerState* ss[1] = { Graphics::LINEAR_CLAMP_SS };
 
-	auto* resultRenderTarget = m_renderTargetProcessed->GetRTV();
-	auto* depthSRV = m_pRenderer->GetDeviceResources()->GetDepthSRV();
-
-	ID3D11ShaderResourceView* srvs[2] = { m_renderTargetToProcess->GetSRV(), depthSRV };
-
-
-	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
-	pContext->PSSetShader(Graphics::FOG_PS->Get(), NULL, NULL);
-	pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
-	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
-	pContext->PSSetShaderResources(0, 2, srvs);
-	pContext->PSSetConstantBuffers(5, 1, m_postProcessCB->GetAddressOf());
-	pContext->PSSetSamplers(0, 1, Graphics::LINEAR_CLAMP_SS->GetAddressOf());
-	pContext->OMSetRenderTargets(1, &resultRenderTarget, NULL);
-
-	DrawScreenQuad();
-
-	ID3D11ShaderResourceView* release[6] = { NULL, };
-	pContext->PSSetShaderResources(0, 2, release);
-	pContext->OMSetRenderTargets(0, NULL, NULL);
+	m_pRenderer->DrawScreenQuad(Graphics::FOG_PS, srvs, _countof(srvs), ss, _countof(ss), m_renderTargetProcessed.get(), CAST_RENDER_PARAM_PTR(&m_postProcessConstant));
 	m_renderTargetProcessed.swap(m_renderTargetToProcess);
 }
 
@@ -155,19 +115,4 @@ void RPostProcess::ProcessBloom()
 	}
 	// now has blurred texture
 	m_renderTargetProcessed.swap(m_blurTextures[0]);
-}
-
-void RPostProcess::DrawScreenQuad()
-{
-	// TODO :: RRenderer::DrawScreenQuad(VS,PS,PSResource,PSSamplers,RenderTexture,PSConstant);
-	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	RMeshGeometry* pMG = m_screenQuad.get();
-	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
-	UINT vS = pMG->GetVertexStride();
-	UINT vO = pMG->GetVertexOffset();
-	pContext->IASetVertexBuffers(0, 1, vbf, &vS, &vO);
-	pContext->IASetIndexBuffer(pMG->GetIndexBuffer(), pMG->GetIndexFormat(), 0);
-	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pMG->GetTopologyType()));
-
-	pContext->DrawIndexed(pMG->GetIndexCount(), 0, 0);
 }

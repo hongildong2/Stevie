@@ -70,6 +70,10 @@ public:
 	void SetIBLTextures(const RTexture* pIrradianceMapTexture, const RTexture* pSpecularMapTexture, const RTexture* pBRDFMapTexture);
 	void AddLight(const Light* pLight);
 
+	void Draw(const RenderItem& renderItem);
+	void DrawTessellatedQuad(const RenderItem& renderItem);
+	void DrawScreenQuad(const RPixelShader* pPS, const RTexture** ppPSResource, const UINT PSResourceCount, const RSamplerState** ppPSSamplerStates, const UINT PSSamplerCount, const RTexture* pTextureRender, RenderParam* pRenderParam);
+
 	inline RResourceManager* GetResourceManager() const
 	{
 		return m_resourceManager.get();
@@ -89,6 +93,9 @@ public:
 	{
 		return m_dwBackBufferHeight;
 	}
+
+	const RTexture* GetRenderTexture() const;
+	const RTexture* GetDepthTexture() const;
 protected:
 	void UpdateGlobalConstant();
 	void SetPipelineState(const RenderItem& item);
@@ -97,8 +104,8 @@ protected:
 	void RenderOpaques();
 	void RenderTransparent();
 
-	void Draw(const RenderItem& renderItem);
-	void DrawTessellatedQuad(const RenderItem& renderItem);
+
+
 
 private:
 	DWORD m_dwBackBufferWidth;
@@ -115,6 +122,8 @@ private:
 	std::unique_ptr<RBuffer> m_computeCB;
 
 	std::unique_ptr <RTexture> m_HDRRenderTarget;
+	std::unique_ptr<RMeshGeometry> m_screenQuad;
+
 
 	std::wstring m_shaderPath;
 

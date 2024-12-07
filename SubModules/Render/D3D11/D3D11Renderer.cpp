@@ -66,6 +66,8 @@ BOOL RRenderer::Initialize(BOOL bEnableDebugLayer, BOOL bEnableGBV, const WCHAR*
 	m_sceneLightsBuffer = m_resourceManager->CreateStructuredBuffer(sizeof(RLightConstant), MAX_SCENE_LIGHTS_COUNT, nullptr);
 
 	m_HDRRenderTarget = std::unique_ptr<RTexture>(m_resourceManager->CreateTextureRender(DXGI_FORMAT_R16G16B16A16_FLOAT, m_dwBackBufferWidth, m_dwBackBufferHeight));
+	m_screenQuad = std::unique_ptr<RMeshGeometry>(CreateBasicMeshGeometry(EBasicMeshGeometry::QUAD));
+
 	return TRUE;
 }
 
@@ -556,3 +558,61 @@ void RRenderer::DrawTessellatedQuad(const RenderItem& renderItem)
 	pContext->HSSetShader(nullptr, 0, 0);
 }
 
+
+void RRenderer::DrawScreenQuad(const RPixelShader* pPS, const RTexture** ppPSResource, const UINT PSResourceCount, const RSamplerState** ppPSSamplerStates, const UINT PSSamplerCount, const RTexture* pTextureRender, RenderParam* pRenderParam)
+{
+	auto* pContext = GetDeviceResources()->GetD3DDeviceContext();
+	RMeshGeometry* pMG = m_screenQuad.get();
+	pContext->RSSetState(Graphics::SOLID_CW_RS->Get());
+	pContext->OMSetDepthStencilState(Graphics::SCREEN_QUAD_DSS->Get(), 0);
+
+	ID3D11Buffer* vbf[1] = { pMG->GetVertexBuffer() };
+	UINT vS = pMG->GetVertexStride();
+	UINT vO = pMG->GetVertexOffset();
+	pContext->IASetVertexBuffers(0, 1, vbf, &vS, &vO);
+	pContext->IASetIndexBuffer(pMG->GetIndexBuffer(), pMG->GetIndexFormat(), 0);
+	pContext->IASetPrimitiveTopology(GetD3D11TopologyType(pMG->GetTopologyType()));
+	pContext->IASetInputLayout(Graphics::SAMPLING_IL->Get());
+
+	pContext->VSSetShader(Graphics::QUAD_VS->Get(), NULL, NULL);
+
+	m_resourceManager->UpdateConstantBuffer(sizeof(RenderParam), pRenderParam, m_computeCB.get());
+
+	ID3D11SamplerState* ppSS[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+	ID3D11ShaderResourceView* ppResources[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+	ID3D11ShaderResourceView* release[renderLimits::MAX_RENDER_BINDINGS_COUNT] = { nullptr, };
+
+	MY_ASSERT(pTextureRender->GetTextureType() == ETextureType::TEXTURE_2D_RENDER);
+	ID3D11RenderTargetView* pRTV = pTextureRender->GetRTV();
+
+	for (UINT i = 0; i < PSSamplerCount; ++i)
+	{
+		ppSS[i] = ppPSSamplerStates[i]->Get();
+	}
+	for (UINT i = 0; i < PSResourceCount; ++i)
+	{
+		ppResources[i] = ppPSResource[i]->GetSRV();
+	}
+
+	pContext->PSSetShader(pPS->Get(), NULL, 0);
+	pContext->PSSetShaderResources(0, PSResourceCount, ppResources);
+	pContext->PSSetSamplers(0, PSSamplerCount, ppSS);
+	pContext->PSSetConstantBuffers(5, 1, m_computeCB->GetAddressOf());
+
+	pContext->OMSetRenderTargets(1, &pRTV, nullptr);
+	pContext->DrawIndexed(pMG->GetIndexCount(), 0, 0);
+
+	// Release
+	pContext->PSSetShaderResources(0, renderLimits::MAX_RENDER_BINDINGS_COUNT, release);
+	pContext->OMSetRenderTargets(0, NULL, NULL);
+}
+
+const RTexture* RRenderer::GetRenderTexture() const
+{
+	return m_deviceResources->GetRenderTexture();
+}
+
+const RTexture* RRenderer::GetDepthTexture() const
+{
+	return m_deviceResources->GetDepthTexture();
+}

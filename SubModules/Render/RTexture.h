@@ -24,6 +24,12 @@ enum class ETextureType
 class RTexture : public RHITexture
 {
 	friend class RResourceManager;
+
+#ifdef API_D3D11
+#include "SubModules/Render/D3D11/D3D11DeviceResources.h"
+	friend class D3D11DeviceResources;
+#endif
+
 public:
 	RTexture(ETextureType type, DXGI_FORMAT format, BOOL bIsDynamic);
 	~RTexture() = default;
