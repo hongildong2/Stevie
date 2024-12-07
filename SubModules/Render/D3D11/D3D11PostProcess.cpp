@@ -125,55 +125,34 @@ void RPostProcess::ProcessFog()
 
 void RPostProcess::ProcessBloom()
 {
-	auto* pContext = m_pRenderer->GetDeviceResources()->GetD3DDeviceContext();
-	pContext->VSSetShader(NULL, NULL, NULL);
-	pContext->PSSetShader(NULL, NULL, NULL);
-	ID3D11ShaderResourceView* release[1] = { NULL };
-	ID3D11UnorderedAccessView* releaseUAV[1] = { NULL };
-
-	// TODO :: Use RRenderer->Compute
 	UINT renderTargetWidth = m_pRenderer->GetBackBufferWidth();
 	UINT renderTargetHeight = m_pRenderer->GetBackBufferHeight();
 
 	unsigned int group_x = static_cast<unsigned int>(ceil(renderTargetWidth / 32.f));
 	unsigned int group_y = static_cast<unsigned int>(ceil(renderTargetHeight / 32.f));
 
-	pContext->CSSetSamplers(0, 1, Graphics::LINEAR_CLAMP_SS->GetAddressOf());
-	pContext->CSSetShader(Graphics::DOWN_BLUR_CS->Get(), NULL, NULL);
-
+	const RSamplerState* samplers[1] = { Graphics::LINEAR_CLAMP_SS };
 	// swap m_bloomTextures[0] with SourceTexture
 	m_blurTextures[0].swap(m_renderTargetToProcess);
 
 	for (size_t i = 0; i < LEVEL; ++i)
 	{
-		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRV();
-		ID3D11UnorderedAccessView* to = m_blurTextures[i + 1]->GetUAV();
-		pContext->CSSetShaderResources(0, 1, &from);
-		pContext->CSSetUnorderedAccessViews(0, 1, &to, NULL);
-
-		pContext->Dispatch(group_x / static_cast<UINT>(std::pow(2, i + 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i + 1)) + 1, 1);
-		pContext->CSSetShaderResources(0, 1, release);
-		pContext->CSSetUnorderedAccessViews(0, 1, releaseUAV, NULL);
+		const RTexture* from[1] = { m_blurTextures[i].get() };
+		const RTexture* to[1] = { m_blurTextures[i + 1].get() };
+		m_pRenderer->Compute(Graphics::DOWN_BLUR_CS, L"DOWN BLUR", to, _countof(to), from, _countof(from), samplers, _countof(samplers), nullptr, group_x / static_cast<UINT>(std::pow(2, i + 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i + 1)) + 1, 1);
 	}
 
 	// swap m_bloomTextures[0] with SourceTexture again, Then after Upsample, SourceTexture has original texture, m_bloomTextures[0] has processed texture
 	m_blurTextures[0].swap(m_renderTargetToProcess);
 
 	// Upsample Blur
-	pContext->CSSetShader(Graphics::UP_BLUR_CS->Get(), NULL, NULL);
 	for (size_t i = LEVEL; i > 0; --i)
 	{
-		ID3D11ShaderResourceView* from = m_blurTextures[i]->GetSRV();
-		ID3D11UnorderedAccessView* to = m_blurTextures[i - 1]->GetUAV();
-		pContext->CSSetShaderResources(0, 1, &from);
-		pContext->CSSetUnorderedAccessViews(0, 1, &to, NULL);
+		const RTexture* from[1] = { m_blurTextures[i].get() };
+		const RTexture* to[1] = { m_blurTextures[i - 1].get() };
 
-		pContext->Dispatch(group_x / static_cast<UINT>(std::pow(2, i - 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i - 1)) + 1, 1);
-		pContext->CSSetShaderResources(0, 1, release);
-		pContext->CSSetUnorderedAccessViews(0, 1, releaseUAV, NULL);
+		m_pRenderer->Compute(Graphics::UP_BLUR_CS, L"UP BLUR", to, _countof(to), from, _countof(from), samplers, _countof(samplers), nullptr, group_x / static_cast<UINT>(std::pow(2, i - 1)) + 1, group_y / static_cast<UINT>(std::pow(2, i - 1)) + 1, 1);
 	}
-
-	pContext->CSSetShader(NULL, NULL, NULL);
 	// now has blurred texture
 	m_renderTargetProcessed.swap(m_blurTextures[0]);
 }
