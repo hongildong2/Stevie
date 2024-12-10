@@ -47,22 +47,6 @@
 	4. Renderer then loops `RenderItem` to render each item according to its render pass. There can be multiple render pass and `RenderItem` might be drawn multiple times varying render states.
 	5. Call `Draw()` according to mesh type.
  	6. Using this structure, render thread can diverge from flow of main game thread's loop. It can be multithreaded as each states recorded in `RenderItem` is stateless.
-# TODO
-- Deferred Rendering pipeline
-- Reverse OOP structure
-
-		#ifdef D3D11
-			#include "D3D11/D3D11Texture2D.h"
-			#define RHITexture2D D3D11Texture2D
-		#elseif D3D12
-			#include "D3D12/D3D12Texture2D.h"
-			#define RHITexture2D D3D12Texture2D
-		#endif
-   
-		class RTexture : RHITexture2D
-		{
-   			...
-		}
 
 # Build
 requires Visual Studio 2022, nuget packages are referenced in VS Project
