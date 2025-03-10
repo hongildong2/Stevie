@@ -1,9 +1,8 @@
 ![r1](https://github.com/user-attachments/assets/74c46747-c8dd-4026-9986-ca88b04bf35a)
 
 # Features
-- No base code in this renderer.
 - Physically Based Rendering Shader.
-- Using renderer interface, `IRenderer`, can utilize multiple Graphics API.
+- Using abstracted renderer, `Renderer`, can utilize multiple Graphics API.
   
 ## Realtime Ocean Simulation Based on [Tessendorf Paper](https://www.researchgate.net/publication/264839743_Simulating_Ocean_Water)
 - Fast Fourier Transform on GPU using Compute Shader, sampling JONSWAP Spectrum.
@@ -14,25 +13,22 @@
 
 ## PostProcess and Effect
 - Dynamically generated cloud.
-	- 3D Perline noise texture using Compute Shader
+	- 3D Perlin noise texture using Compute Shader
  	- Volumetric rendering pixel shader.
-- HDRI Pipeline, Gamma correction, depth only pass.
+- HDRI Pipeline, Gamma correction, Depth only pass.
 - Physically Based Bloom using Compute Shader.
 - Fog effect.
-- Dynamic PCSS Shadow using light's shadow map. (Depth pass under construction currently)
+- Dynamic PCSS Shadow using light's shadow map.
 - [Video](https://www.youtube.com/watch?v=D6w55CkHi5U)
 
 ## Renderer Structure
 
 - Core, `SSceneObject`
 	- Has MeshComponent to render
-- `IRenderer`
+- `RRenderer`
 	- D3D11Renderer class implements renderer interface.
-- `GraphicsCommon1.h`
+- `GraphicsCommon.h`
 	- Working renderer backends initializes common resources like shader, sampler states.
-- `IRenderResource`
-	- Intermediate classes to reference in contents layer, renderer backends cast its resource class type to use.
-	- `RMaterial`, `RShader`, `RSamplerState`, ... 
 - `MeshComponent`
 	- `RMeshGeometry`
 		- Contains informations about geometry pipeline like vertex buffer, index buffer, input layout.
