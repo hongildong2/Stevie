@@ -71,7 +71,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	
 	// init
-	float3 color = 0.7;
+	float3 color = 0.7; // TODO :: Isn't is just 0?
 	float transmission = 1.0;
 	
 	float3 marchPointModel = input.positionModel + VModel * 1e-6;
