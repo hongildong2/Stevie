@@ -44,7 +44,7 @@ float BeerLambert(float absorptionCoefficient, float distanceTraveled)
 float HenyeyGreensteinPhase(in float3 L, in float3 V, in float aniso)
 {
     // V: eye - pos 
-    // L: Á¶¸íÀ» ÇâÇÏ´Â ¹æÇâ
+    // L: ÃÂ¶Â¸Ã­Ã€Â» Ã‡Ã¢Ã‡ÃÂ´Ã‚ Â¹Ã¦Ã‡Ã¢
     // https://www.shadertoy.com/view/7s3SRH
     
 	float cosT = dot(L, -V);
@@ -99,6 +99,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		
 		if (density > 1e-3)
 		{
+                        // TODO :: Is deltaTransmission correct? Isn't it just accumulated 'transmission'?
 			float deltaTransmission = transmission;
 			transmission *= BeerLambert(absorptionCoeff * density, stepSize); // absortion
 			deltaTransmission -= transmission;
