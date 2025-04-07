@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Core/SSceneObject.h"
+#include "Game/SSceneObject.h"
 
 struct RLightConstant;
 

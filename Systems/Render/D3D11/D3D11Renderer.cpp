@@ -1,15 +1,15 @@
 #include "pch.h"
-#include "SubModules/Render/RResourceManager.h"
-#include "SubModules/Render/RPostProcess.h"
-#include "SubModules/Render/RBuffer.h"
+#include "Systems/Render/RResourceManager.h"
+#include "Systems/Render/RPostProcess.h"
+#include "Systems/Render/RBuffer.h"
 #include "D3D11Resources.h"
 #include "D3D11DeviceResources.h"
 #include "D3DUtil.h"
 #include "D3D11MeshGeometry.h"
-#include "Core/Components/MeshComponent.h"
-#include "Core/Skybox.h"
-#include "Core/Camera.h"
-#include "Core/Light.h"
+#include "Game/Components/MeshComponent.h"
+#include "Game/Skybox.h"
+#include "Game/Camera.h"
+#include "Game/Light.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

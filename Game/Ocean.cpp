@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Ocean.h"
-#include "SubModules/Render/Materials/ROceanMaterial.h"
+#include "Systems/Render/Materials/ROceanMaterial.h"
 #include "Components/MeshComponent.h"
 
 Ocean::Ocean(RRenderer* pRenderer)

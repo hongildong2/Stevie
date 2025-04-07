@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "SSceneObject.h"
-#include "Core/Components/MeshComponent.h"
+#include "Game/Components/MeshComponent.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

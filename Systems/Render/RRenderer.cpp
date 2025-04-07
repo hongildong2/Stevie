@@ -2,10 +2,10 @@
 #include "pch.h"
 #include "RRenderer.h"
 #include "RResourceManager.h"
-#include "Core/Components/MeshComponent.h"
-#include "Core/Skybox.h"
-#include "Core/Camera.h"
-#include "Core/Light.h"
+#include "Game/Components/MeshComponent.h"
+#include "Game/Skybox.h"
+#include "Game/Camera.h"
+#include "Game/Light.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

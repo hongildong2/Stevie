@@ -3,7 +3,7 @@
 #include "D3D11Resources.h"
 #include "D3D11MeshGeometry.h"
 #include "D3D11DeviceResources.h"
-#include "Core/GeometryGenerator.h"
+#include "Game/GeometryGenerator.h"
 #include "../RPostProcess.h"
 #include "../RResourceManager.h"
 #include "../RenderConfig.h"

@@ -7,12 +7,12 @@
 
 #include "GeometryGenerator.h"
 #include "Components/MeshComponent.h"
-#include "Core/Camera.h"
+#include "Game/Camera.h"
 #include "SSceneObject.h"
 #include "Skybox.h"
-#include "Core/Light.h"
-#include "Core/Ocean.h"
-#include "Core/Cloud.h"
+#include "Game/Light.h"
+#include "Game/Ocean.h"
+#include "Game/Cloud.h"
 
 extern void ExitGame() noexcept;
 
@@ -31,7 +31,7 @@ void Game::Initialize(HWND window, int width, int height)
 	float aspectRatio = (float)width / (float)height;
 
 	m_pRenderer->SetWindow(window, width, height);
-	m_pRenderer->Initialize(TRUE, TRUE, L"./SubModules/Render/D3D11/Shaders/");
+	m_pRenderer->Initialize(TRUE, TRUE, L"./Systems/Render/D3D11/Shaders/");
 
 
 	// Light

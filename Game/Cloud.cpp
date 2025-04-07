@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Cloud.h"
-#include "SubModules/Render/Materials/RCloudMaterial.h"
-#include "Core/Components/MeshComponent.h"
+#include "Systems/Render/Materials/RCloudMaterial.h"
+#include "Game/Components/MeshComponent.h"
 
 using namespace DirectX::SimpleMath;
 

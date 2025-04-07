@@ -17,7 +17,7 @@ enum class ETextureType
 
 #ifdef API_D3D11
 #define RHITexture D3D11Texture
-#include "SubModules/Render/D3D11/D3D11Texture.h"
+#include "Systems/Render/D3D11/D3D11Texture.h"
 #endif
 
 
@@ -26,7 +26,7 @@ class RTexture : public RHITexture
 	friend class RResourceManager;
 
 #ifdef API_D3D11
-#include "SubModules/Render/D3D11/D3D11DeviceResources.h"
+#include "Systems/Render/D3D11/D3D11DeviceResources.h"
 	friend class D3D11DeviceResources;
 #endif
 

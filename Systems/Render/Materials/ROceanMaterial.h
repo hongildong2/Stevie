@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "Core\OceanDefinition.h"
+#include "Game\OceanDefinition.h"
 
 class ROceanMaterial final :
 	public RMaterial

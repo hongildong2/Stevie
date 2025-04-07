@@ -261,76 +261,76 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Core\Cloud.h" />
-    <ClInclude Include="Core\GeometryGenerator.h" />
-    <ClInclude Include="Core\Light.h" />
-    <ClInclude Include="Core\OceanDefinition.h" />
-    <ClInclude Include="Core\SSceneObject.h" />
-    <ClInclude Include="Core\SObject.h" />
-    <ClInclude Include="Core\Skybox.h" />
-    <ClInclude Include="Core\Ocean.h" />
-    <ClInclude Include="SubModules\Render\RBuffer.h" />
-    <ClInclude Include="SubModules\Render\Materials\RCloudMaterial.h" />
-    <ClInclude Include="SubModules\Render\Materials\ROceanMaterial.h" />
-    <ClInclude Include="SubModules\Render\RPostProcess.h" />
-    <ClInclude Include="SubModules\Render\RDepthStencilState.h" />
-    <ClInclude Include="SubModules\Render\RenderConfig.h" />
-    <ClInclude Include="SubModules\Render\RenderItem.h" />
-    <ClInclude Include="SubModules\Render\RInputLayout.h" />
-    <ClInclude Include="SubModules\Render\GraphicsCommon.h" />
-    <ClInclude Include="SubModules\Render\RRasterizerState.h" />
-    <ClInclude Include="SubModules\Render\RBlendState.h" />
-    <ClInclude Include="SubModules\Render\RSamplerState.h" />
-    <ClInclude Include="SubModules\Render\RResourceManager.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11Resources.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11Texture.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11MeshGeometry.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3DUtil.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11DeviceResources.h" />
-    <ClInclude Include="Core\Components\MeshComponent.h" />
-    <ClInclude Include="SubModules\Render\RShader.h" />
-    <ClInclude Include="SubModules\Render\RMeshGeometry.h" />
-    <ClInclude Include="SubModules\Render\RTexture.h" />
-    <ClInclude Include="SubModules\Render\D3D11\D3D11Renderer.h" />
-    <ClInclude Include="SubModules\Render\Materials\RMaterial.h" />
-    <ClInclude Include="SubModules\Render\RRenderer.h" />
-    <ClInclude Include="SubModules\Render\RenderDefs.h" />
-    <ClInclude Include="Core\Game.h" />
+    <ClInclude Include="Game\Cloud.h" />
+    <ClInclude Include="Game\GeometryGenerator.h" />
+    <ClInclude Include="Game\Light.h" />
+    <ClInclude Include="Game\OceanDefinition.h" />
+    <ClInclude Include="Game\SSceneObject.h" />
+    <ClInclude Include="Game\SObject.h" />
+    <ClInclude Include="Game\Skybox.h" />
+    <ClInclude Include="Game\Ocean.h" />
+    <ClInclude Include="Systems\Render\RBuffer.h" />
+    <ClInclude Include="Systems\Render\Materials\RCloudMaterial.h" />
+    <ClInclude Include="Systems\Render\Materials\ROceanMaterial.h" />
+    <ClInclude Include="Systems\Render\RPostProcess.h" />
+    <ClInclude Include="Systems\Render\RDepthStencilState.h" />
+    <ClInclude Include="Systems\Render\RenderConfig.h" />
+    <ClInclude Include="Systems\Render\RenderItem.h" />
+    <ClInclude Include="Systems\Render\RInputLayout.h" />
+    <ClInclude Include="Systems\Render\GraphicsCommon.h" />
+    <ClInclude Include="Systems\Render\RRasterizerState.h" />
+    <ClInclude Include="Systems\Render\RBlendState.h" />
+    <ClInclude Include="Systems\Render\RSamplerState.h" />
+    <ClInclude Include="Systems\Render\RResourceManager.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3D11Resources.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3D11Texture.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3D11MeshGeometry.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3DUtil.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3D11DeviceResources.h" />
+    <ClInclude Include="Game\Components\MeshComponent.h" />
+    <ClInclude Include="Systems\Render\RShader.h" />
+    <ClInclude Include="Systems\Render\RMeshGeometry.h" />
+    <ClInclude Include="Systems\Render\RTexture.h" />
+    <ClInclude Include="Systems\Render\D3D11\D3D11Renderer.h" />
+    <ClInclude Include="Systems\Render\Materials\RMaterial.h" />
+    <ClInclude Include="Systems\Render\RRenderer.h" />
+    <ClInclude Include="Systems\Render\RenderDefs.h" />
+    <ClInclude Include="Game\Game.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Core\StepTimer.h" />
-    <ClInclude Include="Core\Camera.h" />
+    <ClInclude Include="Game\StepTimer.h" />
+    <ClInclude Include="Game\Camera.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\Cloud.cpp" />
-    <ClCompile Include="Core\GeometryGenerator.cpp" />
-    <ClCompile Include="Core\Light.cpp" />
-    <ClCompile Include="Core\SSceneObject.cpp" />
-    <ClCompile Include="Core\SObject.cpp" />
-    <ClCompile Include="Core\Skybox.cpp" />
-    <ClCompile Include="Core\Ocean.cpp" />
-    <ClCompile Include="SubModules\Render\RBuffer.cpp" />
-    <ClCompile Include="SubModules\Render\Materials\RCloudMaterial.cpp" />
-    <ClCompile Include="SubModules\Render\Materials\ROceanMaterial.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11PostProcess.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11GraphicsCommon.cpp" />
-    <ClCompile Include="SubModules\Render\RDepthStencilState.cpp" />
-    <ClCompile Include="SubModules\Render\RInputLayout.cpp" />
-    <ClCompile Include="SubModules\Render\RRasterizerState.cpp" />
-    <ClCompile Include="SubModules\Render\RBlendState.cpp" />
-    <ClCompile Include="SubModules\Render\RSamplerState.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11ResourceManager.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11Resources.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3DUtil.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11Texture.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11MeshGeometry.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11DeviceResources.cpp" />
-    <ClCompile Include="Core\Components\MeshComponent.cpp" />
-    <ClCompile Include="SubModules\Render\RShader.cpp" />
-    <ClCompile Include="SubModules\Render\RMeshGeometry.cpp" />
-    <ClCompile Include="SubModules\Render\RTexture.cpp" />
-    <ClCompile Include="SubModules\Render\D3D11\D3D11Renderer.cpp" />
-    <ClCompile Include="SubModules\Render\Materials\RMaterial.cpp" />
-    <ClCompile Include="Core\Game.cpp" />
+    <ClCompile Include="Game\Cloud.cpp" />
+    <ClCompile Include="Game\GeometryGenerator.cpp" />
+    <ClCompile Include="Game\Light.cpp" />
+    <ClCompile Include="Game\SSceneObject.cpp" />
+    <ClCompile Include="Game\SObject.cpp" />
+    <ClCompile Include="Game\Skybox.cpp" />
+    <ClCompile Include="Game\Ocean.cpp" />
+    <ClCompile Include="Systems\Render\RBuffer.cpp" />
+    <ClCompile Include="Systems\Render\Materials\RCloudMaterial.cpp" />
+    <ClCompile Include="Systems\Render\Materials\ROceanMaterial.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11PostProcess.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11GraphicsCommon.cpp" />
+    <ClCompile Include="Systems\Render\RDepthStencilState.cpp" />
+    <ClCompile Include="Systems\Render\RInputLayout.cpp" />
+    <ClCompile Include="Systems\Render\RRasterizerState.cpp" />
+    <ClCompile Include="Systems\Render\RBlendState.cpp" />
+    <ClCompile Include="Systems\Render\RSamplerState.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11ResourceManager.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11Resources.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3DUtil.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11Texture.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11MeshGeometry.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11DeviceResources.cpp" />
+    <ClCompile Include="Game\Components\MeshComponent.cpp" />
+    <ClCompile Include="Systems\Render\RShader.cpp" />
+    <ClCompile Include="Systems\Render\RMeshGeometry.cpp" />
+    <ClCompile Include="Systems\Render\RTexture.cpp" />
+    <ClCompile Include="Systems\Render\D3D11\D3D11Renderer.cpp" />
+    <ClCompile Include="Systems\Render\Materials\RMaterial.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -340,8 +340,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Core\Camera.cpp" />
-    <ClCompile Include="SubModules\Render\RRenderer.cpp" />
+    <ClCompile Include="Game\Camera.cpp" />
+    <ClCompile Include="Systems\Render\RRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -353,7 +353,7 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_DENSITY_CS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\CLOUD_DENSITY_CS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -377,7 +377,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\CLOUD_LIGHTING_CS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -401,7 +401,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEMO_PS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\DEMO_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -419,7 +419,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\DEPTH_ONLY_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -437,7 +437,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_COMBINE_WAVE_CS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_COMBINE_WAVE_CS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -461,247 +461,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_VS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\DOWN_BLUR_CS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\FILTER_COMBINE_PS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_POST_PROCESS_CS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FOAM_SIMULATION_CS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\FOG_PS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_INITIAL_SPECTRUM_CS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_FFT_CS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_SURFACE_PS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_PS.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
-      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\BASIC_VS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\CUBEMAP_VS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -725,7 +485,31 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\CUBEMAP_PS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\DOWN_BLUR_CS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\FILTER_COMBINE_PS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -749,7 +533,223 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\QUAD_VS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_FFT_POST_PROCESS_CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_FOAM_SIMULATION_CS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\FOG_PS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_INITIAL_SPECTRUM_CS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_FFT_CS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_SURFACE_PS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\BASIC_PS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\BASIC_VS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\CUBEMAP_PS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">false</AllResourcesBound>
+      <AllResourcesBound Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</AllResourcesBound>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </FxCompile>
+    <FxCompile Include="Systems\Render\D3D11\Shaders\QUAD_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -759,7 +759,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\SAMPLING_VS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\SAMPLING_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -769,7 +769,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_DS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\TESSELLATED_QUAD_DS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -793,7 +793,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\TESSELLATED_QUAD_HS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\TESSELLATED_QUAD_HS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -817,7 +817,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\OCEAN_TIME_DEPENDENT_SPECTRUM_CS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\OCEAN_TIME_DEPENDENT_SPECTRUM_CS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -841,7 +841,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\UP_BLUR_CS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\UP_BLUR_CS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -865,7 +865,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
-    <FxCompile Include="SubModules\Render\D3D11\Shaders\VOLUME_PS.hlsl">
+    <FxCompile Include="Systems\Render\D3D11\Shaders\VOLUME_PS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
@@ -890,7 +890,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">#pragma enable_d3d11_debug_symbols;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </FxCompile>
     <None Include="packages.config" />
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_BrunetonLighting.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_BrunetonLighting.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -898,7 +898,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_GPURandom.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_GPURandom.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -906,7 +906,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_CoordinateTransform.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_CoordinateTransform.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
@@ -917,7 +917,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">5.0</ShaderModel>
     </None>
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_OceanGlobal.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_OceanGlobal.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -925,7 +925,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_PBRFunctions.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_PBRFunctions.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -933,7 +933,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="SubModules\Render\D3D11\Shaders\INCL_ShadowFunctions.hlsli">
+    <None Include="Systems\Render\D3D11\Shaders\INCL_ShadowFunctions.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -941,7 +941,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <Text Include="SubModules\Render\D3D11\Shaders\INCL_ShaderTypes.hlsli">
+    <Text Include="Systems\Render\D3D11\Shaders\INCL_ShaderTypes.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D3D11Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
