@@ -7,7 +7,7 @@ Ocean::Ocean(RRenderer* pRenderer)
 	:m_pRenderer(pRenderer)
 {
 	m_scale = 75.f;
-	m_pitchEuler = XM_PIDIV2;
+	m_pitchEuler = DirectX::XM_PIDIV2;
 
 	RMeshGeometry* tQuad = m_pRenderer->CreateBasicMeshGeometry(EBasicMeshGeometry::TESSELLATED_QUAD);
 	ROceanMaterial* oceanMat = new ROceanMaterial(m_pRenderer);

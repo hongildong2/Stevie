@@ -7,7 +7,8 @@
 #include "Core/Camera.h"
 #include "Core/Light.h"
 
-
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
 
 void RRenderer::Render()
 {

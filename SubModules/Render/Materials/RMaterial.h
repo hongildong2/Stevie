@@ -95,7 +95,7 @@ struct RBasicMaterialConstant
 	FLOAT t1;
 
 	BOOL bUseTexture;
-	Vector3 albedo;
+	DirectX::SimpleMath::Vector3 albedo;
 
 	FLOAT metallic;
 	FLOAT roughness;
@@ -104,7 +104,7 @@ struct RBasicMaterialConstant
 
 	BOOL bUseHeightMap;
 	FLOAT heightScale;
-	Vector2 mcDummy;
+	DirectX::SimpleMath::Vector2 mcDummy;
 
 	BOOL bUseAlbedoTexture;
 	BOOL bUseAOTexture;
@@ -125,7 +125,7 @@ constexpr RBasicMaterialConstant DEFAULT_MATERIAL =
 	1.f,
 
 	TRUE,
-	Vector3(1.f, 1.f, 1.f),
+	DirectX::SimpleMath::Vector3(1.f, 1.f, 1.f),
 
 	0.5f,
 	0.5f,
@@ -134,7 +134,7 @@ constexpr RBasicMaterialConstant DEFAULT_MATERIAL =
 
 	FALSE,
 	0.2f,
-	Vector2(0.f, 0.f),
+	DirectX::SimpleMath::Vector2(0.f, 0.f),
 
 	FALSE,
 	FALSE,

@@ -36,8 +36,8 @@ public:
 
 
 protected:
-	ComPtr<ID3D11ShaderResourceView> m_SRV;
-	ComPtr<ID3D11UnorderedAccessView> m_UAV;
-	ComPtr<ID3D11DepthStencilView> m_DSV;
-	ComPtr<ID3D11RenderTargetView> m_RTV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UAV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DSV;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
 };

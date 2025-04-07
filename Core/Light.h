@@ -26,7 +26,7 @@ public:
 private:
 	ELightType m_type;
 	FLOAT m_radiance;
-	Vector3 m_color;
+	DirectX::SimpleMath::Vector3 m_color;
 
 	float m_fallOffStart;
 	float m_fallOffEnd;

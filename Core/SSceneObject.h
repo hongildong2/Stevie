@@ -15,41 +15,41 @@ public:
 	virtual void Render();
 	virtual void Update();
 
-	void UpdatePos(Vector3& deltaPos);
-	void UpdateYawPitchRoll(Vector3& deltaRadian);
+	void UpdatePos(DirectX::SimpleMath::Vector3& deltaPos);
+	void UpdateYawPitchRoll(DirectX::SimpleMath::Vector3& deltaRadian);
 
-	inline Vector3 GetDirWorld() const
+	inline DirectX::SimpleMath::Vector3 GetDirWorld() const
 	{
-		Vector3 dirWorld = GetLookAtPosWorld() - m_posWorld;
+		DirectX::SimpleMath::Vector3 dirWorld = GetLookAtPosWorld() - m_posWorld;
 		dirWorld.Normalize();
 		return dirWorld;
 	}
 
-	inline Vector3 GetLookAtPosWorld() const
+	inline DirectX::SimpleMath::Vector3 GetLookAtPosWorld() const
 	{
 		return m_posWorld + m_dirModel;
 	}
 
-	inline Vector3 GetPosWorld() const
+	inline DirectX::SimpleMath::Vector3 GetPosWorld() const
 	{
 		return m_posWorld;
 	}
 
-	inline Matrix GetWorldRowMat() const
+	inline DirectX::SimpleMath::Matrix GetWorldRowMat() const
 	{
-		return Matrix::CreateScale(m_scale) * Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * Matrix::CreateTranslation(m_posWorld);
+		return DirectX::SimpleMath::Matrix::CreateScale(m_scale) * DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(m_yawEuler, m_pitchEuler, m_rollEuler) * DirectX::SimpleMath::Matrix::CreateTranslation(m_posWorld);
 	}
 
-	inline Matrix GetViewRowMat() const
+	inline DirectX::SimpleMath::Matrix GetViewRowMat() const
 	{
-		return Matrix::CreateLookAt(m_posWorld, GetLookAtPosWorld(), { 0.f,1.f,0.f }); // TODO :: Check Up Vector
+		return DirectX::SimpleMath::Matrix::CreateLookAt(m_posWorld, GetLookAtPosWorld(), { 0.f,1.f,0.f }); // TODO :: Check Up Vector
 	}
 
 protected:
 	MeshComponent* m_pMeshComponent;
 
-	Vector3 m_posWorld;
-	Vector3 m_dirModel;
+	DirectX::SimpleMath::Vector3 m_posWorld;
+	DirectX::SimpleMath::Vector3 m_dirModel;
 
 	float m_scale;
 

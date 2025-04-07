@@ -229,11 +229,11 @@ namespace ocean
 		float foamValueBias; // 0.03 0~1
 
 		float roughness;
-		Vector3 albedo;
+		DirectX::SimpleMath::Vector3 albedo;
 
 		float metallic;
 		float IBLStrength;
-		Vector2 dummy;
+		DirectX::SimpleMath::Vector2 dummy;
 	};
 
 	constexpr RenderingParameter RenderingParamsInitialzer =

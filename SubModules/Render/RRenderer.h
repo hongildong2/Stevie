@@ -48,7 +48,7 @@ public:
 	BOOL UpdateWindowSize(DWORD dwBackBufferWidth, DWORD dwBackBufferHeight);
 
 	// Renders
-	void Submit(const MeshComponent* pInMeshComponent, Matrix worldRow);
+	void Submit(const MeshComponent* pInMeshComponent, DirectX::SimpleMath::Matrix worldRow);
 	void Compute(const RComputeShader* pComputeShader, const WCHAR* pTaskName, const RTexture** pResults, const UINT resultsCount, const RTexture** pResources, const UINT resourcesCount, const RSamplerState** pSamplerStates, const UINT samplerStatesCount, const RenderParam* pAlignedComputeParam, const UINT batchX, const UINT batchY, const UINT batchZ);
 
 

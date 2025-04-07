@@ -11,6 +11,9 @@
 #include "Core/Camera.h"
 #include "Core/Light.h"
 
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+
 RRenderer::RRenderer()
 	: m_resourceManager()
 	, m_postProcess()

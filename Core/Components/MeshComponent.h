@@ -13,10 +13,10 @@ public:
 	void Initialize(RRenderer* pRenderer);
 	void SetMaterial(RMaterial* pMaterial);
 	void SetMeshGeometry(RMeshGeometry* pMeshGeometry);
-	void SetTransparency(RBlendState* pBlendState, Vector4& blendFactor);
+	void SetTransparency(RBlendState* pBlendState, DirectX::SimpleMath::Vector4& blendFactor);
 
 	virtual void Update();
-	void Render(Matrix& parentTransform);
+	void Render(DirectX::SimpleMath::Matrix& parentTransform);
 
 	inline const RMeshGeometry* GetMeshGeometry() const
 	{
@@ -34,7 +34,7 @@ public:
 		return m_pBlendState;
 	}
 
-	inline const Vector4& GetBlendFactor() const
+	inline const DirectX::SimpleMath::Vector4& GetBlendFactor() const
 	{
 		MY_ASSERT(IsTransparent() == TRUE && m_pBlendState != nullptr);
 		return m_blendFactor;
@@ -67,7 +67,7 @@ private:
 	BOOL m_bIsOccluder = true;
 	BOOL m_bIsActive = true;
 
-	Vector4 m_blendFactor;
+	DirectX::SimpleMath::Vector4 m_blendFactor;
 	const RBlendState* m_pBlendState;
 };
 

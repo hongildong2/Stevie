@@ -2,7 +2,9 @@
 #include "SSceneObject.h"
 #include "Core/Components/MeshComponent.h"
 
+using namespace DirectX;
 using namespace DirectX::SimpleMath;
+
 
 SSceneObject::SSceneObject()
 	: m_pMeshComponent()

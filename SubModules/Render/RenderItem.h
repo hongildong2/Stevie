@@ -53,7 +53,7 @@ struct RenderItem
 	const class RBlendState* pBlendState;
 	bool bIsOccluder;
 	bool bIsTransparent;
-	Vector4 blendFactor;
+	DirectX::SimpleMath::Vector4 blendFactor;
 
 	RenderParam meshParam;
 	RenderParam materialParam;

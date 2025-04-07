@@ -16,6 +16,9 @@
 
 extern void ExitGame() noexcept;
 
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+
 Game::Game() noexcept(false)
 {
 	m_pRenderer = std::make_unique<RRenderer>();

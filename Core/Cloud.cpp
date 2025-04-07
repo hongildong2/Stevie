@@ -3,6 +3,8 @@
 #include "SubModules/Render/Materials/RCloudMaterial.h"
 #include "Core/Components/MeshComponent.h"
 
+using namespace DirectX::SimpleMath;
+
 Cloud::Cloud(RRenderer* pRenderer)
 {
 	RCloudMaterial* mat = new RCloudMaterial(pRenderer);

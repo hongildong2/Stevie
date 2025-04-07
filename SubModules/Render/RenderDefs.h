@@ -53,13 +53,12 @@ inline const WCHAR* ToString(const EShaderType type)
 	}
 }
 
-
 struct RVertex
 {
-	Vector3 positionModel;
-	Vector2 texcoordinate;
-	Vector3 normalModel;
-	Vector3 tangentModel;
+	DirectX::SimpleMath::Vector3 positionModel;
+	DirectX::SimpleMath::Vector2 texcoordinate;
+	DirectX::SimpleMath::Vector3 normalModel;
+	DirectX::SimpleMath::Vector3 tangentModel;
 };
 
 
@@ -69,21 +68,20 @@ struct MeshData
 	std::vector<UINT> indicies;
 };
 
-
 struct RGlobalConstant
 {
-	Matrix view;
-	Matrix proj;
-	Matrix viewProj;
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix proj;
+	DirectX::SimpleMath::Matrix viewProj;
 
-	Matrix invView;
-	Matrix invProj;
-	Matrix invViewProj;
+	DirectX::SimpleMath::Matrix invView;
+	DirectX::SimpleMath::Matrix invProj;
+	DirectX::SimpleMath::Matrix invViewProj;
 
-	Vector3 eyeWorld;
+	DirectX::SimpleMath::Vector3 eyeWorld;
 	FLOAT globalTime;
 
-	Vector3 eyeDir;
+	DirectX::SimpleMath::Vector3 eyeDir;
 	UINT globalLightsCount;
 
 	FLOAT nearZ;
@@ -96,7 +94,7 @@ static_assert(sizeof(RGlobalConstant) % 16 == 0, "Constant Buffer Alignment");
 
 struct RMeshConstant
 {
-	RMeshConstant(Matrix& worldRowMat, BOOL bUseHeightMap)
+	RMeshConstant(DirectX::SimpleMath::Matrix& worldRowMat, BOOL bUseHeightMap)
 		: bUseHeightMap(bUseHeightMap)
 	{
 		world = worldRowMat.Transpose();
@@ -104,12 +102,12 @@ struct RMeshConstant
 		worldIT = worldInv.Transpose();
 	}
 
-	Matrix world;
-	Matrix worldIT;
-	Matrix worldInv;
+	DirectX::SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix worldIT;
+	DirectX::SimpleMath::Matrix worldInv;
 
 	BOOL bUseHeightMap;
-	Vector3 DUMMY;
+	DirectX::SimpleMath::Vector3 DUMMY;
 };
 static_assert(sizeof(RMeshConstant) % 16 == 0, "Constant Buffer Alignment");
 
@@ -122,7 +120,7 @@ enum class ELightType
 struct RLightConstant
 {
 	RLightConstant() = default;
-	RLightConstant(ELightType lightType, Vector3 dirWorld, Vector3 posWorld, Vector3 color, float radiance, float fallOffStart, float fallOffEnd, float spotPower, float radius)
+	RLightConstant(ELightType lightType, DirectX::SimpleMath::Vector3 dirWorld, DirectX::SimpleMath::Vector3 posWorld, DirectX::SimpleMath::Vector3 color, float radiance, float fallOffStart, float fallOffEnd, float spotPower, float radius)
 		: type(static_cast<UINT>(lightType))
 		, direction(dirWorld)
 		, positionWorld(posWorld)
@@ -146,23 +144,23 @@ struct RLightConstant
 			MY_ASSERT(false);
 		}
 
-		Vector3 vLookAt(posWorld + direction);
+		DirectX::SimpleMath::Vector3 vLookAt(posWorld + direction);
 		vLookAt.Normalize();
 
-		view = Matrix::CreateLookAt(posWorld, vLookAt, Vector3(0.f, 1.f, 0.f));
+		view = DirectX::SimpleMath::Matrix::CreateLookAt(posWorld, vLookAt, DirectX::SimpleMath::Vector3(0.f, 1.f, 0.f));
 
 		proj = proj.Transpose();
 		invProj = proj.Invert();
 		view = view.Transpose();
 	}
 
-	Vector3 direction;
+	DirectX::SimpleMath::Vector3 direction;
 	FLOAT radiance;
 
-	Vector3 color;
+	DirectX::SimpleMath::Vector3 color;
 	FLOAT fallOffStart;
 
-	Vector3 positionWorld;
+	DirectX::SimpleMath::Vector3 positionWorld;
 	FLOAT fallOffEnd;
 
 	FLOAT spotPower;
@@ -170,8 +168,8 @@ struct RLightConstant
 	FLOAT radius;
 	FLOAT dummy;
 
-	Matrix view;
-	Matrix proj;
-	Matrix invProj;
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix proj;
+	DirectX::SimpleMath::Matrix invProj;
 };
 static_assert(sizeof(RLightConstant) % 16 == 0, "CONSTANT BUFFER ALIGNMENT");

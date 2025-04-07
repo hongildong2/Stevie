@@ -5,6 +5,10 @@
 #include "SubModules/Render/RTexture.h"
 #include "D3D11DeviceResources.h"
 
+using namespace DirectX;
+using Microsoft::WRL::ComPtr;
+
+
 RResourceManager::~RResourceManager()
 {
 	Graphics::ClearCommonResources();
