@@ -7,7 +7,7 @@
 
 #ifdef API_D3D11
 #define RHIRenderer D3D11Renderer
-#include "Systems/Render/D3D11/D3D11Renderer.h"
+#include "Modules/Render/D3D11/D3D11Renderer.h"
 #endif
 
 class RResourceManager;

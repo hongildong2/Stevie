@@ -7,7 +7,7 @@
 
 #include "StepTimer.h"
 
-#include "Systems/Render/RenderDefs.h"
+#include "Modules/Render/RenderDefs.h"
 #include "Camera.h"
 #include "Skybox.h"
 #include "Light.h"

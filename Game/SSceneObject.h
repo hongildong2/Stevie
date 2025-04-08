@@ -52,7 +52,6 @@ protected:
 	DirectX::SimpleMath::Vector3 m_dirModel;
 
 	float m_scale;
-
 	float m_yawEuler;
 	float m_pitchEuler;
 	float m_rollEuler;
