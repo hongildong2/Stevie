@@ -300,6 +300,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Game\StepTimer.h" />
     <ClInclude Include="Game\Camera.h" />
+    <ClInclude Include="Library\Allocators\PoolAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Cloud.cpp" />
@@ -344,6 +345,7 @@
     </ClCompile>
     <ClCompile Include="Game\Camera.cpp" />
     <ClCompile Include="Modules\Render\RRenderer.cpp" />
+    <ClCompile Include="Library\Allocators\PoolAllocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
