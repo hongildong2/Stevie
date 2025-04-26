@@ -269,6 +269,7 @@
     <ClInclude Include="Game\SObject.h" />
     <ClInclude Include="Game\Skybox.h" />
     <ClInclude Include="Game\Ocean.h" />
+    <ClInclude Include="Library\Allocators\LinearAllocator.h" />
     <ClInclude Include="Modules\Render\RBuffer.h" />
     <ClInclude Include="Modules\Render\Materials\RCloudMaterial.h" />
     <ClInclude Include="Modules\Render\Materials\ROceanMaterial.h" />
@@ -308,6 +309,7 @@
     <ClCompile Include="Game\SObject.cpp" />
     <ClCompile Include="Game\Skybox.cpp" />
     <ClCompile Include="Game\Ocean.cpp" />
+    <ClCompile Include="Library\Allocators\LinearAllocator.cpp" />
     <ClCompile Include="Modules\Render\RBuffer.cpp" />
     <ClCompile Include="Modules\Render\Materials\RCloudMaterial.cpp" />
     <ClCompile Include="Modules\Render\Materials\ROceanMaterial.cpp" />

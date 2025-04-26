@@ -53,6 +53,7 @@
     <ClInclude Include="Game\Cloud.h" />
     <ClInclude Include="Modules\Render\RRenderer.h" />
     <ClInclude Include="Modules\Render\RBuffer.h" />
+    <ClInclude Include="Library\Allocators\LinearAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -89,6 +90,7 @@
     <ClCompile Include="Game\Cloud.cpp" />
     <ClCompile Include="Modules\Render\RRenderer.cpp" />
     <ClCompile Include="Modules\Render\RBuffer.cpp" />
+    <ClCompile Include="Library\Allocators\LinearAllocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

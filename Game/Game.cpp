@@ -13,6 +13,7 @@
 #include "Game/Light.h"
 #include "Game/Ocean.h"
 #include "Game/Cloud.h"
+#include "Library/Allocators/LinearAllocator.h"
 
 extern void ExitGame() noexcept;
 
