@@ -13,7 +13,7 @@ PoolAllocator::PoolAllocator(const size_t blockSize, const size_t blockCount)
 {
 	const size_t reqBlockSize = std::max(blockSize, sizeof(Node));
 	const size_t reqBlockCount = std::max(blockCount, static_cast<const size_t>(1));
-	m_buffer = malloc(reqBlockSize * blockCount);
+	m_buffer = malloc(reqBlockSize * reqBlockCount);
 	MY_ASSERT(m_buffer != nullptr);
 
 	// If assigned to one, all of them will be affected.
