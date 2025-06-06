@@ -11,7 +11,8 @@ PoolAllocator::PoolAllocator(const size_t blockSize, const size_t blockCount)
 	: m_buffer(nullptr)
 	, m_head(nullptr)
 {
-	m_buffer = malloc(blockSize * blockCount);
+	const size_t reqBlockSize = std::max(blockSize, sizeof(Node));
+	m_buffer = malloc(reqBlockSize * blockCount);
 	MY_ASSERT(m_buffer != nullptr);
 
 	// If assigned to one, all of them will be affected.
@@ -25,17 +26,23 @@ PoolAllocator::PoolAllocator(const size_t blockSize, const size_t blockCount)
 	// start from buffer's beginning
 	as_void = m_buffer;
 	Node* currentNode = as_self;
+	m_head = currentNode;
 
 	for (unsigned int i = 0; i < blockCount; ++i)
 	{
 		// to next node(block)
 		as_char += blockSize;
 
-		currentNode->next = as_self;
-		currentNode = as_self; // assign next block to current node.
+		if (i == blockCount - 1)
+		{
+			currentNode->next = nullptr;
+		}
+		else
+		{
+			currentNode->next = as_self;
+			currentNode = as_self; // assign next block to current node.
+		}
 	}
-
-	currentNode->next = nullptr;
 }
 
 PoolAllocator::~PoolAllocator()
