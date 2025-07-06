@@ -16,7 +16,7 @@ PoolAllocator::PoolAllocator(const size_t blockSize, const size_t blockCount)
 	m_buffer = malloc(reqBlockSize * reqBlockCount);
 	MY_ASSERT(m_buffer != nullptr);
 
-	// If assigned to one, all of them will be affected.
+	// If assigned to one of them, all of them will be affected.
 	union
 	{
 		void* as_void;
