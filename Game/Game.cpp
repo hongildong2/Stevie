@@ -13,6 +13,8 @@
 #include "Game/Light.h"
 #include "Game/Ocean.h"
 #include "Game/Cloud.h"
+#include "Library/Allocators/LinearAllocator.h"
+#include "Library/Allocators/PoolAllocator.h"
 
 extern void ExitGame() noexcept;
 
@@ -31,8 +33,10 @@ void Game::Initialize(HWND window, int width, int height)
 	float aspectRatio = (float)width / (float)height;
 
 	m_pRenderer->SetWindow(window, width, height);
-	m_pRenderer->Initialize(TRUE, TRUE, L"./Systems/Render/D3D11/Shaders/");
+	m_pRenderer->Initialize(TRUE, TRUE, L"./Modules/Render/D3D11/Shaders/");
 
+
+	PoolAllocator pa = PoolAllocator(128, 64);
 
 	// Light
 	{

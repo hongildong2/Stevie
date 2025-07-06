@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "Systems/Render/RResourceManager.h"
-#include "Systems/Render/RBuffer.h"
-#include "Systems/Render/RMeshGeometry.h"
-#include "Systems/Render/RTexture.h"
+#include "Modules/Render/RResourceManager.h"
+#include "Modules/Render/RBuffer.h"
+#include "Modules/Render/RMeshGeometry.h"
+#include "Modules/Render/RTexture.h"
 #include "D3D11DeviceResources.h"
 
 using namespace DirectX;

@@ -1,0 +1,76 @@
+#include "pch.h"
+#include "PoolAllocator.h"
+
+
+struct Node
+{
+	Node* next;
+};
+
+PoolAllocator::PoolAllocator(const size_t blockSize, const size_t blockCount)
+	: m_buffer(nullptr)
+	, m_head(nullptr)
+{
+	const size_t reqBlockSize = std::max(blockSize, sizeof(Node));
+	const size_t reqBlockCount = std::max(blockCount, static_cast<const size_t>(1));
+	m_buffer = malloc(reqBlockSize * reqBlockCount);
+	MY_ASSERT(m_buffer != nullptr);
+
+	// If assigned to one of them, all of them will be affected.
+	union
+	{
+		void* as_void;
+		char* as_char;
+		Node* as_self;
+	};
+
+	// start from buffer's beginning
+	as_void = m_buffer;
+	Node* currentNode = as_self;
+	m_head = currentNode;
+
+	for (unsigned int i = 0; i < blockCount; ++i)
+	{
+		// to next node(block)
+		as_char += blockSize;
+
+		if (i == blockCount - 1)
+		{
+			currentNode->next = nullptr;
+		}
+		else
+		{
+			currentNode->next = as_self;
+			currentNode = as_self; // assign next block to current node.
+		}
+	}
+}
+
+PoolAllocator::~PoolAllocator()
+{
+	free(m_buffer);
+	m_buffer = nullptr;
+	m_head = nullptr;
+}
+
+void* PoolAllocator::Allocate()
+{
+	// out of memory
+	if (m_head == nullptr)
+	{
+		MY_ASSERT(false);
+		return nullptr;
+	}
+	Node* userPtr = m_head;
+	m_head = m_head->next;
+	return userPtr;
+}
+
+void PoolAllocator::Free(void* const ptr)
+{
+	Node* returnedPtr = static_cast<Node*>(ptr);
+	// TODO :: Range/Alignment Check?
+	returnedPtr->next = m_head;
+
+	m_head = returnedPtr;
+}
