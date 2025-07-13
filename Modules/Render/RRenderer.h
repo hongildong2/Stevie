@@ -101,6 +101,7 @@ protected:
 	void SetPipelineState(const RenderItem& item);
 
 	void RenderSkybox();
+	void RenderShadow();
 	void RenderOpaques();
 	void RenderTransparent();
 

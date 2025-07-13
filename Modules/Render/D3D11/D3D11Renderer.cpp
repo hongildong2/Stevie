@@ -400,6 +400,48 @@ void RRenderer::RenderSkybox()
 	}
 }
 
+void RRenderer::RenderShadow()
+{
+	m_deviceResources->PIXBeginEvent(L"Render Transparent");
+
+	// Set PSO, RTV
+
+	// Iterating Lights
+	{
+		// Set Viewport to Light's
+		Matrix model = m_sunLight->GetWorldRowMat();
+		Matrix view = m_sunLight->GetViewRowMat();
+		Matrix proj = renderConfig::GetDirectionalLightProjRowMat();
+
+
+		// Render Opaques
+		for (UINT i = 0; i < m_renderItemIndex; ++i)
+		{
+			RenderItem& opaqueItem = m_renderItems[i];
+			if (opaqueItem.bIsTransparent == true)
+			{
+				continue;
+			}
+
+			switch (opaqueItem.pMeshGeometry->GetMeshType())
+			{
+			case EMeshType::BASIC:
+				Draw(opaqueItem);
+				break;
+			case EMeshType::TESSELLATED_QUAD:
+				DrawTessellatedQuad(opaqueItem);
+				break;
+			default:
+				MY_ASSERT(FALSE);
+				break;
+			}
+		}
+	}
+
+
+	m_deviceResources->PIXEndEvent();
+}
+
 void RRenderer::RenderOpaques()
 {
 	m_deviceResources->PIXBeginEvent(L"Render Opaques");
